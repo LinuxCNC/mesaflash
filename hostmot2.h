@@ -49,8 +49,8 @@
 
 typedef struct {
     u32 idrom_type;
-    u32 module_desc_addr;
-    u32 pin_desc_addr;
+    u32 modules_desc_offs;
+    u32 pins_desc_offs;
     char board_name[8];
     u32 fpga_size;
     u32 fpga_pins;
@@ -93,6 +93,14 @@ typedef struct {
 
 typedef struct llio_struct llio_t;
 
+typedef struct {
+    llio_t *board;
+    char config_name[8];
+    hm2_idrom_desc_t idrom;
+    hm2_module_desc_t modules[HM2_MAX_MODULES];
+    hm2_pin_desc_t pins[HM2_MAX_PINS];
+} hostmot2_t;
+
 struct llio_struct {
     int (*read)(llio_t *self, u32 addr, void *buffer, int size);
     int (*write)(llio_t *self, u32 addr, void *buffer, int size);
@@ -103,17 +111,8 @@ struct llio_struct {
     const char *fpga_part_number;
     char board_name[16];
     void *private;
+    hostmot2_t hm2;
 };
-
-typedef struct {
-    llio_t *board;
-    char config_name[8];
-    hm2_idrom_desc_t idrom;
-    hm2_module_desc_t modules[HM2_MAX_MODULES];
-    hm2_pin_desc_t pins[HM2_MAX_PINS];
-} hostmot2_t;
-
-char *hm2_get_tag_name(u8 gtag);
 
 #endif
 

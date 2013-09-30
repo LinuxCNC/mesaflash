@@ -22,6 +22,14 @@ int sd;
 socklen_t len;
 struct sockaddr_in server_addr, client_addr;
 
+int eth_read(llio_t *this, u32 addr, void *buffer, int size) {
+    return lbp16_hm2_read(addr, buffer, size);
+}
+
+int eth_write(llio_t *this, u32 addr, void *buffer, int size) {
+    return lbp16_hm2_write(addr, buffer, size);
+}
+
 void eth_init(eth_access_t *access) {
 }
 
@@ -87,6 +95,8 @@ void eth_scan(eth_access_t *access) {
                 board->llio.ioport_connector_name[3] = "J5";
                 board->llio.fpga_part_number = "6slx16ftg256";
                 board->llio.num_leds = 4;
+                board->llio.read = &eth_read;
+                board->llio.write = &eth_write;
             } else if (strncmp(buff, "7I80DB-25", 9) == 0) {
                 strncpy(board->ip_addr, inet_ntoa(client_addr.sin_addr), 16);
                 strncpy(board->llio.board_name, buff, 16);
@@ -98,6 +108,8 @@ void eth_scan(eth_access_t *access) {
                 board->llio.ioport_connector_name[3] = "J5";
                 board->llio.fpga_part_number = "6slx25ftg256";
                 board->llio.num_leds = 4;
+                board->llio.read = &eth_read;
+                board->llio.write = &eth_write;
             } else if (strncmp(buff, "7I80HD-16", 9) == 0) {
                 strncpy(board->ip_addr, inet_ntoa(client_addr.sin_addr), 16);
                 strncpy(board->llio.board_name, buff, 16);
@@ -108,6 +120,8 @@ void eth_scan(eth_access_t *access) {
                 board->llio.ioport_connector_name[2] = "P3";
                 board->llio.fpga_part_number = "6slx16ftg256";
                 board->llio.num_leds = 4;
+                board->llio.read = &eth_read;
+                board->llio.write = &eth_write;
             } else if (strncmp(buff, "7I80HD-25", 9) == 0) {
                 strncpy(board->ip_addr, inet_ntoa(client_addr.sin_addr), 16);
                 strncpy(board->llio.board_name, buff, 16);
@@ -118,6 +132,8 @@ void eth_scan(eth_access_t *access) {
                 board->llio.ioport_connector_name[2] = "P3";
                 board->llio.fpga_part_number = "6slx25ftg256";
                 board->llio.num_leds = 4;
+                board->llio.read = &eth_read;
+                board->llio.write = &eth_write;
             } else {
                 printf("Unsupported ethernet device %s at %s\n", buff, inet_ntoa(client_addr.sin_addr));
                 goto error;
@@ -125,6 +141,8 @@ void eth_scan(eth_access_t *access) {
             printf("board name: %s at ip=%s\n", buff, inet_ntoa(client_addr.sin_addr));
             board->llio.private = board;
             boards_count++;
+            
+            eth_read_idrom(board);
 
 // set socket non-blocking
             val = fcntl(sd, F_GETFL);
@@ -137,10 +155,11 @@ error:
     close(sd);
 }
 
-int eth_read(llio_t *this, u32 addr, void *buffer, int size) {
-    return lbp16_hm2_read(addr, buffer, size);
-}
-
-int eth_write(llio_t *this, u32 addr, void *buffer, int size) {
-    return lbp16_hm2_write(addr, buffer, size);
+void eth_read_idrom(eth_board_t *board) {
+    u32 idrom_addr;
+    
+    board->llio.read(&(board->llio), HM2_IDROM_ADDR, &(idrom_addr), sizeof(u32));
+    board->llio.read(&(board->llio), idrom_addr, &(board->llio.hm2.idrom), sizeof(board->llio.hm2.idrom));
+    board->llio.read(&(board->llio), idrom_addr + board->llio.hm2.idrom.modules_desc_offs, &(board->llio.hm2.modules), sizeof(board->llio.hm2.modules));
+    board->llio.read(&(board->llio), idrom_addr + board->llio.hm2.idrom.pins_desc_offs, &(board->llio.hm2.pins), sizeof(board->llio.hm2.pins));
 }

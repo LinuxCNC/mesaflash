@@ -33,7 +33,7 @@ int lbp16_read(u16 cmd, u32 addr, void *buffer, int size) {
 }
 
 int lbp16_hm2_read(u32 addr, void *buffer, int size) {
-    return lbp16_read(CMD_READ_HOSTMOT2_ADDR32_INCR(size), addr, buffer, size);
+    return lbp16_read(CMD_READ_HOSTMOT2_ADDR32_INCR(size/4), addr, buffer, size);
 }
 
 int lbp16_hm2_write(u32 addr, void *buffer, int size) {
