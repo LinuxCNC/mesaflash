@@ -42,6 +42,10 @@
 #define HM2_GTAG_DAQ_FIFO          0x15
 #define HM2_GTAG_BIN_OSC           0x16
 #define HM2_GTAG_BIN_DMDMA         0x17
+#define HM2_GTAG_BISS              0x18
+#define HM2_GTAG_FABS              0x19
+#define HM2_GTAG_HM2DPLL           0x1A
+#define HM2_GTAG_LIOPORT           0x40
 #define HM2_GTAG_LED               0x80
 #define HM2_GTAG_RESOLVER          0xC0
 #define HM2_GTAG_SSERIAL           0xC1
@@ -49,8 +53,8 @@
 
 typedef struct {
     u32 idrom_type;
-    u32 modules_desc_offs;
-    u32 pins_desc_offs;
+    u32 offset_to_modules;
+    u32 offset_to_pins;
     char board_name[8];
     u32 fpga_size;
     u32 fpga_pins;
@@ -59,10 +63,10 @@ typedef struct {
     u32 port_width;
     u32 clock_low;
     u32 clock_high;
-    u32 inst_stride0;
-    u32 inst_stride1;
-    u32 reg_stride0;
-    u32 reg_stride1;
+    u32 instance_stride0;
+    u32 instance_stride1;
+    u32 register_stride0;
+    u32 register_stride1;
 } hm2_idrom_desc_t;
 
 #define HM2_CLOCK_LOW_TAG  0x01
@@ -83,10 +87,10 @@ typedef struct {
 #define HM2_PIN_OUTPUT  0x80
 
 typedef struct {
-    u8 pin;
+    u8 sec_pin;
+    u8 sec_tag;
+    u8 sec_chan;
     u8 gtag;
-    u8 chan;
-    u8 ptag;
 } hm2_pin_desc_t;
 
 #define ANYIO_MAX_IOPORT_CONNECTORS 8
@@ -113,6 +117,10 @@ struct llio_struct {
     void *private;
     hostmot2_t hm2;
 };
+
+void hm2_print_idrom(hostmot2_t *hm2);
+void hm2_print_modules(hostmot2_t *hm2);
+void hm2_print_pins(hostmot2_t *hm2);
 
 #endif
 

@@ -22,7 +22,7 @@ int lbp16_read(u16 cmd, u32 addr, void *buffer, int size) {
 
     LBP16_INIT_PACKET4(packet, cmd, addr);
     if (LBP16_SENDRECV_DEBUG)
-        printf("SEND: %02X %02X %02X %02X\n", packet.cmd_hi, packet.cmd_lo, packet.addr_hi, packet.addr_lo);
+        printf("SEND: %02X %02X %02X %02X | REQUEST %d bytes\n", packet.cmd_hi, packet.cmd_lo, packet.addr_hi, packet.addr_lo, size);
     send = sendto(sd, (char*) &packet, sizeof(packet), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
     recv = recvfrom(sd, (char*) &local_buff, sizeof(local_buff), 0, (struct sockaddr *) &client_addr, &len);
     if (LBP16_SENDRECV_DEBUG)
@@ -33,6 +33,11 @@ int lbp16_read(u16 cmd, u32 addr, void *buffer, int size) {
 }
 
 int lbp16_hm2_read(u32 addr, void *buffer, int size) {
+    if ((size/4) > LBP16_MAX_PACKET_DATA_SIZE) {
+        printf("ERROR: LBP16: Requested %d units to read, but protocol supports up to %d units to be read per packet\n", size/4, LBP16_MAX_PACKET_DATA_SIZE);
+        return -1;
+    }
+
     return lbp16_read(CMD_READ_HOSTMOT2_ADDR32_INCR(size/4), addr, buffer, size);
 }
 

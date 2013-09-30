@@ -160,6 +160,11 @@ void eth_read_idrom(eth_board_t *board) {
     
     board->llio.read(&(board->llio), HM2_IDROM_ADDR, &(idrom_addr), sizeof(u32));
     board->llio.read(&(board->llio), idrom_addr, &(board->llio.hm2.idrom), sizeof(board->llio.hm2.idrom));
-    board->llio.read(&(board->llio), idrom_addr + board->llio.hm2.idrom.modules_desc_offs, &(board->llio.hm2.modules), sizeof(board->llio.hm2.modules));
-    board->llio.read(&(board->llio), idrom_addr + board->llio.hm2.idrom.pins_desc_offs, &(board->llio.hm2.pins), sizeof(board->llio.hm2.pins));
+    board->llio.read(&(board->llio), idrom_addr + board->llio.hm2.idrom.offset_to_modules, &(board->llio.hm2.modules), sizeof(board->llio.hm2.modules));
+    board->llio.read(&(board->llio), idrom_addr + board->llio.hm2.idrom.offset_to_pins, &(board->llio.hm2.pins), sizeof(board->llio.hm2.pins)/2);
+    board->llio.read(&(board->llio), idrom_addr + board->llio.hm2.idrom.offset_to_pins + sizeof(hm2_pin_desc_t)*HM2_MAX_PINS/2, &(board->llio.hm2.pins[HM2_MAX_PINS/2]), sizeof(board->llio.hm2.pins)/2);
+    
+    hm2_print_idrom(&(board->llio.hm2));
+    hm2_print_modules(&(board->llio.hm2));
+    hm2_print_pins(&(board->llio.hm2));
 }
