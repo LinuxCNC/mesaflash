@@ -138,9 +138,9 @@ error:
 }
 
 int eth_read(llio_t *this, u32 addr, void *buffer, int size) {
-    return 0;
+    return lbp16_hm2_read(addr, buffer, size);
 }
 
 int eth_write(llio_t *this, u32 addr, void *buffer, int size) {
-    return 0;
+    return lbp16_hm2_write(addr, buffer, size);
 }

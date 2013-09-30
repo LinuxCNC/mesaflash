@@ -210,15 +210,8 @@ typedef struct {
     u16 jumpers;
 } lbp_info_area;
 
-u32 lbp16_send_read_u16(u16 cmd, u16 addr);
-void lbp16_send_write_u16(u16 cmd, u16 addr, u16 val);
-u32 lbp16_send_read_u32(u16 cmd, u16 addr);
-void lbp16_send_write_u32(u16 cmd, u16 addr, u32 val);
-void lbp16_send_sector_erase(u32 addr);
-void lbp16_send_flash_address(u32 addr);
-void lbp16_send_flash_page_read(void *buff);
-void lbp16_send_flash_page_write(void *buff);
-void lbp16_send_write_ip_address(char *ip_addr);
-int read_hm2(u16 addr, u32* ret_val);
+int lbp16_read(u16 cmd, u32 addr, void *buffer, int size);
+int lbp16_hm2_read(u32 addr, void *buffer, int size);
+int lbp16_hm2_write(u32 addr, void *buffer, int size);
 
 #endif
