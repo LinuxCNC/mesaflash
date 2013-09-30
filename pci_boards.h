@@ -17,6 +17,7 @@ typedef struct {
 
 void pci_boards_init();
 void pci_boards_scan();
+void pci_print_info(pci_board_t *board);
 
 #endif
 

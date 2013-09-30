@@ -42,17 +42,6 @@ int lbp16_hm2_write(u32 addr, void *buffer, int size) {
     return 0;
 }
 
-char *lbp16_print_eeprom_idrom_type(u8 idrom) {
-    switch (idrom) {
-        case ID_EEPROM_1M:  return "(size 1Mb)";
-        case ID_EEPROM_2M:  return "(size 2Mb)";
-        case ID_EEPROM_4M:  return "(size 4Mb)";
-        case ID_EEPROM_8M:  return "(size 8Mb)";
-        case ID_EEPROM_16M: return "(size 16Mb)";
-        default:            return "(unknown size)";
-    }
-}
-
 void lbp16_print_info() {
     lbp16_cmd_addr packet;
     int i, j;
@@ -139,7 +128,7 @@ void lbp16_print_info() {
 
     printf("  [space 3] FPGA flash eeprom:\n");
     lbp16_read(CMD_READ_FLASH_IDROM, FLASH_ID_REG, &idrom, 4);
-    printf("    flash id: 0x%02X %s\n", idrom, lbp16_print_eeprom_idrom_type(idrom));
+    printf("    flash id: 0x%02X %s\n", idrom, eeprom_get_idrom_type(idrom));
 
     if (info_area.LBP_version >= 3) {
         printf("  [space 4] timers:\n");

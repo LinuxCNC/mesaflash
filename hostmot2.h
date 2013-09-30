@@ -118,6 +118,7 @@ struct llio_struct {
     hostmot2_t hm2;
 };
 
+void hm2_read_idrom(llio_t *llio);
 void hm2_print_idrom(hostmot2_t *hm2);
 void hm2_print_modules(hostmot2_t *hm2);
 void hm2_print_pins(hostmot2_t *hm2);

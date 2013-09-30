@@ -18,6 +18,5 @@ typedef struct {
 
 void eth_init(eth_access_t *access);
 void eth_scan(eth_access_t *access);
-void eth_read_idrom(eth_board_t *board);
 
 #endif

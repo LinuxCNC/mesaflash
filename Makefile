@@ -13,7 +13,7 @@ OPT = -O0
 DEBUG = -g -Wall
 CFLAGS = $(INCLUDE) $(OPT) $(DEBUG) $(MATHLIB)
 
-objects = main.o eth.o lbp16.o hostmot2.o pci_boards.o
+objects = main.o eth.o lbp16.o hostmot2.o pci_boards.o eeprom.o
 
 all : $(objects)
 	$(CC) -o $(BIN) $(objects) $(MATHLIB) $(LIBS)
@@ -32,6 +32,9 @@ lbp16.o : lbp16.c lbp16.h
 
 hostmot2.o : hostmot2.c hostmot2.h
 	$(CC) $(CFLAGS) -c hostmot2.c
+
+eeprom.o : eeprom.c eeprom.h
+	$(CC) $(CFLAGS) -c eeprom.c
 
 clean :
 	$(RM) $(BIN) *.o

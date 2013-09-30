@@ -3,6 +3,21 @@
 
 #include "hostmot2.h"
 
+void hm2_read_idrom(llio_t *llio) {
+    u32 idrom_addr;
+
+    llio->read(llio, HM2_IDROM_ADDR, &(idrom_addr), sizeof(u32));
+    llio->read(llio, idrom_addr, &(llio->hm2.idrom), sizeof(llio->hm2.idrom));
+    llio->read(llio, idrom_addr + llio->hm2.idrom.offset_to_modules, &(llio->hm2.modules), sizeof(llio->hm2.modules));
+    llio->read(llio, idrom_addr + llio->hm2.idrom.offset_to_pins, &(llio->hm2.pins), sizeof(llio->hm2.pins)/2);
+    llio->read(llio, idrom_addr + llio->hm2.idrom.offset_to_pins + sizeof(hm2_pin_desc_t)*HM2_MAX_PINS/2, 
+      &(llio->hm2.pins[HM2_MAX_PINS/2]), sizeof(llio->hm2.pins)/2);
+
+    hm2_print_idrom(&(llio->hm2));
+    hm2_print_modules(&(llio->hm2));
+    hm2_print_pins(&(llio->hm2));
+}
+
 const char *hm2_hz_to_mhz(u32 freq_hz) {
     static char mhz_str[20];
     int r;

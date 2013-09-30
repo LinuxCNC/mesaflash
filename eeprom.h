@@ -7,4 +7,6 @@
 #define ID_EEPROM_8M 0x13
 #define ID_EEPROM_16M 0x14
 
+char *eeprom_get_idrom_type(u8 idrom);
+
 #endif
