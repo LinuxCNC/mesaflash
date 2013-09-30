@@ -167,4 +167,6 @@ void eth_read_idrom(eth_board_t *board) {
     hm2_print_idrom(&(board->llio.hm2));
     hm2_print_modules(&(board->llio.hm2));
     hm2_print_pins(&(board->llio.hm2));
+    
+    lbp16_print_info();
 }

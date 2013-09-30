@@ -7,6 +7,7 @@
 #define LBP16_SENDRECV_DEBUG 0
 
 #define LBP16_UDP_PORT 27181
+#define LBP16_HW_IP "192.168.1.121"
 
 #define LBP16_MEM_SPACE_COUNT 8
 
@@ -34,6 +35,7 @@
 #define LBP_SPACE_ETH_CHIP    0x0400
 #define LBP_SPACE_ETH_EEPROM  0x0800
 #define LBP_SPACE_FPGA_FLASH  0x0C00
+#define LBP_SPACE_TIMER       0x1000
 #define LBP_SPACE_COMM_CTRL   0x1800
 #define LBP_SPACE_BOARD_INFO  0x1C00
 #define LBP_SPACE_ACC         0x0000
@@ -60,6 +62,8 @@
 #define CMD_READ_ETH_EEPROM_ADDR16(size)      (CMD_READ_ADDR_16 | LBP_SPACE_ETH_EEPROM | ((size) & LBP16_MAX_PACKET_DATA_SIZE))
 #define CMD_READ_ETH_EEPROM_ADDR16_INCR(size) (CMD_READ_ADDR_16 | LBP_SPACE_ETH_EEPROM | LBP_ADDR_AUTO_INC | ((size) & LBP16_MAX_PACKET_DATA_SIZE))
 #define CMD_READ_FPGA_FLASH_ADDR32(size)      (CMD_READ_ADDR_32 | LBP_SPACE_FPGA_FLASH | ((size) & LBP16_MAX_PACKET_DATA_SIZE))
+#define CMD_READ_TIMER_ADDR16(size)           (CMD_READ_ADDR_16 | LBP_SPACE_TIMER | ((size) & LBP16_MAX_PACKET_DATA_SIZE))
+#define CMD_READ_TIMER_ADDR16_INCR(size)      (CMD_READ_ADDR_16 | LBP_SPACE_TIMER | LBP_ADDR_AUTO_INC | ((size) & LBP16_MAX_PACKET_DATA_SIZE))
 #define CMD_READ_COMM_CTRL_ADDR16(size)       (CMD_READ_ADDR_16 | LBP_SPACE_COMM_CTRL | ((size) & LBP16_MAX_PACKET_DATA_SIZE))
 #define CMD_READ_COMM_CTRL_ADDR16_INCR(size)  (CMD_READ_ADDR_16 | LBP_SPACE_COMM_CTRL | LBP_ADDR_AUTO_INC | ((size) & LBP16_MAX_PACKET_DATA_SIZE))
 #define CMD_READ_BOARD_INFO_ADDR16(size)      (CMD_READ_ADDR_16 | LBP_SPACE_BOARD_INFO | ((size) & LBP16_MAX_PACKET_DATA_SIZE))
@@ -189,6 +193,17 @@ typedef struct {
 } lbp_eth_eeprom_area;
 
 typedef struct {
+    u16 uSTimeStampReg;
+    u16 WaituSReg;
+    u16 HM2Timeout;
+    u16 WaitForHM2RefTime;
+    u16 WaitForHM2Timer1;
+    u16 WaitForHM2Timer2;
+    u16 WaitForHM2Timer3;
+    u16 WaitForHM2Timer4;
+} lbp_timers_area;
+
+typedef struct {
     u16 ErrorReg;
     u16 LBPParseErrors;
     u16 LBPMemErrors;
@@ -200,8 +215,8 @@ typedef struct {
     u16 TXUDPCount;
     u16 TXBadCount;
     u16 led_mode;
-    u16 reserved1;
-    u16 UDPPktTimeStamp;
+    u16 DebugLEDPtr;
+    u16 Scratch;
 } lbp_status_area;
 
 typedef struct {
@@ -214,5 +229,6 @@ typedef struct {
 int lbp16_read(u16 cmd, u32 addr, void *buffer, int size);
 int lbp16_hm2_read(u32 addr, void *buffer, int size);
 int lbp16_hm2_write(u32 addr, void *buffer, int size);
+void lbp16_print_info();
 
 #endif
