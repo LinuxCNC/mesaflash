@@ -13,5 +13,3 @@ char *eeprom_get_idrom_type(u8 idrom) {
         default:            return "(unknown size)";
     }
 }
-
-

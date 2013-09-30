@@ -5,7 +5,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-#include "eth.h"
+#include "eth_boards.h"
 #include "pci_boards.h"
 
 static int list_flag;

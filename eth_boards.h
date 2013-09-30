@@ -1,6 +1,6 @@
 
-#ifndef __ETH_H
-#define __ETH_H
+#ifndef __ETH_BOARDS_H
+#define __ETH_BOARDS_H
 
 #include "hostmot2.h"
 

@@ -12,7 +12,7 @@
 #include <math.h>
 #include <stdio.h>
 
-#include "eth.h"
+#include "eth_boards.h"
 #include "lbp16.h"
 
 eth_board_t eth_boards[MAX_ETH_BOARDS];
