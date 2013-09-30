@@ -1,5 +1,5 @@
 
-#include <pci/types.h>
+#include <pci/pci.h>
 #include <arpa/inet.h>
 #include <stdio.h>
 #include <string.h>

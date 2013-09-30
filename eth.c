@@ -1,5 +1,5 @@
 
-#include <pci/types.h>
+#include <pci/pci.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -138,7 +138,7 @@ void eth_scan(eth_access_t *access) {
                 printf("Unsupported ethernet device %s at %s\n", buff, inet_ntoa(client_addr.sin_addr));
                 goto error;
             }
-            printf("board name: %s at ip=%s\n", buff, inet_ntoa(client_addr.sin_addr));
+            printf("ETH device: %s at ip=%s\n", buff, inet_ntoa(client_addr.sin_addr));
             board->llio.private = board;
             boards_count++;
             
@@ -164,9 +164,9 @@ void eth_read_idrom(eth_board_t *board) {
     board->llio.read(&(board->llio), idrom_addr + board->llio.hm2.idrom.offset_to_pins, &(board->llio.hm2.pins), sizeof(board->llio.hm2.pins)/2);
     board->llio.read(&(board->llio), idrom_addr + board->llio.hm2.idrom.offset_to_pins + sizeof(hm2_pin_desc_t)*HM2_MAX_PINS/2, &(board->llio.hm2.pins[HM2_MAX_PINS/2]), sizeof(board->llio.hm2.pins)/2);
     
-    hm2_print_idrom(&(board->llio.hm2));
-    hm2_print_modules(&(board->llio.hm2));
-    hm2_print_pins(&(board->llio.hm2));
+//    hm2_print_idrom(&(board->llio.hm2));
+//    hm2_print_modules(&(board->llio.hm2));
+//    hm2_print_pins(&(board->llio.hm2));
     
-    lbp16_print_info();
+//    lbp16_print_info();
 }

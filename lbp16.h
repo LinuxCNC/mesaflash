@@ -2,7 +2,7 @@
 #ifndef __LBP16_H
 #define __LBP16_H
 
-#include <pci/types.h>
+#include <pci/pci.h>
 
 #define LBP16_SENDRECV_DEBUG 0
 

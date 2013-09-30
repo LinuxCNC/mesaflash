@@ -2,7 +2,7 @@
 #ifndef __HOSTMOT2_H
 #define __HOSTMOT2_H
 
-#include <pci/types.h>
+#include <pci/pci.h>
 
 #define HM2_AREA_SIZE    0x10000
 
