@@ -108,6 +108,7 @@ typedef struct {
 struct llio_struct {
     int (*read)(llio_t *self, u32 addr, void *buffer, int size);
     int (*write)(llio_t *self, u32 addr, void *buffer, int size);
+    int (*program_flash)(llio_t *self, char *bitfile_name, u32 start_address);
     int num_ioport_connectors;
     int pins_per_connector;
     const char *ioport_connector_name[ANYIO_MAX_IOPORT_CONNECTORS];

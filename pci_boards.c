@@ -17,18 +17,22 @@ struct pci_access *pacc;
 pci_board_t pci_boards[MAX_PCI_BOARDS];
 int boards_count;
 
-int pci_read(llio_t *this, u32 addr, void *buffer, int size) {
-    pci_board_t *board = this->private;
+int pci_read(llio_t *self, u32 addr, void *buffer, int size) {
+    pci_board_t *board = self->private;
 
     memcpy(buffer, (board->base + addr), size);
     return 0;
 }
 
-int pci_write(llio_t *this, u32 addr, void *buffer, int size) {
-    pci_board_t *board = this->private;
+int pci_write(llio_t *self, u32 addr, void *buffer, int size) {
+    pci_board_t *board = self->private;
 
     memcpy((board->base + addr), buffer, size);
     return 0;
+}
+
+int pci_program_flash(llio_t *self, char *bitfile_name, u32 start_address) {
+    return eeprom_write_area(self, bitfile_name, start_address);
 }
 
 void pci_boards_init() {
@@ -67,13 +71,14 @@ void pci_boards_scan() {
             board->llio.num_leds = 2;
             board->llio.read = &pci_read;
             board->llio.write = &pci_write;
+            board->llio.program_flash = &pci_program_flash;
             board->llio.private = board;
             board->len = dev->size[0];
             board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[0]);
             board->dev = dev;
             printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
             pci_print_info(board);
-            hm2_read_idrom(&(board->llio));
+            //hm2_read_idrom(&(board->llio));
 
             boards_count++;
         } else if ((dev->vendor_id == VENDORID_MESAPCI) && (dev->device_id == DEVICEID_MESA6I25)) {
@@ -86,6 +91,7 @@ void pci_boards_scan() {
             board->llio.num_leds = 2;
             board->llio.read = &pci_read;
             board->llio.write = &pci_write;
+            board->llio.program_flash = &pci_program_flash;
             board->llio.private = board;
             board->len = dev->size[0];
             board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[0]);
@@ -98,10 +104,10 @@ void pci_boards_scan() {
 }
 
 void pci_print_info(pci_board_t *board) {
-    //u8 flash_id;
+    u8 flash_id;
     char *area_types[2] = {"Memory", "I/O"};
 
     printf("  Region 0: %s at %08X [size=%u]\n", area_types[board->dev->base_addr[0] & 0x1], (unsigned int) board->dev->base_addr[0], (unsigned int) board->dev->size[0]);
-    //idrom = read_idrom();
-    //printf("  flash id: 0x%02X %s\n", flash_id, eeprom_get_idrom_type(flash_id));
+    flash_id = read_flash_id(&(board->llio));
+    printf("  flash id: 0x%02X %s\n", flash_id, eeprom_get_flash_type(flash_id));
 }

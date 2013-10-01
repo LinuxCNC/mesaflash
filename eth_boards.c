@@ -142,8 +142,8 @@ void eth_scan(eth_access_t *access) {
             board->llio.private = board;
             boards_count++;
             
-            hm2_read_idrom(&(board->llio));
-            lbp16_print_info();
+            //hm2_read_idrom(&(board->llio));
+            //lbp16_print_info();
 
 // set socket non-blocking
             val = fcntl(sd, F_GETFL);

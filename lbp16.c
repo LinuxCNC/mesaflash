@@ -45,7 +45,7 @@ int lbp16_hm2_write(u32 addr, void *buffer, int size) {
 void lbp16_print_info() {
     lbp16_cmd_addr packet;
     int i, j;
-    u8 idrom;
+    u32 flash_id;
     char *mem_types[16] = {NULL, "registers", "memory", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "EEPROM", "flash"};
     char *mem_writeable[2] = {"RO", "RW"};
     char *acc_types[4] = {"8-bit", "16-bit", "32-bit", "64-bit"};
@@ -127,8 +127,8 @@ void lbp16_print_info() {
     printf("    user leds: %s\n", led_debug_types[eth_area.led_debug & 0x1]);
 
     printf("  [space 3] FPGA flash eeprom:\n");
-    lbp16_read(CMD_READ_FLASH_IDROM, FLASH_ID_REG, &idrom, 4);
-    printf("    flash id: 0x%02X %s\n", idrom, eeprom_get_idrom_type(idrom));
+    lbp16_read(CMD_READ_FLASH_IDROM, FLASH_ID_REG, &flash_id, 4);
+    printf("    flash id: 0x%02X %s\n", flash_id, eeprom_get_flash_type(flash_id));
 
     if (info_area.LBP_version >= 3) {
         printf("  [space 4] timers:\n");

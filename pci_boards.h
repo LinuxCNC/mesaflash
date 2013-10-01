@@ -12,6 +12,7 @@ typedef struct {
     struct pci_dev *dev;
     void *base;
     int len;
+    u8 flash_id;
     llio_t llio;
 } pci_board_t;
 
