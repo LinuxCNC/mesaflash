@@ -35,6 +35,10 @@ int pci_program_flash(llio_t *self, char *bitfile_name, u32 start_address) {
     return eeprom_write_area(self, bitfile_name, start_address);
 }
 
+int pci_verify_flash(llio_t *self, char *bitfile_name, u32 start_address) {
+    return eeprom_verify_area(self, bitfile_name, start_address);
+}
+
 void pci_boards_init() {
     int eno;
 
@@ -79,6 +83,8 @@ void pci_boards_scan() {
             printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
             pci_print_info(board);
             //hm2_read_idrom(&(board->llio));
+
+            pci_verify_flash(&(board->llio), "../../Pulpit/7i77x2.bit", 0x80000);
 
             boards_count++;
         } else if ((dev->vendor_id == VENDORID_MESAPCI) && (dev->device_id == DEVICEID_MESA6I25)) {

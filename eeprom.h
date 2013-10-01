@@ -29,6 +29,7 @@
 
 char *eeprom_get_flash_type(u8 idrom);
 int eeprom_write_area(llio_t *self, char *bitfile_name, u32 start_address);
+int eeprom_verify_area(llio_t *self, char *bitfile_name, u32 start_address);
 u8 read_flash_id(llio_t *self);
 
 #endif

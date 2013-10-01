@@ -289,3 +289,63 @@ int eeprom_write_area(llio_t *self, char *bitfile_name, u32 start_address) {
     done_programming(self);
     return 0;
 }
+
+int eeprom_verify_area(llio_t *self, char *bitfile_name, u32 start_address) {
+    int bytesread, i, bindex;
+    u8 rdata, mdata;
+    char part_name[32];
+    struct stat file_stat;
+    FILE *fp;
+
+    if (stat(bitfile_name, &file_stat) != 0) {
+        printf("Can't find file %s\n", bitfile_name);
+        return -1;
+    }
+
+    fp = fopen(bitfile_name, "rb");
+    if (fp == NULL) {
+        printf("Can't open file %s: %s\n", bitfile_name, strerror(errno));
+        return -1;
+    }
+    if (print_bitfile_header(fp, (char*) &part_name) == -1) {
+        fclose(fp);
+        return -1;
+    }
+/*    if (strcmp(part_name, active_board.fpga_part_number) != 0) {
+        printf("Error: wrong bitfile destination device: %s, should be %s\n", part_name, active_board.fpga_part_number);
+        fclose(fp);
+        return -1;
+    }*/
+    if (check_boot(self) == -1) {
+        printf("Error: BootSector is invalid\n");
+        fclose(fp);
+        return -1;
+    } else {
+        printf("Boot sector OK\n");
+    }
+
+    printf("Verifying EEPROM sectors starting from 0x%X...\n", (unsigned int) start_address);
+    printf("  |");
+    fflush(stdout);
+    i = start_address;
+    while (!feof(fp)) {
+        bytesread = fread(&file_buffer, 1, 8192, fp);
+        bindex = 0;
+        while (bindex < bytesread) {
+            rdata = read_byte(self, bindex + i);
+            mdata = file_buffer[bindex];
+            if (mdata != rdata) {
+                printf("\nError at 0x%X expected: 0x%X but read: 0x%X\n", i+bindex, mdata, rdata);
+                return -1;
+            }
+            bindex = bindex + 1;
+        }
+        i = i + 8192;
+        printf("V");
+        fflush(stdout);
+    }
+
+    fclose(fp);
+    printf("\nBoard configuration verified successfully\n");
+    return 0;
+}
