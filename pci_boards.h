@@ -12,6 +12,8 @@ typedef struct {
     struct pci_dev *dev;
     void *base;
     int len;
+    u16 ctrl_base_addr;
+    u16 data_base_addr;
     u8 flash_id;
     llio_t llio;
 } pci_board_t;
