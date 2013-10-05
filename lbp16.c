@@ -58,14 +58,14 @@ void lbp16_print_info() {
     lbp_info_area info_area;
     lbp16_cmd_addr cmds[LBP16_MEM_SPACE_COUNT];
 
-    LBP16_INIT_PACKET4(cmds[0], CMD_READ_AREA_INFO_ADDR16_INCR(LBP_SPACE_HM2, sizeof(mem_area)/2), 0);
-    LBP16_INIT_PACKET4(cmds[1], CMD_READ_AREA_INFO_ADDR16_INCR(LBP_SPACE_ETH_CHIP, sizeof(mem_area)/2), 0);
-    LBP16_INIT_PACKET4(cmds[2], CMD_READ_AREA_INFO_ADDR16_INCR(LBP_SPACE_ETH_EEPROM, sizeof(mem_area)/2), 0);
-    LBP16_INIT_PACKET4(cmds[3], CMD_READ_AREA_INFO_ADDR16_INCR(LBP_SPACE_FPGA_FLASH, sizeof(mem_area)/2), 0);
+    LBP16_INIT_PACKET4(cmds[0], CMD_READ_AREA_INFO_ADDR16_INCR(LBP16_SPACE_HM2, sizeof(mem_area)/2), 0);
+    LBP16_INIT_PACKET4(cmds[1], CMD_READ_AREA_INFO_ADDR16_INCR(LBP16_SPACE_ETH_CHIP, sizeof(mem_area)/2), 0);
+    LBP16_INIT_PACKET4(cmds[2], CMD_READ_AREA_INFO_ADDR16_INCR(LBP16_SPACE_ETH_EEPROM, sizeof(mem_area)/2), 0);
+    LBP16_INIT_PACKET4(cmds[3], CMD_READ_AREA_INFO_ADDR16_INCR(LBP16_SPACE_FPGA_FLASH, sizeof(mem_area)/2), 0);
     LBP16_INIT_PACKET4(cmds[4], 0, 0);
     LBP16_INIT_PACKET4(cmds[5], 0, 0);
-    LBP16_INIT_PACKET4(cmds[6], CMD_READ_AREA_INFO_ADDR16_INCR(LBP_SPACE_COMM_CTRL, sizeof(mem_area)/2), 0);
-    LBP16_INIT_PACKET4(cmds[7], CMD_READ_AREA_INFO_ADDR16_INCR(LBP_SPACE_BOARD_INFO, sizeof(mem_area)/2), 0);
+    LBP16_INIT_PACKET4(cmds[6], CMD_READ_AREA_INFO_ADDR16_INCR(LBP16_SPACE_COMM_CTRL, sizeof(mem_area)/2), 0);
+    LBP16_INIT_PACKET4(cmds[7], CMD_READ_AREA_INFO_ADDR16_INCR(LBP16_SPACE_BOARD_INFO, sizeof(mem_area)/2), 0);
 
     LBP16_INIT_PACKET4(packet, CMD_READ_ETH_EEPROM_ADDR16_INCR(sizeof(eth_area)/2), 0);
     memset(&eth_area, 0, sizeof(eth_area));
@@ -82,7 +82,7 @@ void lbp16_print_info() {
     sendto(sd, (char*) &packet, sizeof(packet), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
     recvfrom(sd, (char*) &info_area, sizeof(info_area), 0, (struct sockaddr *) &client_addr, &len);
 
-    if (info_area.LBP_version >= 3) {
+    if (info_area.LBP16_version >= 3) {
         LBP16_INIT_PACKET4(packet, CMD_READ_TIMER_ADDR16_INCR(sizeof(timers_area)/2), 0);
         memset(&timers_area, 0, sizeof(timers_area));
         sendto(sd, (char*) &packet, sizeof(packet), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
@@ -130,7 +130,7 @@ void lbp16_print_info() {
     lbp16_read(CMD_READ_FLASH_IDROM, FLASH_ID_REG, &flash_id, 4);
     printf("    flash id: 0x%02X %s\n", flash_id, eeprom_get_flash_type(flash_id));
 
-    if (info_area.LBP_version >= 3) {
+    if (info_area.LBP16_version >= 3) {
         printf("  [space 4] timers:\n");
         printf("     uSTimeStampReg: 0x%04X\n", timers_area.uSTimeStampReg);
         printf("     WaituSReg: 0x%04X\n", timers_area.WaituSReg);
@@ -151,7 +151,7 @@ void lbp16_print_info() {
 
     printf("  [space 7] LBP16 info:\n");
     printf("    board name: %.*s\n", sizeof(info_area.name), info_area.name);
-    printf("    LBP16 version %d\n", info_area.LBP_version);
+    printf("    LBP16 version %d\n", info_area.LBP16_version);
     printf("    firmware version %d\n", info_area.firmware_version);
     printf("    IP address jumpers at boot: %s\n", boot_jumpers_types[info_area.jumpers]);
 }
