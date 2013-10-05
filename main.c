@@ -7,6 +7,7 @@
 
 #include "eth_boards.h"
 #include "pci_boards.h"
+#include "lpt_boards.h"
 
 static int list_flag;
 
