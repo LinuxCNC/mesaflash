@@ -3,7 +3,6 @@
 #define __LPT_BOARDS_H
 
 #include <pci/pci.h>
-#include <linux/parport.h>
 
 #include "hostmot2.h"
 
@@ -23,10 +22,8 @@
 typedef struct {
     unsigned short base;
     unsigned short base_hi;
-    struct pardevice *linux_dev;
     void *region;
     void *region_hi;
-    int dev_fd;
     int epp_wide;
 
     llio_t llio;

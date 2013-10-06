@@ -66,6 +66,8 @@ int main(int argc, char *argv[]) {
         eth_scan(&eth_access);
         pci_boards_init();
         pci_boards_scan();
+        lpt_boards_init();
+        lpt_boards_scan();
     }
     
     return 0;
