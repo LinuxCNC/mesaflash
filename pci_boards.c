@@ -405,6 +405,46 @@ void pci_boards_scan() {
 
                 boards_count++;
             }
+        } else if (dev->device_id == DEVICEID_PLX9056) {
+            u16 ssid = pci_read_word(dev, PCI_SUBSYSTEM_ID);
+            if ((ssid == SUBDEVICEID_MESA3X20_10) || (ssid == SUBDEVICEID_MESA3X20_15) || (ssid == SUBDEVICEID_MESA3X20_20)) {
+                strncpy(board->llio.board_name, "3x20", 4);
+                board->llio.num_ioport_connectors = 6;
+                board->llio.pins_per_connector = 24;
+                board->llio.ioport_connector_name[0] = "P4";
+                board->llio.ioport_connector_name[1] = "P5";
+                board->llio.ioport_connector_name[2] = "P6";
+                board->llio.ioport_connector_name[3] = "P9";
+                board->llio.ioport_connector_name[4] = "P6";
+                board->llio.ioport_connector_name[5] = "P7";
+                if (ssid == SUBDEVICEID_MESA3X20_10) {
+                    board->llio.fpga_part_number = "3s1000fg456";
+                } else if (ssid == SUBDEVICEID_MESA3X20_15) {
+                    board->llio.fpga_part_number = "3s1500fg456";
+                } else if (ssid == SUBDEVICEID_MESA3X20_20) {
+                    board->llio.fpga_part_number = "3s2000fg456";
+                }
+                board->llio.num_leds = 0;
+                board->llio.read = &pci_read;
+                board->llio.write = &pci_write;
+                board->llio.program_fpga = &plx9054_program_fpga;
+                board->llio.reset = &plx9054_reset;
+                board->llio.private = board;
+                board->len = dev->size[3];
+                board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
+                board->dev = dev;
+                board->ctrl_base_addr = dev->base_addr[1];
+                board->data_base_addr = dev->base_addr[2];
+                printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
+                pci_print_info(board);
+                iopl(3);
+
+                board->llio.reset(&(board->llio));
+                board->llio.program_fpga(&(board->llio), "../../Pulpit/SV24S.BIT");
+                hm2_read_idrom(&(board->llio));
+
+                boards_count++;
+            }
         }
     }
 }
