@@ -43,9 +43,9 @@ static int plx9030_program_fpga(llio_t *self, char *bitfile_name) {
         return -1;
     }
     // set /WRITE low for data transfer, and turn on LED
-    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
-    control = status & ~_WRITE_MASK & ~_LED_MASK;
-    outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET);
+    status = inl(board->ctrl_base_addr + PLX9030_CTRL_STAT_OFFSET);
+    control = status & ~PLX9030_WRITE_MASK & ~PLX9030_LED_MASK;
+    outl(control, board->ctrl_base_addr + PLX9030_CTRL_STAT_OFFSET);
 
     printf("Programming FPGA...\n");
     printf("  |");
@@ -66,30 +66,30 @@ static int plx9030_program_fpga(llio_t *self, char *bitfile_name) {
     fclose(fp);
 
     // all bytes transferred, make sure FPGA is all set up now
-    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
-    if (!(status & _INIT_MASK)) {
+    status = inl(board->ctrl_base_addr + PLX9030_CTRL_STAT_OFFSET);
+    if (!(status & PLX9030_INIT_MASK)) {
     // /INIT goes low on CRC error
         printf("FPGA asserted /INIT: CRC error\n");
         goto fail;
     }
-    if (!(status & DONE_MASK)) {
+    if (!(status & PLX9030_DONE_MASK)) {
         printf("FPGA did not assert DONE\n");
         goto fail;
     }
 
     // turn off write enable and LED
-    control = status | _WRITE_MASK | _LED_MASK;
-    outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET);
+    control = status | PLX9030_WRITE_MASK | PLX9030_LED_MASK;
+    outl(control, board->ctrl_base_addr + PLX9030_CTRL_STAT_OFFSET);
 
     return 0;
 
 
 fail:
     // set /PROGRAM low (reset device), /WRITE high and LED off
-    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
-    control = status & ~_PROGRAM_MASK;
-    control |= _WRITE_MASK | _LED_MASK;
-    outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET);
+    status = inl(board->ctrl_base_addr + PLX9030_CTRL_STAT_OFFSET);
+    control = status & ~PLX9030_PROGRAM_MASK;
+    control |= PLX9030_WRITE_MASK | PLX9030_LED_MASK;
+    outl(control, board->ctrl_base_addr + PLX9030_CTRL_STAT_OFFSET);
     return -EIO;
 }
 
@@ -98,30 +98,30 @@ static int plx9030_reset(llio_t *self) {
     u32 status;
     u32 control;
 
-    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
+    status = inl(board->ctrl_base_addr + PLX9030_CTRL_STAT_OFFSET);
 
     // set /PROGRAM bit low to reset the FPGA
-    control = status & ~_PROGRAM_MASK;
+    control = status & ~PLX9030_PROGRAM_MASK;
 
     // set /WRITE and /LED high (idle state)
-    control |= _WRITE_MASK | _LED_MASK;
+    control |= PLX9030_WRITE_MASK | PLX9030_LED_MASK;
 
     // and write it back
-    outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET);
+    outl(control, board->ctrl_base_addr + PLX9030_CTRL_STAT_OFFSET);
 
     // verify that /INIT and DONE went low
-    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
-    if (status & (DONE_MASK | _INIT_MASK)) {
+    status = inl(board->ctrl_base_addr + PLX9030_CTRL_STAT_OFFSET);
+    if (status & (PLX9030_DONE_MASK | PLX9030_INIT_MASK)) {
         printf("FPGA did not reset: /INIT = %d, DONE = %d\n",
-            (status & _INIT_MASK ? 1 : 0),
-            (status & DONE_MASK ? 1 : 0)
+            (status & PLX9030_INIT_MASK ? 1 : 0),
+            (status & PLX9030_DONE_MASK ? 1 : 0)
         );
         return -EIO;
     }
 
     // set /PROGRAM high, let FPGA come out of reset
-    control = status | _PROGRAM_MASK;
-    outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET);
+    control = status | PLX9030_PROGRAM_MASK;
+    outl(control, board->ctrl_base_addr + PLX9030_CTRL_STAT_OFFSET);
 
     // wait for /INIT to go high when it finishes clearing memory
     // This should take no more than 100uS.  If we assume each PCI read
@@ -132,8 +132,8 @@ static int plx9030_reset(llio_t *self) {
         int count = 3300;
 
         do {
-            status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
-            if (status & _INIT_MASK) break;
+            status = inl(board->ctrl_base_addr + PLX9030_CTRL_STAT_OFFSET);
+            if (status & PLX9030_INIT_MASK) break;
         } while (count-- > 0);
 
         if (count == 0) {
@@ -147,7 +147,7 @@ static int plx9030_reset(llio_t *self) {
 
 static void plx9030_fixup_LASxBRD_READY(llio_t *self) {
     pci_board_t *board = self->private;
-    int offsets[] = { LAS0BRD_OFFSET, LAS1BRD_OFFSET, LAS2BRD_OFFSET, LAS3BRD_OFFSET };
+    int offsets[] = {PLX9030_LAS0BRD_OFFSET, PLX9030_LAS1BRD_OFFSET, PLX9030_LAS2BRD_OFFSET, PLX9030_LAS3BRD_OFFSET};
     int i;
 
     for (i = 0; i < 4; i ++) {
@@ -155,15 +155,15 @@ static void plx9030_fixup_LASxBRD_READY(llio_t *self) {
         int addr = board->ctrl_base_addr + offsets[i];
 
         val = inl(addr);
-        if (!(val & LASxBRD_READY)) {
+        if (!(val & PLX9030_LASxBRD_READY)) {
             printf("LAS%dBRD #READY is off, enabling now\n", i);
-            val |= LASxBRD_READY;
+            val |= PLX9030_LASxBRD_READY;
             outl(val, addr);
         }
     }
 }
 
-static int plx9054_program_fpga(llio_t *self, char *bitfile_name) {
+static int plx905x_program_fpga(llio_t *self, char *bitfile_name) {
     pci_board_t *board = self->private;
     int bindex, bytesread, i;
     u32 status;
@@ -204,11 +204,11 @@ static int plx9054_program_fpga(llio_t *self, char *bitfile_name) {
 
 
     // all bytes transferred, make sure FPGA is all set up now
-    for (i = 0; i < DONE_WAIT_5I22; i++) {
-        status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
-        if (status & DONE_MASK_5I22) break;
+    for (i = 0; i < PLX905X_DONE_WAIT; i++) {
+        status = inl(board->ctrl_base_addr + PLX905X_CTRL_STAT_OFFSET);
+        if (status & PLX905X_DONE_MASK) break;
     }
-    if (i >= DONE_WAIT_5I22) {
+    if (i >= PLX905X_DONE_WAIT) {
         printf("Error: Not /DONE; programming not completed.\n");
         return -EIO;
     }
@@ -216,21 +216,21 @@ static int plx9054_program_fpga(llio_t *self, char *bitfile_name) {
     return 0;
 }
 
-static int plx9054_reset(llio_t *self) {
+static int plx905x_reset(llio_t *self) {
     pci_board_t *board = self->private;
     int i;
     u32 status, control;
 
     // set GPIO bits to GPIO function
-    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
-    control = status | DONE_ENABLE_5I22 | _PROG_ENABLE_5I22;
-    outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
+    status = inl(board->ctrl_base_addr + PLX905X_CTRL_STAT_OFFSET);
+    control = status | PLX905X_DONE_ENABLE | PLX905X_PROG_ENABLE;
+    outl(control, board->ctrl_base_addr + PLX905X_CTRL_STAT_OFFSET);
 
     // Turn off /PROGRAM bit and insure that DONE isn't asserted
-    outl(control & ~_PROGRAM_MASK_5I22, board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
+    outl(control & ~PLX905X_PROGRAM_MASK, board->ctrl_base_addr + PLX905X_CTRL_STAT_OFFSET);
 
-    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
-    if (status & DONE_MASK_5I22) {
+    status = inl(board->ctrl_base_addr + PLX905X_CTRL_STAT_OFFSET);
+    if (status & PLX905X_DONE_MASK) {
         // Note that if we see DONE at the start of programming, it's most
         // likely due to an attempt to access the FPGA at the wrong I/O
         // location.
@@ -239,13 +239,13 @@ static int plx9054_reset(llio_t *self) {
     }
 
     // turn on /PROGRAM output bit
-    outl(control | _PROGRAM_MASK_5I22, board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
+    outl(control | PLX905X_PROGRAM_MASK, board->ctrl_base_addr + PLX905X_CTRL_STAT_OFFSET);
 
     // Delay for at least 100 uS. to allow the FPGA to finish its reset
     // sequencing.  3300 reads is at least 100 us, could be as long as a
     // few ms
     for (i = 0; i < 3300; i++) {
-        status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
+        status = inl(board->ctrl_base_addr + PLX905X_CTRL_STAT_OFFSET);
     }
 
     return 0;
@@ -387,8 +387,8 @@ void pci_boards_scan() {
                 board->llio.num_leds = 8;
                 board->llio.read = &pci_read;
                 board->llio.write = &pci_write;
-                board->llio.program_fpga = &plx9054_program_fpga;
-                board->llio.reset = &plx9054_reset;
+                board->llio.program_fpga = &plx905x_program_fpga;
+                board->llio.reset = &plx905x_reset;
                 board->llio.private = board;
                 board->len = dev->size[3];
                 board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
@@ -427,8 +427,8 @@ void pci_boards_scan() {
                 board->llio.num_leds = 0;
                 board->llio.read = &pci_read;
                 board->llio.write = &pci_write;
-                board->llio.program_fpga = &plx9054_program_fpga;
-                board->llio.reset = &plx9054_reset;
+                board->llio.program_fpga = &plx905x_program_fpga;
+                board->llio.reset = &plx905x_reset;
                 board->llio.private = board;
                 board->len = dev->size[3];
                 board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
