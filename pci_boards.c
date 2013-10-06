@@ -163,6 +163,94 @@ static void plx9030_fixup_LASxBRD_READY(llio_t *self) {
     }
 }
 
+static int plx9054_program_fpga(llio_t *self, char *bitfile_name) {
+    pci_board_t *board = self->private;
+    int bindex, bytesread, i;
+    u32 status;
+    char part_name[32];
+    struct stat file_stat;
+    FILE *fp;
+
+    if (stat(bitfile_name, &file_stat) != 0) {
+        printf("Can't find file %s\n", bitfile_name);
+        return -1;
+    }
+    fp = fopen(bitfile_name, "rb");
+    if (fp == NULL) {
+        printf("Can't open file %s: %s\n", bitfile_name, strerror(errno));
+        return -1;
+    }
+    if (print_bitfile_header(fp, (char*) &part_name) == -1) {
+        fclose(fp);
+        return -1;
+    }
+    printf("Programming FPGA...\n");
+    printf("  |");
+    fflush(stdout);
+    // program the FPGA
+    while (!feof(fp)) {
+        bytesread = fread(&file_buffer, 1, 8192, fp);
+        bindex = 0;
+        while (bindex < bytesread) {
+            outb(bitfile_reverse_bits(file_buffer[bindex]), board->data_base_addr);
+            bindex++;
+        }
+        printf("W");
+        fflush(stdout);
+    }
+
+    printf("\n");
+    fclose(fp);
+
+
+    // all bytes transferred, make sure FPGA is all set up now
+    for (i = 0; i < DONE_WAIT_5I22; i++) {
+        status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
+        if (status & DONE_MASK_5I22) break;
+    }
+    if (i >= DONE_WAIT_5I22) {
+        printf("Error: Not /DONE; programming not completed.\n");
+        return -EIO;
+    }
+
+    return 0;
+}
+
+static int plx9054_reset(llio_t *self) {
+    pci_board_t *board = self->private;
+    int i;
+    u32 status, control;
+
+    // set GPIO bits to GPIO function
+    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
+    control = status | DONE_ENABLE_5I22 | _PROG_ENABLE_5I22;
+    outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
+
+    // Turn off /PROGRAM bit and insure that DONE isn't asserted
+    outl(control & ~_PROGRAM_MASK_5I22, board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
+
+    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
+    if (status & DONE_MASK_5I22) {
+        // Note that if we see DONE at the start of programming, it's most
+        // likely due to an attempt to access the FPGA at the wrong I/O
+        // location.
+        printf("/DONE status bit indicates busy at start of programming\n");
+        return -EIO;
+    }
+
+    // turn on /PROGRAM output bit
+    outl(control | _PROGRAM_MASK_5I22, board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
+
+    // Delay for at least 100 uS. to allow the FPGA to finish its reset
+    // sequencing.  3300 reads is at least 100 us, could be as long as a
+    // few ms
+    for (i = 0; i < 3300; i++) {
+        status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
+    }
+
+    return 0;
+}
+
 int pci_read(llio_t *self, u32 addr, void *buffer, int size) {
     pci_board_t *board = self->private;
 
@@ -183,14 +271,6 @@ int pci_program_flash(llio_t *self, char *bitfile_name, u32 start_address) {
 
 int pci_verify_flash(llio_t *self, char *bitfile_name, u32 start_address) {
     return eeprom_verify_area(self, bitfile_name, start_address);
-}
-
-int pci_program_fpga(llio_t *self, char *bitfile_name) {
-    return plx9030_program_fpga(self, bitfile_name);
-}
-
-int pci_reset(llio_t *self) {
-    return plx9030_reset(self);
 }
 
 void pci_boards_init() {
@@ -263,7 +343,7 @@ void pci_boards_scan() {
 
                 boards_count++;
             }
-        } else if ((dev->vendor_id == VENDORID_PLX) && (dev->device_id == DEVICEID_PLX9030)) {
+        } else if (dev->device_id == DEVICEID_PLX9030) {
             u16 ssid = pci_read_word(dev, PCI_SUBSYSTEM_ID);
             if (ssid == SUBDEVICEID_MESA5I20) {
                 strncpy(board->llio.board_name, "5I20", 4);
@@ -276,8 +356,8 @@ void pci_boards_scan() {
                 board->llio.num_leds = 8;
                 board->llio.read = &pci_read;
                 board->llio.write = &pci_write;
-                board->llio.program_fpga = &pci_program_fpga;
-                board->llio.reset = &pci_reset;
+                board->llio.program_fpga = &plx9030_program_fpga;
+                board->llio.reset = &plx9030_reset;
                 board->llio.private = board;
                 board->len = dev->size[5];
                 board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[5]);
@@ -291,6 +371,36 @@ void pci_boards_scan() {
 
                 //board->llio.reset(&(board->llio));
                 //board->llio.program_fpga(&(board->llio), "../../Pulpit/SVST8_4.BIT");
+                hm2_read_idrom(&(board->llio));
+
+                boards_count++;
+            }
+        } else if (dev->device_id == DEVICEID_PLX9054) {
+            u16 ssid = pci_read_word(dev, PCI_SUBSYSTEM_ID);
+            if (ssid == SUBDEVICEID_MESA5I21) {
+                strncpy(board->llio.board_name, "5I21", 4);
+                board->llio.num_ioport_connectors = 2;
+                board->llio.pins_per_connector = 32;
+                board->llio.ioport_connector_name[0] = "P1";
+                board->llio.ioport_connector_name[1] = "P1";
+                board->llio.fpga_part_number = "3s400pq208";
+                board->llio.num_leds = 8;
+                board->llio.read = &pci_read;
+                board->llio.write = &pci_write;
+                board->llio.program_fpga = &plx9054_program_fpga;
+                board->llio.reset = &plx9054_reset;
+                board->llio.private = board;
+                board->len = dev->size[3];
+                board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
+                board->dev = dev;
+                board->ctrl_base_addr = dev->base_addr[1];
+                board->data_base_addr = dev->base_addr[2];
+                printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
+                pci_print_info(board);
+                iopl(3);
+
+                board->llio.reset(&(board->llio));
+                board->llio.program_fpga(&(board->llio), "../../Pulpit/I21LOOP.BIT");
                 hm2_read_idrom(&(board->llio));
 
                 boards_count++;
