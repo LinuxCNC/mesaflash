@@ -117,6 +117,7 @@ void lbp16_print_info() {
     recvfrom(sd, (char*) &info_area, sizeof(info_area), 0, (struct sockaddr *) &client_addr, &len);
 
     if (info_area.LBP16_version >= 3) {
+        LBP16_INIT_PACKET4(cmds[4], CMD_READ_AREA_INFO_ADDR16_INCR(LBP16_SPACE_TIMER, sizeof(mem_area)/2), 0);
         LBP16_INIT_PACKET4(packet, CMD_READ_TIMER_ADDR16_INCR(sizeof(timers_area)/2), 0);
         memset(&timers_area, 0, sizeof(timers_area));
         sendto(sd, (char*) &packet, sizeof(packet), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
@@ -153,6 +154,7 @@ void lbp16_print_info() {
         printf("\n");
     }
  
+    printf("  [space 0] Hostmot2\n");
     printf("  [space 2] Ethernet eeprom:\n");
     printf("    mac address: %02X:%02X:%02X:%02X:%02X:%02X\n", HI_BYTE(eth_area.mac_addr_hi), LO_BYTE(eth_area.mac_addr_hi),
       HI_BYTE(eth_area.mac_addr_mid), LO_BYTE(eth_area.mac_addr_mid), HI_BYTE(eth_area.mac_addr_lo), LO_BYTE(eth_area.mac_addr_lo));
