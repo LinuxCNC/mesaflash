@@ -1,6 +1,10 @@
 
 #include <pci/pci.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 #include <arpa/inet.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -8,9 +12,39 @@
 #include "eeprom.h"
 #include "lbp16.h"
 
-extern int sd;
-extern socklen_t len;
-extern struct sockaddr_in server_addr, client_addr;
+int sd;
+socklen_t len;
+struct sockaddr_in server_addr, client_addr;
+
+int lbp16_send_packet(void *packet, int size) {
+    return sendto(sd, (char*) packet, size, 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
+}
+
+int lbp16_recv_packet(void *buffer, int size) {
+    return recvfrom(sd, (char*) buffer, size, 0, (struct sockaddr *) &client_addr, &len);
+}
+
+void lbp16_socket_nonblocking() {
+    int val = fcntl(sd, F_GETFL);
+
+    val = val | O_NONBLOCK;
+    fcntl(sd, F_SETFL, val);
+}
+
+void lbp16_socket_blocking() {
+    int val = fcntl(sd, F_GETFL);
+
+    val = val & ~O_NONBLOCK;
+    fcntl(sd, F_SETFL, val);
+}
+
+void lbp16_socket_set_dest_ip(char *addr_name) {
+    server_addr.sin_addr.s_addr = inet_addr(addr_name);
+}
+
+char *lbp16_socket_get_src_ip() {
+    return inet_ntoa(client_addr.sin_addr);
+}
 
 int lbp16_read(u16 cmd, u32 addr, void *buffer, int size) {
     lbp16_cmd_addr packet;
@@ -20,8 +54,8 @@ int lbp16_read(u16 cmd, u32 addr, void *buffer, int size) {
     LBP16_INIT_PACKET4(packet, cmd, addr);
     if (LBP16_SENDRECV_DEBUG)
         printf("SEND: %02X %02X %02X %02X | REQUEST %d bytes\n", packet.cmd_hi, packet.cmd_lo, packet.addr_hi, packet.addr_lo, size);
-    send = sendto(sd, (char*) &packet, sizeof(packet), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
-    recv = recvfrom(sd, (char*) &local_buff, sizeof(local_buff), 0, (struct sockaddr *) &client_addr, &len);
+    send = lbp16_send_packet(&packet, sizeof(packet));
+    recv = lbp16_recv_packet(&local_buff, sizeof(local_buff));
     if (LBP16_SENDRECV_DEBUG)
         printf("RECV: %d bytes\n", recv);
     memcpy(buffer, local_buff, size);
@@ -154,4 +188,16 @@ void lbp16_print_info() {
     printf("    LBP16 version %d\n", info_area.LBP16_version);
     printf("    firmware version %d\n", info_area.firmware_version);
     printf("    IP address jumpers at boot: %s\n", boot_jumpers_types[info_area.jumpers]);
+}
+
+void lbp16_init() {
+// open socket
+    sd = socket (PF_INET, SOCK_DGRAM, 0);
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(LBP16_UDP_PORT);
+    len = sizeof(client_addr);
+}
+
+void lbp16_release() {
+    close(sd);
 }

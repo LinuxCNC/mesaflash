@@ -1,11 +1,6 @@
 
 #include <pci/pci.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
 #include <time.h>
-#include <fcntl.h>
 #include <sys/stat.h>
 #include <string.h>
 #include <errno.h>
@@ -18,10 +13,6 @@
 eth_board_t eth_boards[MAX_ETH_BOARDS];
 int boards_count;
 
-int sd;
-socklen_t len;
-struct sockaddr_in server_addr, client_addr;
-
 int eth_read(llio_t *this, u32 addr, void *buffer, int size) {
     return lbp16_hm2_read(addr, buffer, size);
 }
@@ -31,6 +22,7 @@ int eth_write(llio_t *this, u32 addr, void *buffer, int size) {
 }
 
 void eth_init(eth_access_t *access) {
+    lbp16_init();
 }
 
 void eth_scan(eth_access_t *access) {
@@ -40,19 +32,9 @@ void eth_scan(eth_access_t *access) {
     int send = 0, recv = 0;
     u32 cookie;
     char *ptr;
-    int val;
     struct timespec tv, tvret;    // for nanosleep in linux, on windows there is only Sleep(ms)
 
-// open socket
-    sd = socket (PF_INET, SOCK_DGRAM, 0);
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(LBP16_UDP_PORT);
-    len = sizeof(client_addr);
-
-// set socket non blocking and setup sleep time
-    val = fcntl(sd, F_GETFL);
-    val = val | O_NONBLOCK;
-    fcntl(sd, F_SETFL, val);
+    lbp16_socket_nonblocking();
 
     tv.tv_sec = 0;
     tv.tv_nsec = 5000000;
@@ -66,26 +48,23 @@ void eth_scan(eth_access_t *access) {
         char addr_name[32];
 
         sprintf(addr_name, "%s.%d", addr, i);
-        server_addr.sin_addr.s_addr = inet_addr(addr_name);
-        send = sendto(sd, (char*) &packet, sizeof(packet), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
+        lbp16_socket_set_dest_ip(addr_name);
+        send = lbp16_send_packet(&packet, sizeof(packet));
         nanosleep(&tv, &tvret);
-        recv = recvfrom(sd, (char*) &cookie, sizeof(cookie), 0, (struct sockaddr *) &client_addr, &len);
+        recv = lbp16_recv_packet(&cookie, sizeof(cookie));
 
         if ((recv > 0) && (cookie == HM2_COOKIE)) {
             char buff[20];
             eth_board_t *board = &eth_boards[boards_count];
 
-// set socket blocking
-            val = fcntl(sd, F_GETFL);
-            val = val & ~O_NONBLOCK;
-            fcntl(sd, F_SETFL, val);
+            lbp16_socket_blocking();
             LBP16_INIT_PACKET4(packet2, CMD_READ_BOARD_INFO_ADDR16_INCR(8), 0);
             memset(buff, 0, sizeof(buff));
-            sendto(sd, (char*) &packet2, sizeof(packet2), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
-            recvfrom(sd, (char*) &buff, sizeof(buff), 0, (struct sockaddr *) &client_addr, &len);
+            send = lbp16_send_packet(&packet2, sizeof(packet2));
+            recv = lbp16_recv_packet(&buff, sizeof(buff));
 
             if (strncmp(buff, "7I80DB-16", 9) == 0) {
-                strncpy(board->ip_addr, inet_ntoa(client_addr.sin_addr), 16);
+                strncpy(board->ip_addr, lbp16_socket_get_src_ip(), 16);
                 strncpy(board->llio.board_name, buff, 16);
                 board->llio.num_ioport_connectors = 4;
                 board->llio.pins_per_connector = 17;
@@ -98,7 +77,7 @@ void eth_scan(eth_access_t *access) {
                 board->llio.read = &eth_read;
                 board->llio.write = &eth_write;
             } else if (strncmp(buff, "7I80DB-25", 9) == 0) {
-                strncpy(board->ip_addr, inet_ntoa(client_addr.sin_addr), 16);
+                strncpy(board->ip_addr, lbp16_socket_get_src_ip(), 16);
                 strncpy(board->llio.board_name, buff, 16);
                 board->llio.num_ioport_connectors = 4;
                 board->llio.pins_per_connector = 17;
@@ -111,7 +90,7 @@ void eth_scan(eth_access_t *access) {
                 board->llio.read = &eth_read;
                 board->llio.write = &eth_write;
             } else if (strncmp(buff, "7I80HD-16", 9) == 0) {
-                strncpy(board->ip_addr, inet_ntoa(client_addr.sin_addr), 16);
+                strncpy(board->ip_addr, lbp16_socket_get_src_ip(), 16);
                 strncpy(board->llio.board_name, buff, 16);
                 board->llio.num_ioport_connectors = 3;
                 board->llio.pins_per_connector = 24;
@@ -123,7 +102,7 @@ void eth_scan(eth_access_t *access) {
                 board->llio.read = &eth_read;
                 board->llio.write = &eth_write;
             } else if (strncmp(buff, "7I80HD-25", 9) == 0) {
-                strncpy(board->ip_addr, inet_ntoa(client_addr.sin_addr), 16);
+                strncpy(board->ip_addr, lbp16_socket_get_src_ip(), 16);
                 strncpy(board->llio.board_name, buff, 16);
                 board->llio.num_ioport_connectors = 3;
                 board->llio.pins_per_connector = 24;
@@ -135,23 +114,22 @@ void eth_scan(eth_access_t *access) {
                 board->llio.read = &eth_read;
                 board->llio.write = &eth_write;
             } else {
-                printf("Unsupported ethernet device %s at %s\n", buff, inet_ntoa(client_addr.sin_addr));
-                goto error;
+                printf("Unsupported ethernet device %s at %s\n", buff, lbp16_socket_get_src_ip());
+                continue;
             }
-            printf("\nETH device %s at ip=%s\n", buff, inet_ntoa(client_addr.sin_addr));
+            printf("\nETH device %s at ip=%s\n", buff, lbp16_socket_get_src_ip());
             board->llio.private = board;
             boards_count++;
-            
-            //hm2_read_idrom(&(board->llio));
-            //lbp16_print_info();
 
-// set socket non-blocking
-            val = fcntl(sd, F_GETFL);
-            val = val | O_NONBLOCK;
-            fcntl(sd, F_SETFL, val);
+            hm2_read_idrom(&(board->llio));
+            lbp16_print_info();
+
+            lbp16_socket_nonblocking();
         }
     }
-    
-error:
-    close(sd);
 }
+
+void eth_release(eth_access_t *access) {
+    lbp16_release();
+}
+
