@@ -9,7 +9,7 @@
 #include "bitfile.h"
 #include "pci_boards.h"
 
-static u8 boot_block[BOOT_BLOCK_SIZE] = {
+u8 boot_block[BOOT_BLOCK_SIZE] = {
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
     0xFF, 0xFF, 0xAA, 0x99, 0x55, 0x66, 0x31, 0xE1,
     0xFF, 0xFF, 0x32, 0x61, 0x00, 0x00, 0x32, 0x81,
@@ -33,7 +33,18 @@ char *eeprom_get_flash_type(u8 flash_id) {
     }
 }
 
-static u32 eeprom_calc_user_space(u8 flash_id) {
+// modify MSB of boot block jmp address to user area
+void prepare_boot_block(u8 flash_id) {
+    switch (flash_id) {
+        case ID_EEPROM_1M:  boot_block[25] = 0x01; break;
+        case ID_EEPROM_2M:  boot_block[25] = 0x02; break;
+        case ID_EEPROM_4M:  boot_block[25] = 0x04; break;
+        case ID_EEPROM_8M:  boot_block[25] = 0x08; break;
+        case ID_EEPROM_16M: boot_block[25] = 0x10; break;
+    }
+}
+
+u32 eeprom_calc_user_space(u8 flash_id) {
     switch (flash_id) {
         case ID_EEPROM_1M:  return 0x10000; break;
         case ID_EEPROM_2M:  return 0x20000; break;
