@@ -10,6 +10,7 @@
 #include <string.h>
 #include <errno.h>
 
+#include "common.h"
 #include "anyio.h"
 #include "eeprom.h"
 #include "bitfile.h"
@@ -20,6 +21,135 @@ struct pci_access *pacc;
 pci_board_t pci_boards[MAX_PCI_BOARDS];
 int boards_count;
 static u8 file_buffer[SECTOR_SIZE];
+
+void SetCSHigh(pci_board_t *board) {
+    u16 data = inw(board->ctrl_base_addr + PLX9030_CTRL_INIT_OFFSET);
+
+    data = data | PLX9030_EECS_MASK;
+    outw(data, board->ctrl_base_addr + PLX9030_CTRL_INIT_OFFSET);
+    sleep_ns(4000);
+}
+
+void SetCSLow(pci_board_t *board) {
+    u16 data = inw(board->ctrl_base_addr + PLX9030_CTRL_INIT_OFFSET);
+
+    data = data & (~PLX9030_EECS_MASK);
+    outw(data, board->ctrl_base_addr + PLX9030_CTRL_INIT_OFFSET);
+    sleep_ns(4000);
+}
+
+void SetDinHigh(pci_board_t *board) {
+    u16 data = inw(board->ctrl_base_addr + PLX9030_CTRL_INIT_OFFSET);
+
+    data = data | PLX9030_EEDI_MASK;
+    outw(data, board->ctrl_base_addr + PLX9030_CTRL_INIT_OFFSET);
+    sleep_ns(4000);
+}
+
+void SetDinLow(pci_board_t *board) {
+    u16 data = inw(board->ctrl_base_addr + PLX9030_CTRL_INIT_OFFSET);
+
+    data = data & (~PLX9030_EEDI_MASK);
+    outw(data, board->ctrl_base_addr + PLX9030_CTRL_INIT_OFFSET);
+    sleep_ns(4000);
+}
+
+void SetClockHigh(pci_board_t *board) {
+    u16 data = inw(board->ctrl_base_addr + PLX9030_CTRL_INIT_OFFSET);
+
+    data = data | PLX9030_EECLK_MASK;
+    outw(data, board->ctrl_base_addr + PLX9030_CTRL_INIT_OFFSET);
+    sleep_ns(4000);
+}
+
+void SetClockLow(pci_board_t *board) {
+    u16 data = inw(board->ctrl_base_addr + PLX9030_CTRL_INIT_OFFSET);
+
+    data = data & (~PLX9030_EECLK_MASK);
+    outw(data, board->ctrl_base_addr + PLX9030_CTRL_INIT_OFFSET);
+    sleep_ns(4000);
+}
+
+int DataHighQ(pci_board_t *board) {
+    u16 data = inw(board->ctrl_base_addr + PLX9030_CTRL_INIT_OFFSET);
+
+    sleep_ns(4000);
+    if ((data & PLX9030_EEDO_MASK) != 0)
+        return 1;
+    else
+        return 0;
+}
+
+u16 read_eeprom_word(pci_board_t *board, u8 reg) {
+    u8 bit;
+    u16 mask;
+    u16 tdata;
+
+    SetCSLow(board);
+    SetDinLow(board);
+    SetClockLow(board);
+    SetCSHigh(board);
+    // send command first
+    mask = EEPROM_93C66_CMD_MASK;
+    for (bit = 0; bit < EEPROM_93C66_CMD_LEN; bit++) {
+        if ((mask & EEPROM_93C66_CMD_READ) == 0)
+            SetDinLow(board);
+        else
+            SetDinHigh(board);
+        mask = mask >> 1;
+        SetClockLow(board);
+        SetClockHigh(board);
+    }
+    // then send address
+    mask = EEPROM_93C66_ADDR_MASK;
+    for (bit = 0; bit < EEPROM_93C66_ADDR_LEN; bit++) {
+        if ((mask & reg) == 0)
+            SetDinLow(board);
+        else
+            SetDinHigh(board);
+        mask = mask >> 1;
+        SetClockLow(board);
+        SetClockHigh(board);
+    }
+    // read dummy 0 bit, if zero assume ok
+    if (DataHighQ(board) == 1)
+        return 0;
+    mask = EEPROM_93C66_DATA_MASK;
+    tdata = 0;
+    for (bit = 0; bit < EEPROM_93C66_DATA_LEN; bit++) {
+        SetClockLow(board);
+        SetClockHigh(board);
+        if (DataHighQ(board) == 1)
+            tdata = tdata | mask;
+        mask = mask >> 1;
+    }
+    SetCSLow(board);
+    SetDinLow(board);
+    SetClockLow(board);
+    return tdata;
+}
+
+void pci_bridge_eeprom_setup_read(pci_board_t *board) {
+    int i;
+    char *bridge_name = "Unknown";
+
+    if (board->dev->device_id == DEVICEID_PLX9030)
+        bridge_name = "PLX9030";
+    else if (board->dev->device_id == DEVICEID_PLX9054)
+        bridge_name = "PLX9054";
+    else if (board->dev->device_id == DEVICEID_PLX9056)
+        bridge_name = "PLX9056";
+
+    printf("%s PCI bridge setup EEPROM:\n", bridge_name);
+    for (i = 0; i < EEPROM_93C66_SIZE; i++) {
+        if ((i > 0) && ((i % 16) == 0))
+            printf("\n");
+        if ((i % 16) == 0)
+            printf("  %02X: ", i);
+        printf("%04X ", read_eeprom_word(board, i));
+    }
+    printf("\n");
+}
 
 static int plx9030_program_fpga(llio_t *self, char *bitfile_name) {
     pci_board_t *board = self->private;
@@ -371,6 +501,7 @@ void pci_boards_scan() {
 
                 //board->llio.reset(&(board->llio));
                 //board->llio.program_fpga(&(board->llio), "../../Pulpit/SVST8_4.BIT");
+                pci_bridge_eeprom_setup_read(board);
                 hm2_read_idrom(&(board->llio));
 
                 boards_count++;

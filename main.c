@@ -62,11 +62,11 @@ int main(int argc, char *argv[]) {
 
     if (list_flag == 1) {
         eth_access.net_addr = "192.168.1.0";
-        eth_init(&eth_access);
-        eth_scan(&eth_access);
-        eth_release(&eth_access);
-        //pci_boards_init();
-        //pci_boards_scan();
+        //eth_init(&eth_access);
+        //eth_scan(&eth_access);
+        //eth_release(&eth_access);
+        pci_boards_init();
+        pci_boards_scan();
         //lpt_boards_init();
         //lpt_boards_scan();
     }

@@ -1,12 +1,12 @@
 
 #include <pci/pci.h>
-#include <time.h>
 #include <sys/stat.h>
 #include <string.h>
 #include <errno.h>
 #include <math.h>
 #include <stdio.h>
 
+#include "common.h"
 #include "bitfile.h"
 #include "eth_boards.h"
 #include "lbp16.h"
@@ -260,12 +260,8 @@ void eth_scan(eth_access_t *access) {
     int send = 0, recv = 0;
     u32 cookie;
     char *ptr;
-    struct timespec tv, tvret;    // for nanosleep in linux, on windows there is only Sleep(ms)
 
     lbp16_socket_nonblocking();
-
-    tv.tv_sec = 0;
-    tv.tv_nsec = 5000000;
 
     strncpy(addr, access->net_addr, 16);
     ptr = strrchr(addr, '.');
@@ -278,7 +274,7 @@ void eth_scan(eth_access_t *access) {
         sprintf(addr_name, "%s.%d", addr, i);
         lbp16_socket_set_dest_ip(addr_name);
         send = lbp16_send_packet(&packet, sizeof(packet));
-        nanosleep(&tv, &tvret);
+        sleep_ns(5*1000*1000);
         recv = lbp16_recv_packet(&cookie, sizeof(cookie));
 
         if ((recv > 0) && (cookie == HM2_COOKIE)) {

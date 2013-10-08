@@ -8,12 +8,33 @@
 
 #define MAX_PCI_BOARDS 8
 
+#define EEPROM_93C66_SIZE     256
+#define EEPROM_93C66_CMD_LEN  3
+#define EEPROM_93C66_ADDR_LEN 8
+#define EEPROM_93C66_DATA_LEN 16
+
+#define EEPROM_93C66_CMD_WREN  4
+#define EEPROM_93C66_CMD_WRITE 5
+#define EEPROM_93C66_CMD_READ  6
+#define EEPROM_93C66_CMD_ERASE 7
+
+#define EEPROM_93C66_CMD_MASK 0x04
+#define EEPROM_93C66_ADDR_MASK 0x80
+#define EEPROM_93C66_DATA_MASK 0x8000
+
 //
 // PLX 9030 (5i20, 4i65)
 //
 
 // I/O registers
+#define PLX9030_CTRL_INIT_OFFSET 0x0052
 #define PLX9030_CTRL_STAT_OFFSET 0x0054    /* 9030 GPIO register (region 1) */
+
+// bit number in 9030 INIT register
+#define PLX9030_EECLK_MASK       0x0100
+#define PLX9030_EECS_MASK        0x0200
+#define PLX9030_EEDI_MASK        0x0400
+#define PLX9030_EEDO_MASK        0x0800
 
 // bit number in 9030 GPIO register
 #define PLX9030_GPIO_3_MASK      (1<<11)    /* GPIO 3 */

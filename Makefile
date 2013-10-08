@@ -13,7 +13,7 @@ OPT = -O0
 DEBUG = -g -Wall
 CFLAGS = $(INCLUDE) $(OPT) $(DEBUG) $(MATHLIB)
 
-objects = main.o eth_boards.o lbp16.o hostmot2.o pci_boards.o lpt_boards.o eeprom.o bitfile.o
+objects = common.o lbp16.o bitfile.o hostmot2.o eeprom.o eth_boards.o lpt_boards.o pci_boards.o main.o
 
 all : $(objects)
 	$(CC) -o $(BIN) $(objects) $(MATHLIB) $(LIBS)
@@ -21,13 +21,13 @@ all : $(objects)
 main.o : main.c eth_boards.h pci_boards.h lpt_boards.h
 	$(CC) $(CFLAGS) -c main.c
 
-eth_boards.o : eth_boards.c eth_boards.h hostmot2.h lbp16.h
+eth_boards.o : eth_boards.c eth_boards.h hostmot2.h lbp16.h common.h
 	$(CC) $(CFLAGS) -c eth_boards.c
 
-pci_boards.o : pci_boards.c pci_boards.h hostmot2.h anyio.h bitfile.h
+pci_boards.o : pci_boards.c pci_boards.h hostmot2.h anyio.h bitfile.h common.h
 	$(CC) $(CFLAGS) -c pci_boards.c
 
-lpt_boards.o : lpt_boards.c lpt_boards.h hostmot2.h bitfile.h
+lpt_boards.o : lpt_boards.c lpt_boards.h hostmot2.h bitfile.h common.h
 	$(CC) $(CFLAGS) -c lpt_boards.c
 
 lbp16.o : lbp16.c lbp16.h
@@ -41,6 +41,9 @@ eeprom.o : eeprom.c eeprom.h
 
 bitfile.o : bitfile.c bitfile.h
 	$(CC) $(CFLAGS) -c bitfile.c
+
+common.o : common.c common.h
+	$(CC) $(CFLAGS) -c common.c
 
 clean :
 	$(RM) $(BIN) *.o

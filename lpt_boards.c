@@ -10,8 +10,8 @@
 #include <sys/io.h>
 #include <stdlib.h>
 #include <sys/stat.h>
-#include <time.h>
 
+#include "common.h"
 #include "eeprom.h"
 #include "bitfile.h"
 #include "lpt_boards.h"
@@ -125,14 +125,6 @@ static inline void lpt_epp_write32(lpt_board_t *board, u32 data) {
         lpt_epp_write8(board, (data >> 16) & 0xFF);
         lpt_epp_write8(board, (data >> 24) & 0xFF);
     }
-}
-
-static void lpt_nanosleep(u64 nanoseconds) {
-    struct timespec tv, tvret;
-
-    tv.tv_sec = 0;
-    tv.tv_nsec = nanoseconds;
-    nanosleep(&tv, &tvret);
 }
 
 int lpt_read(llio_t *self, u32 addr, void *buffer, int size) {
@@ -268,11 +260,11 @@ int lpt_reset(llio_t *self) {
 
     // bring the Spartan3's PROG_B line low for 1 us (the specs require 300-500 ns or longer)
     lpt_epp_write8(board, 0x00);
-    lpt_nanosleep(1000);
+    sleep_ns(1000);
 
     // bring the Spartan3's PROG_B line high and wait for 2 ms before sending firmware (required by spec)
     lpt_epp_write8(board, 0x01);
-    lpt_nanosleep(2 * 1000 * 1000);
+    sleep_ns(2 * 1000 * 1000);
 
     // make sure the FPGA is not asserting its /DONE bit
     byte = lpt_epp_read8(board);
