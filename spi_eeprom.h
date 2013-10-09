@@ -27,6 +27,15 @@
 
 u8 boot_block[BOOT_BLOCK_SIZE];
 
+typedef struct {
+    void (*set_cs_low)(llio_t *self);
+    void (*set_cs_high)(llio_t *self);
+    void (*prefix)(llio_t *self);
+    void (*suffix)(llio_t *self);
+    void (*send_byte)(llio_t *self, u8 byte);
+    u8   (*recv_byte)(llio_t *self);
+} spi_eeprom_dev_t;
+
 char *eeprom_get_flash_type(u8 flash_id);
 u32 eeprom_calc_user_space(u8 flash_id);
 void prepare_boot_block(u8 flash_id);

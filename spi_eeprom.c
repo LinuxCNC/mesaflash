@@ -315,6 +315,6 @@ int eeprom_verify_area(llio_t *self, char *bitfile_name, u32 start_address) {
     return 0;
 }
 
-void eeprom_init() {
-    open_spi_access_hm2(&access);
+void eeprom_init(llio_t *self) {
+    open_spi_access_hm2(self, &access);
 }
