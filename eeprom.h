@@ -16,8 +16,6 @@
 #define BOOT_ADDRESS     0x000000
 #define FALLBACK_ADDRESS 0x010000
 
-#define DAV_MASK            0x04
-
 #define SPI_CMD_PAGE_WRITE   0x02
 #define SPI_CMD_READ         0x03
 #define SPI_CMD_READ_STATUS  0x05

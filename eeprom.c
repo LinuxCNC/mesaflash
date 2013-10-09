@@ -6,8 +6,11 @@
 #include <string.h>
 
 #include "eeprom.h"
+#include "spi_eeprom.h"
 #include "bitfile.h"
 #include "pci_boards.h"
+
+spi_eeprom_dev_t access;
 
 u8 boot_block[BOOT_BLOCK_SIZE] = {
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
@@ -55,85 +58,36 @@ u32 eeprom_calc_user_space(u8 flash_id) {
     }
 }
 
-static void set_cs_high(llio_t *self) {
-    u32 data = 1;
-
-    self->write(self, HM2_SPI_CTRL_REG, &data, sizeof(data));
-}
-
-static void set_cs_low(llio_t *self) {
-    u32 data = 0;
-
-    self->write(self, HM2_SPI_CTRL_REG, &data, sizeof(data));
-}
-
-static void prefix(llio_t *self) {
-    set_cs_low(self);
-}
-
-static void suffix(llio_t *self) {
-    set_cs_high(self);
-}
-
-static void wait_for_data(llio_t *self) {
-    u32 i = 0;
-    u32 data = 0;
-
-    for (i = 0; (((data & 0xFF) & DAV_MASK) == 0) && (i < 5000) ; i++) {
-        self->read(self, HM2_SPI_CTRL_REG, &data, sizeof(data));
-    }
-    if (i == 5000) {
-        printf("%x timeout waiting for SPI data\n", data);
-    }
-}
-
-static void send_byte(llio_t *self, u8 byte) {
-    u32 data = byte;
-
-    self->write(self, HM2_SPI_DATA_REG, &data, sizeof(data));
-    wait_for_data(self);
-}
-
-static u8 recv_byte(llio_t *self) {
-    u32 data = 0;
-    u32 recv = 0;
-    
-    self->write(self, HM2_SPI_DATA_REG, &data, sizeof(data));
-    wait_for_data(self);
-    self->read(self, HM2_SPI_DATA_REG, &recv, sizeof(recv));
-    return (u8) recv & 0xFF;
-}
-
 static void send_address(llio_t *self, u32 addr) {
-    send_byte(self, (addr >> 16) & 0xFF);
-    send_byte(self, (addr >> 8) & 0xFF);
-    send_byte(self, addr & 0xFF);
+    access.send_byte(self, (addr >> 16) & 0xFF);
+    access.send_byte(self, (addr >> 8) & 0xFF);
+    access.send_byte(self, addr & 0xFF);
 }
 
 static void write_enable(llio_t *self) {
-  prefix(self);
-  send_byte(self, SPI_CMD_WRITE_ENABLE);
-  suffix(self);
+    access.prefix(self);
+    access.send_byte(self, SPI_CMD_WRITE_ENABLE);
+    access.suffix(self);
 }
 
 static u8 read_status(llio_t *self) {
     u8 ret;
 
-    prefix(self);
-    send_byte(self, SPI_CMD_READ_STATUS);
-    ret = recv_byte(self);
-    suffix(self);
+    access.prefix(self);
+    access.send_byte(self, SPI_CMD_READ_STATUS);
+    ret = access.recv_byte(self);
+    access.suffix(self);
     return ret;
 }
 
 u8 read_flash_id(llio_t *self) {
     u8 ret;
 
-    prefix(self);
-    send_byte(self, SPI_CMD_READ_IDROM);
+    access.prefix(self);
+    access.send_byte(self, SPI_CMD_READ_IDROM);
     send_address(self, 0); // three dummy bytes
-    ret = recv_byte(self);
-    suffix(self);
+    ret = access.recv_byte(self);
+    access.suffix(self);
     return ret;
 }
 
@@ -148,20 +102,20 @@ static void wait_for_write(llio_t *self) {
 static u8 read_byte(llio_t *self, u32 addr) {
     u8 ret;
 
-    prefix(self);
-    send_byte(self, SPI_CMD_READ);
+    access.prefix(self);
+    access.send_byte(self, SPI_CMD_READ);
     send_address(self, addr);
-    ret = recv_byte(self);
-    suffix(self);
+    ret = access.recv_byte(self);
+    access.suffix(self);
     return ret;
 }
 
 static void erase_sector(llio_t *self, u32 addr) {
     write_enable(self);
-    prefix(self);
-    send_byte(self, SPI_CMD_SECTOR_ERASE);
+    access.prefix(self);
+    access.send_byte(self, SPI_CMD_SECTOR_ERASE);
     send_address(self, addr);
-    suffix(self);
+    access.suffix(self);
     wait_for_write(self);
 }
 
@@ -169,13 +123,13 @@ static void write_page(llio_t *self, u32 addr, char *buff, int buff_i) {
     int i;
 
     write_enable(self);
-    prefix(self);
-    send_byte(self, SPI_CMD_PAGE_WRITE);
+    access.prefix(self);
+    access.send_byte(self, SPI_CMD_PAGE_WRITE);
     send_address(self, addr);// { note that add 0..7 should be 0}
     for (i = 0; i < PAGE_SIZE; i++) {
-        send_byte(self, buff[buff_i + i]);
+        access.send_byte(self, buff[buff_i + i]);
     }
-    suffix(self);
+    access.suffix(self);
     wait_for_write(self);
 }
 
@@ -206,7 +160,7 @@ static int start_programming(llio_t *self, u32 start_address, int fsize) {
     int esectors, sector, max_sectors;
     pci_board_t *board = self->private;
 
-    set_cs_high(self);
+    access.set_cs_high(self);
 
     esectors = (fsize - 1) / SECTOR_SIZE;
     if (start_address == FALLBACK_ADDRESS) {
@@ -230,12 +184,12 @@ static int start_programming(llio_t *self, u32 start_address, int fsize) {
         fflush(stdout);
     }
     printf("\n");
-    set_cs_high(self);
+    access.set_cs_high(self);
     return 0;
 }
 
 static void done_programming(llio_t *self) {
-    set_cs_high(self);
+    access.set_cs_high(self);
 }
 
 int eeprom_write_area(llio_t *self, char *bitfile_name, u32 start_address) {
@@ -359,4 +313,8 @@ int eeprom_verify_area(llio_t *self, char *bitfile_name, u32 start_address) {
     fclose(fp);
     printf("\nBoard configuration verified successfully\n");
     return 0;
+}
+
+void eeprom_init() {
+    open_spi_access_hm2(&access);
 }
