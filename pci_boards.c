@@ -575,8 +575,9 @@ void pci_boards_scan() {
 
                 //board->llio.reset(&(board->llio));
                 //board->llio.program_fpga(&(board->llio), "../../Pulpit/SVST8_4.BIT");
-                pci_bridge_eeprom_setup_read(board);
+                //pci_bridge_eeprom_setup_read(board);
                 hm2_read_idrom(&(board->llio));
+                //hm2_print_pin_file(&(board->llio));
 
                 boards_count++;
             }

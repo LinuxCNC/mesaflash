@@ -121,10 +121,16 @@ struct llio_struct {
     hostmot2_t hm2;
 };
 
+typedef struct {
+    u8 tag;
+    char *name[10];
+} pin_name_t;
+
 void hm2_read_idrom(llio_t *llio);
 void hm2_print_idrom(hostmot2_t *hm2);
 void hm2_print_modules(hostmot2_t *hm2);
 void hm2_print_pins(hostmot2_t *hm2);
+void hm2_print_pin_file(llio_t *llio);
 
 #endif
 
