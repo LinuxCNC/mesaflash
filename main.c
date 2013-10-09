@@ -8,6 +8,7 @@
 #include "eth_boards.h"
 #include "pci_boards.h"
 #include "lpt_boards.h"
+#include "usb_boards.h"
 
 static int list_flag;
 
@@ -69,6 +70,8 @@ int main(int argc, char *argv[]) {
         pci_boards_scan();
         //lpt_boards_init();
         //lpt_boards_scan();
+       // usb_boards_init();
+       // usb_boards_scan();
     }
     
     return 0;

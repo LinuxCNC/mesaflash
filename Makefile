@@ -13,12 +13,12 @@ OPT = -O0
 DEBUG = -g -Wall
 CFLAGS = $(INCLUDE) $(OPT) $(DEBUG) $(MATHLIB)
 
-objects = common.o lbp16.o bitfile.o hostmot2.o eeprom.o eth_boards.o lpt_boards.o pci_boards.o main.o
+objects = common.o lbp16.o bitfile.o hostmot2.o eeprom.o eth_boards.o lpt_boards.o usb_boards.o pci_boards.o main.o
 
 all : $(objects)
 	$(CC) -o $(BIN) $(objects) $(MATHLIB) $(LIBS)
 
-main.o : main.c eth_boards.h pci_boards.h lpt_boards.h
+main.o : main.c eth_boards.h pci_boards.h lpt_boards.h usb_boards.h
 	$(CC) $(CFLAGS) -c main.c
 
 eth_boards.o : eth_boards.c eth_boards.h hostmot2.h lbp16.h common.h
@@ -29,6 +29,9 @@ pci_boards.o : pci_boards.c pci_boards.h hostmot2.h anyio.h bitfile.h common.h
 
 lpt_boards.o : lpt_boards.c lpt_boards.h hostmot2.h bitfile.h common.h
 	$(CC) $(CFLAGS) -c lpt_boards.c
+
+usb_boards.o : usb_boards.c usb_boards.h hostmot2.h bitfile.h common.h
+	$(CC) $(CFLAGS) -c usb_boards.c
 
 lbp16.o : lbp16.c lbp16.h
 	$(CC) $(CFLAGS) -c lbp16.c
