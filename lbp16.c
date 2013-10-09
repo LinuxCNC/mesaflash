@@ -103,25 +103,25 @@ void lbp16_print_info() {
 
     LBP16_INIT_PACKET4(packet, CMD_READ_ETH_EEPROM_ADDR16_INCR(sizeof(eth_area)/2), 0);
     memset(&eth_area, 0, sizeof(eth_area));
-    sendto(sd, (char*) &packet, sizeof(packet), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
-    recvfrom(sd, (char*) &eth_area, sizeof(eth_area), 0, (struct sockaddr *) &client_addr, &len);
+    lbp16_send_packet(&packet, sizeof(packet));
+    lbp16_recv_packet(&eth_area, sizeof(eth_area));
 
     LBP16_INIT_PACKET4(packet, CMD_READ_COMM_CTRL_ADDR16_INCR(sizeof(stat_area)/2), 0);
     memset(&stat_area, 0, sizeof(stat_area));
-    sendto(sd, (char*) &packet, sizeof(packet), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
-    recvfrom(sd, (char*) &stat_area, sizeof(stat_area), 0, (struct sockaddr *) &client_addr, &len);
+    lbp16_send_packet(&packet, sizeof(packet));
+    lbp16_recv_packet(&stat_area, sizeof(stat_area));
 
     LBP16_INIT_PACKET4(packet, CMD_READ_BOARD_INFO_ADDR16_INCR(sizeof(info_area)/2), 0);
     memset(&info_area, 0, sizeof(info_area));
-    sendto(sd, (char*) &packet, sizeof(packet), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
-    recvfrom(sd, (char*) &info_area, sizeof(info_area), 0, (struct sockaddr *) &client_addr, &len);
+    lbp16_send_packet(&packet, sizeof(packet));
+    lbp16_recv_packet(&info_area, sizeof(info_area));
 
     if (info_area.LBP16_version >= 3) {
         LBP16_INIT_PACKET4(cmds[4], CMD_READ_AREA_INFO_ADDR16_INCR(LBP16_SPACE_TIMER, sizeof(mem_area)/2), 0);
         LBP16_INIT_PACKET4(packet, CMD_READ_TIMER_ADDR16_INCR(sizeof(timers_area)/2), 0);
         memset(&timers_area, 0, sizeof(timers_area));
-        sendto(sd, (char*) &packet, sizeof(packet), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
-        recvfrom(sd, (char*) &timers_area, sizeof(timers_area), 0, (struct sockaddr *) &client_addr, &len);
+        lbp16_send_packet(&packet, sizeof(packet));
+        lbp16_recv_packet(&timers_area, sizeof(timers_area));
     }
 
     printf("LBP16 firmware info:\n");
@@ -131,8 +131,8 @@ void lbp16_print_info() {
 
         if ((cmds[i].cmd_lo == 0) && (cmds[i].cmd_hi == 0)) continue;
         memset(&mem_area, 0, sizeof(mem_area));
-        sendto(sd, (char*) &cmds[i], sizeof(cmds[i]), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
-        recvfrom(sd, (char*) &mem_area, sizeof (mem_area), 0, (struct sockaddr *) &client_addr, &len);
+        lbp16_send_packet(&cmds[i], sizeof(cmds[i]));
+        lbp16_recv_packet(&mem_area, sizeof (mem_area));
 
         printf("    %d: %.*s (%s, %s", i, sizeof(mem_area.name), mem_area.name, mem_types[(mem_area.size  >> 8) & 0x7F],
           mem_writeable[(mem_area.size & 0x8000) >> 15]);
