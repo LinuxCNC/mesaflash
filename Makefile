@@ -13,7 +13,7 @@ OPT = -O0
 DEBUG = -g -Wall
 CFLAGS = $(INCLUDE) $(OPT) $(DEBUG) $(MATHLIB)
 
-objects = common.o lbp16.o bitfile.o hostmot2.o eeprom.o eth_boards.o lpt_boards.o usb_boards.o pci_boards.o spi_eeprom.o main.o
+objects = common.o lbp16.o bitfile.o hostmot2.o spi_eeprom.o eth_boards.o lpt_boards.o usb_boards.o pci_boards.o spi_access_hm2.o main.o
 
 all : $(objects)
 	$(CC) -o $(BIN) $(objects) $(MATHLIB) $(LIBS)
@@ -21,29 +21,29 @@ all : $(objects)
 main.o : main.c eth_boards.h pci_boards.h lpt_boards.h usb_boards.h
 	$(CC) $(CFLAGS) -c main.c
 
-eth_boards.o : eth_boards.c eth_boards.h hostmot2.h lbp16.h common.h
+eth_boards.o : eth_boards.c eth_boards.h hostmot2.h lbp16.h common.h spi_eeprom.h
 	$(CC) $(CFLAGS) -c eth_boards.c
 
-pci_boards.o : pci_boards.c pci_boards.h hostmot2.h anyio.h bitfile.h common.h
+pci_boards.o : pci_boards.c pci_boards.h hostmot2.h anyio.h bitfile.h common.h spi_eeprom.h
 	$(CC) $(CFLAGS) -c pci_boards.c
 
-lpt_boards.o : lpt_boards.c lpt_boards.h hostmot2.h bitfile.h common.h
+lpt_boards.o : lpt_boards.c lpt_boards.h hostmot2.h bitfile.h common.h spi_eeprom.h
 	$(CC) $(CFLAGS) -c lpt_boards.c
 
-usb_boards.o : usb_boards.c usb_boards.h hostmot2.h bitfile.h common.h
+usb_boards.o : usb_boards.c usb_boards.h hostmot2.h bitfile.h common.h spi_eeprom.h
 	$(CC) $(CFLAGS) -c usb_boards.c
 
-spi_eeprom.o : spi_eeprom.c spi_eeprom.h hostmot2.h
-	$(CC) $(CFLAGS) -c spi_eeprom.c
+spi_access_hm2.o : spi_access_hm2.c spi_access_hm2.h hostmot2.h
+	$(CC) $(CFLAGS) -c spi_access_hm2.c
 
-lbp16.o : lbp16.c lbp16.h
+lbp16.o : lbp16.c lbp16.h spi_eeprom.h
 	$(CC) $(CFLAGS) -c lbp16.c
 
 hostmot2.o : hostmot2.c hostmot2.h
 	$(CC) $(CFLAGS) -c hostmot2.c
 
-eeprom.o : eeprom.c eeprom.h
-	$(CC) $(CFLAGS) -c eeprom.c
+spi_eeprom.o : spi_eeprom.c spi_eeprom.h spi_access_hm2.h
+	$(CC) $(CFLAGS) -c spi_eeprom.c
 
 bitfile.o : bitfile.c bitfile.h
 	$(CC) $(CFLAGS) -c bitfile.c

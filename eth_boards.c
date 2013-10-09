@@ -10,7 +10,7 @@
 #include "bitfile.h"
 #include "eth_boards.h"
 #include "lbp16.h"
-#include "eeprom.h"
+#include "spi_eeprom.h"
 
 eth_board_t eth_boards[MAX_ETH_BOARDS];
 int boards_count;

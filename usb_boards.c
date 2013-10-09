@@ -9,7 +9,7 @@
 #include "usb_boards.h"
 #include "common.h"
 #include "anyio.h"
-#include "eeprom.h"
+#include "spi_eeprom.h"
 #include "bitfile.h"
 
 void usb_boards_init() {

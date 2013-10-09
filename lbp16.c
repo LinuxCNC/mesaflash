@@ -9,7 +9,7 @@
 #include <string.h>
 #include <math.h>
 
-#include "eeprom.h"
+#include "spi_eeprom.h"
 #include "lbp16.h"
 
 int sd;

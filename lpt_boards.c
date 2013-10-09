@@ -12,7 +12,7 @@
 #include <sys/stat.h>
 
 #include "common.h"
-#include "eeprom.h"
+#include "spi_eeprom.h"
 #include "bitfile.h"
 #include "lpt_boards.h"
 

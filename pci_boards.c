@@ -12,7 +12,7 @@
 
 #include "common.h"
 #include "anyio.h"
-#include "eeprom.h"
+#include "spi_eeprom.h"
 #include "bitfile.h"
 #include "pci_boards.h"
 
