@@ -497,12 +497,13 @@ void pci_boards_init() {
 
 void pci_boards_scan() {
     struct pci_dev *dev;
+    pci_board_t *board;
 
     pci_scan_bus(pacc);
     for (dev = pacc->devices; dev != NULL; dev = dev->next) {
-        pci_board_t *board = &pci_boards[boards_count];
-
+        board = &pci_boards[boards_count];
         pci_fill_info(dev, PCI_FILL_IDENT | PCI_FILL_IRQ | PCI_FILL_BASES | PCI_FILL_ROM_BASE | PCI_FILL_SIZES | PCI_FILL_CLASS);     // first run - fill data struct 
+
         if (dev->vendor_id == VENDORID_MESAPCI) {
             if (dev->device_id == DEVICEID_MESA5I25) {
                 strncpy((char *) board->llio.board_name, "5I25", 4);
