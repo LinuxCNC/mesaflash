@@ -580,10 +580,58 @@ void pci_boards_scan() {
                 //hm2_print_pin_file(&(board->llio));
 
                 boards_count++;
+            } else if (ssid == SUBDEVICEID_MESA4I65) {
+                strncpy(board->llio.board_name, "4I65", 4);
+                board->llio.num_ioport_connectors = 3;
+                board->llio.pins_per_connector = 24;
+                board->llio.ioport_connector_name[0] = "P1";
+                board->llio.ioport_connector_name[1] = "P3";
+                board->llio.ioport_connector_name[2] = "P4";
+                board->llio.fpga_part_number = "2s200pq208";
+                board->llio.num_leds = 8;
+                board->llio.read = &pci_read;
+                board->llio.write = &pci_write;
+                board->llio.program_fpga = &plx9030_program_fpga;
+                board->llio.reset = &plx9030_reset;
+                board->llio.private = board;
+                board->len = dev->size[5];
+                board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[5]);
+                board->dev = dev;
+                board->ctrl_base_addr = dev->base_addr[1];
+                board->data_base_addr = dev->base_addr[2];
+                printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
+                pci_print_info(board);
+                iopl(3);
+
+                boards_count++;
             }
         } else if (dev->device_id == DEVICEID_PLX9054) {
             u16 ssid = pci_read_word(dev, PCI_SUBSYSTEM_ID);
-            if (ssid == SUBDEVICEID_MESA5I21) {
+            if ((ssid == SUBDEVICEID_MESA4I68_OLD) || (ssid == SUBDEVICEID_MESA4I68)) {
+                strncpy(board->llio.board_name, "4I68", 4);
+                board->llio.num_ioport_connectors = 3;
+                board->llio.pins_per_connector = 24;
+                board->llio.ioport_connector_name[0] = "P1";
+                board->llio.ioport_connector_name[1] = "P2";
+                board->llio.ioport_connector_name[2] = "P4";
+                board->llio.fpga_part_number = "3s400pq208";
+                board->llio.num_leds = 4;
+                board->llio.read = &pci_read;
+                board->llio.write = &pci_write;
+                board->llio.program_fpga = &plx905x_program_fpga;
+                board->llio.reset = &plx905x_reset;
+                board->llio.private = board;
+                board->len = dev->size[3];
+                board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
+                board->dev = dev;
+                board->ctrl_base_addr = dev->base_addr[1];
+                board->data_base_addr = dev->base_addr[2];
+                printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
+                pci_print_info(board);
+                iopl(3);
+
+                boards_count++;
+            } else if (ssid == SUBDEVICEID_MESA5I21) {
                 strncpy(board->llio.board_name, "5I21", 4);
                 board->llio.num_ioport_connectors = 2;
                 board->llio.pins_per_connector = 32;
@@ -608,6 +656,87 @@ void pci_boards_scan() {
                 board->llio.reset(&(board->llio));
                 board->llio.program_fpga(&(board->llio), "../../Pulpit/I21LOOP.BIT");
                 hm2_read_idrom(&(board->llio));
+
+                boards_count++;
+            } else if ((ssid == SUBDEVICEID_MESA5I22_10) || (ssid == SUBDEVICEID_MESA5I22_15)) {
+                strncpy(board->llio.board_name, "5I22", 4);
+                board->llio.num_ioport_connectors = 4;
+                board->llio.pins_per_connector = 24;
+                board->llio.ioport_connector_name[0] = "P2";
+                board->llio.ioport_connector_name[1] = "P3";
+                board->llio.ioport_connector_name[2] = "P4";
+                board->llio.ioport_connector_name[3] = "P5";
+                if (ssid == SUBDEVICEID_MESA5I22_10) {
+                    board->llio.fpga_part_number = "3s1000fg320";
+                } else if (ssid == SUBDEVICEID_MESA5I22_15) {
+                    board->llio.fpga_part_number = "3s1500fg320";
+                }
+                board->llio.num_leds = 8;
+                board->llio.read = &pci_read;
+                board->llio.write = &pci_write;
+                board->llio.program_fpga = &plx905x_program_fpga;
+                board->llio.reset = &plx905x_reset;
+                board->llio.private = board;
+                board->len = dev->size[3];
+                board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
+                board->dev = dev;
+                board->ctrl_base_addr = dev->base_addr[1];
+                board->data_base_addr = dev->base_addr[2];
+                printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
+                pci_print_info(board);
+                iopl(3);
+
+                boards_count++;
+            } else if (ssid == SUBDEVICEID_MESA5I23) {
+                strncpy(board->llio.board_name, "5I23", 4);
+                board->llio.num_ioport_connectors = 3;
+                board->llio.pins_per_connector = 24;
+                board->llio.ioport_connector_name[0] = "P2";
+                board->llio.ioport_connector_name[1] = "P3";
+                board->llio.ioport_connector_name[2] = "P4";
+                board->llio.fpga_part_number = "3s400pq208";
+                board->llio.num_leds = 2;
+                board->llio.read = &pci_read;
+                board->llio.write = &pci_write;
+                board->llio.program_fpga = &plx905x_program_fpga;
+                board->llio.reset = &plx905x_reset;
+                board->llio.private = board;
+                board->len = dev->size[3];
+                board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
+                board->dev = dev;
+                board->ctrl_base_addr = dev->base_addr[1];
+                board->data_base_addr = dev->base_addr[2];
+                printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
+                pci_print_info(board);
+                iopl(3);
+
+                boards_count++;
+            } else if ((ssid == SUBDEVICEID_MESA4I69_16) || (ssid == SUBDEVICEID_MESA4I69_25)) {
+                strncpy(board->llio.board_name, "4I69", 4);
+                board->llio.num_ioport_connectors = 3;
+                board->llio.pins_per_connector = 24;
+                board->llio.ioport_connector_name[0] = "P1";
+                board->llio.ioport_connector_name[1] = "P3";
+                board->llio.ioport_connector_name[2] = "P4";
+                if (ssid == SUBDEVICEID_MESA4I69_16) {
+                    board->llio.fpga_part_number = "6slx16fg256";
+                } else if (ssid == SUBDEVICEID_MESA4I69_25) {
+                    board->llio.fpga_part_number = "6slx25fg256";
+                }
+                board->llio.num_leds = 8;
+                board->llio.read = &pci_read;
+                board->llio.write = &pci_write;
+                board->llio.program_fpga = &plx905x_program_fpga;
+                board->llio.reset = &plx905x_reset;
+                board->llio.private = board;
+                board->len = dev->size[3];
+                board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
+                board->dev = dev;
+                board->ctrl_base_addr = dev->base_addr[1];
+                board->data_base_addr = dev->base_addr[2];
+                printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
+                pci_print_info(board);
+                iopl(3);
 
                 boards_count++;
             }
