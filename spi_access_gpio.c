@@ -1,5 +1,9 @@
 
+#ifdef __linux__
 #include <pci/pci.h>
+#elif _WIN32
+#include "libpci/pci.h"
+#endif
 
 #include "spi_access_gpio.h"
 #include "pci_boards.h"

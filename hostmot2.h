@@ -2,7 +2,11 @@
 #ifndef __HOSTMOT2_H
 #define __HOSTMOT2_H
 
+#ifdef __linux__
 #include <pci/pci.h>
+#elif _WIN32
+#include "libpci/pci.h"
+#endif
 
 #define HM2_AREA_SIZE    0x10000
 

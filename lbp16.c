@@ -1,8 +1,14 @@
 
+#ifdef __linux__
 #include <pci/pci.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#elif _WIN32
+#include "libpci/pci.h"
+#include <windows.h>
+#endif
+
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -12,8 +18,13 @@
 #include "spi_eeprom.h"
 #include "lbp16.h"
 
+#ifdef __linux__
 int sd;
 socklen_t len;
+#elif _WIN32
+SOCKET sd;
+int len;
+#endif
 struct sockaddr_in server_addr, client_addr;
 
 int lbp16_send_packet(void *packet, int size) {
@@ -25,17 +36,23 @@ int lbp16_recv_packet(void *buffer, int size) {
 }
 
 void lbp16_socket_nonblocking() {
+#ifdef __linux__
     int val = fcntl(sd, F_GETFL);
 
     val = val | O_NONBLOCK;
     fcntl(sd, F_SETFL, val);
+#elif _WIN32
+#endif
 }
 
 void lbp16_socket_blocking() {
+#ifdef __linux__
     int val = fcntl(sd, F_GETFL);
 
     val = val & ~O_NONBLOCK;
     fcntl(sd, F_SETFL, val);
+#elif _WIN32
+#endif
 }
 
 void lbp16_socket_set_dest_ip(char *addr_name) {
@@ -194,7 +211,25 @@ void lbp16_print_info() {
 
 void lbp16_init() {
 // open socket
+#ifdef __linux__
     sd = socket (PF_INET, SOCK_DGRAM, 0);
+#elif _WIN32
+    int iResult;
+    WSADATA wsaData;
+    u_long iMode = 1;    // block mode in windows
+
+    iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
+    if (iResult != 0) {
+        printf("WSAStartup failed: %d\n", iResult);
+        return;
+    }
+
+    sd = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if (sd == 0) {
+        printf("Can't open socket: %d %d\n", sd, errno);
+        return;
+    }
+#endif
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(LBP16_UDP_PORT);
     len = sizeof(client_addr);

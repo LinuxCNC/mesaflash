@@ -1,7 +1,12 @@
 
+#ifdef __linux__
 #include <pci/pci.h>
 #include <sys/mman.h>
 #include <sys/io.h>
+#elif _WIN32
+#include <windows.h>
+#include "libpci/pci.h"
+#endif
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -459,6 +464,7 @@ int pci_read(llio_t *self, u32 addr, void *buffer, int size) {
     pci_board_t *board = self->private;
 
     memcpy(buffer, (board->base + addr), size);
+//    printf("READ %X, (%X + %X), %d\n", buffer, board->base, addr, size);
     return 0;
 }
 
@@ -483,6 +489,7 @@ void pci_boards_init() {
     pacc = pci_alloc();
     pci_init(pacc);            // inicjowanie biblioteki libpci
 
+#ifdef __linux__
     if (seteuid(0) != 0) {
         printf("%s need root privilges (or setuid root)", __func__);
         return;
@@ -493,6 +500,9 @@ void pci_boards_init() {
     if (memfd < 0) {
         printf("%s can't open /dev/mem: %s", __func__, strerror(eno));
     }
+#elif _WIN32
+//	init_winio32();
+#endif
 }
 
 void pci_boards_scan() {
@@ -517,15 +527,43 @@ void pci_boards_scan() {
                 board->llio.write = &pci_write;
                 board->llio.program_flash = &pci_program_flash;
                 board->llio.private = board;
+#ifdef __linux__
+                iopl(3);
                 board->len = dev->size[0];
                 board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[0]);
+#elif _WIN32
+                int i;
+                
+                for (i = 0; i < 6; i++) {
+					u32 saved_bar, size;
+					
+					if (dev->base_addr == 0)
+					    continue;
+					
+					saved_bar = pci_read_long(dev, PCI_BASE_ADDRESS_0 + i*4);    
+					pci_write_long(dev, PCI_BASE_ADDRESS_0 + i*4, 0xFFFFFFFF);
+					size = pci_read_long(dev, PCI_BASE_ADDRESS_0 + i*4);
+		            if (size & PCI_BASE_ADDRESS_SPACE_IO) {
+						size = ~(size & PCI_BASE_ADDRESS_IO_MASK) & 0xFF;
+					} else {
+						size = ~(size & PCI_BASE_ADDRESS_MEM_MASK);
+					}
+					pci_write_long(dev, PCI_BASE_ADDRESS_0 + i*4, saved_bar);
+
+					dev->size[i] = size + 1;
+				}
+				board->len = HM2_AREA_SIZE;
+				board->base = map_memory(dev->base_addr[0], board->len);
+                printf("BASE = %X\n", board->base);
+#endif
                 board->dev = dev;
-                board->flash_id = read_flash_id(&(board->llio));
+                eeprom_init(&(board->llio));
+                //board->flash_id = read_flash_id(&(board->llio));
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
                 pci_print_info(board);
-                //hm2_read_idrom(&(board->llio));
-
-                pci_verify_flash(&(board->llio), "../../Pulpit/7i77x2.bit", 0x80000);
+                hm2_read_idrom(&(board->llio));
+                
+                //pci_verify_flash(&(board->llio), "../../Pulpit/7i77x2.bit", 0x80000);
 
                 boards_count++;
             } else if (dev->device_id == DEVICEID_MESA6I25) {
@@ -540,8 +578,11 @@ void pci_boards_scan() {
                 board->llio.write = &pci_write;
                 board->llio.program_flash = &pci_program_flash;
                 board->llio.private = board;
+#ifdef __linux__
+                iopl(3);
                 board->len = dev->size[0];
                 board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[0]);
+#endif
                 board->dev = dev;
                 board->flash_id = read_flash_id(&(board->llio));
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
@@ -564,22 +605,47 @@ void pci_boards_scan() {
                 board->llio.program_fpga = &plx9030_program_fpga;
                 board->llio.reset = &plx9030_reset;
                 board->llio.private = board;
+#ifdef __linux__
+                iopl(3);
                 board->len = dev->size[5];
                 board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[5]);
-                board->dev = dev;
+#elif _WIN32
+                int i;
+                
+                for (i = 0; i < 6; i++) {
+					u32 saved_bar, size;
+					
+					if (dev->base_addr == 0)
+					    continue;
+					
+					saved_bar = pci_read_long(dev, PCI_BASE_ADDRESS_0 + i*4);    
+					pci_write_long(dev, PCI_BASE_ADDRESS_0 + i*4, 0xFFFFFFFF);
+					size = pci_read_long(dev, PCI_BASE_ADDRESS_0 + i*4);
+		            if (size & PCI_BASE_ADDRESS_SPACE_IO) {
+						size = ~(size & PCI_BASE_ADDRESS_IO_MASK) & 0xFF;
+					} else {
+						size = ~(size & PCI_BASE_ADDRESS_MEM_MASK);
+					}
+					pci_write_long(dev, PCI_BASE_ADDRESS_0 + i*4, saved_bar);
+
+					dev->size[i] = size + 1;
+				}
+				board->len = dev->size[5];
+				board->base = map_memory(dev->base_addr[5], board->len);
+#endif
                 board->ctrl_base_addr = dev->base_addr[1];
                 board->data_base_addr = dev->base_addr[2];
+                board->dev = dev;
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
                 //pci_print_info(board);
-                iopl(3);
-                plx9030_fixup_LASxBRD_READY(&(board->llio));
+                //plx9030_fixup_LASxBRD_READY(&(board->llio));
 
                 //board->llio.reset(&(board->llio));
                 //board->llio.program_fpga(&(board->llio), "../../Pulpit/SVST8_4.BIT");
                 //pci_bridge_eeprom_setup_read(board);
                 hm2_read_idrom(&(board->llio));
                 //hm2_print_pin_file(&(board->llio));
-
+               return;
                 boards_count++;
             } else if (ssid == SUBDEVICEID_MESA4I65) {
                 strncpy(board->llio.board_name, "4I65", 4);
@@ -595,14 +661,16 @@ void pci_boards_scan() {
                 board->llio.program_fpga = &plx9030_program_fpga;
                 board->llio.reset = &plx9030_reset;
                 board->llio.private = board;
+#ifdef __linux__
+                iopl(3);
                 board->len = dev->size[5];
                 board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[5]);
-                board->dev = dev;
                 board->ctrl_base_addr = dev->base_addr[1];
                 board->data_base_addr = dev->base_addr[2];
+#endif
+                board->dev = dev;
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
                 pci_print_info(board);
-                iopl(3);
 
                 boards_count++;
             }
@@ -622,14 +690,16 @@ void pci_boards_scan() {
                 board->llio.program_fpga = &plx905x_program_fpga;
                 board->llio.reset = &plx905x_reset;
                 board->llio.private = board;
+#ifdef __linux__
+                iopl(3);
                 board->len = dev->size[3];
                 board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
-                board->dev = dev;
                 board->ctrl_base_addr = dev->base_addr[1];
                 board->data_base_addr = dev->base_addr[2];
+#endif
+                board->dev = dev;
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
                 pci_print_info(board);
-                iopl(3);
 
                 boards_count++;
             } else if (ssid == SUBDEVICEID_MESA5I21) {
@@ -645,14 +715,16 @@ void pci_boards_scan() {
                 board->llio.program_fpga = &plx905x_program_fpga;
                 board->llio.reset = &plx905x_reset;
                 board->llio.private = board;
+#ifdef __linux__
+                iopl(3);
                 board->len = dev->size[3];
                 board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
-                board->dev = dev;
                 board->ctrl_base_addr = dev->base_addr[1];
                 board->data_base_addr = dev->base_addr[2];
+#endif
+                board->dev = dev;
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
                 pci_print_info(board);
-                iopl(3);
 
                 board->llio.reset(&(board->llio));
                 board->llio.program_fpga(&(board->llio), "../../Pulpit/I21LOOP.BIT");
@@ -678,14 +750,16 @@ void pci_boards_scan() {
                 board->llio.program_fpga = &plx905x_program_fpga;
                 board->llio.reset = &plx905x_reset;
                 board->llio.private = board;
+#ifdef __linux__
+                iopl(3);
                 board->len = dev->size[3];
                 board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
-                board->dev = dev;
                 board->ctrl_base_addr = dev->base_addr[1];
                 board->data_base_addr = dev->base_addr[2];
+#endif
+                board->dev = dev;
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
                 pci_print_info(board);
-                iopl(3);
 
                 boards_count++;
             } else if (ssid == SUBDEVICEID_MESA5I23) {
@@ -702,14 +776,16 @@ void pci_boards_scan() {
                 board->llio.program_fpga = &plx905x_program_fpga;
                 board->llio.reset = &plx905x_reset;
                 board->llio.private = board;
+#ifdef __linux__
+                iopl(3);
                 board->len = dev->size[3];
                 board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
-                board->dev = dev;
                 board->ctrl_base_addr = dev->base_addr[1];
                 board->data_base_addr = dev->base_addr[2];
+#endif
+                board->dev = dev;
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
                 pci_print_info(board);
-                iopl(3);
 
                 boards_count++;
             } else if ((ssid == SUBDEVICEID_MESA4I69_16) || (ssid == SUBDEVICEID_MESA4I69_25)) {
@@ -730,14 +806,16 @@ void pci_boards_scan() {
                 board->llio.program_fpga = &plx905x_program_fpga;
                 board->llio.reset = &plx905x_reset;
                 board->llio.private = board;
+#ifdef __linux__
+                iopl(3);
                 board->len = dev->size[3];
                 board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
-                board->dev = dev;
                 board->ctrl_base_addr = dev->base_addr[1];
                 board->data_base_addr = dev->base_addr[2];
+#endif
+                board->dev = dev;
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
                 pci_print_info(board);
-                iopl(3);
 
                 boards_count++;
             }
@@ -766,14 +844,16 @@ void pci_boards_scan() {
                 board->llio.program_fpga = &plx905x_program_fpga;
                 board->llio.reset = &plx905x_reset;
                 board->llio.private = board;
+#ifdef __linux__
+                iopl(3);
                 board->len = dev->size[3];
                 board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
-                board->dev = dev;
                 board->ctrl_base_addr = dev->base_addr[1];
                 board->data_base_addr = dev->base_addr[2];
+#endif
+                board->dev = dev;
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
                 pci_print_info(board);
-                iopl(3);
 
                 board->llio.reset(&(board->llio));
                 board->llio.program_fpga(&(board->llio), "../../Pulpit/SV24S.BIT");
@@ -792,9 +872,9 @@ void pci_print_info(pci_board_t *board) {
         u32 flags = pci_read_long(board->dev, PCI_BASE_ADDRESS_0 + 4*i);
         if (board->dev->base_addr[i] != 0) {
             if (flags & PCI_BASE_ADDRESS_SPACE_IO) {
-                printf("  Region %d: I/O at %04X [size=%u]\n", i, (unsigned int) board->dev->base_addr[i], (unsigned int) board->dev->size[i]);
+                printf("  Region %d: I/O at %04X [size=%04X]\n", i, (unsigned int) board->dev->base_addr[i] & PCI_BASE_ADDRESS_IO_MASK, (unsigned int) board->dev->size[i]);
             }  else {
-                printf("  Region %d: Memory at %08X [size=%u]\n", i, (unsigned int) board->dev->base_addr[i], (unsigned int) board->dev->size[i]);
+                printf("  Region %d: Memory at %08X [size=%08X]\n", i, (unsigned int) board->dev->base_addr[i], (unsigned int) board->dev->size[i]);
             }
         }
     }

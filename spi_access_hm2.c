@@ -1,5 +1,9 @@
 
+#ifdef __linux__
 #include <pci/pci.h>
+#elif _WIN32
+#include "libpci/pci.h"
+#endif
 #include <stdio.h>
 
 #include "spi_access_hm2.h"

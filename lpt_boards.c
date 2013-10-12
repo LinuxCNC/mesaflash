@@ -1,13 +1,17 @@
 
+#ifdef __linux__
 #include <pci/pci.h>
+#include <linux/parport.h>
+#include <sys/ioctl.h>
+#include <sys/io.h>
+#elif _WIN32
+#include "libpci/pci.h"
+#endif
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <linux/parport.h>
 #include <unistd.h>
-#include <sys/ioctl.h>
-#include <sys/io.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 
@@ -282,6 +286,7 @@ void lpt_boards_init() {
 }
 
 void lpt_boards_scan() {
+#ifdef __linux__
         lpt_board_t *board = &lpt_boards[boards_count];
         int r;
 
@@ -348,4 +353,5 @@ void lpt_boards_scan() {
 
         printf("board at (ioaddr=0x%04X, ioaddr_hi=0x%04X, epp_wide %s) found\n",
             board->base, board->base_hi, (board->epp_wide ? "ON" : "OFF"));
+#endif
 }

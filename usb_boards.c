@@ -1,6 +1,10 @@
 
+#ifdef __linux__
 #include <pci/pci.h>
 #include <termios.h>
+#elif _WIN32
+#include "libpci/pci.h"
+#endif
 #include <sys/fcntl.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -16,6 +20,7 @@ void usb_boards_init() {
 }
 
 void usb_boards_scan() {
+#ifdef __linux__
     int sd, i;
     struct termios options;
     u8 cmd = 0x1;
@@ -33,4 +38,5 @@ void usb_boards_scan() {
     i = read(sd, &data, 1);
     printf("i=%d 0x%04X %d\n", i, data, errno);
     close(sd);
+#endif
 }
