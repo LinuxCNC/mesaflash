@@ -501,7 +501,7 @@ void pci_boards_init() {
         printf("%s can't open /dev/mem: %s", __func__, strerror(eno));
     }
 #elif _WIN32
-//	init_winio32();
+//    init_winio32();
 #endif
 }
 
@@ -535,25 +535,25 @@ void pci_boards_scan() {
                 int i;
                 
                 for (i = 0; i < 6; i++) {
-					u32 saved_bar, size;
-					
-					if (dev->base_addr == 0)
-					    continue;
-					
-					saved_bar = pci_read_long(dev, PCI_BASE_ADDRESS_0 + i*4);    
-					pci_write_long(dev, PCI_BASE_ADDRESS_0 + i*4, 0xFFFFFFFF);
-					size = pci_read_long(dev, PCI_BASE_ADDRESS_0 + i*4);
-		            if (size & PCI_BASE_ADDRESS_SPACE_IO) {
-						size = ~(size & PCI_BASE_ADDRESS_IO_MASK) & 0xFF;
-					} else {
-						size = ~(size & PCI_BASE_ADDRESS_MEM_MASK);
-					}
-					pci_write_long(dev, PCI_BASE_ADDRESS_0 + i*4, saved_bar);
+                    u32 saved_bar, size;
 
-					dev->size[i] = size + 1;
-				}
-				board->len = HM2_AREA_SIZE;
-				board->base = map_memory(dev->base_addr[0], board->len);
+                    if (dev->base_addr == 0)
+                        continue;
+
+                    saved_bar = pci_read_long(dev, PCI_BASE_ADDRESS_0 + i*4);
+                    pci_write_long(dev, PCI_BASE_ADDRESS_0 + i*4, 0xFFFFFFFF);
+                    size = pci_read_long(dev, PCI_BASE_ADDRESS_0 + i*4);
+                    if (size & PCI_BASE_ADDRESS_SPACE_IO) {
+                        size = ~(size & PCI_BASE_ADDRESS_IO_MASK) & 0xFF;
+                    } else {
+                        size = ~(size & PCI_BASE_ADDRESS_MEM_MASK);
+                    }
+                    pci_write_long(dev, PCI_BASE_ADDRESS_0 + i*4, saved_bar);
+
+                    dev->size[i] = size + 1;
+                }
+                board->len = HM2_AREA_SIZE;
+                board->base = map_memory(dev->base_addr[0], board->len);
                 printf("BASE = %X\n", board->base);
 #endif
                 board->dev = dev;
@@ -613,25 +613,25 @@ void pci_boards_scan() {
                 int i;
                 
                 for (i = 0; i < 6; i++) {
-					u32 saved_bar, size;
-					
-					if (dev->base_addr == 0)
-					    continue;
-					
-					saved_bar = pci_read_long(dev, PCI_BASE_ADDRESS_0 + i*4);    
-					pci_write_long(dev, PCI_BASE_ADDRESS_0 + i*4, 0xFFFFFFFF);
-					size = pci_read_long(dev, PCI_BASE_ADDRESS_0 + i*4);
-		            if (size & PCI_BASE_ADDRESS_SPACE_IO) {
-						size = ~(size & PCI_BASE_ADDRESS_IO_MASK) & 0xFF;
-					} else {
-						size = ~(size & PCI_BASE_ADDRESS_MEM_MASK);
-					}
-					pci_write_long(dev, PCI_BASE_ADDRESS_0 + i*4, saved_bar);
+                    u32 saved_bar, size;
 
-					dev->size[i] = size + 1;
-				}
-				board->len = dev->size[5];
-				board->base = map_memory(dev->base_addr[5], board->len);
+                    if (dev->base_addr == 0)
+                        continue;
+
+                    saved_bar = pci_read_long(dev, PCI_BASE_ADDRESS_0 + i*4);
+                    pci_write_long(dev, PCI_BASE_ADDRESS_0 + i*4, 0xFFFFFFFF);
+                    size = pci_read_long(dev, PCI_BASE_ADDRESS_0 + i*4);
+                    if (size & PCI_BASE_ADDRESS_SPACE_IO) {
+                        size = ~(size & PCI_BASE_ADDRESS_IO_MASK) & 0xFF;
+                    } else {
+                        size = ~(size & PCI_BASE_ADDRESS_MEM_MASK);
+                    }
+                    pci_write_long(dev, PCI_BASE_ADDRESS_0 + i*4, saved_bar);
+
+                    dev->size[i] = size + 1;
+                }
+                board->len = dev->size[5];
+                board->base = map_memory(dev->base_addr[5], board->len);
 #endif
                 board->ctrl_base_addr = dev->base_addr[1];
                 board->data_base_addr = dev->base_addr[2];
@@ -872,7 +872,7 @@ void pci_print_info(pci_board_t *board) {
         u32 flags = pci_read_long(board->dev, PCI_BASE_ADDRESS_0 + 4*i);
         if (board->dev->base_addr[i] != 0) {
             if (flags & PCI_BASE_ADDRESS_SPACE_IO) {
-                printf("  Region %d: I/O at %04X [size=%04X]\n", i, (unsigned int) board->dev->base_addr[i] & PCI_BASE_ADDRESS_IO_MASK, (unsigned int) board->dev->size[i]);
+                printf("  Region %d: I/O at %04X [size=%04X]\n", i, (unsigned int) (board->dev->base_addr[i] & PCI_BASE_ADDRESS_IO_MASK), (unsigned int) board->dev->size[i]);
             }  else {
                 printf("  Region %d: Memory at %08X [size=%08X]\n", i, (unsigned int) board->dev->base_addr[i], (unsigned int) board->dev->size[i]);
             }

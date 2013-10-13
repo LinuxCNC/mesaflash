@@ -8,9 +8,9 @@ void hm2_read_idrom(llio_t *llio) {
 
     llio->read(llio, HM2_COOKIE_REG, &(cookie), sizeof(u32));
     if (cookie != HM2_COOKIE) {
-		printf("ERROR: no HOSTMOT2 firmware found. %X\n", cookie);
-		return;
-	}
+        printf("ERROR: no HOSTMOT2 firmware found. %X\n", cookie);
+        return;
+    }
     llio->read(llio, HM2_IDROM_ADDR, &(idrom_addr), sizeof(u32));
     llio->read(llio, idrom_addr, &(llio->hm2.idrom), sizeof(llio->hm2.idrom));
     llio->read(llio, idrom_addr + llio->hm2.idrom.offset_to_modules, &(llio->hm2.modules), sizeof(llio->hm2.modules));

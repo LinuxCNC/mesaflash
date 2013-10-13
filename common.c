@@ -13,37 +13,37 @@
 
 #ifdef _WIN32
 void init_winio32() {
-	InitializeWinIo();
+    InitializeWinIo();
 }
 
 u8 inb(u32 addr) {
-	u32 val;
-	GetPortVal((WORD) addr, &val, 1);
-	return val & 0xFF;
+    u32 val;
+    GetPortVal((WORD) addr, &val, 1);
+    return val & 0xFF;
 }
 
 void outb(u8 data, u32 addr) {
-	SetPortVal((WORD) addr, (DWORD) data, 1);
+    SetPortVal((WORD) addr, (DWORD) data, 1);
 }
 
 u16 inw(u32 addr) {
-	u32 val;
-	GetPortVal((WORD) addr, &val, 2);
-	return val & 0xFFFF;
+    u32 val;
+    GetPortVal((WORD) addr, &val, 2);
+    return val & 0xFFFF;
 }
 
 void outw(u16 data, u32 addr) {
-	SetPortVal((WORD) addr, (DWORD) data, 2);
+    SetPortVal((WORD) addr, (DWORD) data, 2);
 }
 
 u32 inl(u32 addr) {
-	u32 val;
-	GetPortVal((WORD) addr, &val, 4);
-	return val;
+    u32 val;
+    GetPortVal((WORD) addr, &val, 4);
+    return val;
 }
 
 void outl(u32 data, u32 addr) {
-	SetPortVal((WORD) addr, (DWORD) data, 4);
+    SetPortVal((WORD) addr, (DWORD) data, 4);
 }
 
 void *map_memory(u32 base, u32 size) {
@@ -53,9 +53,9 @@ void *map_memory(u32 base, u32 size) {
     phys.pvPhysAddress = ((DWORD64) base) << 32;
     phys.dwPhysMemSizeInBytes = size;
 
-	void *ptr = MapPhysToLin(&phys);
-	printf("MAPPED PH MEM %08X TO %08X\n", base, ptr);
-	return ptr;
+    void *ptr = MapPhysToLin(&phys);
+    printf("MAPPED PH MEM %08X TO %08X\n", base, ptr);
+    return ptr;
 }
 #endif
 

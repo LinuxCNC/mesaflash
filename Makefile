@@ -1,6 +1,6 @@
 
 # target (linux, windows)
-TARGET = windows
+TARGET = linux
 
 ifeq ($(TARGET),linux)
 	INCLUDE = -I/usr/include
@@ -21,7 +21,7 @@ MATHLIB = -lm
 OPT = -O0
 #DEBUG = -g -pedantic -Wall -Wextra
 #DEBUG = -g -Wall -Wextra
-DEBUG = -g 
+DEBUG = -g
 CFLAGS = $(INCLUDE) $(OPT) $(DEBUG) $(MATHLIB)
 
 objects = common.o lbp16.o bitfile.o hostmot2.o spi_eeprom.o eth_boards.o lpt_boards.o usb_boards.o pci_boards.o spi_access_hm2.o spi_access_gpio.o main.o

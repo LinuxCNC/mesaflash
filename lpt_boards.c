@@ -121,7 +121,7 @@ static inline void lpt_epp_write8(lpt_board_t *board, u8 data) {
 
 static inline void lpt_epp_write32(lpt_board_t *board, u32 data) {
     if (board->epp_wide) {
-	outl(data, board->base + LPT_EPP_DATA_OFFSET);
+    outl(data, board->base + LPT_EPP_DATA_OFFSET);
     //    printf("wrote data 0x%08X\n", data);
     } else {
         lpt_epp_write8(board, (data) & 0xFF);
@@ -302,8 +302,8 @@ void lpt_boards_scan() {
             return;
 
         // set up the parport for EPP
-	if(board->base_hi) {
-	    outb(0x94, board->base_hi + LPT_ECP_CONTROL_HIGH_OFFSET); // select EPP mode in ECR
+    if(board->base_hi) {
+        outb(0x94, board->base_hi + LPT_ECP_CONTROL_HIGH_OFFSET); // select EPP mode in ECR
         }
 
         //
