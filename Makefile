@@ -38,7 +38,7 @@ common_boards.o : common_boards.c common_boards.h
 eth_boards.o : eth_boards.c eth_boards.h hostmot2.h lbp16.h common.h spi_eeprom.h
 	$(CC) $(CFLAGS) -c eth_boards.c
 
-pci_boards.o : pci_boards.c pci_boards.h hostmot2.h anyio.h bitfile.h common.h spi_eeprom.h
+pci_boards.o : pci_boards.c pci_boards.h hostmot2.h bitfile.h common.h spi_eeprom.h
 	$(CC) $(CFLAGS) -c pci_boards.c
 
 lpt_boards.o : lpt_boards.c lpt_boards.h hostmot2.h bitfile.h common.h spi_eeprom.h
