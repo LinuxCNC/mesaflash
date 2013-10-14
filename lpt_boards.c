@@ -18,7 +18,7 @@
 #include "common.h"
 #include "spi_eeprom.h"
 #include "bitfile.h"
-#include "common_boards.h"
+#include "anyio.h"
 #include "lpt_boards.h"
 
 extern board_t boards[MAX_BOARDS];

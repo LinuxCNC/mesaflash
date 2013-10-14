@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "common_boards.h"
+#include "anyio.h"
 #include "usb_boards.h"
 #include "common.h"
 #include "spi_eeprom.h"

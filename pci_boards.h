@@ -8,7 +8,7 @@
 #include "libpci/pci.h"
 #endif
 
-#include "common_boards.h"
+#include "anyio.h"
 #include "hostmot2.h"
 
 #define VENDORID_MESAPCI         0x2718

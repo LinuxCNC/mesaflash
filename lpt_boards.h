@@ -2,6 +2,8 @@
 #ifndef __LPT_BOARDS_H
 #define __LPT_BOARDS_H
 
+#include "anyio.h"
+
 #define LPT_EPP_STATUS_OFFSET   1
 #define LPT_EPP_CONTROL_OFFSET  2
 #define LPT_EPP_ADDRESS_OFFSET  3

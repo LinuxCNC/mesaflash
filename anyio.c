@@ -1,7 +1,7 @@
 
 #include <stdlib.h>
 
-#include "common_boards.h"
+#include "anyio.h"
 #include "eth_boards.h"
 #include "pci_boards.h"
 #include "lpt_boards.h"

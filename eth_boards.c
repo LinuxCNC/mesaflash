@@ -12,7 +12,7 @@
 
 #include "common.h"
 #include "bitfile.h"
-#include "common_boards.h"
+#include "anyio.h"
 #include "eth_boards.h"
 #include "lbp16.h"
 #include "spi_eeprom.h"

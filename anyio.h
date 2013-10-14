@@ -1,5 +1,5 @@
-#ifndef __COMMON_BOARDS_H
-#define __COMMON_BOARDS_H
+#ifndef __ANYIO_H
+#define __ANYIO_H
 
 #include "hostmot2.h"
 

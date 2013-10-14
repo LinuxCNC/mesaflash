@@ -5,7 +5,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-#include "common_boards.h"
+#include "anyio.h"
 
 static int list_flag;
 static board_access_t access;
