@@ -10,11 +10,15 @@
 #include <stdio.h>
 #include <errno.h>
 
+#include "common_boards.h"
 #include "usb_boards.h"
 #include "common.h"
 #include "anyio.h"
 #include "spi_eeprom.h"
 #include "bitfile.h"
+
+extern board_t boards[MAX_BOARDS];
+extern int boards_count;
 
 void usb_boards_init() {
 }

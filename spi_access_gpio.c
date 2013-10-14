@@ -12,49 +12,49 @@
 static u16 GPIO_reg_val;
 
 static void set_cs_high(llio_t *self) {
-    pci_board_t *board = self->private;
+    board_t *board = self->private;
 
     GPIO_reg_val = GPIO_reg_val | 0x2;
     pci_write_word(board->dev, XIO2001_GPIO_DATA_REG, GPIO_reg_val);
 }
 
 static void set_cs_low(llio_t *self) {
-    pci_board_t *board = self->private;
+    board_t *board = self->private;
 
     GPIO_reg_val = GPIO_reg_val & (~ 0x2);
     pci_write_word(board->dev, XIO2001_GPIO_DATA_REG, GPIO_reg_val);
 }
 
 static void set_din_high(llio_t *self) {
-    pci_board_t *board = self->private;
+    board_t *board = self->private;
 
     GPIO_reg_val = GPIO_reg_val | 0x8;
     pci_write_word(board->dev, XIO2001_GPIO_DATA_REG, GPIO_reg_val);
 }
 
 static void set_din_low(llio_t *self) {
-    pci_board_t *board = self->private;
+    board_t *board = self->private;
 
     GPIO_reg_val = GPIO_reg_val & (~0x8);
     pci_write_word(board->dev, XIO2001_GPIO_DATA_REG, GPIO_reg_val);
 }
 
 static void set_clock_high(llio_t *self) {
-    pci_board_t *board = self->private;
+    board_t *board = self->private;
 
     GPIO_reg_val = GPIO_reg_val | 0x10;
     pci_write_word(board->dev, XIO2001_GPIO_DATA_REG, GPIO_reg_val);
 }
 
 static void set_clock_low(llio_t *self) {
-    pci_board_t *board = self->private;
+    board_t *board = self->private;
 
     GPIO_reg_val = GPIO_reg_val & (~ 0x10);
     pci_write_word(board->dev, XIO2001_GPIO_DATA_REG, GPIO_reg_val);
 }
 
 static int get_bit(llio_t *self) {
-    pci_board_t *board = self->private;
+    board_t *board = self->private;
     u16 data;
 
     data = pci_read_word(board->dev, XIO2001_GPIO_DATA_REG);
@@ -77,7 +77,7 @@ static void suffix(llio_t *self) {
 }
 
 static void init_gpio(llio_t *self) {
-    pci_board_t *board = self->private;
+    board_t *board = self->private;
 
     pci_write_word(board->dev, XIO2001_GPIO_ADDR_REG, 0x001B);
     pci_write_word(board->dev, XIO2001_SBAD_STAT_REG, 0x0000);
@@ -86,7 +86,7 @@ static void init_gpio(llio_t *self) {
 }
 
 static void restore_gpio(llio_t *self) {
-    pci_board_t *board = self->private;
+    board_t *board = self->private;
 
     GPIO_reg_val = 0x0003;
     pci_write_word(board->dev, XIO2001_GPIO_DATA_REG, GPIO_reg_val);

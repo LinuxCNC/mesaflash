@@ -5,12 +5,10 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-#include "eth_boards.h"
-#include "pci_boards.h"
-#include "lpt_boards.h"
-#include "usb_boards.h"
+#include "common_boards.h"
 
 static int list_flag;
+static board_access_t access;
 
 static struct option long_options[] = {
     {"list", no_argument, &list_flag, 1},
@@ -18,7 +16,7 @@ static struct option long_options[] = {
 };
 
 void print_usage(void) {
-   printf("Configuration program for mesanet PCI/ETH boards\n");
+   printf("Configuration program for mesanet PCI(E)/ETH/LPT/USB boards\n");
    printf("    mesaflash --list\n");
 }
 
@@ -57,21 +55,16 @@ int process_cmd_line(int argc, char *argv[]) {
 }
 
 int main(int argc, char *argv[]) {
-    eth_access_t eth_access;
-
     process_cmd_line(argc, argv);
 
     if (list_flag == 1) {
-        eth_access.net_addr = "192.168.1.0";
-        //eth_init(&eth_access);
-        //eth_scan(&eth_access);
-        //eth_release(&eth_access);
-        pci_boards_init();
-        pci_boards_scan();
-        //lpt_boards_init();
-        //lpt_boards_scan();
-       // usb_boards_init();
-       // usb_boards_scan();
+        access.net_addr = "192.168.1.0";
+        access.pci = 1;
+//        access.eth = 1;
+//        access.lpt = 1;
+//        access.usb = 1;
+        boards_init(&access);
+        boards_scan(&access);
     }
     
     return 0;

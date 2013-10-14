@@ -162,7 +162,7 @@ static void write_boot(llio_t *self) {
 static int start_programming(llio_t *self, u32 start_address, int fsize) {
     u32 sec_addr;
     int esectors, sector, max_sectors;
-    pci_board_t *board = self->private;
+    board_t *board = self->private;
 
     access.set_cs_high(self);
 

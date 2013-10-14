@@ -16,15 +16,14 @@
 #include <errno.h>
 
 #include "common.h"
-#include "anyio.h"
 #include "spi_eeprom.h"
 #include "bitfile.h"
 #include "pci_boards.h"
 
+extern board_t boards[MAX_BOARDS];
+extern int boards_count;
 static int memfd = -1;
 struct pci_access *pacc;
-pci_board_t pci_boards[MAX_PCI_BOARDS];
-int boards_count;
 static u8 file_buffer[SECTOR_SIZE];
 
 u16 setup_eeprom_5i20[256] = {
@@ -101,7 +100,7 @@ u16 setup_eeprom_5i20[256] = {
 0x009B, // LSW OF GENERAL PURPOSE I/O CONTROL
 };
 
-void SetCSHigh(pci_board_t *board) {
+void SetCSHigh(board_t *board) {
     u16 data = inw(board->ctrl_base_addr + PLX9030_CTRL_INIT_OFFSET);
 
     data = data | PLX9030_EECS_MASK;
@@ -109,7 +108,7 @@ void SetCSHigh(pci_board_t *board) {
     sleep_ns(4000);
 }
 
-void SetCSLow(pci_board_t *board) {
+void SetCSLow(board_t *board) {
     u16 data = inw(board->ctrl_base_addr + PLX9030_CTRL_INIT_OFFSET);
 
     data = data & (~PLX9030_EECS_MASK);
@@ -117,7 +116,7 @@ void SetCSLow(pci_board_t *board) {
     sleep_ns(4000);
 }
 
-void SetDinHigh(pci_board_t *board) {
+void SetDinHigh(board_t *board) {
     u16 data = inw(board->ctrl_base_addr + PLX9030_CTRL_INIT_OFFSET);
 
     data = data | PLX9030_EEDI_MASK;
@@ -125,7 +124,7 @@ void SetDinHigh(pci_board_t *board) {
     sleep_ns(4000);
 }
 
-void SetDinLow(pci_board_t *board) {
+void SetDinLow(board_t *board) {
     u16 data = inw(board->ctrl_base_addr + PLX9030_CTRL_INIT_OFFSET);
 
     data = data & (~PLX9030_EEDI_MASK);
@@ -133,7 +132,7 @@ void SetDinLow(pci_board_t *board) {
     sleep_ns(4000);
 }
 
-void SetClockHigh(pci_board_t *board) {
+void SetClockHigh(board_t *board) {
     u16 data = inw(board->ctrl_base_addr + PLX9030_CTRL_INIT_OFFSET);
 
     data = data | PLX9030_EECLK_MASK;
@@ -141,7 +140,7 @@ void SetClockHigh(pci_board_t *board) {
     sleep_ns(4000);
 }
 
-void SetClockLow(pci_board_t *board) {
+void SetClockLow(board_t *board) {
     u16 data = inw(board->ctrl_base_addr + PLX9030_CTRL_INIT_OFFSET);
 
     data = data & (~PLX9030_EECLK_MASK);
@@ -149,7 +148,7 @@ void SetClockLow(pci_board_t *board) {
     sleep_ns(4000);
 }
 
-int DataHighQ(pci_board_t *board) {
+int DataHighQ(board_t *board) {
     u16 data = inw(board->ctrl_base_addr + PLX9030_CTRL_INIT_OFFSET);
 
     sleep_ns(4000);
@@ -159,7 +158,7 @@ int DataHighQ(pci_board_t *board) {
         return 0;
 }
 
-u16 read_eeprom_word(pci_board_t *board, u8 reg) {
+u16 read_eeprom_word(board_t *board, u8 reg) {
     u8 bit;
     u16 mask;
     u16 tdata;
@@ -208,7 +207,7 @@ u16 read_eeprom_word(pci_board_t *board, u8 reg) {
     return tdata;
 }
 
-void pci_bridge_eeprom_setup_read(pci_board_t *board) {
+void pci_bridge_eeprom_setup_read(board_t *board) {
     int i;
     char *bridge_name = "Unknown";
 
@@ -231,7 +230,7 @@ void pci_bridge_eeprom_setup_read(pci_board_t *board) {
 }
 
 static int plx9030_program_fpga(llio_t *self, char *bitfile_name) {
-    pci_board_t *board = self->private;
+    board_t *board = self->private;
     int bindex, bytesread;
     u32 status, control;
     char part_name[32];
@@ -303,7 +302,7 @@ fail:
 }
 
 static int plx9030_reset(llio_t *self) {
-    pci_board_t *board = self->private;
+    board_t *board = self->private;
     u32 status;
     u32 control;
 
@@ -355,7 +354,7 @@ static int plx9030_reset(llio_t *self) {
 }
 
 static void plx9030_fixup_LASxBRD_READY(llio_t *self) {
-    pci_board_t *board = self->private;
+    board_t *board = self->private;
     int offsets[] = {PLX9030_LAS0BRD_OFFSET, PLX9030_LAS1BRD_OFFSET, PLX9030_LAS2BRD_OFFSET, PLX9030_LAS3BRD_OFFSET};
     int i;
 
@@ -373,7 +372,7 @@ static void plx9030_fixup_LASxBRD_READY(llio_t *self) {
 }
 
 static int plx905x_program_fpga(llio_t *self, char *bitfile_name) {
-    pci_board_t *board = self->private;
+    board_t *board = self->private;
     int bindex, bytesread, i;
     u32 status;
     char part_name[32];
@@ -426,7 +425,7 @@ static int plx905x_program_fpga(llio_t *self, char *bitfile_name) {
 }
 
 static int plx905x_reset(llio_t *self) {
-    pci_board_t *board = self->private;
+    board_t *board = self->private;
     int i;
     u32 status, control;
 
@@ -461,7 +460,7 @@ static int plx905x_reset(llio_t *self) {
 }
 
 int pci_read(llio_t *self, u32 addr, void *buffer, int size) {
-    pci_board_t *board = self->private;
+    board_t *board = self->private;
 
     memcpy(buffer, (board->base + addr), size);
 //    printf("READ %X, (%X + %X), %d\n", buffer, board->base, addr, size);
@@ -469,7 +468,7 @@ int pci_read(llio_t *self, u32 addr, void *buffer, int size) {
 }
 
 int pci_write(llio_t *self, u32 addr, void *buffer, int size) {
-    pci_board_t *board = self->private;
+    board_t *board = self->private;
 
     memcpy((board->base + addr), buffer, size);
     return 0;
@@ -507,11 +506,11 @@ void pci_boards_init() {
 
 void pci_boards_scan() {
     struct pci_dev *dev;
-    pci_board_t *board;
+    board_t *board;
 
     pci_scan_bus(pacc);
     for (dev = pacc->devices; dev != NULL; dev = dev->next) {
-        board = &pci_boards[boards_count];
+        board = &boards[boards_count];
         pci_fill_info(dev, PCI_FILL_IDENT | PCI_FILL_IRQ | PCI_FILL_BASES | PCI_FILL_ROM_BASE | PCI_FILL_SIZES | PCI_FILL_CLASS);     // first run - fill data struct 
 
         if (dev->vendor_id == VENDORID_MESAPCI) {
@@ -560,8 +559,8 @@ void pci_boards_scan() {
                 eeprom_init(&(board->llio));
                 //board->flash_id = read_flash_id(&(board->llio));
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
-                pci_print_info(board);
-                hm2_read_idrom(&(board->llio));
+                //pci_print_info(board);
+                //hm2_read_idrom(&(board->llio));
                 
                 //pci_verify_flash(&(board->llio), "../../Pulpit/7i77x2.bit", 0x80000);
 
@@ -865,7 +864,7 @@ void pci_boards_scan() {
     }
 }
 
-void pci_print_info(pci_board_t *board) {
+void pci_print_info(board_t *board) {
     int i;
 
     for (i = 0; i < 6; i++) {

@@ -18,45 +18,46 @@
 #include "common.h"
 #include "spi_eeprom.h"
 #include "bitfile.h"
+#include "common_boards.h"
 #include "lpt_boards.h"
 
+extern board_t boards[MAX_BOARDS];
+extern int boards_count;
 static u8 file_buffer[SECTOR_SIZE];
-lpt_board_t lpt_boards[MAX_LPT_BOARDS];
-int boards_count;
 
-static int parport_get(lpt_board_t *board, unsigned short base, unsigned short base_hi, unsigned int modes) {
+static int parport_get(board_t *board, unsigned short base_lo, unsigned short base_hi, unsigned int modes) {
     if (base_hi == 0)
-       base_hi = base + 0x400;
+       base_hi = base_lo + 0x400;
 
-    board->base = base;
-    printf("Using direct parport at ioaddr=0x%x:0x%x\n", base, base_hi);
+    board->base_lo = base_lo;
+    printf("Using direct parport at ioaddr=0x%x:0x%x\n", base_lo, base_hi);
     return 0;
 }
 
-static void parport_release(lpt_board_t *board) {
+static void parport_release(board_t *board) {
 }
 
-static inline u8 lpt_epp_read_status(lpt_board_t *board) {
-    u8 data = inb(board->base + LPT_EPP_STATUS_OFFSET);
+static inline u8 lpt_epp_read_status(board_t *board) {
+    u8 data = inb(board->base_lo + LPT_EPP_STATUS_OFFSET);
     printf("read status 0x%02X\n", data);
     return data;
 }
 
-static inline void lpt_epp_write_status(lpt_board_t *board, u8 status_byte) {
-    outb(status_byte, board->base + LPT_EPP_STATUS_OFFSET);
+static inline void lpt_epp_write_status(board_t *board, u8 status_byte) {
+    outb(status_byte, board->base_lo + LPT_EPP_STATUS_OFFSET);
     printf("wrote status 0x%02X\n", status_byte);
 }
 
-static inline void lpt_epp_write_control(lpt_board_t *board, u8 control_byte) {
-    outb(control_byte, board->base + LPT_EPP_CONTROL_OFFSET);
+static inline void lpt_epp_write_control(board_t *board, u8 control_byte) {
+    outb(control_byte, board->base_lo + LPT_EPP_CONTROL_OFFSET);
     printf("wrote control 0x%02X\n", control_byte);
 }
 
-static inline int lpt_epp_check_for_timeout(lpt_board_t *board) {
+static inline int lpt_epp_check_for_timeout(board_t *board) {
     return lpt_epp_read_status(board) & 0x01;
 }
 
-static int lpt_epp_clear_timeout(lpt_board_t *board) {
+static int lpt_epp_clear_timeout(board_t *board) {
     u8 status;
 
     if (!lpt_epp_check_for_timeout(board)) {
@@ -79,28 +80,28 @@ static int lpt_epp_clear_timeout(lpt_board_t *board) {
     return 1;  // success
 }
 
-static inline void lpt_epp_addr8(lpt_board_t *board, u8 addr) {
-    outb(addr, board->base + LPT_EPP_ADDRESS_OFFSET);
+static inline void lpt_epp_addr8(board_t *board, u8 addr) {
+    outb(addr, board->base_lo + LPT_EPP_ADDRESS_OFFSET);
     printf("selected address 0x%02X\n", addr);
 }
 
-static inline void lpt_epp_addr16(lpt_board_t *board, u16 addr) {
-    outb((addr & 0x00FF), board->base + LPT_EPP_ADDRESS_OFFSET);
-    outb((addr >> 8),     board->base + LPT_EPP_ADDRESS_OFFSET);
+static inline void lpt_epp_addr16(board_t *board, u16 addr) {
+    outb((addr & 0x00FF), board->base_lo + LPT_EPP_ADDRESS_OFFSET);
+    outb((addr >> 8),     board->base_lo + LPT_EPP_ADDRESS_OFFSET);
     printf("selected address 0x%04X\n", addr);
 }
 
-static inline u8 lpt_epp_read8(lpt_board_t *board) {
-    u8 data = inb(board->base + LPT_EPP_DATA_OFFSET);
+static inline u8 lpt_epp_read8(board_t *board) {
+    u8 data = inb(board->base_lo + LPT_EPP_DATA_OFFSET);
     printf("read data 0x%02X\n", data);
     return data;
 }
 
-static inline u32 lpt_epp_read32(lpt_board_t *board) {
+static inline u32 lpt_epp_read32(board_t *board) {
     u32 data;
 
     if (board->epp_wide) {
-        data = inl(board->base + LPT_EPP_DATA_OFFSET);
+        data = inl(board->base_lo + LPT_EPP_DATA_OFFSET);
         printf("read data 0x%08X\n", data);
     } else {
         u8 a, b, c, d;
@@ -114,14 +115,14 @@ static inline u32 lpt_epp_read32(lpt_board_t *board) {
     return data;
 }
 
-static inline void lpt_epp_write8(lpt_board_t *board, u8 data) {
-    outb(data, board->base + LPT_EPP_DATA_OFFSET);
+static inline void lpt_epp_write8(board_t *board, u8 data) {
+    outb(data, board->base_lo + LPT_EPP_DATA_OFFSET);
     //printf("wrote data 0x%02X\n", data);
 }
 
-static inline void lpt_epp_write32(lpt_board_t *board, u32 data) {
+static inline void lpt_epp_write32(board_t *board, u32 data) {
     if (board->epp_wide) {
-    outl(data, board->base + LPT_EPP_DATA_OFFSET);
+    outl(data, board->base_lo + LPT_EPP_DATA_OFFSET);
     //    printf("wrote data 0x%08X\n", data);
     } else {
         lpt_epp_write8(board, (data) & 0xFF);
@@ -133,7 +134,7 @@ static inline void lpt_epp_write32(lpt_board_t *board, u32 data) {
 
 int lpt_read(llio_t *self, u32 addr, void *buffer, int size) {
     int bytes_remaining = size;
-    lpt_board_t *board = self->private;
+    board_t *board = self->private;
 
     lpt_epp_addr16(board, addr | LPT_ADDR_AUTOINCREMENT);
 
@@ -159,7 +160,7 @@ int lpt_read(llio_t *self, u32 addr, void *buffer, int size) {
 
 int lpt_write(llio_t *self, u32 addr, void *buffer, int size) {
     int bytes_remaining = size;
-    lpt_board_t *board = self->private;
+    board_t *board = self->private;
 
     lpt_epp_addr16(board, addr | LPT_ADDR_AUTOINCREMENT);
 
@@ -184,7 +185,7 @@ int lpt_write(llio_t *self, u32 addr, void *buffer, int size) {
 }
 
 int lpt_program_fpga(llio_t *self, char *bitfile_name) {
-    lpt_board_t *board = self->private;
+    board_t *board = self->private;
     int bindex, bytesread;
     char part_name[32];
     struct stat file_stat;
@@ -239,7 +240,7 @@ int lpt_program_fpga(llio_t *self, char *bitfile_name) {
 
 // return 0 if the board has been reset, -errno if not
 int lpt_reset(llio_t *self) {
-    lpt_board_t *board = self->private;
+    board_t *board = self->private;
     u8 byte;
 
 
@@ -287,7 +288,7 @@ void lpt_boards_init() {
 
 void lpt_boards_scan() {
 #ifdef __linux__
-        lpt_board_t *board = &lpt_boards[boards_count];
+        board_t *board = &boards[boards_count];
         int r;
 
         iopl(3);
@@ -351,7 +352,7 @@ void lpt_boards_scan() {
         u32 cookie = lpt_epp_read32(board);
         printf("cookie %X\n", cookie);
 
-        printf("board at (ioaddr=0x%04X, ioaddr_hi=0x%04X, epp_wide %s) found\n",
-            board->base, board->base_hi, (board->epp_wide ? "ON" : "OFF"));
+        printf("board at (ioaddr_lo=0x%04X, ioaddr_hi=0x%04X, epp_wide %s) found\n",
+            board->base_lo, board->base_hi, (board->epp_wide ? "ON" : "OFF"));
 #endif
 }

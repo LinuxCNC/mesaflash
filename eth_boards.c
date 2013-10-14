@@ -12,12 +12,13 @@
 
 #include "common.h"
 #include "bitfile.h"
+#include "common_boards.h"
 #include "eth_boards.h"
 #include "lbp16.h"
 #include "spi_eeprom.h"
 
-eth_board_t eth_boards[MAX_ETH_BOARDS];
-int boards_count;
+extern board_t boards[MAX_BOARDS];
+extern int boards_count;
 static u8 page_buffer[PAGE_SIZE];
 extern u8 boot_block[BOOT_BLOCK_SIZE];
 static u8 file_buffer[SECTOR_SIZE];
@@ -102,7 +103,7 @@ static void write_flash_address(u32 addr) {
 }
 
 static int start_programming(llio_t *self, u32 start_address, int fsize) {
-    eth_board_t *board = self->private;
+    board_t *board = self->private;
     u32 sec_addr;
     int esectors, sector, max_sectors;
 
@@ -253,11 +254,11 @@ int eth_verify_flash(llio_t *self, char *bitfile_name, u32 start_address) {
     return 0;
 }
 
-void eth_init(eth_access_t *access) {
+void eth_boards_init(board_access_t *access) {
     lbp16_init();
 }
 
-void eth_scan(eth_access_t *access) {
+void eth_boards_scan(board_access_t *access) {
     lbp16_cmd_addr packet, packet2;
     char addr[16];
     int i;
@@ -283,7 +284,7 @@ void eth_scan(eth_access_t *access) {
 
         if ((recv > 0) && (cookie == HM2_COOKIE)) {
             char buff[20];
-            eth_board_t *board = &eth_boards[boards_count];
+            board_t *board = &boards[boards_count];
 
             lbp16_socket_blocking();
             LBP16_INIT_PACKET4(packet2, CMD_READ_BOARD_INFO_ADDR16_INCR(8), 0);
@@ -364,7 +365,7 @@ void eth_scan(eth_access_t *access) {
     }
 }
 
-void eth_release(eth_access_t *access) {
+void eth_boards_release(board_access_t *access) {
     lbp16_release();
 }
 
