@@ -1,4 +1,6 @@
 
+#include <stdlib.h>
+
 #include "common_boards.h"
 #include "eth_boards.h"
 #include "pci_boards.h"
@@ -16,6 +18,8 @@ void boards_init(board_access_t *access) {
 }
 
 void boards_scan(board_access_t *access) {
+    if (access == NULL)
+        return;
     if (access->pci == 1)
         pci_boards_scan();
     if (access->lpt == 1)
@@ -27,4 +31,20 @@ void boards_scan(board_access_t *access) {
 }
 
 void board_print_info(board_t *board) {
+    if (board == NULL)
+        return;
+    switch (board->type) {
+        case BOARD_ETH:
+            eth_print_info(board);
+            break;
+        case BOARD_PCI:
+            pci_print_info(board);
+            break;
+        case BOARD_LPT:
+            lpt_print_info(board);
+            break;
+        case BOARD_USB:
+            usb_print_info(board);
+            break;
+    }
 }

@@ -369,3 +369,5 @@ void eth_boards_release(board_access_t *access) {
     lbp16_release();
 }
 
+void eth_print_info(board_t *board) {
+}

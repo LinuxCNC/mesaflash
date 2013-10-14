@@ -356,3 +356,6 @@ void lpt_boards_scan() {
             board->base_lo, board->base_hi, (board->epp_wide ? "ON" : "OFF"));
 #endif
 }
+
+void lpt_print_info(board_t *board) {
+}

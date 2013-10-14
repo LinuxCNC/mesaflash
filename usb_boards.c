@@ -44,3 +44,6 @@ void usb_boards_scan() {
     close(sd);
 #endif
 }
+
+void usb_print_info(board_t *board) {
+}

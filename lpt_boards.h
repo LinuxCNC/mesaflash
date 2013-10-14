@@ -15,5 +15,6 @@
 
 void lpt_boards_init();
 void lpt_boards_scan();
+void lpt_print_info(board_t *board);
 
 #endif
