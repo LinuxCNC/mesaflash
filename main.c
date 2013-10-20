@@ -59,9 +59,10 @@ int main(int argc, char *argv[]) {
 
     if (list_flag == 1) {
         access.net_addr = "192.168.1.0";
-        access.pci = 1;
+//        access.pci = 1;
 //        access.eth = 1;
-//        access.lpt = 1;
+        access.lpt_base_addr = 0xDC00;
+        access.lpt = 1;
 //        access.usb = 1;
         boards_init(&access);
         boards_scan(&access);

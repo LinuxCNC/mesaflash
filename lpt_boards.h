@@ -15,8 +15,8 @@
 
 #define LPT_ADDR_AUTOINCREMENT  0x8000
 
-void lpt_boards_init();
-void lpt_boards_scan();
+void lpt_boards_init(board_access_t *access);
+void lpt_boards_scan(board_access_t *access);
 void lpt_print_info(board_t *board);
 
 #endif

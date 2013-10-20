@@ -34,6 +34,8 @@ typedef struct {
     int usb;
     int eth;
     char *net_addr;
+    u16 lpt_base_addr;
+    u16 lpt_base_hi_addr;
 } board_access_t;
 
 board_t boards[MAX_BOARDS];

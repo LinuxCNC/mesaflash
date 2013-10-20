@@ -30,6 +30,7 @@ static int parport_get(board_t *board, unsigned short base_lo, unsigned short ba
        base_hi = base_lo + 0x400;
 
     board->base_lo = base_lo;
+    board->base_hi = base_hi;
     printf("Using direct parport at ioaddr=0x%x:0x%x\n", base_lo, base_hi);
     return 0;
 }
@@ -283,10 +284,10 @@ int lpt_reset(llio_t *self) {
 
 ////////////////////////////////////////////////////////////////////////
 
-void lpt_boards_init() {
+void lpt_boards_init(board_access_t *access) {
 }
 
-void lpt_boards_scan() {
+void lpt_boards_scan(board_access_t *access) {
 #ifdef __linux__
         board_t *board = &boards[boards_count];
         int r;
@@ -298,7 +299,7 @@ void lpt_boards_scan() {
         // claim the I/O regions for the parport
         // 
 
-        r = parport_get(board, 0xD800, 0, PARPORT_MODE_EPP);
+        r = parport_get(board, access->lpt_base_addr, access->lpt_base_hi_addr, PARPORT_MODE_EPP);
         if(r < 0)
             return;
 

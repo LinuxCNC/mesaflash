@@ -16,7 +16,7 @@ void boards_init(board_access_t *access) {
     if (access->pci == 1)
         pci_boards_init();
     if (access->lpt == 1)
-        lpt_boards_init();
+        lpt_boards_init(access);
     if (access->usb == 1)
         usb_boards_init();
     if (access->eth == 1)
@@ -29,7 +29,7 @@ void boards_scan(board_access_t *access) {
     if (access->pci == 1)
         pci_boards_scan();
     if (access->lpt == 1)
-        lpt_boards_scan();
+        lpt_boards_scan(access);
     if (access->usb == 1)
         usb_boards_scan();
     if (access->eth == 1)
