@@ -18,9 +18,40 @@
 
 #define HM2_COOKIE       0x55AACAFE
 
+#define HM2_MODULE_LED                      0x0200
+#define HM2_MODULE_WD_TIMER                 0x0C00
+#define HM2_MODULE_WD_STATUS                0x0D00
+#define HM2_MODULE_WD_RESET                 0x0E00
+#define HM2_MODULE_GPIO                     0x1000
+#define HM2_MODULE_GPIO_DDR                 0x1100
+#define HM2_MODULE_GPIO_ALT_SOURCE          0x1200
+#define HM2_MODULE_GPIO_OPEN_DRAIN          0x1300
+#define HM2_MODULE_GPIO_INVERT_OUT          0x1400
+#define HM2_MODULE_STEPGEN_RATE             0x2000
+#define HM2_MODULE_STEPGEN_ACCUM            0x2100
+#define HM2_MODULE_STEPGEN_MODE             0x2200
+#define HM2_MODULE_STEPGEN_DIR_SETUP        0x2300
+#define HM2_MODULE_STEPGEN_DIR_HOLD         0x2400
+#define HM2_MODULE_STEPGEN_STEP_LEN         0x2500
+#define HM2_MODULE_STEPGEN_STEP_SPACE       0x2600
+#define HM2_MODULE_STEPGEN_TABLE_DATA       0x2700
+#define HM2_MODULE_STEPGEN_TABLE_LEN        0x2800
+#define HM2_MODULE_STEPGEN_DDS              0x2900
+#define HM2_MODULE_WAVEGEN_RATE             0x2A00
+#define HM2_MODULE_WAVEGEN_PDM              0x2B00
+#define HM2_MODULE_WAVEGEN_TABLE_LEN        0x2C00
+#define HM2_MODULE_WAVEGEN_TABLE_PTR        0x2D00
+#define HM2_MODULE_WAVEGEN_TABLE_DATA       0x2E00
+#define HM2_MODULE_ENCODER_COUNTER          0x3000
+#define HM2_MODULE_ENCODER_COUNTER_CCR      0x3100
+#define HM2_MODULE_ENCODER_TSSDIV           0x3200
+#define HM2_MODULE_ENCODER_TS_COUNT         0x3300
+#define HM2_MODULE_ENCODER_FILTER_RATE      0x3400
+
 #define HM2_MAX_MODULES  32
 #define HM2_MAX_PINS     144
 #define HM2_MAX_TAGS     28
+#define HM2_MAX_CHANNELS 64
 
 #define HM2_GTAG_NONE              0x00
 #define HM2_GTAG_IRQ_LOGIC         0x01
