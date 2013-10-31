@@ -19,10 +19,10 @@
 extern board_t boards[MAX_BOARDS];
 extern int boards_count;
 
-void usb_boards_init() {
+void usb_boards_init(board_access_t *access) {
 }
 
-void usb_boards_scan() {
+void usb_boards_scan(board_access_t *access) {
 #ifdef __linux__
     int sd, i;
     struct termios options;

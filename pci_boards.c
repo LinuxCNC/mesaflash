@@ -482,7 +482,7 @@ int pci_verify_flash(llio_t *self, char *bitfile_name, u32 start_address) {
     return eeprom_verify_area(self, bitfile_name, start_address);
 }
 
-void pci_boards_init() {
+void pci_boards_init(board_access_t *access) {
     int eno;
 
     pacc = pci_alloc();
@@ -504,7 +504,7 @@ void pci_boards_init() {
 #endif
 }
 
-void pci_boards_scan() {
+void pci_boards_scan(board_access_t *access) {
     struct pci_dev *dev;
     board_t *board;
 
@@ -559,7 +559,8 @@ void pci_boards_scan() {
                 eeprom_init(&(board->llio));
                 //board->flash_id = read_flash_id(&(board->llio));
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
-                //pci_print_info(board);
+                if (access->verbose)
+                    pci_print_info(board);
                 //hm2_read_idrom(&(board->llio));
                 
                 //pci_verify_flash(&(board->llio), "../../Pulpit/7i77x2.bit", 0x80000);
@@ -585,6 +586,8 @@ void pci_boards_scan() {
                 board->dev = dev;
                 board->flash_id = read_flash_id(&(board->llio));
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
+                if (access->verbose)
+                    pci_print_info(board);
 
                 boards_count++;
             }
@@ -636,7 +639,8 @@ void pci_boards_scan() {
                 board->data_base_addr = dev->base_addr[2];
                 board->dev = dev;
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
-                //pci_print_info(board);
+                if (access->verbose)
+                    pci_print_info(board);
                 //plx9030_fixup_LASxBRD_READY(&(board->llio));
 
                 //board->llio.reset(&(board->llio));
@@ -669,7 +673,8 @@ void pci_boards_scan() {
 #endif
                 board->dev = dev;
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
-                pci_print_info(board);
+                if (access->verbose)
+                    pci_print_info(board);
 
                 boards_count++;
             }
@@ -698,7 +703,8 @@ void pci_boards_scan() {
 #endif
                 board->dev = dev;
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
-                pci_print_info(board);
+                if (access->verbose)
+                    pci_print_info(board);
 
                 boards_count++;
             } else if (ssid == SUBDEVICEID_MESA5I21) {
@@ -723,7 +729,8 @@ void pci_boards_scan() {
 #endif
                 board->dev = dev;
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
-                pci_print_info(board);
+                if (access->verbose)
+                    pci_print_info(board);
 
                 board->llio.reset(&(board->llio));
                 board->llio.program_fpga(&(board->llio), "../../Pulpit/I21LOOP.BIT");
@@ -758,7 +765,8 @@ void pci_boards_scan() {
 #endif
                 board->dev = dev;
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
-                pci_print_info(board);
+                if (access->verbose)
+                    pci_print_info(board);
 
                 boards_count++;
             } else if (ssid == SUBDEVICEID_MESA5I23) {
@@ -784,7 +792,8 @@ void pci_boards_scan() {
 #endif
                 board->dev = dev;
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
-                pci_print_info(board);
+                if (access->verbose)
+                    pci_print_info(board);
 
                 boards_count++;
             } else if ((ssid == SUBDEVICEID_MESA4I69_16) || (ssid == SUBDEVICEID_MESA4I69_25)) {
@@ -814,7 +823,8 @@ void pci_boards_scan() {
 #endif
                 board->dev = dev;
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
-                pci_print_info(board);
+                if (access->verbose)
+                    pci_print_info(board);
 
                 boards_count++;
             }
@@ -852,7 +862,8 @@ void pci_boards_scan() {
 #endif
                 board->dev = dev;
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
-                pci_print_info(board);
+                if (access->verbose)
+                    pci_print_info(board);
 
                 board->llio.reset(&(board->llio));
                 board->llio.program_fpga(&(board->llio), "../../Pulpit/SV24S.BIT");

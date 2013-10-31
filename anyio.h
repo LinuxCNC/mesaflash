@@ -29,6 +29,8 @@ typedef struct {
 } board_t;
 
 typedef struct {
+    char *device_name;
+    int verbose;
     int pci;
     int lpt;
     int usb;
