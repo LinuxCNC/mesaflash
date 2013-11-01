@@ -459,6 +459,30 @@ static int plx905x_reset(llio_t *self) {
     return 0;
 }
 
+#ifdef _WIN32
+static void pci_fix_bar_lengths(struct pci_dev *dev) {
+    int i;
+
+    for (i = 0; i < 6; i++) {
+        u32 saved_bar, size;
+
+        if (dev->base_addr == 0)
+            continue;
+
+        saved_bar = pci_read_long(dev, PCI_BASE_ADDRESS_0 + i*4);
+        pci_write_long(dev, PCI_BASE_ADDRESS_0 + i*4, 0xFFFFFFFF);
+        size = pci_read_long(dev, PCI_BASE_ADDRESS_0 + i*4);
+        if (size & PCI_BASE_ADDRESS_SPACE_IO)
+            size = ~(size & PCI_BASE_ADDRESS_IO_MASK) & 0xFF;
+        else
+            size = ~(size & PCI_BASE_ADDRESS_MEM_MASK);
+        pci_write_long(dev, PCI_BASE_ADDRESS_0 + i*4, saved_bar);
+
+        dev->size[i] = size + 1;
+    }
+}
+#endif
+
 int pci_read(llio_t *self, u32 addr, void *buffer, int size) {
     board_t *board = self->private;
 
@@ -532,29 +556,9 @@ void pci_boards_scan(board_access_t *access) {
                 board->len = dev->size[0];
                 board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[0]);
 #elif _WIN32
-                int i;
-
-                for (i = 0; i < 6; i++) {
-                    u32 saved_bar, size;
-
-                    if (dev->base_addr == 0)
-                        continue;
-
-                    saved_bar = pci_read_long(dev, PCI_BASE_ADDRESS_0 + i*4);
-                    pci_write_long(dev, PCI_BASE_ADDRESS_0 + i*4, 0xFFFFFFFF);
-                    size = pci_read_long(dev, PCI_BASE_ADDRESS_0 + i*4);
-                    if (size & PCI_BASE_ADDRESS_SPACE_IO) {
-                        size = ~(size & PCI_BASE_ADDRESS_IO_MASK) & 0xFF;
-                    } else {
-                        size = ~(size & PCI_BASE_ADDRESS_MEM_MASK);
-                    }
-                    pci_write_long(dev, PCI_BASE_ADDRESS_0 + i*4, saved_bar);
-
-                    dev->size[i] = size + 1;
-                }
-                board->len = HM2_AREA_SIZE;
+                pci_fix_bar_lengths(dev);
+                board->len = dev->size[0];
                 board->base = map_memory(dev->base_addr[0], board->len);
-                printf("BASE = %X\n", board->base);
 #endif
                 board->dev = dev;
                 eeprom_init(&(board->llio));
@@ -581,29 +585,9 @@ void pci_boards_scan(board_access_t *access) {
                 board->len = dev->size[0];
                 board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[0]);
 #elif _WIN32
-                int i;
-                
-                for (i = 0; i < 6; i++) {
-                    u32 saved_bar, size;
-
-                    if (dev->base_addr == 0)
-                        continue;
-
-                    saved_bar = pci_read_long(dev, PCI_BASE_ADDRESS_0 + i*4);
-                    pci_write_long(dev, PCI_BASE_ADDRESS_0 + i*4, 0xFFFFFFFF);
-                    size = pci_read_long(dev, PCI_BASE_ADDRESS_0 + i*4);
-                    if (size & PCI_BASE_ADDRESS_SPACE_IO) {
-                        size = ~(size & PCI_BASE_ADDRESS_IO_MASK) & 0xFF;
-                    } else {
-                        size = ~(size & PCI_BASE_ADDRESS_MEM_MASK);
-                    }
-                    pci_write_long(dev, PCI_BASE_ADDRESS_0 + i*4, saved_bar);
-
-                    dev->size[i] = size + 1;
-                }
-                board->len = HM2_AREA_SIZE;
+                pci_fix_bar_lengths(dev);
+                board->len = dev->size[0];
                 board->base = map_memory(dev->base_addr[0], board->len);
-                printf("BASE = %X\n", board->base);
 #endif
                 board->dev = dev;
                 eeprom_init(&(board->llio));
@@ -632,6 +616,10 @@ void pci_boards_scan(board_access_t *access) {
                 iopl(3);
                 board->len = dev->size[0];
                 board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[0]);
+#elif _WIN32
+                pci_fix_bar_lengths(dev);
+                board->len = dev->size[0];
+                board->base = map_memory(dev->base_addr[0], board->len);
 #endif
                 board->dev = dev;
                 board->flash_id = read_flash_id(&(board->llio));
@@ -662,26 +650,7 @@ void pci_boards_scan(board_access_t *access) {
                 board->len = dev->size[5];
                 board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[5]);
 #elif _WIN32
-                int i;
-                
-                for (i = 0; i < 6; i++) {
-                    u32 saved_bar, size;
-
-                    if (dev->base_addr == 0)
-                        continue;
-
-                    saved_bar = pci_read_long(dev, PCI_BASE_ADDRESS_0 + i*4);
-                    pci_write_long(dev, PCI_BASE_ADDRESS_0 + i*4, 0xFFFFFFFF);
-                    size = pci_read_long(dev, PCI_BASE_ADDRESS_0 + i*4);
-                    if (size & PCI_BASE_ADDRESS_SPACE_IO) {
-                        size = ~(size & PCI_BASE_ADDRESS_IO_MASK) & 0xFF;
-                    } else {
-                        size = ~(size & PCI_BASE_ADDRESS_MEM_MASK);
-                    }
-                    pci_write_long(dev, PCI_BASE_ADDRESS_0 + i*4, saved_bar);
-
-                    dev->size[i] = size + 1;
-                }
+                pci_fix_bar_lengths(dev);
                 board->len = dev->size[5];
                 board->base = map_memory(dev->base_addr[5], board->len);
 #endif
@@ -718,9 +687,13 @@ void pci_boards_scan(board_access_t *access) {
                 iopl(3);
                 board->len = dev->size[5];
                 board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[5]);
+#elif _WIN32
+                pci_fix_bar_lengths(dev);
+                board->len = dev->size[5];
+                board->base = map_memory(dev->base_addr[5], board->len);
+#endif
                 board->ctrl_base_addr = dev->base_addr[1];
                 board->data_base_addr = dev->base_addr[2];
-#endif
                 board->dev = dev;
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
                 if (access->verbose)
@@ -748,9 +721,13 @@ void pci_boards_scan(board_access_t *access) {
                 iopl(3);
                 board->len = dev->size[3];
                 board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
+#elif _WIN32
+                pci_fix_bar_lengths(dev);
+                board->len = dev->size[3];
+                board->base = map_memory(dev->base_addr[3], board->len);
+#endif
                 board->ctrl_base_addr = dev->base_addr[1];
                 board->data_base_addr = dev->base_addr[2];
-#endif
                 board->dev = dev;
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
                 if (access->verbose)
@@ -774,9 +751,13 @@ void pci_boards_scan(board_access_t *access) {
                 iopl(3);
                 board->len = dev->size[3];
                 board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
+#elif _WIN32
+                pci_fix_bar_lengths(dev);
+                board->len = dev->size[3];
+                board->base = map_memory(dev->base_addr[3], board->len);
+#endif
                 board->ctrl_base_addr = dev->base_addr[1];
                 board->data_base_addr = dev->base_addr[2];
-#endif
                 board->dev = dev;
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
                 if (access->verbose)
@@ -810,9 +791,13 @@ void pci_boards_scan(board_access_t *access) {
                 iopl(3);
                 board->len = dev->size[3];
                 board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
+#elif _WIN32
+                pci_fix_bar_lengths(dev);
+                board->len = dev->size[3];
+                board->base = map_memory(dev->base_addr[3], board->len);
+#endif
                 board->ctrl_base_addr = dev->base_addr[1];
                 board->data_base_addr = dev->base_addr[2];
-#endif
                 board->dev = dev;
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
                 if (access->verbose)
@@ -837,9 +822,13 @@ void pci_boards_scan(board_access_t *access) {
                 iopl(3);
                 board->len = dev->size[3];
                 board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
+#elif _WIN32
+                pci_fix_bar_lengths(dev);
+                board->len = dev->size[3];
+                board->base = map_memory(dev->base_addr[3], board->len);
+#endif
                 board->ctrl_base_addr = dev->base_addr[1];
                 board->data_base_addr = dev->base_addr[2];
-#endif
                 board->dev = dev;
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
                 if (access->verbose)
@@ -868,9 +857,13 @@ void pci_boards_scan(board_access_t *access) {
                 iopl(3);
                 board->len = dev->size[3];
                 board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
+#elif _WIN32
+                pci_fix_bar_lengths(dev);
+                board->len = dev->size[3];
+                board->base = map_memory(dev->base_addr[3], board->len);
+#endif
                 board->ctrl_base_addr = dev->base_addr[1];
                 board->data_base_addr = dev->base_addr[2];
-#endif
                 board->dev = dev;
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
                 if (access->verbose)
@@ -907,9 +900,13 @@ void pci_boards_scan(board_access_t *access) {
                 iopl(3);
                 board->len = dev->size[3];
                 board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
+#elif _WIN32
+                pci_fix_bar_lengths(dev);
+                board->len = dev->size[3];
+                board->base = map_memory(dev->base_addr[3], board->len);
+#endif
                 board->ctrl_base_addr = dev->base_addr[1];
                 board->data_base_addr = dev->base_addr[2];
-#endif
                 board->dev = dev;
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
                 if (access->verbose)
