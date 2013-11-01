@@ -562,7 +562,7 @@ void pci_boards_scan(board_access_t *access) {
 #endif
                 board->dev = dev;
                 eeprom_init(&(board->llio));
-                //board->flash_id = read_flash_id(&(board->llio));
+                board->flash_id = read_flash_id(&(board->llio));
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
                 if (access->verbose)
                     pci_print_info(board);
@@ -591,7 +591,7 @@ void pci_boards_scan(board_access_t *access) {
 #endif
                 board->dev = dev;
                 eeprom_init(&(board->llio));
-                //board->flash_id = read_flash_id(&(board->llio));
+                board->flash_id = read_flash_id(&(board->llio));
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
                 if (access->verbose)
                     pci_print_info(board);
@@ -936,6 +936,6 @@ void pci_print_info(board_t *board) {
         }
     }
     if (board->flash_id > 0) {
-        printf("  flash id: 0x%02X %s\n", board->flash_id, eeprom_get_flash_type(board->flash_id));
+        printf("  Flash size: %s (id: 0x%02X)\n", eeprom_get_flash_type(board->flash_id), board->flash_id);
     }
 }
