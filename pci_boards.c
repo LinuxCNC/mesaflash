@@ -514,7 +514,57 @@ void pci_boards_scan(board_access_t *access) {
         pci_fill_info(dev, PCI_FILL_IDENT | PCI_FILL_IRQ | PCI_FILL_BASES | PCI_FILL_ROM_BASE | PCI_FILL_SIZES | PCI_FILL_CLASS);     // first run - fill data struct 
 
         if (dev->vendor_id == VENDORID_MESAPCI) {
-            if (dev->device_id == DEVICEID_MESA5I25) {
+            if (dev->device_id == DEVICEID_MESA4I74) {
+                strncpy((char *) board->llio.board_name, "4I74", 4);
+                board->llio.num_ioport_connectors = 3;
+                board->llio.pins_per_connector = 24;
+                board->llio.ioport_connector_name[0] = "P1";
+                board->llio.ioport_connector_name[1] = "P3";
+                board->llio.ioport_connector_name[2] = "P4";
+                board->llio.fpga_part_number = "6slx9pq144";
+                board->llio.num_leds = 0;
+                board->llio.read = &pci_read;
+                board->llio.write = &pci_write;
+                board->llio.program_flash = &pci_program_flash;
+                board->llio.private = board;
+#ifdef __linux__
+                iopl(3);
+                board->len = dev->size[0];
+                board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[0]);
+#elif _WIN32
+                int i;
+
+                for (i = 0; i < 6; i++) {
+                    u32 saved_bar, size;
+
+                    if (dev->base_addr == 0)
+                        continue;
+
+                    saved_bar = pci_read_long(dev, PCI_BASE_ADDRESS_0 + i*4);
+                    pci_write_long(dev, PCI_BASE_ADDRESS_0 + i*4, 0xFFFFFFFF);
+                    size = pci_read_long(dev, PCI_BASE_ADDRESS_0 + i*4);
+                    if (size & PCI_BASE_ADDRESS_SPACE_IO) {
+                        size = ~(size & PCI_BASE_ADDRESS_IO_MASK) & 0xFF;
+                    } else {
+                        size = ~(size & PCI_BASE_ADDRESS_MEM_MASK);
+                    }
+                    pci_write_long(dev, PCI_BASE_ADDRESS_0 + i*4, saved_bar);
+
+                    dev->size[i] = size + 1;
+                }
+                board->len = HM2_AREA_SIZE;
+                board->base = map_memory(dev->base_addr[0], board->len);
+                printf("BASE = %X\n", board->base);
+#endif
+                board->dev = dev;
+                eeprom_init(&(board->llio));
+                //board->flash_id = read_flash_id(&(board->llio));
+                printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
+                if (access->verbose)
+                    pci_print_info(board);
+
+                boards_count++;
+            } else if (dev->device_id == DEVICEID_MESA5I25) {
                 strncpy((char *) board->llio.board_name, "5I25", 4);
                 board->llio.num_ioport_connectors = 2;
                 board->llio.pins_per_connector = 17;
