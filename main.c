@@ -119,6 +119,7 @@ int process_cmd_line(int argc, char *argv[]) {
                     printf("Error: multiply --info option\n");
                     exit(-1);
                 }
+                strncpy(bitfile_name, optarg, 255);
                 info_flag++;
             }
             break;
@@ -152,6 +153,7 @@ int main(int argc, char *argv[]) {
     access.pci = 1;
 
     if (info_flag == 1) {
+        bitfile_print_info(bitfile_name);
         return 0;
     }
     if (device_flag == 1) {

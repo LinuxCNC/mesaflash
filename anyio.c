@@ -1,7 +1,10 @@
 
 #include <stdlib.h>
+#include <string.h>
+#include <errno.h>
 
 #include "anyio.h"
+#include "bitfile.h"
 #include "eth_boards.h"
 #include "pci_boards.h"
 #include "lpt_boards.h"
@@ -68,4 +71,17 @@ void board_print_info(board_t *board) {
             usb_print_info(board);
             break;
     }
+}
+
+void bitfile_print_info(char *bitfile_name) {
+    FILE *fp;
+    char part_name[32];
+
+    fp = fopen(bitfile_name, "rb");
+    if (fp == NULL) {
+        printf("Can't open file %s: %s\n", bitfile_name, strerror(errno));
+        return;
+    }
+    print_bitfile_header(fp, (char*) &part_name);
+    fclose(fp);
 }
