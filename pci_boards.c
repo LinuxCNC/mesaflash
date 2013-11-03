@@ -564,6 +564,7 @@ void pci_boards_scan(board_access_t *access) {
                 board->dev = dev;
                 eeprom_init(&(board->llio));
                 board->flash_id = read_flash_id(&(board->llio));
+                board->flash_start_address = eeprom_calc_user_space(board->flash_id);
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
                 if (access->verbose)
                     pci_print_info(board);
@@ -594,6 +595,7 @@ void pci_boards_scan(board_access_t *access) {
                 board->dev = dev;
                 eeprom_init(&(board->llio));
                 board->flash_id = read_flash_id(&(board->llio));
+                board->flash_start_address = eeprom_calc_user_space(board->flash_id);
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
                 if (access->verbose)
                     pci_print_info(board);
@@ -626,6 +628,7 @@ void pci_boards_scan(board_access_t *access) {
 #endif
                 board->dev = dev;
                 board->flash_id = read_flash_id(&(board->llio));
+                board->flash_start_address = eeprom_calc_user_space(board->flash_id);
                 printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
                 if (access->verbose)
                     pci_print_info(board);

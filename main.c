@@ -165,12 +165,12 @@ int main(int argc, char *argv[]) {
         }
         if (write_flag == 1) {
             if (board->llio.program_flash != NULL)
-                board->llio.program_flash(&(board->llio), bitfile_name, 0x80000);
+                board->llio.program_flash(&(board->llio), bitfile_name, board->flash_start_address);
             else
                 printf("Board %s doesn't support flash write.\n", board->llio.board_name);
         } else if (verify_flag == 1) {
             if (board->llio.verify_flash != NULL)
-                board->llio.verify_flash(&(board->llio), bitfile_name, 0x80000);
+                board->llio.verify_flash(&(board->llio), bitfile_name, board->flash_start_address);
             else
                 printf("Board %s doesn't support flash verification.\n", board->llio.board_name);
         } else if (program_flag == 1) {

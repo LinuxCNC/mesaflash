@@ -10,6 +10,7 @@ typedef enum {BOARD_ETH, BOARD_PCI, BOARD_LPT, BOARD_USB} board_type;
 typedef struct {
     board_type type;
     u8 flash_id;
+    u32 flash_start_address;
 
     char ip_addr[16];
 
