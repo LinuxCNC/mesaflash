@@ -6,11 +6,13 @@
 #include <stdlib.h>
 
 #include "anyio.h"
+#include "spi_eeprom.h"
 
 static int device_flag;
 static int write_flag;
-static int program_flag;
 static int verify_flag;
+static int fallback_flag;
+static int program_flag;
 static int info_flag;
 static int verbose_flag;
 static char bitfile_name[255];
@@ -19,8 +21,9 @@ static board_access_t access;
 static struct option long_options[] = {
     {"device", required_argument, 0, 'd'},
     {"write", required_argument, 0, 'w'},
-    {"program", required_argument, 0, 'p'},
     {"verify", required_argument, 0, 'v'},
+    {"fallback", no_argument, &fallback_flag, 1},
+    {"program", required_argument, 0, 'p'},
     {"info", required_argument, 0, 'i'},
     {"help", no_argument, 0, 'h'},
     {"verbose", no_argument, &verbose_flag, 1},
@@ -35,15 +38,16 @@ void print_short_usage() {
 void print_usage() {
     printf("Syntax:\n");
     printf("    mesaflash --device device_name [--verbose]\n");
-    printf("    mesaflash --device device_name [--write filename] [--verbose]\n");
+    printf("    mesaflash --device device_name [--write filename [--fallback]] [--verbose]\n");
+    printf("    mesaflash --device device_name [--verify filename [--fallback]] [--verbose]\n");
     printf("    mesaflash --device device_name [--program filename] [--verbose]\n");
-    printf("    mesaflash --device device_name [--verify filename] [--verbose]\n");
     printf("    mesaflash --info filename [--verbose]\n");
     printf("Options:\n");
     printf("  --device      select active device name. If no other options is given it will detect board with given name and print info about it.\n");
-    printf("  --write       write filename into onboard flash if available (IMPORTANT! filename must be VALID FPGA configuration file)\n");
-    printf("  --program     write filename into FPGA (IMPORTANT! filename must be VALID FPGA configuration file)\n");
-    printf("  --verify      verify if 'filename' is properly programmed in flash\n");
+    printf("  --write       writes a standard bitfile 'filename' configuration to the userarea of the EEPROM (IMPORTANT! 'filename' must be VALID FPGA configuration file)\n");
+    printf("  --verify      verifies the EEPROM configuration against the bitfile 'filename'\n");
+    printf("  --fallback    use the fallback area of the EEPROM\n");
+    printf("  --program     writes a standard bitfile 'filename' configuration to the FPGA (IMPORTANT! 'filename' must be VALID FPGA configuration file)\n");
     printf("  --verbose     print detailed information while running commands\n");
     printf("  --info        print info about configuration in filename\n");
 }
@@ -168,15 +172,25 @@ int main(int argc, char *argv[]) {
         }
         board_print_info(board);
         if (write_flag == 1) {
-            if (board->llio.program_flash != NULL)
-                board->llio.program_flash(&(board->llio), bitfile_name, board->flash_start_address);
-            else
+            if (board->llio.program_flash != NULL) {
+                u32 addr = board->flash_start_address;
+
+                if (fallback_flag == 1)
+                    addr = FALLBACK_ADDRESS;
+                board->llio.program_flash(&(board->llio), bitfile_name, addr);
+            } else {
                 printf("Board %s doesn't support flash write.\n", board->llio.board_name);
+            }
         } else if (verify_flag == 1) {
-            if (board->llio.verify_flash != NULL)
-                board->llio.verify_flash(&(board->llio), bitfile_name, board->flash_start_address);
-            else
+            if (board->llio.verify_flash != NULL) {
+                u32 addr = board->flash_start_address;
+
+                if (fallback_flag == 1)
+                    addr = FALLBACK_ADDRESS;
+                board->llio.verify_flash(&(board->llio), bitfile_name, addr);
+            } else {
                 printf("Board %s doesn't support flash verification.\n", board->llio.board_name);
+            }
         } else if (program_flag == 1) {
             if (board->llio.program_fpga != NULL)
                 board->llio.program_fpga(&(board->llio), bitfile_name);
