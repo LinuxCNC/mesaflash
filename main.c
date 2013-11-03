@@ -42,6 +42,7 @@ void print_usage() {
     printf("    mesaflash --device device_name [--verify filename [--fallback]] [--verbose]\n");
     printf("    mesaflash --device device_name [--program filename] [--verbose]\n");
     printf("    mesaflash --info filename [--verbose]\n");
+    printf("    mesaflash --help\n");
     printf("Options:\n");
     printf("  --device      select active device name. If no other options is given it will detect board with given name and print info about it.\n");
     printf("  --write       writes a standard bitfile 'filename' configuration to the userarea of the EEPROM (IMPORTANT! 'filename' must be VALID FPGA configuration file)\n");
@@ -50,6 +51,7 @@ void print_usage() {
     printf("  --program     writes a standard bitfile 'filename' configuration to the FPGA (IMPORTANT! 'filename' must be VALID FPGA configuration file)\n");
     printf("  --verbose     print detailed information while running commands\n");
     printf("  --info        print info about configuration in filename\n");
+    printf("  --help        print this help message\n");
 }
 
 int process_cmd_line(int argc, char *argv[]) {
