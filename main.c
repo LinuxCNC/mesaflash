@@ -13,6 +13,7 @@ static int program_flag;
 static int verify_flag;
 static int info_flag;
 static int verbose_flag;
+static char bitfile_name[255];
 static board_access_t access;
 
 static struct option long_options[] = {
@@ -89,6 +90,8 @@ int process_cmd_line(int argc, char *argv[]) {
                     printf("Error: multiply --write option\n");
                     exit(-1);
                 }
+                strncpy(bitfile_name, optarg, 255);
+                write_flag++;
             }
             break;
 
@@ -97,6 +100,7 @@ int process_cmd_line(int argc, char *argv[]) {
                     printf("Error: multiply --program option\n");
                     exit(-1);
                 }
+                program_flag++;
             }
             break;
 
@@ -105,6 +109,8 @@ int process_cmd_line(int argc, char *argv[]) {
                     printf("Error: multiply --verify option\n");
                     exit(-1);
                 }
+                strncpy(bitfile_name, optarg, 255);
+                verify_flag++;
             }
             break;
 
@@ -113,6 +119,7 @@ int process_cmd_line(int argc, char *argv[]) {
                     printf("Error: multiply --info option\n");
                     exit(-1);
                 }
+                info_flag++;
             }
             break;
 
@@ -148,11 +155,25 @@ int main(int argc, char *argv[]) {
         return 0;
     }
     if (device_flag == 1) {
+        board_t *board = NULL;
         boards_init(&access);
         boards_scan(&access);
+        board = boards_find(&access);
+        if (board == NULL) {
+            printf("No %s board found\n", access.device_name);
+            return -1;
+        }
         if (write_flag == 1) {
-        } else if (program_flag == 1) {
+            if (board->llio.program_flash != NULL)
+                board->llio.program_flash(&(board->llio), bitfile_name, 0x80000);
+            else
+                printf("Board %s doesn't support flash write.\n", board->llio.board_name);
         } else if (verify_flag == 1) {
+            if (board->llio.verify_flash != NULL)
+                board->llio.verify_flash(&(board->llio), bitfile_name, 0x80000);
+            else
+                printf("Board %s doesn't support flash verification.\n", board->llio.board_name);
+        } else if (program_flag == 1) {
         }
     }
 

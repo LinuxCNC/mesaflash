@@ -45,6 +45,7 @@ int boards_count;
 
 void boards_init(board_access_t *access);
 void boards_scan(board_access_t *access);
+board_t *boards_find(board_access_t *access);
 void board_print_info(board_t *board);
 
 #endif
