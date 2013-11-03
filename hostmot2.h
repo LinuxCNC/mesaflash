@@ -155,6 +155,7 @@ struct llio_struct {
     char board_name[16];
     void *private;
     hostmot2_t hm2;
+    int verbose;
 };
 
 typedef struct {

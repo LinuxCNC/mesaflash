@@ -163,6 +163,7 @@ int main(int argc, char *argv[]) {
             printf("No %s board found\n", access.device_name);
             return -1;
         }
+        board_print_info(board);
         if (write_flag == 1) {
             if (board->llio.program_flash != NULL)
                 board->llio.program_flash(&(board->llio), bitfile_name, board->flash_start_address);

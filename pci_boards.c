@@ -535,10 +535,12 @@ void pci_boards_scan(board_access_t *access) {
     pci_scan_bus(pacc);
     for (dev = pacc->devices; dev != NULL; dev = dev->next) {
         board = &boards[boards_count];
-        pci_fill_info(dev, PCI_FILL_IDENT | PCI_FILL_IRQ | PCI_FILL_BASES | PCI_FILL_ROM_BASE | PCI_FILL_SIZES | PCI_FILL_CLASS);     // first run - fill data struct 
+        // first run - fill data struct
+        pci_fill_info(dev, PCI_FILL_IDENT | PCI_FILL_IRQ | PCI_FILL_BASES | PCI_FILL_ROM_BASE | PCI_FILL_SIZES | PCI_FILL_CLASS);
 
         if (dev->vendor_id == VENDORID_MESAPCI) {
             if (dev->device_id == DEVICEID_MESA4I74) {
+                board->type = BOARD_PCI;
                 strncpy((char *) board->llio.board_name, "4I74", 4);
                 board->llio.num_ioport_connectors = 3;
                 board->llio.pins_per_connector = 24;
@@ -565,12 +567,11 @@ void pci_boards_scan(board_access_t *access) {
                 eeprom_init(&(board->llio));
                 board->flash_id = read_flash_id(&(board->llio));
                 board->flash_start_address = eeprom_calc_user_space(board->flash_id);
-                printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
-                if (access->verbose)
-                    pci_print_info(board);
+                board->llio.verbose = access->verbose;
 
                 boards_count++;
             } else if (dev->device_id == DEVICEID_MESA5I25) {
+                board->type = BOARD_PCI;
                 strncpy((char *) board->llio.board_name, "5I25", 4);
                 board->llio.num_ioport_connectors = 2;
                 board->llio.pins_per_connector = 17;
@@ -596,15 +597,11 @@ void pci_boards_scan(board_access_t *access) {
                 eeprom_init(&(board->llio));
                 board->flash_id = read_flash_id(&(board->llio));
                 board->flash_start_address = eeprom_calc_user_space(board->flash_id);
-                printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
-                if (access->verbose)
-                    pci_print_info(board);
-                //hm2_read_idrom(&(board->llio));
-                
-                //pci_verify_flash(&(board->llio), "../../Pulpit/7i77x2.bit", 0x80000);
+                board->llio.verbose = access->verbose;
 
                 boards_count++;
             } else if (dev->device_id == DEVICEID_MESA6I25) {
+                board->type = BOARD_PCI;
                 strncpy(board->llio.board_name, "6I25", 4);
                 board->llio.num_ioport_connectors = 2;
                 board->llio.pins_per_connector = 17;
@@ -629,15 +626,14 @@ void pci_boards_scan(board_access_t *access) {
                 board->dev = dev;
                 board->flash_id = read_flash_id(&(board->llio));
                 board->flash_start_address = eeprom_calc_user_space(board->flash_id);
-                printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
-                if (access->verbose)
-                    pci_print_info(board);
+                board->llio.verbose = access->verbose;
 
                 boards_count++;
             }
         } else if (dev->device_id == DEVICEID_PLX9030) {
             u16 ssid = pci_read_word(dev, PCI_SUBSYSTEM_ID);
             if (ssid == SUBDEVICEID_MESA5I20) {
+                board->type = BOARD_PCI;
                 strncpy(board->llio.board_name, "5I20", 4);
                 board->llio.num_ioport_connectors = 3;
                 board->llio.pins_per_connector = 24;
@@ -663,19 +659,11 @@ void pci_boards_scan(board_access_t *access) {
                 board->ctrl_base_addr = dev->base_addr[1];
                 board->data_base_addr = dev->base_addr[2];
                 board->dev = dev;
-                printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
-                if (access->verbose)
-                    pci_print_info(board);
-                //plx9030_fixup_LASxBRD_READY(&(board->llio));
+                board->llio.verbose = access->verbose;
 
-                //board->llio.reset(&(board->llio));
-                //board->llio.program_fpga(&(board->llio), "../../Pulpit/SVST8_4.BIT");
-                //pci_bridge_eeprom_setup_read(board);
-                hm2_read_idrom(&(board->llio));
-                //hm2_print_pin_file(&(board->llio));
-               return;
                 boards_count++;
             } else if (ssid == SUBDEVICEID_MESA4I65) {
+                board->type = BOARD_PCI;
                 strncpy(board->llio.board_name, "4I65", 4);
                 board->llio.num_ioport_connectors = 3;
                 board->llio.pins_per_connector = 24;
@@ -701,15 +689,14 @@ void pci_boards_scan(board_access_t *access) {
                 board->ctrl_base_addr = dev->base_addr[1];
                 board->data_base_addr = dev->base_addr[2];
                 board->dev = dev;
-                printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
-                if (access->verbose)
-                    pci_print_info(board);
+                board->llio.verbose = access->verbose;
 
                 boards_count++;
             }
         } else if (dev->device_id == DEVICEID_PLX9054) {
             u16 ssid = pci_read_word(dev, PCI_SUBSYSTEM_ID);
             if ((ssid == SUBDEVICEID_MESA4I68_OLD) || (ssid == SUBDEVICEID_MESA4I68)) {
+                board->type = BOARD_PCI;
                 strncpy(board->llio.board_name, "4I68", 4);
                 board->llio.num_ioport_connectors = 3;
                 board->llio.pins_per_connector = 24;
@@ -735,12 +722,11 @@ void pci_boards_scan(board_access_t *access) {
                 board->ctrl_base_addr = dev->base_addr[1];
                 board->data_base_addr = dev->base_addr[2];
                 board->dev = dev;
-                printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
-                if (access->verbose)
-                    pci_print_info(board);
+                board->llio.verbose = access->verbose;
 
                 boards_count++;
             } else if (ssid == SUBDEVICEID_MESA5I21) {
+                board->type = BOARD_PCI;
                 strncpy(board->llio.board_name, "5I21", 4);
                 board->llio.num_ioport_connectors = 2;
                 board->llio.pins_per_connector = 32;
@@ -765,16 +751,11 @@ void pci_boards_scan(board_access_t *access) {
                 board->ctrl_base_addr = dev->base_addr[1];
                 board->data_base_addr = dev->base_addr[2];
                 board->dev = dev;
-                printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
-                if (access->verbose)
-                    pci_print_info(board);
-
-                board->llio.reset(&(board->llio));
-                board->llio.program_fpga(&(board->llio), "../../Pulpit/I21LOOP.BIT");
-                hm2_read_idrom(&(board->llio));
+                board->llio.verbose = access->verbose;
 
                 boards_count++;
             } else if ((ssid == SUBDEVICEID_MESA5I22_10) || (ssid == SUBDEVICEID_MESA5I22_15)) {
+                board->type = BOARD_PCI;
                 strncpy(board->llio.board_name, "5I22", 4);
                 board->llio.num_ioport_connectors = 4;
                 board->llio.pins_per_connector = 24;
@@ -805,12 +786,11 @@ void pci_boards_scan(board_access_t *access) {
                 board->ctrl_base_addr = dev->base_addr[1];
                 board->data_base_addr = dev->base_addr[2];
                 board->dev = dev;
-                printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
-                if (access->verbose)
-                    pci_print_info(board);
+                board->llio.verbose = access->verbose;
 
                 boards_count++;
             } else if (ssid == SUBDEVICEID_MESA5I23) {
+                board->type = BOARD_PCI;
                 strncpy(board->llio.board_name, "5I23", 4);
                 board->llio.num_ioport_connectors = 3;
                 board->llio.pins_per_connector = 24;
@@ -836,12 +816,11 @@ void pci_boards_scan(board_access_t *access) {
                 board->ctrl_base_addr = dev->base_addr[1];
                 board->data_base_addr = dev->base_addr[2];
                 board->dev = dev;
-                printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
-                if (access->verbose)
-                    pci_print_info(board);
+                board->llio.verbose = access->verbose;
 
                 boards_count++;
             } else if ((ssid == SUBDEVICEID_MESA4I69_16) || (ssid == SUBDEVICEID_MESA4I69_25)) {
+                board->type = BOARD_PCI;
                 strncpy(board->llio.board_name, "4I69", 4);
                 board->llio.num_ioport_connectors = 3;
                 board->llio.pins_per_connector = 24;
@@ -871,15 +850,14 @@ void pci_boards_scan(board_access_t *access) {
                 board->ctrl_base_addr = dev->base_addr[1];
                 board->data_base_addr = dev->base_addr[2];
                 board->dev = dev;
-                printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
-                if (access->verbose)
-                    pci_print_info(board);
+                board->llio.verbose = access->verbose;
 
                 boards_count++;
             }
         } else if (dev->device_id == DEVICEID_PLX9056) {
             u16 ssid = pci_read_word(dev, PCI_SUBSYSTEM_ID);
             if ((ssid == SUBDEVICEID_MESA3X20_10) || (ssid == SUBDEVICEID_MESA3X20_15) || (ssid == SUBDEVICEID_MESA3X20_20)) {
+                board->type = BOARD_PCI;
                 strncpy(board->llio.board_name, "3x20", 4);
                 board->llio.num_ioport_connectors = 6;
                 board->llio.pins_per_connector = 24;
@@ -914,13 +892,7 @@ void pci_boards_scan(board_access_t *access) {
                 board->ctrl_base_addr = dev->base_addr[1];
                 board->data_base_addr = dev->base_addr[2];
                 board->dev = dev;
-                printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, dev->bus, dev->dev, dev->func, dev->vendor_id, dev->device_id);
-                if (access->verbose)
-                    pci_print_info(board);
-
-                board->llio.reset(&(board->llio));
-                board->llio.program_fpga(&(board->llio), "../../Pulpit/SV24S.BIT");
-                hm2_read_idrom(&(board->llio));
+                board->llio.verbose = access->verbose;
 
                 boards_count++;
             }
@@ -930,6 +902,11 @@ void pci_boards_scan(board_access_t *access) {
 
 void pci_print_info(board_t *board) {
     int i;
+
+    printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, 
+        board->dev->bus, board->dev->dev, board->dev->func, board->dev->vendor_id, board->dev->device_id);
+    if (board->llio.verbose == 0)
+        return;
 
     for (i = 0; i < 6; i++) {
         u32 flags = pci_read_long(board->dev, PCI_BASE_ADDRESS_0 + 4*i);
