@@ -16,7 +16,8 @@
 #define HM2_CONFIG_NAME  0x0104
 #define HM2_IDROM_ADDR   0x010C
 
-#define HM2_COOKIE       0x55AACAFE
+#define HM2_CONFIG_NAME_LEN 8
+#define HM2_COOKIE          0x55AACAFE
 
 #define HM2_MODULE_LED                      0x0200
 #define HM2_MODULE_WD_TIMER                 0x0C00
@@ -162,6 +163,11 @@ typedef struct {
     u8 tag;
     char *name[10];
 } pin_name_t;
+
+typedef struct {
+    char *name;
+    u8 tag;
+} mod_name_t;
 
 void hm2_read_idrom(llio_t *llio);
 void hm2_print_idrom(hostmot2_t *hm2);

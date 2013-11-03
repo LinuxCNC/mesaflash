@@ -1,5 +1,6 @@
 
 #include <stdio.h>
+#include <string.h>
 
 #include "hostmot2.h"
 
@@ -11,16 +12,13 @@ void hm2_read_idrom(llio_t *llio) {
         printf("ERROR: no HOSTMOT2 firmware found. %X\n", cookie);
         return;
     }
+    llio->read(llio, HM2_CONFIG_NAME, &(llio->hm2.config_name), HM2_CONFIG_NAME_LEN);
     llio->read(llio, HM2_IDROM_ADDR, &(idrom_addr), sizeof(u32));
     llio->read(llio, idrom_addr, &(llio->hm2.idrom), sizeof(llio->hm2.idrom));
     llio->read(llio, idrom_addr + llio->hm2.idrom.offset_to_modules, &(llio->hm2.modules), sizeof(llio->hm2.modules));
     llio->read(llio, idrom_addr + llio->hm2.idrom.offset_to_pins, &(llio->hm2.pins), sizeof(llio->hm2.pins)/2);
     llio->read(llio, idrom_addr + llio->hm2.idrom.offset_to_pins + sizeof(hm2_pin_desc_t)*HM2_MAX_PINS/2, 
       &(llio->hm2.pins[HM2_MAX_PINS/2]), sizeof(llio->hm2.pins)/2);
-
-    hm2_print_idrom(&(llio->hm2));
-    hm2_print_modules(&(llio->hm2));
-    hm2_print_pins(&(llio->hm2));
 }
 
 const char *hm2_hz_to_mhz(u32 freq_hz) {
@@ -312,7 +310,6 @@ void hm2_print_pins(hostmot2_t *hm2) {
 
 void hm2_print_pin_file(llio_t *llio) {
     unsigned int i, j;
-
     static pin_name_t pin_names[HM2_MAX_TAGS] = {
       {HM2_GTAG_NONE,  {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
       {HM2_GTAG_IRQ_LOGIC,  {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
@@ -343,6 +340,37 @@ void hm2_print_pin_file(llio_t *llio) {
       {HM2_GTAG_TRAM,    {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
       {HM2_GTAG_LED,      {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
     };
+    static mod_name_t mod_names[HM2_MAX_TAGS] = {
+        {"Null",        HM2_GTAG_NONE},
+        {"IRQLogic",    HM2_GTAG_IRQ_LOGIC},
+        {"WatchDog",    HM2_GTAG_WATCHDOG},
+        {"IOPort",      HM2_GTAG_IOPORT},
+        {"QCount",      HM2_GTAG_ENCODER},
+        {"StepGen",     HM2_GTAG_STEPGEN},
+        {"PWM",         HM2_GTAG_PWMGEN},
+        {"SPI",         HM2_GTAG_SPI},
+        {"SSI",         HM2_GTAG_SSI},
+        {"UARTTX",      HM2_GTAG_UART_TX},
+        {"UARTRX",      HM2_GTAG_UART_RX},
+        {"AddrX",       HM2_GTAG_TRAM},
+        {"MuxQCnt",     HM2_GTAG_MUXED_ENCODER},
+        {"MuxQSel",     HM2_GTAG_MUXED_ENCODER_SEL},
+        {"BufSPI",      HM2_GTAG_BSPI},
+        {"DBufSPI",     HM2_GTAG_DBSPI},
+        {"DPLL",        HM2_GTAG_DPLL},
+        {"MuxQCntM",    HM2_GTAG_MUXED_ENCODER_MIM},
+        {"MuxQSelM",    HM2_GTAG_MUXED_ENCODER_SEL_MIM},
+        {"TPPWM",       HM2_GTAG_TPPWM},
+        {"WaveGen",     HM2_GTAG_WAVEGEN},
+        {"DAQFIFO",     HM2_GTAG_DAQ_FIFO},
+        {"BinOsc",      HM2_GTAG_BIN_OSC},
+        {"DMDMA",       HM2_GTAG_BIN_DMDMA},
+        {"ResolverMod", HM2_GTAG_RESOLVER},
+        {"SSerial",     HM2_GTAG_SSERIAL},
+        {"Twiddler",    HM2_GTAG_TWIDDLER},
+        {"LED",         HM2_GTAG_LED},
+    };
+    const u8 db25_pins[] = {1, 14, 2, 15, 3, 16, 4, 17, 5, 6, 7, 8, 9, 10, 11, 12, 13};
 
     printf("Configuration Name: %.*s\n", 8, llio->hm2.config_name);
     printf("\nGeneral configuration information:\n\n");
@@ -359,26 +387,58 @@ void hm2_print_pin_file(llio_t *llio) {
     for (i = 0; i < HM2_MAX_MODULES; i++) {
         if (llio->hm2.modules[i].gtag == 0) break;
 
-        printf("  Module: %s\n", hm2_get_general_function_name(llio->hm2.modules[i].gtag));
-        printf("  There are %u of %s in configuration\n", llio->hm2.modules[i].instances, hm2_get_general_function_name(llio->hm2.modules[i].gtag));
+        {
+            int k;
+            for (k = 0; k < HM2_MAX_TAGS; k++) {
+                if (mod_names[k].tag == llio->hm2.modules[i].gtag) {
+                    printf("  Module: %s\n", mod_names[k].name);
+                    printf("  There are %u of %s in configuration\n", llio->hm2.modules[i].instances, mod_names[k].name);
+                }
+            }
+        }
+
         printf("  Version: %u\n", llio->hm2.modules[i].version);
         printf("  Registers: %u\n", llio->hm2.modules[i].registers);
         printf("  BaseAddress: %04X\n", llio->hm2.modules[i].base_address);
-        printf("  ClockFrequency: %u\n", llio->hm2.modules[i].version);
         printf("  ClockFrequency: %.3f MHz\n\n",
           llio->hm2.modules[i].clock_tag == HM2_CLOCK_LOW_TAG ? (float) llio->hm2.idrom.clock_low/1000000.0 : (float) llio->hm2.idrom.clock_high/1000000.0);
     }
 
     printf("Configuration pin-out:\n");
     for (i = 0; i < llio->hm2.idrom.io_ports; i++) {
-        printf("\n    IO Connections for %s\n", llio->hm2.idrom.board_name);
+        printf("\n    IO Connections for %s\n", llio->ioport_connector_name[i]);
         printf("    Pin#    I/O     Pri. func    Sec. func    Chan      Pin func        Pin Dir\n\n");
         for (j = 0; j < llio->hm2.idrom.port_width; j++) {
             hm2_pin_desc_t *pin = &(llio->hm2.pins[i*(llio->hm2.idrom.port_width) + j]);
+            int pin_nr;
 
-            printf("    %2u      %3u", (i*(llio->hm2.idrom.port_width) + j) % (llio->hm2.idrom.port_width)*2 + 1, i*(llio->hm2.idrom.port_width) + j);
-            printf("     %-12s", hm2_get_general_function_name(pin->sec_tag));
-            printf(" %-12s", hm2_get_general_function_name(pin->gtag));
+            switch (llio->hm2.idrom.port_width) {
+                case 17:
+                    pin_nr = db25_pins[(i*(llio->hm2.idrom.port_width) + j) % 17];
+                    break;
+                case 24:
+                    pin_nr = (i*(llio->hm2.idrom.port_width) + j) % (llio->hm2.idrom.port_width)*2 + 1;
+                    break;
+                case 32:
+                    pin_nr = i*(llio->hm2.idrom.port_width) + j;
+                    break;
+            }
+
+            printf("    %2u      %3u", pin_nr, i*(llio->hm2.idrom.port_width) + j);
+            {
+                int k;
+                for (k = 0; k < HM2_MAX_TAGS; k++) {
+                    if (mod_names[k].tag == pin->gtag)
+                        printf("     %-12s", mod_names[k].name);
+                }
+            }
+            {
+                int k;
+                for (k = 0; k < HM2_MAX_TAGS; k++) {
+                    if (mod_names[k].tag == pin->sec_tag)
+                        printf(" %-12s", mod_names[k].name);
+                }
+            }
             if (pin->sec_chan & HM2_CHAN_GLOBAL) {
                 printf("    Global    ");
             } else {
@@ -388,8 +448,35 @@ void hm2_print_pin_file(llio_t *llio) {
             {
                 int k;
                 for (k = 0; k < HM2_MAX_TAGS; k++) {
-                    if (pin_names[k].tag == pin->gtag)
-                        printf("%-12s", pin_names[k].name[pin->sec_chan]);
+                    if (pin_names[k].tag == pin->sec_tag) {
+                        if (pin->sec_tag == HM2_GTAG_SSERIAL) {
+                            char buff[32];
+                            char *ptr;
+
+                            if ((pin->sec_pin & 0xF0) == 0) {
+                                ptr = strcpy(buff, pin_names[k].name[0]);
+                                ptr += strlen(pin_names[k].name[0]);
+                                sprintf(ptr, "%d", pin->sec_pin & 0x0F);
+                                printf("%-13s", buff);
+                            } else if ((pin->sec_pin & 0xF0) == 0x80) {
+                                ptr = strcpy(buff, pin_names[k].name[1]);
+                                ptr += strlen(pin_names[k].name[1]);
+                                sprintf(ptr, "%d", pin->sec_pin & 0x0F);
+                                printf("%-13s", buff);
+                            } else if ((pin->sec_pin & 0xF0) == 0x90) {
+                                ptr = strcpy(buff, pin_names[k].name[2]);
+                                ptr += strlen(pin_names[k].name[2]);
+                                sprintf(ptr, "%d", pin->sec_pin & 0x0F);
+                                printf("%-13s", buff);
+                            } else if (pin->sec_pin == 0xA1) {
+                                ptr = strcpy(buff, pin_names[k].name[3]);
+                                ptr += strlen(pin_names[k].name[3]);
+                                sprintf(ptr, "%d", pin->sec_pin & 0x0F);
+                                printf("%-13s", buff);
+                            }
+                        } else
+                            printf("%-12s", pin_names[k].name[pin->gtag - 1]);
+                    }
                 }
             }
             if (pin->sec_pin & HM2_PIN_OUTPUT) {

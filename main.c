@@ -13,6 +13,7 @@ static int write_flag;
 static int verify_flag;
 static int fallback_flag;
 static int program_flag;
+static int readhmid_flag;
 static int info_flag;
 static int verbose_flag;
 static char bitfile_name[255];
@@ -24,6 +25,7 @@ static struct option long_options[] = {
     {"verify", required_argument, 0, 'v'},
     {"fallback", no_argument, &fallback_flag, 1},
     {"program", required_argument, 0, 'p'},
+    {"readhmid", no_argument, &readhmid_flag, 1},
     {"info", required_argument, 0, 'i'},
     {"help", no_argument, 0, 'h'},
     {"verbose", no_argument, &verbose_flag, 1},
@@ -41,6 +43,7 @@ void print_usage() {
     printf("    mesaflash --device device_name [--write filename [--fallback]] [--verbose]\n");
     printf("    mesaflash --device device_name [--verify filename [--fallback]] [--verbose]\n");
     printf("    mesaflash --device device_name [--program filename] [--verbose]\n");
+    printf("    mesaflash --device device_name [--readhmid]\n");
     printf("    mesaflash --info filename [--verbose]\n");
     printf("    mesaflash --help\n");
     printf("Options:\n");
@@ -49,6 +52,7 @@ void print_usage() {
     printf("  --verify      verifies the EEPROM configuration against the bitfile 'filename'\n");
     printf("  --fallback    use the fallback area of the EEPROM\n");
     printf("  --program     writes a standard bitfile 'filename' configuration to the FPGA (IMPORTANT! 'filename' must be VALID FPGA configuration file)\n");
+    printf("  --readhmid    print hostmot2 configuration in PIN file format\n");
     printf("  --verbose     print detailed information while running commands\n");
     printf("  --info        print info about configuration in filename\n");
     printf("  --help        print this help message\n");
@@ -172,7 +176,11 @@ int main(int argc, char *argv[]) {
             printf("No %s board found\n", access.device_name);
             return -1;
         }
-        board_print_info(board);
+        if (readhmid_flag == 1) {
+            board_print_hm2_info(board);
+        } else {
+            board_print_info(board);
+        }
         if (write_flag == 1) {
             if (board->llio.program_flash != NULL) {
                 u32 addr = board->flash_start_address;

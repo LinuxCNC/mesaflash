@@ -73,6 +73,13 @@ void board_print_info(board_t *board) {
     }
 }
 
+void board_print_hm2_info(board_t *board) {
+    if (board == NULL)
+        return;
+    hm2_read_idrom(&(board->llio));
+    hm2_print_pin_file(&(board->llio));
+}
+
 void bitfile_print_info(char *bitfile_name) {
     FILE *fp;
     char part_name[32];
