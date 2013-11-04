@@ -14,6 +14,11 @@ static int verify_flag;
 static int fallback_flag;
 static int program_flag;
 static int readhmid_flag;
+static int rpo_flag;
+static int wpo_flag;
+static u16 rpo_addr;
+static u16 wpo_addr;
+static u32 wpo_data;
 static int info_flag;
 static int verbose_flag;
 static char bitfile_name[255];
@@ -26,6 +31,8 @@ static struct option long_options[] = {
     {"fallback", no_argument, &fallback_flag, 1},
     {"program", required_argument, 0, 'p'},
     {"readhmid", no_argument, &readhmid_flag, 1},
+    {"rpo", required_argument, 0, 'r'},
+    {"wpo", required_argument, 0, 'o'},
     {"info", required_argument, 0, 'i'},
     {"help", no_argument, 0, 'h'},
     {"verbose", no_argument, &verbose_flag, 1},
@@ -44,7 +51,9 @@ void print_usage() {
     printf("    mesaflash --device device_name [--verify filename [--fallback]] [--verbose]\n");
     printf("    mesaflash --device device_name [--program filename] [--verbose]\n");
     printf("    mesaflash --device device_name [--readhmid]\n");
-    printf("    mesaflash --info filename [--verbose]\n");
+    printf("    mesaflash --device device_name [--rpo address]\n");
+    printf("    mesaflash --device device_name [--wpo address=value]\n");
+    printf("    mesaflash --info file_name [--verbose]\n");
     printf("    mesaflash --help\n");
     printf("Options:\n");
     printf("  --device      select active device name. If no other options is given it will detect board with given name and print info about it.\n");
@@ -53,9 +62,11 @@ void print_usage() {
     printf("  --fallback    use the fallback area of the EEPROM\n");
     printf("  --program     writes a standard bitfile 'filename' configuration to the FPGA (IMPORTANT! 'filename' must be VALID FPGA configuration file)\n");
     printf("  --readhmid    print hostmot2 configuration in PIN file format\n");
-    printf("  --verbose     print detailed information while running commands\n");
-    printf("  --info        print info about configuration in filename\n");
+    printf("  --rpo         read hostmot2 variable directly at 'address'\n");
+    printf("  --wpo         write hostmot2 variable directly at 'address' with 'value'\n");
+    printf("  --info        print info about configuration in 'file_name'\n");
     printf("  --help        print this help message\n");
+    printf("  --verbose     print detailed information while running commands\n");
 }
 
 int process_cmd_line(int argc, char *argv[]) {
@@ -112,6 +123,49 @@ int process_cmd_line(int argc, char *argv[]) {
                 }
                 strncpy(bitfile_name, optarg, 255);
                 program_flag++;
+            }
+            break;
+
+            case 'r': {
+                if (rpo_flag > 0) {
+                    printf("Error: multiply --rpo option\n");
+                    exit(-1);
+                }
+                if (strncmp(optarg, "0x", 2) == 0) {
+                    optarg[0] = '0';
+                    optarg[1] = '0';
+                    rpo_addr = strtol(optarg, NULL, 16);
+                } else {
+                    rpo_addr = strtol(optarg, NULL, 10);
+                }
+                rpo_flag++;
+            }
+            break;
+
+            case 'o': {
+                char *pch;
+
+                if (wpo_flag > 0) {
+                    printf("Error: multiply --wpo option\n");
+                    exit(-1);
+                }
+                pch = strtok(optarg, "=");
+                if (strncmp(pch, "0x", 2) == 0) {
+                    pch[0] = '0';
+                    pch[1] = '0';
+                    wpo_addr = strtol(pch, NULL, 16);
+                } else {
+                    wpo_addr = strtol(pch, NULL, 10);
+                }
+                pch = strtok(NULL, "=");
+                if (strncmp(pch, "0x", 2) == 0) {
+                    pch[0] = '0';
+                    pch[1] = '0';
+                    wpo_data = strtol(pch, NULL, 16);
+                } else {
+                    wpo_data = strtol(pch, NULL, 10);
+                }
+                wpo_flag++;
             }
             break;
 
@@ -178,10 +232,14 @@ int main(int argc, char *argv[]) {
         }
         if (readhmid_flag == 1) {
             board_print_hm2_info(board);
-        } else {
-            board_print_info(board);
-        }
-        if (write_flag == 1) {
+        } else if (rpo_flag == 1) {
+            u32 data;
+
+            board->llio.read(&(board->llio), rpo_addr, &data, sizeof(u32));
+            printf("%08X\n", data);
+        } else if (wpo_flag == 1) {
+            board->llio.write(&(board->llio), wpo_addr, &wpo_data, sizeof(u32));
+        } else if (write_flag == 1) {
             if (board->llio.program_flash != NULL) {
                 u32 addr = board->flash_start_address;
 
@@ -206,6 +264,8 @@ int main(int argc, char *argv[]) {
                 board->llio.program_fpga(&(board->llio), bitfile_name);
             else
                 printf("Board %s doesn't support FPGA programming.\n", board->llio.board_name);
+        } else {
+            board_print_info(board);
         }
     }
 
