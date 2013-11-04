@@ -8,6 +8,8 @@
 #include "libpci/pci.h"
 #endif
 
+#include "common.h"
+
 #define LBP16_SENDRECV_DEBUG 0
 
 #define LBP16_UDP_PORT 27181
@@ -78,9 +80,6 @@
 #define CMD_WRITE_COMM_CTRL_ADDR16(size)      (CMD_WRITE_ADDR_16 | LBP16_SPACE_COMM_CTRL | ((size) & LBP16_MAX_PACKET_DATA_SIZE))
 #define CMD_WRITE_ETH_EEPROM_ADDR16(size)     (CMD_WRITE_ADDR_16 | LBP16_SPACE_ETH_EEPROM | ((size) & LBP16_MAX_PACKET_DATA_SIZE))
 #define CMD_WRITE_ETH_EEPROM_ADDR16_INCR(size) (CMD_WRITE_ADDR_16_INCR | LBP16_SPACE_ETH_EEPROM | ((size) & LBP16_MAX_PACKET_DATA_SIZE))
-
-#define LO_BYTE(cmd) ((cmd) & 0xFF)
-#define HI_BYTE(cmd) (((cmd) & 0xFF00) >> 8)
 
 // common packets
 #define CMD_READ_HM2_COOKIE  (CMD_READ_HOSTMOT2_ADDR32(1))

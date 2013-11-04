@@ -228,6 +228,16 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_desc_t *pin) {
     return unknown;
 }
 
+hm2_module_desc_t *hm2_find_module(hostmot2_t *hm2, u8 gtag) {
+    int i;
+
+    for (i = 0; i < HM2_MAX_MODULES; i++) {
+        if (hm2->modules[i].gtag == gtag)
+            return &(hm2->modules[i]);
+    }
+    return NULL;
+}
+
 void hm2_print_idrom(hostmot2_t *hm2) {
     printf("IDRom:\n");
     printf("  IDRom Type: 0x%02X\n", hm2->idrom.idrom_type);

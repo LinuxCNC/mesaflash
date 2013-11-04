@@ -49,6 +49,91 @@
 #define HM2_MODULE_ENCODER_TS_COUNT         0x3300
 #define HM2_MODULE_ENCODER_FILTER_RATE      0x3400
 
+/// SSERIAL MODULE
+
+#define HM2_MODULE_SSERIAL                  0x5A00
+#define HM2_MODULE_SSERIAL_CMD              HM2_MODULE_SSERIAL
+#define HM2_MODULE_SSERIAL_DATA             (HM2_MODULE_SSERIAL + 0x100)
+#define HM2_MODULE_SSERIAL_CS               (HM2_MODULE_SSERIAL + 0x200)
+#define HM2_MODULE_SSERIAL_INTERFACE0       (HM2_MODULE_SSERIAL + 0x300)
+#define HM2_MODULE_SSERIAL_INTERFACE1       (HM2_MODULE_SSERIAL + 0x400)
+#define HM2_MODULE_SSERIAL_INTERFACE2       (HM2_MODULE_SSERIAL + 0x500)
+#define HM2_MAX_SSERIAL_MODULES  2
+#define HM2_MAX_SSERIAL_CHANNELS 16
+
+#define SSLBP_START_NORMAL  0x0900
+#define SSLBP_START_SETUP   0x0F00
+#define SSLBP_STOP          0x0800
+#define SSLBP_DOIT          0x1000
+#define SSLBP_REQUEST       0x2000
+#define SSLBP_RESET         0x4000
+#define SSLBP_READ          0x0000
+#define SSLBP_WRITE         0x8000
+
+#define SSLBP_CMD_START_NORMAL_MODE(x) (SSLBP_START_NORMAL | ((1 << x) & 0xFF))
+#define SSLBP_CMD_START_SETUP_MODE(x)  (SSLBP_START_SETUP | ((1 << x) & 0xFF))
+#define SSLBP_CMD_STOP(x)              (SSLBP_STOP | ((1 << x) & 0xFF))
+#define SSLBP_CMD_STOPALL              (SSLBP_STOP)
+#define SSLBP_CMD_RESET                (SSLBP_RESET)
+#define SSLBP_CMD_DOIT(x)              (SSLBP_DOIT | ((1 << x) & 0xFF))
+#define SSLBP_CMD_READ(x)              (SSLBP_REQUEST | SSLBP_READ | (x & 0xFF))
+//#define SSLBP_CMD_WRITE(x)             (SSLBP_REQUEST | SSLBP_WRITE | ((x & 0xFF))
+
+#define LBP_DATA                0xA0
+#define LBP_MODE                0xB0
+
+#define LBP_IN                  0x00
+#define LBP_IO                  0x40
+#define LBP_OUT                 0x80
+
+#define LBP_PAD                 0x00
+#define LBP_BITS                0x01
+#define LBP_UNSIGNED            0x02
+#define LBP_SIGNED              0x03
+#define LBP_NONVOL_UNSIGNED     0x04
+#define LBP_NONVOL_SIGNED       0x05
+#define LBP_STREAM              0x06
+#define LBP_BOOLEAN             0x07
+#define LBP_ENCODER             0x08
+#define LBP_ENCODER_H           0x18 // For Fanuc Absolute Encoders with separate
+#define LBP_ENCODER_L           0x28 // part and full count fields
+
+struct sserial_pdd_struct {
+    u8 record_type;
+    u8 data_size;
+    u8 data_type;
+    u8 data_dir;
+    float param_min;
+    float param_max;
+    u16 param_addr;
+} __attribute__ ((__packed__));
+typedef struct sserial_pdd_struct sserial_pdd_t;
+
+struct sserial_md_struct {
+    u8 record_type;
+    u8 mode_index;
+    u8 mode_type;
+    u8 unused;
+};
+typedef struct sserial_md_struct sserial_md_t;
+
+typedef struct {
+    u8 type;
+    u8 width;
+    u8 ver_major;
+    u8 ver_minor;
+    u8 gp_inputs;
+    u8 gp_outputs;
+    u8 processor_type;
+    u8 channels_count;
+    int baud_rate;
+} sserial_interface_t;
+
+typedef struct {
+    u32 unit;
+    char name[4];
+} sserial_device_t;
+
 #define HM2_MAX_MODULES  32
 #define HM2_MAX_PINS     144
 #define HM2_MAX_TAGS     28
@@ -156,6 +241,8 @@ struct llio_struct {
     char board_name[16];
     void *private;
     hostmot2_t hm2;
+    sserial_interface_t ss_interface[HM2_MAX_SSERIAL_MODULES];
+    sserial_device_t ss_device[HM2_MAX_SSERIAL_CHANNELS];
     int verbose;
 };
 
@@ -170,10 +257,12 @@ typedef struct {
 } mod_name_t;
 
 void hm2_read_idrom(llio_t *llio);
+hm2_module_desc_t *hm2_find_module(hostmot2_t *hm2, u8 gtag);
 void hm2_print_idrom(hostmot2_t *hm2);
 void hm2_print_modules(hostmot2_t *hm2);
 void hm2_print_pins(hostmot2_t *hm2);
 void hm2_print_pin_file(llio_t *llio);
+void sserial_module_init(llio_t *llio);
 
 #endif
 

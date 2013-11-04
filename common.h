@@ -18,6 +18,9 @@ void outl(u32 data, u32 addr);
 void *map_memory(u32 base, u32 size);
 #endif
 
+#define LO_BYTE(x) ((x) & 0xFF)
+#define HI_BYTE(x) (((x) & 0xFF00) >> 8)
+
 void sleep_ns(u64 nanoseconds);
 
 #endif

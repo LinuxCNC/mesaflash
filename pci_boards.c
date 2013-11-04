@@ -597,6 +597,8 @@ void pci_boards_scan(board_access_t *access) {
                 eeprom_init(&(board->llio));
                 board->flash_id = read_flash_id(&(board->llio));
                 board->flash_start_address = eeprom_calc_user_space(board->flash_id);
+                hm2_read_idrom(&(board->llio));
+                sserial_module_init(&(board->llio));
                 board->llio.verbose = access->verbose;
 
                 boards_count++;

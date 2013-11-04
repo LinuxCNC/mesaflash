@@ -5,7 +5,7 @@ TARGET = linux
 ifeq ($(TARGET),linux)
 	INCLUDE = -I/usr/include
 	BIN = mesaflash
-    LIBS = -lpci
+	LIBS = -lpci
 endif
 
 ifeq ($(TARGET),windows)
@@ -24,7 +24,8 @@ OPT = -O0
 DEBUG = -g
 CFLAGS = $(INCLUDE) $(OPT) $(DEBUG) $(MATHLIB)
 
-objects = common.o lbp16.o bitfile.o hostmot2.o spi_eeprom.o anyio.o eth_boards.o lpt_boards.o usb_boards.o pci_boards.o spi_access_hm2.o spi_access_gpio.o main.o
+objects = common.o lbp16.o bitfile.o hostmot2.o spi_eeprom.o anyio.o eth_boards.o lpt_boards.o usb_boards.o pci_boards.o
+objects += sserial_module.o spi_access_hm2.o spi_access_gpio.o main.o
 
 all : $(objects)
 	$(CC) -o $(BIN) $(objects) $(MATHLIB) $(LIBS)
@@ -46,6 +47,9 @@ lpt_boards.o : lpt_boards.c lpt_boards.h hostmot2.h bitfile.h common.h spi_eepro
 
 usb_boards.o : usb_boards.c usb_boards.h hostmot2.h bitfile.h common.h spi_eeprom.h
 	$(CC) $(CFLAGS) -c usb_boards.c
+
+sserial_module.o : sserial_module.c sserial_module.h hostmot2.h
+	$(CC) $(CFLAGS) -c sserial_module.c
 
 spi_access_hm2.o : spi_access_hm2.c spi_access_hm2.h hostmot2.h spi_eeprom.h
 	$(CC) $(CFLAGS) -c spi_access_hm2.c
