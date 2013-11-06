@@ -12,6 +12,10 @@ void hm2_read_idrom(llio_t *llio) {
         printf("ERROR: no HOSTMOT2 firmware found. %X\n", cookie);
         return;
     }
+    // check if it was already readed
+    if (strncmp(llio->hm2.config_name, "HOSTMOT2", 8) == 0)
+        return;
+
     llio->read(llio, HM2_CONFIG_NAME, &(llio->hm2.config_name), HM2_CONFIG_NAME_LEN);
     llio->read(llio, HM2_IDROM_ADDR, &(idrom_addr), sizeof(u32));
     llio->read(llio, idrom_addr, &(llio->hm2.idrom), sizeof(llio->hm2.idrom));
