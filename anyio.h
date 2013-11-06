@@ -49,6 +49,7 @@ void boards_scan(board_access_t *access);
 board_t *boards_find(board_access_t *access);
 void board_print_info(board_t *board);
 void board_print_hm2_info(board_t *board);
+void board_print_sserial_info(board_t *board);
 void bitfile_print_info(char *bitfile_name);
 
 #endif

@@ -80,6 +80,13 @@ void board_print_hm2_info(board_t *board) {
     hm2_print_pin_file(&(board->llio));
 }
 
+void board_print_sserial_info(board_t *board) {
+    if (board == NULL)
+        return;
+    hm2_read_idrom(&(board->llio));
+    sserial_module_init(&(board->llio));
+}
+
 void bitfile_print_info(char *bitfile_name) {
     FILE *fp;
     char part_name[32];

@@ -14,6 +14,7 @@ static int verify_flag;
 static int fallback_flag;
 static int program_flag;
 static int readhmid_flag;
+static int sserial_flag;
 static int rpo_flag;
 static int wpo_flag;
 static u16 rpo_addr;
@@ -31,6 +32,7 @@ static struct option long_options[] = {
     {"fallback", no_argument, &fallback_flag, 1},
     {"program", required_argument, 0, 'p'},
     {"readhmid", no_argument, &readhmid_flag, 1},
+    {"sserial", no_argument, &sserial_flag, 1},
     {"rpo", required_argument, 0, 'r'},
     {"wpo", required_argument, 0, 'o'},
     {"info", required_argument, 0, 'i'},
@@ -51,6 +53,7 @@ void print_usage() {
     printf("    mesaflash --device device_name [--verify filename [--fallback]] [--verbose]\n");
     printf("    mesaflash --device device_name [--program filename] [--verbose]\n");
     printf("    mesaflash --device device_name [--readhmid]\n");
+    printf("    mesaflash --device device_name [--sserial]\n");
     printf("    mesaflash --device device_name [--rpo address]\n");
     printf("    mesaflash --device device_name [--wpo address=value]\n");
     printf("    mesaflash --info file_name [--verbose]\n");
@@ -62,6 +65,7 @@ void print_usage() {
     printf("  --fallback    use the fallback area of the EEPROM\n");
     printf("  --program     writes a standard bitfile 'filename' configuration to the FPGA (IMPORTANT! 'filename' must be VALID FPGA configuration file)\n");
     printf("  --readhmid    print hostmot2 configuration in PIN file format\n");
+    printf("  --sserial     print full information about all sserial remote boards\n");
     printf("  --rpo         read hostmot2 variable directly at 'address'\n");
     printf("  --wpo         write hostmot2 variable directly at 'address' with 'value'\n");
     printf("  --info        print info about configuration in 'file_name'\n");
@@ -232,6 +236,8 @@ int main(int argc, char *argv[]) {
         }
         if (readhmid_flag == 1) {
             board_print_hm2_info(board);
+        } else if (sserial_flag == 1) {
+            board_print_sserial_info(board);
         } else if (rpo_flag == 1) {
             u32 data;
 
