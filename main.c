@@ -220,6 +220,8 @@ int main(int argc, char *argv[]) {
 
     access.verbose = verbose_flag;
     access.pci = 1;
+    access.eth = 1;
+    access.net_addr = "192.168.1.121";
 
     if (info_flag == 1) {
         bitfile_print_info(bitfile_name);
@@ -234,6 +236,7 @@ int main(int argc, char *argv[]) {
             printf("No %s board found\n", access.device_name);
             return -1;
         }
+        board_set_active(board);
         if (readhmid_flag == 1) {
             board_print_hm2_info(board);
         } else if (sserial_flag == 1) {

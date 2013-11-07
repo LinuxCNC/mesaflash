@@ -52,10 +52,14 @@ static void sector_erase(u32 addr) {
 
     LBP16_INIT_PACKET8(write_addr_pck, CMD_WRITE_FPGA_FLASH_ADDR32(1), FLASH_ADDR_REG, addr);
     send = lbp16_send_packet(&write_addr_pck, sizeof(write_addr_pck));
+    if (send < 0)
+        printf("ERROR: %s(): %s\n", __func__, strerror(errno));
 
     LBP16_INIT_PACKET6(sector_erase_pck.write_ena_pck, CMD_WRITE_COMM_CTRL_ADDR16(1), COMM_CTRL_WRITE_ENA_REG, 0x5A03);
     LBP16_INIT_PACKET8(sector_erase_pck.fl_erase_pck, CMD_WRITE_FPGA_FLASH_ADDR32(1), FLASH_SEC_ERASE_REG, 0);
     send = lbp16_send_packet(&sector_erase_pck, sizeof(sector_erase_pck));
+    if (send < 0)
+        printf("ERROR: %s(): %s\n", __func__, strerror(errno));
     // packet read for board syncing
     recv = lbp16_read(CMD_READ_FPGA_FLASH_ADDR32(1), FLASH_ADDR_REG, &ignored, 4);
 }
@@ -279,7 +283,7 @@ void eth_boards_scan(board_access_t *access) {
         sprintf(addr_name, "%s.%d", addr, i);
         lbp16_socket_set_dest_ip(addr_name);
         send = lbp16_send_packet(&packet, sizeof(packet));
-        sleep_ns(5*1000*1000);
+        sleep_ns(2*1000*1000);
         recv = lbp16_recv_packet(&cookie, sizeof(cookie));
 
         if ((recv > 0) && (cookie == HM2_COOKIE)) {
@@ -293,6 +297,7 @@ void eth_boards_scan(board_access_t *access) {
             recv = lbp16_recv_packet(&buff, sizeof(buff));
 
             if (strncmp(buff, "7I80DB-16", 9) == 0) {
+                board->type = BOARD_ETH;
                 strncpy(board->ip_addr, lbp16_socket_get_src_ip(), 16);
                 strncpy(board->llio.board_name, buff, 16);
                 board->llio.num_ioport_connectors = 4;
@@ -305,39 +310,56 @@ void eth_boards_scan(board_access_t *access) {
                 board->llio.num_leds = 4;
                 board->llio.read = &eth_read;
                 board->llio.write = &eth_write;
-                board->llio.private = board;
-            } else if (strncmp(buff, "7I80DB-25", 9) == 0) {
-                strncpy(board->ip_addr, lbp16_socket_get_src_ip(), 16);
-                strncpy(board->llio.board_name, buff, 16);
-                board->llio.num_ioport_connectors = 4;
-                board->llio.pins_per_connector = 17;
-                board->llio.ioport_connector_name[0] = "J2";
-                board->llio.ioport_connector_name[1] = "J3";
-                board->llio.ioport_connector_name[2] = "J4";
-                board->llio.ioport_connector_name[3] = "J5";
-                board->llio.fpga_part_number = "6slx25ftg256";
-                board->llio.num_leds = 4;
-                board->llio.read = &eth_read;
-                board->llio.write = &eth_write;
-                board->llio.private = board;
-            } else if (strncmp(buff, "7I80HD-16", 9) == 0) {
-                strncpy(board->ip_addr, lbp16_socket_get_src_ip(), 16);
-                strncpy(board->llio.board_name, buff, 16);
-                board->llio.num_ioport_connectors = 3;
-                board->llio.pins_per_connector = 24;
-                board->llio.ioport_connector_name[0] = "P1";
-                board->llio.ioport_connector_name[1] = "P2";
-                board->llio.ioport_connector_name[2] = "P3";
-                board->llio.fpga_part_number = "6slx16ftg256";
-                board->llio.num_leds = 4;
-                board->llio.read = &eth_read;
-                board->llio.write = &eth_write;
+                board->llio.program_flash = &eth_program_flash;
+                board->llio.verify_flash = &eth_verify_flash;
                 board->llio.private = board;
                 lbp16_read(CMD_READ_FLASH_IDROM, FLASH_ID_REG, &(board->flash_id), 4);
                 prepare_boot_block(board->flash_id);
-                //eth_program_flash(&(board->llio), "../../Pulpit/7i80hd_16_st18.bit", 0x100000);
-                eth_verify_flash(&(board->llio), "../../Pulpit/7i80hd_16_st18.bit", 0x100000);
+                board->flash_start_address = eeprom_calc_user_space(board->flash_id);
+                board->llio.verbose = access->verbose;
+            } else if (strncmp(buff, "7I80DB-25", 9) == 0) {
+                board->type = BOARD_ETH;
+                strncpy(board->ip_addr, lbp16_socket_get_src_ip(), 16);
+                strncpy(board->llio.board_name, buff, 16);
+                board->llio.num_ioport_connectors = 4;
+                board->llio.pins_per_connector = 17;
+                board->llio.ioport_connector_name[0] = "J2";
+                board->llio.ioport_connector_name[1] = "J3";
+                board->llio.ioport_connector_name[2] = "J4";
+                board->llio.ioport_connector_name[3] = "J5";
+                board->llio.fpga_part_number = "6slx25ftg256";
+                board->llio.num_leds = 4;
+                board->llio.read = &eth_read;
+                board->llio.write = &eth_write;
+                board->llio.program_flash = &eth_program_flash;
+                board->llio.verify_flash = &eth_verify_flash;
+                board->llio.private = board;
+                lbp16_read(CMD_READ_FLASH_IDROM, FLASH_ID_REG, &(board->flash_id), 4);
+                prepare_boot_block(board->flash_id);
+                board->flash_start_address = eeprom_calc_user_space(board->flash_id);
+                board->llio.verbose = access->verbose;
+            } else if (strncmp(buff, "7I80HD-16", 9) == 0) {
+                board->type = BOARD_ETH;
+                strncpy(board->ip_addr, lbp16_socket_get_src_ip(), 16);
+                strncpy(board->llio.board_name, buff, 16);
+                board->llio.num_ioport_connectors = 3;
+                board->llio.pins_per_connector = 24;
+                board->llio.ioport_connector_name[0] = "P1";
+                board->llio.ioport_connector_name[1] = "P2";
+                board->llio.ioport_connector_name[2] = "P3";
+                board->llio.fpga_part_number = "6slx16ftg256";
+                board->llio.num_leds = 4;
+                board->llio.read = &eth_read;
+                board->llio.write = &eth_write;
+                board->llio.program_flash = &eth_program_flash;
+                board->llio.verify_flash = &eth_verify_flash;
+                board->llio.private = board;
+                lbp16_read(CMD_READ_FLASH_IDROM, FLASH_ID_REG, &(board->flash_id), 4);
+                prepare_boot_block(board->flash_id);
+                board->flash_start_address = eeprom_calc_user_space(board->flash_id);
+                board->llio.verbose = access->verbose;
             } else if (strncmp(buff, "7I80HD-25", 9) == 0) {
+                board->type = BOARD_ETH;
                 strncpy(board->ip_addr, lbp16_socket_get_src_ip(), 16);
                 strncpy(board->llio.board_name, buff, 16);
                 board->llio.num_ioport_connectors = 3;
@@ -349,20 +371,23 @@ void eth_boards_scan(board_access_t *access) {
                 board->llio.num_leds = 4;
                 board->llio.read = &eth_read;
                 board->llio.write = &eth_write;
+                board->llio.program_flash = &eth_program_flash;
+                board->llio.verify_flash = &eth_verify_flash;
                 board->llio.private = board;
+                lbp16_read(CMD_READ_FLASH_IDROM, FLASH_ID_REG, &(board->flash_id), 4);
+                prepare_boot_block(board->flash_id);
+                board->flash_start_address = eeprom_calc_user_space(board->flash_id);
+                board->llio.verbose = access->verbose;
             } else {
                 printf("Unsupported ethernet device %s at %s\n", buff, lbp16_socket_get_src_ip());
                 continue;
             }
-            printf("\nETH device %s at ip=%s\n", buff, lbp16_socket_get_src_ip());
             boards_count++;
-
-            //hm2_read_idrom(&(board->llio));
-            //lbp16_print_info();
 
             lbp16_socket_nonblocking();
         }
-    }
+   }
+   lbp16_socket_blocking();
 }
 
 void eth_boards_release(board_access_t *access) {
@@ -370,4 +395,6 @@ void eth_boards_release(board_access_t *access) {
 }
 
 void eth_print_info(board_t *board) {
+    printf("\nETH device %s at ip=%s\n", board->llio.board_name, lbp16_socket_get_src_ip());
+    lbp16_print_info();
 }

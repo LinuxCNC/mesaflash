@@ -46,12 +46,28 @@ board_t *boards_find(board_access_t *access) {
     if (access == NULL)
         return;
     for (i = 0; i < boards_count; i++) {
-        if (strcmp(access->device_name, boards[i].llio.board_name) == 0) {
+        if (strncmp(access->device_name, boards[i].llio.board_name, 4) == 0) {
             board = &boards[i];
             return board;
         }
     }
     return NULL;
+}
+
+void board_set_active(board_t *board) {
+    if (board == NULL)
+        return;
+    switch (board->type) {
+        case BOARD_ETH:
+            lbp16_socket_set_dest_ip(board->ip_addr);
+            break;
+        case BOARD_PCI:
+            break;
+        case BOARD_LPT:
+            break;
+        case BOARD_USB:
+            break;
+    }
 }
 
 void board_print_info(board_t *board) {
