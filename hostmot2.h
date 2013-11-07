@@ -61,6 +61,14 @@
 #define HM2_MAX_SSERIAL_MODULES  2
 #define HM2_MAX_SSERIAL_CHANNELS 16
 
+#define SSLBP_MAJOR_REV_LOC         2
+#define SSLBP_MINOR_REV_LOC         3
+#define SSLBP_CHANNEL_START_LOC     4
+#define SSLBP_CHANNEL_STRIDE_LOC    5
+#define SSLBP_PROCESSOR_TYPE_LOC    6
+#define SSLBP_NR_CHANNELS_LOC       7
+#define SSLBP_CLOCK_LOC             0x230
+
 #define SSLBP_START_NORMAL  0x0900
 #define SSLBP_START_SETUP   0x0F00
 #define SSLBP_STOP          0x0800
@@ -126,6 +134,7 @@ typedef struct {
     u8 gp_outputs;
     u8 processor_type;
     u8 channels_count;
+    u32 clock;
     int baud_rate;
 } sserial_interface_t;
 

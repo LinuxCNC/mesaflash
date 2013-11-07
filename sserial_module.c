@@ -150,28 +150,27 @@ void sserial_module_init(llio_t *llio) {
     sslbp_send_local_cmd(llio, 0, SSLBP_CMD_RESET);
 
     for (i = 0; i < 1; i++) {
-
         llio->ss_interface[i].type = sslbp_read_local8(llio, i, 0);
         llio->ss_interface[i].width = sslbp_read_local8(llio, i, 1);
-        llio->ss_interface[i].ver_major = sslbp_read_local8(llio, i, 2);
-        llio->ss_interface[i].ver_minor = sslbp_read_local8(llio, i, 3);
-        llio->ss_interface[i].gp_inputs = sslbp_read_local8(llio, i, 4);
-        llio->ss_interface[i].gp_outputs = sslbp_read_local8(llio, i, 5);
-        llio->ss_interface[i].processor_type = sslbp_read_local8(llio, i, 6);
-        llio->ss_interface[i].channels_count = sslbp_read_local8(llio, i, 7);
+        llio->ss_interface[i].ver_major = sslbp_read_local8(llio, i, SSLBP_MAJOR_REV_LOC);
+        llio->ss_interface[i].ver_minor = sslbp_read_local8(llio, i, SSLBP_MINOR_REV_LOC);
+        llio->ss_interface[i].gp_inputs = sslbp_read_local8(llio, i, SSLBP_CHANNEL_START_LOC);
+        llio->ss_interface[i].gp_outputs = sslbp_read_local8(llio, i, SSLBP_CHANNEL_STRIDE_LOC);
+        llio->ss_interface[i].processor_type = sslbp_read_local8(llio, i, SSLBP_PROCESSOR_TYPE_LOC);
+        llio->ss_interface[i].channels_count = sslbp_read_local8(llio, i, SSLBP_NR_CHANNELS_LOC);
         llio->ss_interface[i].baud_rate = sslbp_read_local32(llio, i, llio->ss_interface[i].gp_inputs + 42);
+        llio->ss_interface[i].clock = sslbp_read_local32(llio, i, SSLBP_CLOCK_LOC);
 
-        printf("SSERIAL INTERFACE %d:\n", i);
-        if (llio->verbose == 1) {
-            printf("  interface type: %0x\n", llio->ss_interface[i].type);
-            printf("  interface width: %d\n", llio->ss_interface[i].width);
-            printf("  interface version: %d.%d\n", llio->ss_interface[i].ver_major, llio->ss_interface[i].ver_minor);
-            printf("  gp inputs: %d\n", llio->ss_interface[i].gp_inputs);
-            printf("  gp outputs: %d\n", llio->ss_interface[i].gp_outputs);
-            printf("  processor type: %x\n", llio->ss_interface[i].processor_type);
-            printf("  channels: %d\n", llio->ss_interface[i].channels_count);
-            printf("  baud rate: %d baud\n", llio->ss_interface[i].baud_rate);
-        }
+        printf("SSLBP port %d:\n", i);
+        printf("  interface type: %0x\n", llio->ss_interface[i].type);
+        printf("  interface width: %d\n", llio->ss_interface[i].width);
+        printf("  SSLBP Version: %d.%d\n", llio->ss_interface[i].ver_major, llio->ss_interface[i].ver_minor);
+        printf("  SSLBP Channel Start: %d\n", llio->ss_interface[i].gp_inputs);
+        printf("  SSLBP Channel Stride: %d\n", llio->ss_interface[i].gp_outputs);
+        printf("  SSLBP Processor Type: %x\n", llio->ss_interface[i].processor_type);
+        printf("  SSLBP Channels: %d\n", llio->ss_interface[i].channels_count);
+        printf("  SSLBP Baud Rate: %d\n", llio->ss_interface[i].baud_rate);
+        printf("  SSLBP Clock: %u MHz\n", llio->ss_interface[i].clock/1000000);
 
         for (channel = 0; channel < llio->ss_interface[i].width; channel++) {
             cmd = 0;
@@ -201,8 +200,10 @@ void sserial_module_init(llio_t *llio) {
 
                 d = sslbp_read_remote16(llio, i, channel, addr);
                 if (d == 0) break;
-                printf("PTOCP %04X\n", d);
                 record_type = sslbp_read_remote8(llio, i, channel, d);
+                addr += 2;
+                if (llio->verbose == 0)
+                    continue;
                 if (record_type == LBP_DATA) {
                     sslbp_read_remote_bytes(llio, i, channel, d, &(sserial_pdd), sizeof(sserial_pdd_t));
                     printf("    RecordType: %02X\n", sserial_pdd.record_type);
@@ -225,7 +226,6 @@ void sserial_module_init(llio_t *llio) {
                     sslbp_read_remote_bytes(llio, i, channel, d + sizeof(sserial_md_t), &(name), -1);
                     printf("    mode name: %s\n", name);
                 }
-                addr += 2;
             }
 
             addr = (status >> 16) & 0xFFFF;
@@ -237,8 +237,10 @@ void sserial_module_init(llio_t *llio) {
 
                 d = sslbp_read_remote16(llio, i, channel, addr);
                 if (d == 0) break;
-                printf("GTOCP %04X\n", d);
                 record_type = sslbp_read_remote8(llio, i, channel, d);
+                addr += 2;
+                if (llio->verbose == 0)
+                    continue;
                 if (record_type == LBP_DATA) {
                     sslbp_read_remote_bytes(llio, i, channel, d, &(sserial_pdd), sizeof(sserial_pdd_t));
                     printf("    RecordType: %02X\n", sserial_pdd.record_type);
@@ -261,7 +263,6 @@ void sserial_module_init(llio_t *llio) {
                     sslbp_read_remote_bytes(llio, i, channel, d + sizeof(sserial_md_t), &(name), -1);
                     printf("    mode name: %s\n", name);
                 }
-                addr += 2;
             }
 
             printf("  device at channel %d: %.*s (unit 0x%08X)\n", channel, 4, llio->ss_device[channel].name, llio->ss_device[channel].unit);
