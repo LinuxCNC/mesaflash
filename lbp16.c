@@ -42,6 +42,9 @@ void lbp16_socket_nonblocking() {
     val = val | O_NONBLOCK;
     fcntl(sd, F_SETFL, val);
 #elif _WIN32
+    u_long iMode = 1;
+
+    ioctlsocket(sd, FIONBIO, &iMode);
 #endif
 }
 
@@ -52,6 +55,9 @@ void lbp16_socket_blocking() {
     val = val & ~O_NONBLOCK;
     fcntl(sd, F_SETFL, val);
 #elif _WIN32
+    u_long iMode = 0;
+
+    ioctlsocket(sd, FIONBIO, &iMode);
 #endif
 }
 
