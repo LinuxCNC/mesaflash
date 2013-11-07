@@ -397,5 +397,6 @@ void eth_boards_release(board_access_t *access) {
 
 void eth_print_info(board_t *board) {
     printf("\nETH device %s at ip=%s\n", board->llio.board_name, lbp16_socket_get_src_ip());
-    lbp16_print_info();
+    if (board->llio.verbose == 1)
+        lbp16_print_info();
 }
