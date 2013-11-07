@@ -284,7 +284,8 @@ int lpt_reset(llio_t *self) {
 
 ////////////////////////////////////////////////////////////////////////
 
-void lpt_boards_init(board_access_t *access) {
+int lpt_boards_init(board_access_t *access) {
+    return 0;
 }
 
 void lpt_boards_scan(board_access_t *access) {

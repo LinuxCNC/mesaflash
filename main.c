@@ -229,7 +229,9 @@ int main(int argc, char *argv[]) {
     }
     if (device_flag == 1) {
         board_t *board = NULL;
-        boards_init(&access);
+
+        if (boards_init(&access) != 0)
+            exit(1);
         boards_scan(&access);
         board = boards_find(&access);
         if (board == NULL) {

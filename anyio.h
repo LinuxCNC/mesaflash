@@ -44,7 +44,7 @@ typedef struct {
 board_t boards[MAX_BOARDS];
 int boards_count;
 
-void boards_init(board_access_t *access);
+int boards_init(board_access_t *access);
 void boards_scan(board_access_t *access);
 board_t *boards_find(board_access_t *access);
 void board_set_active(board_t *board);

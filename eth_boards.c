@@ -258,8 +258,9 @@ int eth_verify_flash(llio_t *self, char *bitfile_name, u32 start_address) {
     return 0;
 }
 
-void eth_boards_init(board_access_t *access) {
+int eth_boards_init(board_access_t *access) {
     lbp16_init();
+    return 0;
 }
 
 void eth_boards_scan(board_access_t *access) {

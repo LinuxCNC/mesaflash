@@ -506,7 +506,7 @@ int pci_verify_flash(llio_t *self, char *bitfile_name, u32 start_address) {
     return eeprom_verify_area(self, bitfile_name, start_address);
 }
 
-void pci_boards_init(board_access_t *access) {
+int pci_boards_init(board_access_t *access) {
     int eno;
 
     pacc = pci_alloc();
@@ -514,18 +514,20 @@ void pci_boards_init(board_access_t *access) {
 
 #ifdef __linux__
     if (seteuid(0) != 0) {
-        printf("%s need root privilges (or setuid root)", __func__);
-        return;
+        printf("%s need root privilges (or setuid root)\n", __func__);
+        return -1;
     }
     memfd = open("/dev/mem", O_RDWR);
     eno = errno;
     seteuid(getuid());
     if (memfd < 0) {
         printf("%s can't open /dev/mem: %s", __func__, strerror(eno));
+        return -1;
     }
 #elif _WIN32
 //    init_winio32();
 #endif
+    return 0;
 }
 
 void pci_boards_scan(board_access_t *access) {

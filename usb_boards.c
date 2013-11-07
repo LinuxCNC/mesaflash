@@ -19,7 +19,8 @@
 extern board_t boards[MAX_BOARDS];
 extern int boards_count;
 
-void usb_boards_init(board_access_t *access) {
+int usb_boards_init(board_access_t *access) {
+    return 0;
 }
 
 void usb_boards_scan(board_access_t *access) {

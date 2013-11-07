@@ -13,17 +13,32 @@
 board_t boards[MAX_BOARDS];
 int boards_count;
 
-void boards_init(board_access_t *access) {
+int boards_init(board_access_t *access) {
+    int ret;
+
     if (access == NULL)
         return;
-    if (access->pci == 1)
-        pci_boards_init(access);
-    if (access->lpt == 1)
-        lpt_boards_init(access);
-    if (access->usb == 1)
-        usb_boards_init(access);
-    if (access->eth == 1)
-        eth_boards_init(access);
+    if (access->pci == 1) {
+        ret = pci_boards_init(access);
+        if (ret != 0)
+            return ret;
+    }
+    if (access->lpt == 1) {
+        ret = lpt_boards_init(access);
+        if (ret != 0)
+            return ret;
+    }
+    if (access->usb == 1) {
+        ret = usb_boards_init(access);
+        if (ret != 0)
+            return ret;
+    }
+    if (access->eth == 1) {
+        ret = eth_boards_init(access);
+        if (ret != 0)
+            return ret;
+    }
+    return 0;
 }
 
 void boards_scan(board_access_t *access) {
