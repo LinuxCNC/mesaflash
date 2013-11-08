@@ -379,6 +379,26 @@ void eth_boards_scan(board_access_t *access) {
                 prepare_boot_block(board->flash_id);
                 board->flash_start_address = eeprom_calc_user_space(board->flash_id);
                 board->llio.verbose = access->verbose;
+            } else if (strncmp(buff, "7I76E-16", 9) == 0) {
+                board->type = BOARD_ETH;
+                strncpy(board->ip_addr, lbp16_socket_get_src_ip(), 16);
+                strncpy(board->llio.board_name, buff, 16);
+                board->llio.num_ioport_connectors = 3;
+                board->llio.pins_per_connector = 17;
+                board->llio.ioport_connector_name[0] = "on-card";
+                board->llio.ioport_connector_name[1] = "P1";
+                board->llio.ioport_connector_name[2] = "P2";
+                board->llio.fpga_part_number = "6slx16ftg256";
+                board->llio.num_leds = 4;
+                board->llio.read = &eth_read;
+                board->llio.write = &eth_write;
+                board->llio.program_flash = &eth_program_flash;
+                board->llio.verify_flash = &eth_verify_flash;
+                board->llio.private = board;
+                lbp16_read(CMD_READ_FLASH_IDROM, FLASH_ID_REG, &(board->flash_id), 4);
+                prepare_boot_block(board->flash_id);
+                board->flash_start_address = eeprom_calc_user_space(board->flash_id);
+                board->llio.verbose = access->verbose;
             } else {
                 printf("Unsupported ethernet device %s at %s\n", buff, lbp16_socket_get_src_ip());
                 continue;

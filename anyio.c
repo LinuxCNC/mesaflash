@@ -61,7 +61,7 @@ board_t *boards_find(board_access_t *access) {
     if (access == NULL)
         return;
     for (i = 0; i < boards_count; i++) {
-        if (strncmp(access->device_name, boards[i].llio.board_name, 4) == 0) {
+        if (strncmp(access->device_name, boards[i].llio.board_name, strlen(access->device_name)) == 0) {
             board = &boards[i];
             return board;
         }
