@@ -48,18 +48,20 @@ void print_short_usage() {
 
 void print_usage() {
     printf("Syntax:\n");
-    printf("    mesaflash --device device_name [--verbose]\n");
-    printf("    mesaflash --device device_name [--write filename [--fallback]] [--verbose]\n");
-    printf("    mesaflash --device device_name [--verify filename [--fallback]] [--verbose]\n");
-    printf("    mesaflash --device device_name [--program filename] [--verbose]\n");
-    printf("    mesaflash --device device_name [--readhmid]\n");
-    printf("    mesaflash --device device_name [--sserial]\n");
-    printf("    mesaflash --device device_name [--rpo address]\n");
-    printf("    mesaflash --device device_name [--wpo address=value]\n");
-    printf("    mesaflash --info file_name [--verbose]\n");
+    printf("    mesaflash --device device_name [options]\n");
+    printf("    mesaflash --device device_name [options] [--write filename [--fallback]]\n");
+    printf("    mesaflash --device device_name [options] [--verify filename [--fallback]]\n");
+    printf("    mesaflash --device device_name [options] [--program filename]\n");
+    printf("    mesaflash --device device_name [options] [--readhmid]\n");
+    printf("    mesaflash --device device_name [options] [--sserial]\n");
+    printf("    mesaflash --device device_name [options] [--rpo address]\n");
+    printf("    mesaflash --device device_name [options] [--wpo address=value]\n");
+    printf("    mesaflash --info file_name\n");
     printf("    mesaflash --help\n");
     printf("Options:\n");
-    printf("  --device      select active device name. If no other options is given it will detect board with given name and print info about it.\n");
+    printf("  --device      select active device name. If no command is given it will detect board with given name and print info about it.\n");
+    printf("  --verbose     print detailed information while running commands\n");
+    printf("Commands:\n");
     printf("  --write       writes a standard bitfile 'filename' configuration to the userarea of the EEPROM (IMPORTANT! 'filename' must be VALID FPGA configuration file)\n");
     printf("  --verify      verifies the EEPROM configuration against the bitfile 'filename'\n");
     printf("  --fallback    use the fallback area of the EEPROM\n");
@@ -70,7 +72,6 @@ void print_usage() {
     printf("  --wpo         write hostmot2 variable directly at 'address' with 'value'\n");
     printf("  --info        print info about configuration in 'file_name'\n");
     printf("  --help        print this help message\n");
-    printf("  --verbose     print detailed information while running commands\n");
 }
 
 int process_cmd_line(int argc, char *argv[]) {
