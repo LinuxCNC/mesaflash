@@ -9,6 +9,7 @@
 #include "spi_eeprom.h"
 
 static int device_flag;
+static int addr_flag;
 static int write_flag;
 static int verify_flag;
 static int fallback_flag;
@@ -27,6 +28,7 @@ static board_access_t access;
 
 static struct option long_options[] = {
     {"device", required_argument, 0, 'd'},
+    {"addr", required_argument, 0, 'a'},
     {"write", required_argument, 0, 'w'},
     {"verify", required_argument, 0, 'v'},
     {"fallback", no_argument, &fallback_flag, 1},
@@ -60,6 +62,8 @@ void print_usage() {
     printf("    mesaflash --help\n");
     printf("Options:\n");
     printf("  --device      select active device name. If no command is given it will detect board with given name and print info about it.\n");
+    printf("  --addr <device_address>\n");
+    printf("      select <device address> for looking for <device_name> (network C mask for ETH boards, serial port for USB boards)\n");
     printf("  --verbose     print detailed information while running commands\n");
     printf("Commands:\n");
     printf("  --write       writes a standard bitfile 'filename' configuration to the userarea of the EEPROM (IMPORTANT! 'filename' must be VALID FPGA configuration file)\n");
@@ -108,6 +112,18 @@ int process_cmd_line(int argc, char *argv[]) {
                     access.device_name[i] = toupper(access.device_name[i]);
 
                 device_flag++;
+            }
+            break;
+
+            case 'a': {
+                int i;
+
+                if (addr_flag > 0) {
+                    printf("Error: multiply --addr option\n");
+                    exit(-1);
+                }
+                access.dev_addr = optarg;
+                addr_flag++;
             }
             break;
 
@@ -219,17 +235,15 @@ int main(int argc, char *argv[]) {
     }
     process_cmd_line(argc, argv);
 
-    access.verbose = verbose_flag;
-    access.pci = 1;
-    access.eth = 1;
-    access.net_addr = "192.168.1.121";
-
     if (info_flag == 1) {
         anyio_bitfile_print_info(bitfile_name);
-        return 0;
-    }
-    if (device_flag == 1) {
+    } else if ((device_flag == 1) && (addr_flag == 1)) {
         board_t *board = NULL;
+
+        access.verbose = verbose_flag;
+//        access.pci = 1;
+//        access.eth = 1;
+        access.usb = 1;
 
         if (anyio_init(&access) != 0)
             exit(1);

@@ -273,7 +273,7 @@ void eth_boards_scan(board_access_t *access) {
 
     lbp16_socket_nonblocking();
 
-    strncpy(addr, access->net_addr, 16);
+    strncpy(addr, access->dev_addr, 16);
     ptr = strrchr(addr, '.');
     *ptr = '\0';
 
@@ -299,7 +299,7 @@ void eth_boards_scan(board_access_t *access) {
 
             if (strncmp(buff, "7I80DB-16", 9) == 0) {
                 board->type = BOARD_ETH;
-                strncpy(board->ip_addr, lbp16_socket_get_src_ip(), 16);
+                strncpy(board->dev_addr, lbp16_socket_get_src_ip(), 16);
                 strncpy(board->llio.board_name, buff, 16);
                 board->llio.num_ioport_connectors = 4;
                 board->llio.pins_per_connector = 17;
@@ -320,7 +320,7 @@ void eth_boards_scan(board_access_t *access) {
                 board->llio.verbose = access->verbose;
             } else if (strncmp(buff, "7I80DB-25", 9) == 0) {
                 board->type = BOARD_ETH;
-                strncpy(board->ip_addr, lbp16_socket_get_src_ip(), 16);
+                strncpy(board->dev_addr, lbp16_socket_get_src_ip(), 16);
                 strncpy(board->llio.board_name, buff, 16);
                 board->llio.num_ioport_connectors = 4;
                 board->llio.pins_per_connector = 17;
@@ -341,7 +341,7 @@ void eth_boards_scan(board_access_t *access) {
                 board->llio.verbose = access->verbose;
             } else if (strncmp(buff, "7I80HD-16", 9) == 0) {
                 board->type = BOARD_ETH;
-                strncpy(board->ip_addr, lbp16_socket_get_src_ip(), 16);
+                strncpy(board->dev_addr, lbp16_socket_get_src_ip(), 16);
                 strncpy(board->llio.board_name, buff, 16);
                 board->llio.num_ioport_connectors = 3;
                 board->llio.pins_per_connector = 24;
@@ -361,7 +361,7 @@ void eth_boards_scan(board_access_t *access) {
                 board->llio.verbose = access->verbose;
             } else if (strncmp(buff, "7I80HD-25", 9) == 0) {
                 board->type = BOARD_ETH;
-                strncpy(board->ip_addr, lbp16_socket_get_src_ip(), 16);
+                strncpy(board->dev_addr, lbp16_socket_get_src_ip(), 16);
                 strncpy(board->llio.board_name, buff, 16);
                 board->llio.num_ioport_connectors = 3;
                 board->llio.pins_per_connector = 24;
@@ -381,7 +381,7 @@ void eth_boards_scan(board_access_t *access) {
                 board->llio.verbose = access->verbose;
             } else if (strncmp(buff, "7I76E-16", 9) == 0) {
                 board->type = BOARD_ETH;
-                strncpy(board->ip_addr, lbp16_socket_get_src_ip(), 16);
+                strncpy(board->dev_addr, lbp16_socket_get_src_ip(), 16);
                 strncpy(board->llio.board_name, buff, 16);
                 board->llio.num_ioport_connectors = 3;
                 board->llio.pins_per_connector = 17;

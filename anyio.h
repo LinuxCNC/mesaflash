@@ -11,8 +11,7 @@ typedef struct {
     board_type type;
     u8 flash_id;
     u32 flash_start_address;
-
-    char ip_addr[16];
+    char dev_addr[16];
 
     struct pci_dev *dev;
     void *base;
@@ -36,7 +35,7 @@ typedef struct {
     int lpt;
     int usb;
     int eth;
-    char *net_addr;
+    char *dev_addr;
     u16 lpt_base_addr;
     u16 lpt_base_hi_addr;
 } board_access_t;
