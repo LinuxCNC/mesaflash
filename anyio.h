@@ -44,13 +44,13 @@ typedef struct {
 board_t boards[MAX_BOARDS];
 int boards_count;
 
-int boards_init(board_access_t *access);
-void boards_scan(board_access_t *access);
-board_t *boards_find(board_access_t *access);
-void board_set_active(board_t *board);
-void board_print_info(board_t *board);
-void board_print_hm2_info(board_t *board);
-void board_print_sserial_info(board_t *board);
-void bitfile_print_info(char *bitfile_name);
+int anyio_init(board_access_t *access);
+void anyio_scan(board_access_t *access);
+board_t *anyio_get_dev(board_access_t *access);
+void anyio_set_active_dev(board_t *board);
+void anyio_dev_print_info(board_t *board);
+void anyio_dev_print_hm2_info(board_t *board);
+void anyio_dev_print_sserial_info(board_t *board);
+void anyio_bitfile_print_info(char *bitfile_name);
 
 #endif

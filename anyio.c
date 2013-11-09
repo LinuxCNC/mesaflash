@@ -13,7 +13,7 @@
 board_t boards[MAX_BOARDS];
 int boards_count;
 
-int boards_init(board_access_t *access) {
+int anyio_init(board_access_t *access) {
     int ret;
 
     if (access == NULL)
@@ -41,7 +41,7 @@ int boards_init(board_access_t *access) {
     return 0;
 }
 
-void boards_scan(board_access_t *access) {
+void anyio_scan(board_access_t *access) {
     if (access == NULL)
         return;
     if (access->pci == 1)
@@ -54,7 +54,7 @@ void boards_scan(board_access_t *access) {
         eth_boards_scan(access);
 }
 
-board_t *boards_find(board_access_t *access) {
+board_t *anyio_get_dev(board_access_t *access) {
     int i;
     board_t *board = NULL;
 
@@ -69,7 +69,7 @@ board_t *boards_find(board_access_t *access) {
     return NULL;
 }
 
-void board_set_active(board_t *board) {
+void anyio_dev_set_active(board_t *board) {
     if (board == NULL)
         return;
     switch (board->type) {
@@ -85,7 +85,7 @@ void board_set_active(board_t *board) {
     }
 }
 
-void board_print_info(board_t *board) {
+void anyio_dev_print_info(board_t *board) {
     if (board == NULL)
         return;
     switch (board->type) {
@@ -104,21 +104,21 @@ void board_print_info(board_t *board) {
     }
 }
 
-void board_print_hm2_info(board_t *board) {
+void anyio_dev_print_hm2_info(board_t *board) {
     if (board == NULL)
         return;
     hm2_read_idrom(&(board->llio));
     hm2_print_pin_file(&(board->llio));
 }
 
-void board_print_sserial_info(board_t *board) {
+void anyio_dev_print_sserial_info(board_t *board) {
     if (board == NULL)
         return;
     hm2_read_idrom(&(board->llio));
     sserial_module_init(&(board->llio));
 }
 
-void bitfile_print_info(char *bitfile_name) {
+void anyio_bitfile_print_info(char *bitfile_name) {
     FILE *fp;
     char part_name[32];
 

@@ -224,25 +224,25 @@ int main(int argc, char *argv[]) {
     access.net_addr = "192.168.1.121";
 
     if (info_flag == 1) {
-        bitfile_print_info(bitfile_name);
+        anyio_bitfile_print_info(bitfile_name);
         return 0;
     }
     if (device_flag == 1) {
         board_t *board = NULL;
 
-        if (boards_init(&access) != 0)
+        if (anyio_init(&access) != 0)
             exit(1);
-        boards_scan(&access);
-        board = boards_find(&access);
+        anyio_scan(&access);
+        board = anyio_get_dev(&access);
         if (board == NULL) {
             printf("No %s board found\n", access.device_name);
             return -1;
         }
-        board_set_active(board);
+        anyio_dev_set_active(board);
         if (readhmid_flag == 1) {
-            board_print_hm2_info(board);
+            anyio_dev_print_hm2_info(board);
         } else if (sserial_flag == 1) {
-            board_print_sserial_info(board);
+            anyio_dev_print_sserial_info(board);
         } else if (rpo_flag == 1) {
             u32 data;
 
@@ -276,7 +276,7 @@ int main(int argc, char *argv[]) {
             else
                 printf("Board %s doesn't support FPGA programming.\n", board->llio.board_name);
         } else {
-            board_print_info(board);
+            anyio_dev_print_info(board);
         }
     }
 
