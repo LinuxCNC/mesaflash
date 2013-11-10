@@ -3,6 +3,7 @@
 #include <pci/pci.h>
 #elif _WIN32
 #include "libpci/pci.h"
+#include <windows.h>
 #endif
 
 #include <sys/fcntl.h>
@@ -13,14 +14,38 @@
 #include "anyio.h"
 #include "lbp.h"
 
+#ifdef __linux__
 int sd;
+#elif _WIN32
+HANDLE sd;
+#endif
+
+int lbp_send(void *packet, int size) {
+#ifdef __linux__
+    return write(sd, packet, size);
+#elif _WIN32
+    DWORD send = 0;
+	WriteFile(sd, packet, size, &send, NULL);
+	return send;
+#endif
+}
+
+int lbp_recv(void *packet, int size) {
+#ifdef __linux__
+    return read(sd, packet, size);
+#elif _WIN32
+    DWORD recv = 0;
+	ReadFile(sd, packet, size, &recv, NULL);
+	return recv;
+#endif
+}
 
 u8 lbp_read_ctrl(u8 cmd) {
-    int send, recv;
     u8 data;
+    int send, recv;
 
-    send = write(sd, &cmd, 1);
-    recv = read(sd, &data, 1);
+    send = lbp_send(&cmd, 1);
+    recv = lbp_recv(&data, 1);
     if (LBP_SENDRECV_DEBUG)
         printf("%d=send(%X), %d=recv(%X)\n", send, cmd, recv, data);
     return data;
@@ -34,8 +59,8 @@ int lbp_read(u16 addr, void *buffer) {
     packet.addr_hi = LO_BYTE(addr);
     packet.addr_lo = HI_BYTE(addr);
 
-    send = write(sd, &packet, sizeof(packet));
-    recv = read(sd, &buffer, 4);
+    send = lbp_send(&packet, sizeof(lbp_cmd_addr));
+    recv = lbp_recv(&buffer, 4);
     if (LBP_SENDRECV_DEBUG)
         printf("%d=send(), %d=recv()\n", send, recv);
     return 0;
@@ -50,9 +75,9 @@ int lbp_write(u16 addr, void *buffer) {
     packet.addr_lo = HI_BYTE(addr);
     memcpy(&packet.data, buffer, 4);
 
-    send = write(sd, &packet, sizeof(lbp_cmd_addr_data));
+    send = lbp_send(&packet, sizeof(lbp_cmd_addr) + 4);
     if (LBP_SENDRECV_DEBUG)
-        printf("%d=send(), %d=recv()\n", send, recv);
+        printf("%d=send()\n", send);
     return 0;
 }
 
@@ -69,6 +94,13 @@ void lbp_init(board_access_t *access) {
     if (sd == -1) 
         perror("Unable to open the serial port\n");
 #elif _WIN32
+    char dev_name[32];
+    
+    snprintf(dev_name, 32, "\\\\.\\%s", access->dev_addr);
+    sd = CreateFile(dev_name, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
+    if (sd == INVALID_HANDLE_VALUE) { 
+        printf("Unable to open the serial port %d\n", errno);
+	}
 #endif
 }
 

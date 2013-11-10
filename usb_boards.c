@@ -25,7 +25,6 @@ int usb_boards_init(board_access_t *access) {
 
 void usb_boards_scan(board_access_t *access) {
     board_t *board = &boards[boards_count];
-#ifdef __linux__
     u8 cmd, data;
     u8 dev_name[4];
 
@@ -48,7 +47,6 @@ void usb_boards_scan(board_access_t *access) {
 
         boards_count++;
     }
-#endif
 }
 
 void usb_boards_release(board_access_t *access) {
