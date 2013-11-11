@@ -2,6 +2,15 @@
 # target (linux, windows)
 TARGET = linux
 
+CC = gcc
+RM = rm -f
+MATHLIB = -lm
+OPT = -O0
+
+#DEBUG = -g -pedantic -Wall -Wextra
+#DEBUG = -g -Wall -Wextra
+DEBUG = -g
+
 ifeq ($(TARGET),linux)
 	INCLUDE = -I/usr/include
 	BIN = mesaflash
@@ -13,15 +22,9 @@ ifeq ($(TARGET),windows)
 	INCLUDE = -I$(MINGW)/include
 	BIN = mesaflash.exe
 	LIBS = -lwsock32 libpci.dll winio32.dll
+	DEBUG += -mno-ms-bitfields
 endif
 
-CC = gcc
-RM = rm -f
-MATHLIB = -lm
-OPT = -O0
-#DEBUG = -g -pedantic -Wall -Wextra
-#DEBUG = -g -Wall -Wextra
-DEBUG = -g
 CFLAGS = $(INCLUDE) $(OPT) $(DEBUG) $(MATHLIB)
 
 objects = common.o lbp16.o lbp.o bitfile.o hostmot2.o spi_eeprom.o anyio.o eth_boards.o lpt_boards.o usb_boards.o pci_boards.o
