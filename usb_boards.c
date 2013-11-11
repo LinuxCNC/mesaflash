@@ -4,6 +4,7 @@
 #elif _WIN32
 #include "libpci/pci.h"
 #endif
+#include <sys/stat.h>
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
@@ -17,6 +18,57 @@
 
 extern board_t boards[MAX_BOARDS];
 extern int boards_count;
+static u8 file_buffer[SECTOR_SIZE];
+
+static int usb_program_fpga(llio_t *self, char *bitfile_name) {
+    board_t *board = self->private;
+    int bindex, bytesread;
+    u32 status, control;
+    char part_name[32];
+    struct stat file_stat;
+    FILE *fp;
+    u8 cmd = '0';
+
+    if (stat(bitfile_name, &file_stat) != 0) {
+        printf("Can't find file %s\n", bitfile_name);
+        return -1;
+    }
+    fp = fopen(bitfile_name, "rb");
+    if (fp == NULL) {
+        printf("Can't open file %s: %s\n", bitfile_name, strerror(errno));
+        return -1;
+    }
+    if (print_bitfile_header(fp, (char*) &part_name) == -1) {
+        fclose(fp);
+        return -1;
+    }
+
+    printf("Programming FPGA...\n");
+    printf("  |");
+    fflush(stdout);
+    
+    lbp_send(&cmd, 1);
+    lbp_send(&cmd, 1);
+    lbp_send(&cmd, 1);
+    lbp_send(&cmd, 1);
+    // program the FPGA
+    while (!feof(fp)) {
+        bytesread = fread(&file_buffer, 1, 8192, fp);
+        bindex = 0;
+        while (bindex < bytesread) {
+			file_buffer[bindex] = bitfile_reverse_bits(file_buffer[bindex]);
+            bindex++;
+        }
+        lbp_send(&file_buffer, bytesread);
+        printf("W");
+        fflush(stdout);
+    }
+
+    printf("\n");
+    fclose(fp);
+
+    return 0;
+}
 
 int usb_boards_init(board_access_t *access) {
     lbp_init(access);
@@ -64,6 +116,7 @@ void usb_boards_scan(board_access_t *access) {
 			else 
 				board->llio.fpga_part_number = "3s200tq144";
             board->llio.num_leds = 8;
+            board->llio.program_fpga = &usb_program_fpga;
 			board->llio.private = board;
 			board->llio.verbose = access->verbose;
 
