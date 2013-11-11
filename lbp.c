@@ -75,7 +75,7 @@ int lbp_write(u16 addr, void *buffer) {
     packet.addr_lo = HI_BYTE(addr);
     memcpy(&packet.data, buffer, 4);
 
-    send = lbp_send(&packet, sizeof(lbp_cmd_addr) + 4);
+    send = lbp_send(&packet, sizeof(lbp_cmd_addr_data));
     if (LBP_SENDRECV_DEBUG)
         printf("%d=send()\n", send);
     return 0;
