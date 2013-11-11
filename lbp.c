@@ -22,22 +22,26 @@ HANDLE sd;
 
 int lbp_send(void *packet, int size) {
 #ifdef __linux__
-    return write(sd, packet, size);
+	int send = write(sd, packet, size);
 #elif _WIN32
     DWORD send = 0;
 	WriteFile(sd, packet, size, &send, NULL);
-	return send;
 #endif
+    if (LBP_SENDRECV_DEBUG)
+        printf("%d=lbp_send(%d)\n", send, size);
+	return send;
 }
 
 int lbp_recv(void *packet, int size) {
 #ifdef __linux__
-    return read(sd, packet, size);
+    int recv = read(sd, packet, size);
 #elif _WIN32
     DWORD recv = 0;
 	ReadFile(sd, packet, size, &recv, NULL);
-	return recv;
 #endif
+    if (LBP_SENDRECV_DEBUG)
+        printf("%d=lbp_recv(%d)\n", recv, size);
+	return recv;
 }
 
 u8 lbp_read_ctrl(u8 cmd) {
