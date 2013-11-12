@@ -5,6 +5,7 @@
 #include "libpci/pci.h"
 #endif
 #include <sys/stat.h>
+#include <stddef.h>
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
@@ -15,6 +16,7 @@
 #include "spi_eeprom.h"
 #include "bitfile.h"
 #include "lbp.h"
+#include "hostmot2.h"
 
 extern board_t boards[MAX_BOARDS];
 extern int boards_count;
@@ -56,7 +58,7 @@ static int usb_program_fpga(llio_t *self, char *bitfile_name) {
         bytesread = fread(&file_buffer, 1, 8192, fp);
         bindex = 0;
         while (bindex < bytesread) {
-			file_buffer[bindex] = bitfile_reverse_bits(file_buffer[bindex]);
+            file_buffer[bindex] = bitfile_reverse_bits(file_buffer[bindex]);
             bindex++;
         }
         lbp_send(&file_buffer, bytesread);
@@ -88,43 +90,74 @@ void usb_boards_scan(board_access_t *access) {
         dev_name[2] = lbp_read_ctrl(LBP_CMD_READ_DEV_NAME2);
         dev_name[3] = lbp_read_ctrl(LBP_CMD_READ_DEV_NAME3);
 
-		if (strncmp(dev_name, "7I64", 4) == 0) {
-			board->type = BOARD_USB;
-			strcpy(board->dev_addr, access->dev_addr);
-			strncpy(board->llio.board_name, dev_name, 4);
-			board->llio.private = board;
-			board->llio.verbose = access->verbose;
+        if (strncmp(dev_name, "7I64", 4) == 0) {
+            board->type = BOARD_USB;
+            strcpy(board->dev_addr, access->dev_addr);
+            strncpy(board->llio.board_name, dev_name, 4);
+            board->llio.private = board;
+            board->llio.verbose = access->verbose;
 
-			boards_count++;
-		}
+            boards_count++;
+        } else if (strncmp(dev_name, "7I43", 4) == 0) { // found 7i43 with HOSTMOT2
+            board->type = BOARD_USB;
+            board->mode = BOARD_MODE_FPGA;
+            strcpy(board->dev_addr, access->dev_addr);
+            strncpy(board->llio.board_name, "7I43", 4);
+            board->llio.num_ioport_connectors = 2;
+            board->llio.pins_per_connector = 24;
+            board->llio.ioport_connector_name[0] = "P3";
+            board->llio.ioport_connector_name[1] = "P4";
+            board->llio.num_leds = 8;
+            board->llio.private = board;
+            board->llio.verbose = access->verbose;
+
+            u32 cookie;
+            lbp_read(HM2_COOKIE_REG, &cookie);
+            if (cookie == HM2_COOKIE) {
+                u32 fpga_size;
+                u32 addr;
+
+                lbp_read(HM2_IDROM_ADDR, &addr);
+                lbp_read((addr & 0xFFFF) + offsetof(hm2_idrom_desc_t, fpga_size), &fpga_size);
+                if (fpga_size == 400) {
+                    board->llio.fpga_part_number = "3s400tq144";
+                } else {
+                    board->llio.fpga_part_number = "3s200tq144";
+                }
+            }
+
+            boards_count++;
+        }
         return;
-	}
+    }
 
     cmd = '1';
     lbp_send(&cmd, 1);
     lbp_recv(&data, 1);
-    if ((data & 0x01) == 0) {  // found 7i43
-		board->type = BOARD_USB;
+    if ((data & 0x01) == 0) {  // found 7i43 without flashed FPGA
+        board->type = BOARD_USB;
+        board->mode = BOARD_MODE_CPLD;
         strcpy(board->dev_addr, access->dev_addr);
-		strncpy(board->llio.board_name, "7I43", 4);
+        strncpy(board->llio.board_name, "7I43", 4);
         board->llio.num_ioport_connectors = 2;
         board->llio.pins_per_connector = 24;
         board->llio.ioport_connector_name[0] = "P3";
         board->llio.ioport_connector_name[1] = "P4";
         cmd = '0';
-		lbp_send(&cmd, 1);
+        lbp_send(&cmd, 1);
         lbp_recv(&data, 1);
         if (data & 0x01)
             board->llio.fpga_part_number = "3s400tq144";
-		else 
+        else
             board->llio.fpga_part_number = "3s200tq144";
         board->llio.num_leds = 8;
         board->llio.program_fpga = &usb_program_fpga;
-		board->llio.private = board;
-		board->llio.verbose = access->verbose;
+        board->llio.private = board;
+        board->llio.verbose = access->verbose;
 
-		boards_count++;
-	}
+        boards_count++;
+        return;
+    }
 }
 
 void usb_boards_release(board_access_t *access) {
@@ -133,6 +166,12 @@ void usb_boards_release(board_access_t *access) {
 
 void usb_print_info(board_t *board) {
     printf("\nUSB device %s at %s\n", board->llio.board_name, board->dev_addr);
-    if (board->llio.verbose == 1)
-        lbp_print_info();
+    if (board->llio.verbose == 1) {
+        if (board->mode == BOARD_MODE_CPLD) {
+            printf("  controlled by CPLD\n");
+            lbp_print_info();
+        } else if (board->mode == BOARD_MODE_FPGA) {
+            printf("  controlled by FPGA\n");
+        }
+    }
 }

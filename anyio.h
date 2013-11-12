@@ -6,9 +6,11 @@
 #define MAX_BOARDS 8
 
 typedef enum {BOARD_ETH, BOARD_PCI, BOARD_LPT, BOARD_USB} board_type;
+typedef enum {BOARD_MODE_CPLD, BOARD_MODE_FPGA} board_mode;
 
 typedef struct {
     board_type type;
+    board_mode mode;
     u8 flash_id;
     u32 flash_start_address;
     char dev_addr[16];
