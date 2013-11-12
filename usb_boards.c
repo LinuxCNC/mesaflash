@@ -79,6 +79,7 @@ void usb_boards_scan(board_access_t *access) {
     board_t *board = &boards[boards_count];
     u8 cmd, data;
     u8 dev_name[4];
+    u32 cookie;
 
     data = lbp_read_ctrl(LBP_CMD_READ_COOKIE);
     if (data == LBP_COOKIE) {
@@ -96,32 +97,33 @@ void usb_boards_scan(board_access_t *access) {
 
 			boards_count++;
 		}
-	} else {
-		cmd = '1';
-        lbp_send(&cmd, 1);
-        lbp_recv(&data, 1);
-        if ((data & 0x01) == 0) {  // found 7i43
-			board->type = BOARD_USB;
-			strcpy(board->dev_addr, access->dev_addr);
-			strncpy(board->llio.board_name, "7I43", 4);
-            board->llio.num_ioport_connectors = 2;
-            board->llio.pins_per_connector = 24;
-            board->llio.ioport_connector_name[0] = "P3";
-            board->llio.ioport_connector_name[1] = "P4";
-            cmd = '0';
-			lbp_send(&cmd, 1);
-            lbp_recv(&data, 1);
-            if (data & 0x01)
-				board->llio.fpga_part_number = "3s400tq144";
-			else 
-				board->llio.fpga_part_number = "3s200tq144";
-            board->llio.num_leds = 8;
-            board->llio.program_fpga = &usb_program_fpga;
-			board->llio.private = board;
-			board->llio.verbose = access->verbose;
+        return;
+	}
 
-			boards_count++;
-        }
+    cmd = '1';
+    lbp_send(&cmd, 1);
+    lbp_recv(&data, 1);
+    if ((data & 0x01) == 0) {  // found 7i43
+		board->type = BOARD_USB;
+        strcpy(board->dev_addr, access->dev_addr);
+		strncpy(board->llio.board_name, "7I43", 4);
+        board->llio.num_ioport_connectors = 2;
+        board->llio.pins_per_connector = 24;
+        board->llio.ioport_connector_name[0] = "P3";
+        board->llio.ioport_connector_name[1] = "P4";
+        cmd = '0';
+		lbp_send(&cmd, 1);
+        lbp_recv(&data, 1);
+        if (data & 0x01)
+            board->llio.fpga_part_number = "3s400tq144";
+		else 
+            board->llio.fpga_part_number = "3s200tq144";
+        board->llio.num_leds = 8;
+        board->llio.program_fpga = &usb_program_fpga;
+		board->llio.private = board;
+		board->llio.verbose = access->verbose;
+
+		boards_count++;
 	}
 }
 

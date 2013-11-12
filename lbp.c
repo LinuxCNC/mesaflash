@@ -64,7 +64,7 @@ int lbp_read(u16 addr, void *buffer) {
     packet.addr_lo = HI_BYTE(addr);
 
     send = lbp_send(&packet, sizeof(lbp_cmd_addr));
-    recv = lbp_recv(&buffer, 4);
+    recv = lbp_recv(buffer, 4);
     if (LBP_SENDRECV_DEBUG)
         printf("%d=send(), %d=recv()\n", send, recv);
     return 0;
