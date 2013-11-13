@@ -67,7 +67,7 @@ int lbp_read(u16 addr, void *buffer) {
     send = lbp_send(&packet, sizeof(lbp_cmd_addr));
     recv = lbp_recv(buffer, 4);
     if (LBP_SENDRECV_DEBUG)
-        printf("lbp_read(%X): %08X\n", addr, *ptr);
+        printf("lbp_read(%02X:%04X): %08X\n", packet.cmd, addr, *ptr);
     return 0;
 }
 
@@ -82,7 +82,7 @@ int lbp_write(u16 addr, void *buffer) {
 
     send = lbp_send(&packet, sizeof(lbp_cmd_addr_data));
     if (LBP_SENDRECV_DEBUG)
-        printf("lbp_write(%X)\n", addr);
+        printf("lbp_write(%02X:%04X)\n", packet.cmd, addr);
     return 0;
 }
 
