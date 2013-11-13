@@ -6,6 +6,7 @@
 
 void hm2_read_idrom(llio_t *llio) {
     u32 idrom_addr, cookie;
+    int i;
 
     llio->read(llio, HM2_COOKIE_REG, &(cookie), sizeof(u32));
     if (cookie != HM2_COOKIE) {
@@ -19,10 +20,14 @@ void hm2_read_idrom(llio_t *llio) {
     llio->read(llio, HM2_CONFIG_NAME, &(llio->hm2.config_name), HM2_CONFIG_NAME_LEN);
     llio->read(llio, HM2_IDROM_ADDR, &(idrom_addr), sizeof(u32));
     llio->read(llio, idrom_addr, &(llio->hm2.idrom), sizeof(llio->hm2.idrom));
-    llio->read(llio, idrom_addr + llio->hm2.idrom.offset_to_modules, &(llio->hm2.modules), sizeof(llio->hm2.modules));
-    llio->read(llio, idrom_addr + llio->hm2.idrom.offset_to_pins, &(llio->hm2.pins), sizeof(llio->hm2.pins)/2);
-    llio->read(llio, idrom_addr + llio->hm2.idrom.offset_to_pins + sizeof(hm2_pin_desc_t)*HM2_MAX_PINS/2, 
-      &(llio->hm2.pins[HM2_MAX_PINS/2]), sizeof(llio->hm2.pins)/2);
+    for (i = 0; i < HM2_MAX_MODULES; i++) {
+        llio->read(llio, idrom_addr + llio->hm2.idrom.offset_to_modules + i*sizeof(hm2_module_desc_t),
+          &(llio->hm2.modules[i]), sizeof(hm2_module_desc_t));
+    }
+    for (i = 0; i < HM2_MAX_PINS; i++) {
+        llio->read(llio, idrom_addr + llio->hm2.idrom.offset_to_pins + i*sizeof(hm2_pin_desc_t),
+          &(llio->hm2.pins[i]), sizeof(hm2_module_desc_t));
+    }
 }
 
 const char *hm2_hz_to_mhz(u32 freq_hz) {
@@ -399,7 +404,8 @@ void hm2_print_pin_file(llio_t *llio) {
 
     printf("\nModules in configuration:\n\n");
     for (i = 0; i < HM2_MAX_MODULES; i++) {
-        if (llio->hm2.modules[i].gtag == 0) break;
+        if ((llio->hm2.modules[i].gtag == 0) && (llio->hm2.modules[i].version == 0) &&
+        (llio->hm2.modules[i].clock_tag == 0) && (llio->hm2.modules[i].instances == 0)) break;
 
         {
             int k;
