@@ -22,6 +22,26 @@ extern board_t boards[MAX_BOARDS];
 extern int boards_count;
 static u8 file_buffer[SECTOR_SIZE];
 
+int usb_read(llio_t *self, u32 addr, void *buffer, int size) {
+    while (size > 0) {
+        lbp_read(addr & 0xFFFF, buffer);
+        addr += 4;
+        buffer += 4;
+        size -= 4;
+    }
+    return 0;
+}
+
+int usb_write(llio_t *self, u32 addr, void *buffer, int size) {
+    while (size > 0) {
+        lbp_write(addr & 0xFFFF, buffer);
+        addr += 4;
+        buffer += 4;
+        size -= 4;
+    }
+    return 0;
+}
+
 static int usb_program_fpga(llio_t *self, char *bitfile_name) {
     board_t *board = self->private;
     int bindex, bytesread;
@@ -108,6 +128,8 @@ void usb_boards_scan(board_access_t *access) {
             board->llio.ioport_connector_name[0] = "P3";
             board->llio.ioport_connector_name[1] = "P4";
             board->llio.num_leds = 8;
+            board->llio.read = &usb_read;
+            board->llio.write = &usb_write;
             board->llio.private = board;
             board->llio.verbose = access->verbose;
 
