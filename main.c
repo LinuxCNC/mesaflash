@@ -237,13 +237,15 @@ int main(int argc, char *argv[]) {
 
     if (info_flag == 1) {
         anyio_bitfile_print_info(bitfile_name);
-    } else if ((device_flag == 1) && (addr_flag == 1)) {
+    } else if (device_flag == 1) {
         board_t *board = NULL;
 
         access.verbose = verbose_flag;
-//        access.pci = 1;
-//        access.eth = 1;
-        access.usb = 1;
+        access.pci = 1;
+        if (addr_flag == 1) {
+            access.eth = 1;
+//            access.usb = 1;
+        }
 
         if (anyio_init(&access) != 0)
             exit(1);
