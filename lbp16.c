@@ -86,6 +86,23 @@ int lbp16_read(u16 cmd, u32 addr, void *buffer, int size) {
     return 0;
 }
 
+int lbp16_write(u16 cmd, u32 addr, void *buffer, int size) {
+    static struct {
+        lbp16_cmd_addr wr_packet;
+        u8 tmp_buffer[127*8];
+    } packet;
+    int send;
+
+    LBP16_INIT_PACKET4(packet.wr_packet, cmd, addr);
+    memcpy(&packet.tmp_buffer, buffer, size);
+    if (LBP16_SENDRECV_DEBUG)
+        printf("SEND: %02X %02X %02X %02X | WRITE %d bytes\n", packet.wr_packet.cmd_hi, packet.wr_packet.cmd_lo,
+          packet.wr_packet.addr_hi, packet.wr_packet.addr_lo, size);
+    send = lbp16_send_packet(&packet, sizeof(lbp16_cmd_addr) + size);
+
+    return 0;
+}
+
 int lbp16_hm2_read(u32 addr, void *buffer, int size) {
     if ((size/4) > LBP16_MAX_PACKET_DATA_SIZE) {
         printf("ERROR: LBP16: Requested %d units to read, but protocol supports up to %d units to be read per packet\n", size/4, LBP16_MAX_PACKET_DATA_SIZE);
@@ -96,7 +113,12 @@ int lbp16_hm2_read(u32 addr, void *buffer, int size) {
 }
 
 int lbp16_hm2_write(u32 addr, void *buffer, int size) {
-    return 0;
+    if ((size/4) > LBP16_MAX_PACKET_DATA_SIZE) {
+        printf("ERROR: LBP16: Requested %d units to write, but protocol supports up to %d units to be write per packet\n", size/4, LBP16_MAX_PACKET_DATA_SIZE);
+        return -1;
+    }
+
+    return lbp16_write(CMD_WRITE_HOSTMOT2_ADDR32_INCR(size/4), addr, buffer, size);
 }
 
 void lbp16_print_info() {
