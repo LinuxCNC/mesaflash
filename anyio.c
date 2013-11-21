@@ -9,6 +9,7 @@
 #include "pci_boards.h"
 #include "lpt_boards.h"
 #include "usb_boards.h"
+#include "spi_boards.h"
 
 board_t boards[MAX_BOARDS];
 int boards_count;
@@ -38,6 +39,11 @@ int anyio_init(board_access_t *access) {
         if (ret != 0)
             return ret;
     }
+    if (access->spi == 1) {
+        ret = spi_boards_init(access);
+        if (ret != 0)
+            return ret;
+    }
     return 0;
 }
 
@@ -52,6 +58,8 @@ void anyio_scan(board_access_t *access) {
         usb_boards_scan(access);
     if (access->eth == 1)
         eth_boards_scan(access);
+    if (access->spi == 1)
+        spi_boards_scan(access);
 }
 
 board_t *anyio_get_dev(board_access_t *access) {
@@ -82,6 +90,8 @@ void anyio_dev_set_active(board_t *board) {
             break;
         case BOARD_USB:
             break;
+        case BOARD_SPI:
+            break;
     }
 }
 
@@ -100,6 +110,9 @@ void anyio_dev_print_info(board_t *board) {
             break;
         case BOARD_USB:
             usb_print_info(board);
+            break;
+        case BOARD_SPI:
+            spi_print_info(board);
             break;
     }
 }
