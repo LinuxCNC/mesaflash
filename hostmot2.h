@@ -145,7 +145,7 @@ typedef struct {
 
 #define HM2_MAX_MODULES  32
 #define HM2_MAX_PINS     144
-#define HM2_MAX_TAGS     28
+#define HM2_MAX_TAGS     29
 #define HM2_MAX_CHANNELS 64
 
 #define HM2_GTAG_NONE              0x00

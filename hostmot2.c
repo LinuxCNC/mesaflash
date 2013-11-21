@@ -384,10 +384,11 @@ void hm2_print_pin_file(llio_t *llio) {
         {"DAQFIFO",     HM2_GTAG_DAQ_FIFO},
         {"BinOsc",      HM2_GTAG_BIN_OSC},
         {"DMDMA",       HM2_GTAG_BIN_DMDMA},
+        {"DPLL",        HM2_GTAG_HM2DPLL},
+        {"LED",         HM2_GTAG_LED},
         {"ResolverMod", HM2_GTAG_RESOLVER},
         {"SSerial",     HM2_GTAG_SSERIAL},
         {"Twiddler",    HM2_GTAG_TWIDDLER},
-        {"LED",         HM2_GTAG_LED},
     };
     const u8 db25_pins[] = {1, 14, 2, 15, 3, 16, 4, 17, 5, 6, 7, 8, 9, 10, 11, 12, 13};
 
