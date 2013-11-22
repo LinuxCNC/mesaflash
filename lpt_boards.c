@@ -352,7 +352,9 @@ void lpt_boards_scan(board_access_t *access) {
         board->llio.num_leds = 2;
         board->llio.private = board;
         eeprom_init(&(board->llio));
-        board->flash_start_address = 0x80000;
+        board->flash_id = read_flash_id(&(board->llio));
+        prepare_boot_block(board->flash_id);
+        board->flash_start_address = eeprom_calc_user_space(board->flash_id);
         board->llio.verbose = access->verbose;
 
         boards_count++;
