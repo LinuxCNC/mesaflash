@@ -364,4 +364,9 @@ void lpt_boards_scan(board_access_t *access) {
 
 void lpt_print_info(board_t *board) {
     printf("\nLPT device %s at 0x%04X\n", board->llio.board_name, board->base_lo);
+    if (board->llio.verbose == 0)
+        return;
+    if (board->flash_id > 0) {
+        printf("  Flash size: %s (id: 0x%02X)\n", eeprom_get_flash_type(board->flash_id), board->flash_id);
+    }
 }
