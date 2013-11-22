@@ -23,6 +23,8 @@
 
 extern board_t boards[MAX_BOARDS];
 extern int boards_count;
+static u8 page_buffer[PAGE_SIZE];
+extern u8 boot_block[BOOT_BLOCK_SIZE];
 static u8 file_buffer[SECTOR_SIZE];
 
 static int parport_get(board_t *board, unsigned short base_lo, unsigned short base_hi, unsigned int modes) {
@@ -239,6 +241,14 @@ int lpt_program_fpga(llio_t *self, char *bitfile_name) {
     return 0;
 }
 
+int lpt_program_flash(llio_t *self, char *bitfile_name, u32 start_address) {
+    return eeprom_write_area(self, bitfile_name, start_address);
+}
+
+int lpt_verify_flash(llio_t *self, char *bitfile_name, u32 start_address) {
+    return eeprom_verify_area(self, bitfile_name, start_address);
+}
+
 // return 0 if the board has been reset, -errno if not
 int lpt_reset(llio_t *self) {
     board_t *board = self->private;
@@ -323,13 +333,15 @@ void lpt_boards_scan(board_access_t *access) {
     cookie = lpt_epp_read32(board);
     lpt_epp_check_for_timeout(board);
     if (cookie == HM2_COOKIE) {
-        board->type = BOARD_USB;
+        board->type = BOARD_LPT;
         strncpy(board->dev_addr, access->dev_addr, 16);
         strncpy(board->llio.board_name, "7I90HD", 16);
 
         board->llio.read = lpt_read;
         board->llio.write = lpt_write;
         board->llio.program_fpga = lpt_program_fpga;
+        board->llio.program_flash = lpt_program_flash;
+        board->llio.verify_flash = lpt_verify_flash;
         board->llio.reset = lpt_reset;
 
         board->llio.num_ioport_connectors = 3;
@@ -339,6 +351,8 @@ void lpt_boards_scan(board_access_t *access) {
         board->llio.ioport_connector_name[2] = "P3";
         board->llio.num_leds = 2;
         board->llio.private = board;
+        eeprom_init(&(board->llio));
+        board->flash_start_address = 0x80000;
         board->llio.verbose = access->verbose;
 
         boards_count++;
