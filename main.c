@@ -48,7 +48,7 @@ static struct option long_options[] = {
 };
 
 void print_short_usage() {
-    printf("Configuration and diagnostic tool for mesanet PCI(E)/ETH/LPT/USB boards\n");
+    printf("Configuration and diagnostic tool for mesanet PCI(E)/ETH/EPP/USB boards\n");
     printf("Try `mesaflash --help' for more information\n");
 }
 

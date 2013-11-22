@@ -7,7 +7,7 @@
 #include "bitfile.h"
 #include "eth_boards.h"
 #include "pci_boards.h"
-#include "lpt_boards.h"
+#include "epp_boards.h"
 #include "usb_boards.h"
 #include "spi_boards.h"
 
@@ -24,8 +24,8 @@ int anyio_init(board_access_t *access) {
         if (ret != 0)
             return ret;
     }
-    if (access->lpt == 1) {
-        ret = lpt_boards_init(access);
+    if (access->epp == 1) {
+        ret = epp_boards_init(access);
         if (ret != 0)
             return ret;
     }
@@ -52,8 +52,8 @@ void anyio_scan(board_access_t *access) {
         return;
     if (access->pci == 1)
         pci_boards_scan(access);
-    if (access->lpt == 1)
-        lpt_boards_scan(access);
+    if (access->epp == 1)
+        epp_boards_scan(access);
     if (access->usb == 1)
         usb_boards_scan(access);
     if (access->eth == 1)
@@ -86,7 +86,7 @@ void anyio_dev_set_active(board_t *board) {
             break;
         case BOARD_PCI:
             break;
-        case BOARD_LPT:
+        case BOARD_EPP:
             break;
         case BOARD_USB:
             break;
@@ -105,8 +105,8 @@ void anyio_dev_print_info(board_t *board) {
         case BOARD_PCI:
             pci_print_info(board);
             break;
-        case BOARD_LPT:
-            lpt_print_info(board);
+        case BOARD_EPP:
+            epp_print_info(board);
             break;
         case BOARD_USB:
             usb_print_info(board);
