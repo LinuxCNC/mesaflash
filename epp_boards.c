@@ -8,6 +8,7 @@
 #include "libpci/pci.h"
 #endif
 #include <stdio.h>
+#include <stddef.h>
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -333,28 +334,77 @@ void epp_boards_scan(board_access_t *access) {
     cookie = epp_read32(board);
     epp_check_for_timeout(board);
     if (cookie == HM2_COOKIE) {
+        u32 idrom_addr;
+        u8 board_name[8];
+        u32 *ptr = (u32 *) &board_name;
+
+        epp_addr16(board, HM2_IDROM_ADDR);
+        idrom_addr = epp_read32(board);
+        epp_addr16(board, (idrom_addr + offsetof(hm2_idrom_desc_t, board_name)) | EPP_ADDR_AUTOINCREMENT);
+        *ptr++ = epp_read32(board);
+        *ptr = epp_read32(board);
+
+        if (strncmp(board_name, "MESA7I90", 8) == 0) {
+            board->type = BOARD_EPP;
+            strncpy(board->dev_addr, access->dev_addr, 16);
+            strncpy(board->llio.board_name, "7I90HD", 16);
+
+            board->llio.read = epp_read;
+            board->llio.write = epp_write;
+            board->llio.program_fpga = epp_program_fpga;
+            board->llio.program_flash = epp_program_flash;
+            board->llio.verify_flash = epp_verify_flash;
+
+            board->llio.num_ioport_connectors = 3;
+            board->llio.pins_per_connector = 24;
+            board->llio.ioport_connector_name[0] = "P1";
+            board->llio.ioport_connector_name[1] = "P2";
+            board->llio.ioport_connector_name[2] = "P3";
+            board->llio.num_leds = 2;
+            board->llio.private = board;
+            eeprom_init(&(board->llio));
+            board->flash_id = read_flash_id(&(board->llio));
+            prepare_boot_block(board->flash_id);
+            board->flash_start_address = eeprom_calc_user_space(board->flash_id);
+            board->llio.verbose = access->verbose;
+
+            boards_count++;
+        } else if (strncmp(board_name, "MESA7I43", 8) == 0) {
+            board->type = BOARD_EPP;
+            strncpy(board->dev_addr, access->dev_addr, 16);
+            strncpy(board->llio.board_name, "7I43", 16);
+
+            board->llio.read = epp_read;
+            board->llio.write = epp_write;
+            board->llio.program_fpga = epp_program_fpga;
+            board->llio.reset = epp_reset;
+
+            board->llio.num_ioport_connectors = 2;
+            board->llio.pins_per_connector = 24;
+            board->llio.ioport_connector_name[0] = "P4";
+            board->llio.ioport_connector_name[1] = "P3";
+            board->llio.num_leds = 2;
+            board->llio.private = board;
+            board->llio.verbose = access->verbose;
+
+            boards_count++;
+        }
+    } else {
         board->type = BOARD_EPP;
         strncpy(board->dev_addr, access->dev_addr, 16);
-        strncpy(board->llio.board_name, "7I90HD", 16);
+        strncpy(board->llio.board_name, "7I43", 16);
 
         board->llio.read = epp_read;
         board->llio.write = epp_write;
         board->llio.program_fpga = epp_program_fpga;
-        board->llio.program_flash = epp_program_flash;
-        board->llio.verify_flash = epp_verify_flash;
         board->llio.reset = epp_reset;
 
-        board->llio.num_ioport_connectors = 3;
+        board->llio.num_ioport_connectors = 2;
         board->llio.pins_per_connector = 24;
-        board->llio.ioport_connector_name[0] = "P1";
-        board->llio.ioport_connector_name[1] = "P2";
-        board->llio.ioport_connector_name[2] = "P3";
+        board->llio.ioport_connector_name[0] = "P4";
+        board->llio.ioport_connector_name[1] = "P3";
         board->llio.num_leds = 2;
         board->llio.private = board;
-        eeprom_init(&(board->llio));
-        board->flash_id = read_flash_id(&(board->llio));
-        prepare_boot_block(board->flash_id);
-        board->flash_start_address = eeprom_calc_user_space(board->flash_id);
         board->llio.verbose = access->verbose;
 
         boards_count++;

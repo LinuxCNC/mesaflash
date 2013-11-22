@@ -272,10 +272,11 @@ int main(int argc, char *argv[]) {
         board_t *board = NULL;
 
         access.verbose = verbose_flag;
-        access.pci = 1;
+//        access.pci = 1;
         if (addr_flag == 1) {
-            access.eth = 1;
+//            access.eth = 1;
 //            access.usb = 1;
+            access.epp = 1;
         }
 
         if (anyio_init(&access) != 0)
