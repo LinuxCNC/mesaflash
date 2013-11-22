@@ -21,8 +21,8 @@ typedef struct {
     u16 ctrl_base_addr;
     u16 data_base_addr;
 
-    unsigned short base_lo;
-    unsigned short base_hi;
+    u16 base_lo;
+    u16 base_hi;
     void *region;
     void *region_hi;
     int epp_wide;

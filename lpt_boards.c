@@ -31,7 +31,7 @@ static int parport_get(board_t *board, unsigned short base_lo, unsigned short ba
 
     board->base_lo = base_lo;
     board->base_hi = base_hi;
-    printf("Using direct parport at ioaddr=0x%x:0x%x\n", base_lo, base_hi);
+    //printf("Using direct parport at ioaddr=0x%x:0x%x\n", base_lo, base_hi);
     return 0;
 }
 
@@ -40,18 +40,18 @@ static void parport_release(board_t *board) {
 
 static inline u8 lpt_epp_read_status(board_t *board) {
     u8 data = inb(board->base_lo + LPT_EPP_STATUS_OFFSET);
-    printf("read status 0x%02X\n", data);
+//    printf("read status 0x%02X\n", data);
     return data;
 }
 
 static inline void lpt_epp_write_status(board_t *board, u8 status_byte) {
     outb(status_byte, board->base_lo + LPT_EPP_STATUS_OFFSET);
-    printf("wrote status 0x%02X\n", status_byte);
+//    printf("wrote status 0x%02X\n", status_byte);
 }
 
 static inline void lpt_epp_write_control(board_t *board, u8 control_byte) {
     outb(control_byte, board->base_lo + LPT_EPP_CONTROL_OFFSET);
-    printf("wrote control 0x%02X\n", control_byte);
+//    printf("wrote control 0x%02X\n", control_byte);
 }
 
 static inline int lpt_epp_check_for_timeout(board_t *board) {
@@ -83,18 +83,18 @@ static int lpt_epp_clear_timeout(board_t *board) {
 
 static inline void lpt_epp_addr8(board_t *board, u8 addr) {
     outb(addr, board->base_lo + LPT_EPP_ADDRESS_OFFSET);
-    printf("selected address 0x%02X\n", addr);
+//    printf("selected address 0x%02X\n", addr);
 }
 
 static inline void lpt_epp_addr16(board_t *board, u16 addr) {
     outb((addr & 0x00FF), board->base_lo + LPT_EPP_ADDRESS_OFFSET);
     outb((addr >> 8),     board->base_lo + LPT_EPP_ADDRESS_OFFSET);
-    printf("selected address 0x%04X\n", addr);
+//    printf("selected address 0x%04X\n", addr);
 }
 
 static inline u8 lpt_epp_read8(board_t *board) {
     u8 data = inb(board->base_lo + LPT_EPP_DATA_OFFSET);
-    printf("read data 0x%02X\n", data);
+//    printf("read data 0x%02X\n", data);
     return data;
 }
 
@@ -103,7 +103,7 @@ static inline u32 lpt_epp_read32(board_t *board) {
 
     if (board->epp_wide) {
         data = inl(board->base_lo + LPT_EPP_DATA_OFFSET);
-        printf("read data 0x%08X\n", data);
+//        printf("read data 0x%08X\n", data);
     } else {
         u8 a, b, c, d;
         a = lpt_epp_read8(board);
@@ -290,74 +290,62 @@ int lpt_boards_init(board_access_t *access) {
 
 void lpt_boards_scan(board_access_t *access) {
 #ifdef __linux__
-        board_t *board = &boards[boards_count];
-        int r;
+    board_t *board = &boards[boards_count];
+    int r;
+    u16 lpt_addr;
+    u32 cookie;
 
-        iopl(3);
-        board->epp_wide = 1;
+    iopl(3);
+    board->epp_wide = 1;
 
-        //
-        // claim the I/O regions for the parport
-        // 
+    if (strncmp(access->dev_addr, "0x", 2) == 0) {
+        access->dev_addr[0] = '0';
+        access->dev_addr[1] = '0';
+        lpt_addr = strtol(access->dev_addr, NULL, 16);
+    } else {
+        lpt_addr = strtol(access->dev_addr, NULL, 10);
+    }
 
-        r = parport_get(board, access->lpt_base_addr, access->lpt_base_hi_addr, PARPORT_MODE_EPP);
-        if(r < 0)
-            return;
+    r = parport_get(board, lpt_addr, access->lpt_base_hi_addr, PARPORT_MODE_EPP);
+    if (r < 0)
+       return;
 
-        // set up the parport for EPP
+    // set up the parport for EPP
     if(board->base_hi) {
         outb(0x94, board->base_hi + LPT_ECP_CONTROL_HIGH_OFFSET); // select EPP mode in ECR
-        }
+    }
 
-        //
-        // when we get here, the parallel port is in epp mode and ready to go
-        //
+    // select the device and tell it to make itself ready for io
+    lpt_epp_write_control(board, 0x04);  // set control lines and input mode
+    lpt_epp_clear_timeout(board);
 
-        // select the device and tell it to make itself ready for io
-        lpt_epp_write_control(board, 0x04);  // set control lines and input mode
-        lpt_epp_clear_timeout(board);
+    lpt_epp_addr16(board, HM2_COOKIE_REG | LPT_ADDR_AUTOINCREMENT);
+    cookie = lpt_epp_read32(board);
+    lpt_epp_check_for_timeout(board);
+    if (cookie == HM2_COOKIE) {
+        board->type = BOARD_USB;
+        strncpy(board->dev_addr, access->dev_addr, 16);
+        strncpy(board->llio.board_name, "7I90HD", 16);
 
         board->llio.read = lpt_read;
         board->llio.write = lpt_write;
         board->llio.program_fpga = lpt_program_fpga;
         board->llio.reset = lpt_reset;
 
-        board->llio.num_ioport_connectors = 2;
+        board->llio.num_ioport_connectors = 3;
         board->llio.pins_per_connector = 24;
-        board->llio.ioport_connector_name[0] = "P4";
-        board->llio.ioport_connector_name[1] = "P3";
-        board->llio.num_leds = 8;
-        board->llio.private = &board;
+        board->llio.ioport_connector_name[0] = "P1";
+        board->llio.ioport_connector_name[1] = "P2";
+        board->llio.ioport_connector_name[2] = "P3";
+        board->llio.num_leds = 2;
+        board->llio.private = board;
+        board->llio.verbose = access->verbose;
 
-        //
-        // now we want to detect if this 7i43 has the big FPGA or the small one
-        // 3s200tq144 for the small board
-        // 3s400tq144 for the big
-        //
-
-        // make sure the CPLD is in charge of the parallel port
-        //lpt_reset(&(board->llio));
-
-        //  select CPLD data register
-        lpt_epp_addr8(board, 0);
-
-        if (lpt_epp_read8(board) & 0x01) {
-            board->llio.fpga_part_number = "3s400tq144";
-        } else {
-            board->llio.fpga_part_number = "3s200tq144";
-        }
-        printf("detected FPGA '%s'\n", board->llio.fpga_part_number);
-
-        //board->llio.program_fpga(&(board->llio), "../../Pulpit/svst4_4s.bit");
-
-        lpt_epp_addr16(board, HM2_COOKIE_REG);
-        u32 cookie = lpt_epp_read32(board);
-        printf("cookie %X\n", cookie);
-
-        printf("board at (ioaddr_lo=0x%04X, ioaddr_hi=0x%04X, epp_wide %s) found\n",
-            board->base_lo, board->base_hi, (board->epp_wide ? "ON" : "OFF"));
+        boards_count++;
+    }
 #endif
 }
 
 void lpt_print_info(board_t *board) {
+    printf("\nLPT device %s at 0x%04X\n", board->llio.board_name, board->base_lo);
 }
