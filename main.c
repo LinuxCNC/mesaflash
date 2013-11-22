@@ -263,7 +263,8 @@ int main(int argc, char *argv[]) {
         print_short_usage();
         return 0;
     }
-    process_cmd_line(argc, argv);
+    if (process_cmd_line(argc, argv) == -1)
+        return -1;
 
     if (info_flag == 1) {
         anyio_bitfile_print_info(bitfile_name);
