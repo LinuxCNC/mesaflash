@@ -337,6 +337,10 @@ int main(int argc, char *argv[]) {
                 printf("Board %s doesn't support flash verification.\n", board->llio.board_name);
             }
         } else if (program_flag == 1) {
+            if (board->llio.reset != NULL)
+                board->llio.reset(&(board->llio));
+            else
+                printf("Board %s doesn't support FPGA reset.\n", board->llio.board_name);
             if (board->llio.program_fpga != NULL)
                 board->llio.program_fpga(&(board->llio), bitfile_name);
             else
