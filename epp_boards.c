@@ -346,6 +346,7 @@ void epp_boards_scan(board_access_t *access) {
 
         if (strncmp(board_name, "MESA7I90", 8) == 0) {
             board->type = BOARD_EPP;
+            board->mode = BOARD_MODE_FPGA;
             strncpy(board->dev_addr, access->dev_addr, 16);
             strncpy(board->llio.board_name, "7I90HD", 16);
 
@@ -371,6 +372,7 @@ void epp_boards_scan(board_access_t *access) {
             boards_count++;
         } else if (strncmp(board_name, "MESA7I43", 8) == 0) {
             board->type = BOARD_EPP;
+            board->mode = BOARD_MODE_FPGA;
             strncpy(board->dev_addr, access->dev_addr, 16);
             strncpy(board->llio.board_name, "7I43", 16);
 
@@ -391,6 +393,7 @@ void epp_boards_scan(board_access_t *access) {
         }
     } else {
         board->type = BOARD_EPP;
+        board->mode = BOARD_MODE_CPLD;
         strncpy(board->dev_addr, access->dev_addr, 16);
         strncpy(board->llio.board_name, "7I43", 16);
 
@@ -416,7 +419,10 @@ void epp_print_info(board_t *board) {
     printf("\nEPP device %s at 0x%04X\n", board->llio.board_name, board->base_lo);
     if (board->llio.verbose == 0)
         return;
-    if (board->flash_id > 0) {
+    if (board->mode == BOARD_MODE_CPLD)
+        printf("  controlled by CPLD\n");
+    else if (board->mode == BOARD_MODE_FPGA)
+        printf("  controlled by FPGA\n");
+    if (board->flash_id > 0)
         printf("  Flash size: %s (id: 0x%02X)\n", eeprom_get_flash_type(board->flash_id), board->flash_id);
-    }
 }
