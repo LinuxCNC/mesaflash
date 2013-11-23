@@ -338,7 +338,7 @@ void epp_boards_scan(board_access_t *access) {
         u8 board_name[8];
         u32 *ptr = (u32 *) &board_name;
 
-        epp_addr16(board, HM2_IDROM_ADDR);
+        epp_addr16(board, HM2_IDROM_ADDR | EPP_ADDR_AUTOINCREMENT);
         idrom_addr = epp_read32(board);
         epp_addr16(board, (idrom_addr + offsetof(hm2_idrom_desc_t, board_name)) | EPP_ADDR_AUTOINCREMENT);
         *ptr++ = epp_read32(board);
