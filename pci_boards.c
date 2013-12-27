@@ -861,7 +861,7 @@ void pci_boards_scan(board_access_t *access) {
             u16 ssid = pci_read_word(dev, PCI_SUBSYSTEM_ID);
             if ((ssid == SUBDEVICEID_MESA3X20_10) || (ssid == SUBDEVICEID_MESA3X20_15) || (ssid == SUBDEVICEID_MESA3X20_20)) {
                 board->type = BOARD_PCI;
-                strncpy(board->llio.board_name, "3x20", 4);
+                strncpy(board->llio.board_name, "3X20", 4);
                 board->llio.num_ioport_connectors = 6;
                 board->llio.pins_per_connector = 24;
                 board->llio.ioport_connector_name[0] = "P4";
