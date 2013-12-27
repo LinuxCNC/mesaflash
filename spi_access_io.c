@@ -17,7 +17,7 @@ static void wait_for_data(llio_t *self) {
     u8 data = 0;
 
     for (i = 0; (((data & 0xFF) & DAV_MASK) == 0) && (i < 5000) ; i++) {
-        data = inb(board->ctrl_base_addr + SPI_CS_OFFSET);
+        data = inb(board->data_base_addr + SPI_CS_OFFSET);
     }
     if (i == 5000) {
         printf("%x timeout waiting for SPI data\n", data);
@@ -27,13 +27,13 @@ static void wait_for_data(llio_t *self) {
 static void set_cs_high(llio_t *self) {
     board_t *board = self->private;
 
-    outb(1, board->ctrl_base_addr + SPI_CS_OFFSET);
+    outb(1, board->data_base_addr + SPI_CS_OFFSET);
 }
 
 static void set_cs_low(llio_t *self) {
     board_t *board = self->private;
 
-    outb(0, board->ctrl_base_addr + SPI_CS_OFFSET);
+    outb(0, board->data_base_addr + SPI_CS_OFFSET);
 }
 
 static void prefix(llio_t *self) {
@@ -47,15 +47,15 @@ static void suffix(llio_t *self) {
 static void send_byte(llio_t *self, u8 byte) {
     board_t *board = self->private;
 
-    outb(byte, board->ctrl_base_addr + SPI_SREG_OFFSET);
+    outb(byte, board->data_base_addr + SPI_SREG_OFFSET);
 }
 
 static u8 recv_byte(llio_t *self) {
     board_t *board = self->private;
 
-    outb(0, board->ctrl_base_addr + SPI_SREG_OFFSET);
+    outb(0, board->data_base_addr + SPI_SREG_OFFSET);
     wait_for_data(self);
-    return inb(board->ctrl_base_addr + SPI_SREG_OFFSET);
+    return inb(board->data_base_addr + SPI_SREG_OFFSET);
 }
 
 void open_spi_access_io(llio_t *self, spi_eeprom_dev_t *access) {
