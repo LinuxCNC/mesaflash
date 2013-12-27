@@ -265,6 +265,7 @@ typedef struct {
     u8 tag;
 } mod_name_t;
 
+int hm2_check_cookie(llio_t *llio);
 void hm2_read_idrom(llio_t *llio);
 hm2_module_desc_t *hm2_find_module(hostmot2_t *hm2, u8 gtag);
 void hm2_print_idrom(hostmot2_t *hm2);

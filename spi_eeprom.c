@@ -319,6 +319,18 @@ int eeprom_verify_area(llio_t *self, char *bitfile_name, u32 start_address) {
     return 0;
 }
 
-void eeprom_init(llio_t *self) {
-    open_spi_access_hm2(self, &access);
+void eeprom_init(llio_t *self, board_flash flash) {
+    switch (flash) {
+        case BOARD_FLASH_NONE:
+            break;
+        case BOARD_FLASH_HM2:
+            open_spi_access_hm2(self, &access);
+            break;
+        case BOARD_FLASH_IO:
+            open_spi_access_io(self, &access);
+            break;
+        case BOARD_FLASH_GPIO:
+            open_spi_access_gpio(self, &access);
+            break;
+    }
 }

@@ -566,7 +566,7 @@ void pci_boards_scan(board_access_t *access) {
                 board->base = map_memory(dev->base_addr[0], board->len);
 #endif
                 board->dev = dev;
-                eeprom_init(&(board->llio));
+                eeprom_init(&(board->llio), BOARD_FLASH_HM2);
                 board->flash_id = read_flash_id(&(board->llio));
                 board->flash_start_address = eeprom_calc_user_space(board->flash_id);
                 board->llio.verbose = access->verbose;
@@ -596,10 +596,9 @@ void pci_boards_scan(board_access_t *access) {
                 board->base = map_memory(dev->base_addr[0], board->len);
 #endif
                 board->dev = dev;
-                eeprom_init(&(board->llio));
+                eeprom_init(&(board->llio), BOARD_FLASH_HM2);
                 board->flash_id = read_flash_id(&(board->llio));
                 board->flash_start_address = eeprom_calc_user_space(board->flash_id);
-                hm2_read_idrom(&(board->llio));
                 board->llio.verbose = access->verbose;
 
                 boards_count++;
@@ -895,6 +894,9 @@ void pci_boards_scan(board_access_t *access) {
                 board->ctrl_base_addr = dev->base_addr[1];
                 board->data_base_addr = dev->base_addr[2];
                 board->dev = dev;
+                eeprom_init(&(board->llio), BOARD_FLASH_IO);
+                board->flash_id = read_flash_id(&(board->llio));
+                board->flash_start_address = 0;
                 board->llio.verbose = access->verbose;
 
                 boards_count++;
