@@ -92,6 +92,9 @@
 
 // I/O register indices.
 #define PLX905X_CTRL_STAT_OFFSET 0x006C     // 32-bit control/status register.
+#define PLX9056_VPD_ADDR         0x4E
+#define PLX9056_VPD_DATA         0x50
+#define PLX9056_VPD_FMASK        0x8000     // F bit in VPD address register
 
 // bit number in 9054 GPIO register
 // yes, the direction control bits are not in the same order as the I/O bits
