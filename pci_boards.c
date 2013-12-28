@@ -100,7 +100,7 @@ u16 setup_eeprom_5i20[256] = {
 0x009B, // LSW OF GENERAL PURPOSE I/O CONTROL
 };
 
-void SetCSHigh(board_t *board) {
+static void plx9030_SetCSHigh(board_t *board) {
     u16 data = inw(board->ctrl_base_addr + PLX9030_CTRL_INIT_OFFSET);
 
     data = data | PLX9030_EECS_MASK;
@@ -108,7 +108,7 @@ void SetCSHigh(board_t *board) {
     sleep_ns(4000);
 }
 
-void SetCSLow(board_t *board) {
+static void plx9030_SetCSLow(board_t *board) {
     u16 data = inw(board->ctrl_base_addr + PLX9030_CTRL_INIT_OFFSET);
 
     data = data & (~PLX9030_EECS_MASK);
@@ -116,7 +116,7 @@ void SetCSLow(board_t *board) {
     sleep_ns(4000);
 }
 
-void SetDinHigh(board_t *board) {
+static void plx9030_SetDinHigh(board_t *board) {
     u16 data = inw(board->ctrl_base_addr + PLX9030_CTRL_INIT_OFFSET);
 
     data = data | PLX9030_EEDI_MASK;
@@ -124,7 +124,7 @@ void SetDinHigh(board_t *board) {
     sleep_ns(4000);
 }
 
-void SetDinLow(board_t *board) {
+static void plx9030_SetDinLow(board_t *board) {
     u16 data = inw(board->ctrl_base_addr + PLX9030_CTRL_INIT_OFFSET);
 
     data = data & (~PLX9030_EEDI_MASK);
@@ -132,7 +132,7 @@ void SetDinLow(board_t *board) {
     sleep_ns(4000);
 }
 
-void SetClockHigh(board_t *board) {
+static void plx9030_SetClockHigh(board_t *board) {
     u16 data = inw(board->ctrl_base_addr + PLX9030_CTRL_INIT_OFFSET);
 
     data = data | PLX9030_EECLK_MASK;
@@ -140,7 +140,7 @@ void SetClockHigh(board_t *board) {
     sleep_ns(4000);
 }
 
-void SetClockLow(board_t *board) {
+static void plx9030_SetClockLow(board_t *board) {
     u16 data = inw(board->ctrl_base_addr + PLX9030_CTRL_INIT_OFFSET);
 
     data = data & (~PLX9030_EECLK_MASK);
@@ -148,7 +148,7 @@ void SetClockLow(board_t *board) {
     sleep_ns(4000);
 }
 
-int DataHighQ(board_t *board) {
+static int plx9030_DataHighQ(board_t *board) {
     u16 data = inw(board->ctrl_base_addr + PLX9030_CTRL_INIT_OFFSET);
 
     sleep_ns(4000);
@@ -158,56 +158,56 @@ int DataHighQ(board_t *board) {
         return 0;
 }
 
-u16 read_eeprom_word(board_t *board, u8 reg) {
+static u16 plx9030_read_eeprom_word(board_t *board, u8 reg) {
     u8 bit;
     u16 mask;
     u16 tdata;
 
-    SetCSLow(board);
-    SetDinLow(board);
-    SetClockLow(board);
-    SetCSHigh(board);
+    plx9030_SetCSLow(board);
+    plx9030_SetDinLow(board);
+    plx9030_SetClockLow(board);
+    plx9030_SetCSHigh(board);
     // send command first
     mask = EEPROM_93C66_CMD_MASK;
     for (bit = 0; bit < EEPROM_93C66_CMD_LEN; bit++) {
         if ((mask & EEPROM_93C66_CMD_READ) == 0)
-            SetDinLow(board);
+            plx9030_SetDinLow(board);
         else
-            SetDinHigh(board);
+            plx9030_SetDinHigh(board);
         mask = mask >> 1;
-        SetClockLow(board);
-        SetClockHigh(board);
+        plx9030_SetClockLow(board);
+        plx9030_SetClockHigh(board);
     }
     // then send address
     mask = EEPROM_93C66_ADDR_MASK;
     for (bit = 0; bit < EEPROM_93C66_ADDR_LEN; bit++) {
         if ((mask & reg) == 0)
-            SetDinLow(board);
+            plx9030_SetDinLow(board);
         else
-            SetDinHigh(board);
+            plx9030_SetDinHigh(board);
         mask = mask >> 1;
-        SetClockLow(board);
-        SetClockHigh(board);
+        plx9030_SetClockLow(board);
+        plx9030_SetClockHigh(board);
     }
     // read dummy 0 bit, if zero assume ok
-    if (DataHighQ(board) == 1)
+    if (plx9030_DataHighQ(board) == 1)
         return 0;
     mask = EEPROM_93C66_DATA_MASK;
     tdata = 0;
     for (bit = 0; bit < EEPROM_93C66_DATA_LEN; bit++) {
-        SetClockLow(board);
-        SetClockHigh(board);
-        if (DataHighQ(board) == 1)
+        plx9030_SetClockLow(board);
+        plx9030_SetClockHigh(board);
+        if (plx9030_DataHighQ(board) == 1)
             tdata = tdata | mask;
         mask = mask >> 1;
     }
-    SetCSLow(board);
-    SetDinLow(board);
-    SetClockLow(board);
+    plx9030_SetCSLow(board);
+    plx9030_SetDinLow(board);
+    plx9030_SetClockLow(board);
     return tdata;
 }
 
-void pci_bridge_eeprom_setup_read(board_t *board) {
+void pci_plx9030_bridge_eeprom_setup_read(board_t *board) {
     int i;
     char *bridge_name = "Unknown";
 
@@ -224,7 +224,7 @@ void pci_bridge_eeprom_setup_read(board_t *board) {
             printf("\n");
         if ((i % 16) == 0)
             printf("  %02X: ", i);
-        printf("%04X ", read_eeprom_word(board, i));
+        printf("%04X ", plx9030_read_eeprom_word(board, i));
     }
     printf("\n");
 }
