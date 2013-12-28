@@ -881,6 +881,8 @@ void pci_boards_scan(board_access_t *access) {
                 board->llio.write = &pci_write;
                 board->llio.program_fpga = &plx905x_program_fpga;
                 board->llio.reset = &plx905x_reset;
+                board->llio.program_flash = &pci_program_flash;
+                board->llio.verify_flash = &pci_verify_flash;
                 board->llio.private = board;
 #ifdef __linux__
                 iopl(3);
