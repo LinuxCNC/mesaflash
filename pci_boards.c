@@ -818,276 +818,286 @@ void pci_boards_scan(board_access_t *access) {
 
                 boards_count++;
             }
-        } else if (dev->device_id == DEVICEID_PLX9030) {
-            u16 ssid = pci_read_word(dev, PCI_SUBSYSTEM_ID);
-            if (ssid == SUBDEVICEID_MESA5I20) {
-                board->type = BOARD_PCI;
-                strncpy(board->llio.board_name, "5I20", 4);
-                board->llio.num_ioport_connectors = 3;
-                board->llio.pins_per_connector = 24;
-                board->llio.ioport_connector_name[0] = "P2";
-                board->llio.ioport_connector_name[1] = "P3";
-                board->llio.ioport_connector_name[2] = "P4";
-                board->llio.fpga_part_number = "2s200pq208";
-                board->llio.num_leds = 8;
-                board->llio.read = &pci_read;
-                board->llio.write = &pci_write;
-                board->llio.program_fpga = &plx9030_program_fpga;
-                board->llio.reset = &plx9030_reset;
-                board->llio.private = board;
+        } else if (dev->vendor_id == VENDORID_PLX) {
+            if (dev->device_id == DEVICEID_PLX9030) {
+                u16 ssid = pci_read_word(dev, PCI_SUBSYSTEM_ID);
+                if (ssid == SUBDEVICEID_MESA5I20) {
+                    board->type = BOARD_PCI;
+                    strncpy(board->llio.board_name, "5I20", 4);
+                    board->llio.num_ioport_connectors = 3;
+                    board->llio.pins_per_connector = 24;
+                    board->llio.ioport_connector_name[0] = "P2";
+                    board->llio.ioport_connector_name[1] = "P3";
+                    board->llio.ioport_connector_name[2] = "P4";
+                    board->llio.fpga_part_number = "2s200pq208";
+                    board->llio.num_leds = 8;
+                    board->llio.read = &pci_read;
+                    board->llio.write = &pci_write;
+                    board->llio.program_fpga = &plx9030_program_fpga;
+                    board->llio.reset = &plx9030_reset;
+                    board->llio.private = board;
 #ifdef __linux__
-                iopl(3);
-                board->len = dev->size[5];
-                board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[5]);
+                    iopl(3);
+                    board->len = dev->size[5];
+                    board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[5]);
 #elif _WIN32
-                pci_fix_bar_lengths(dev);
-                board->len = dev->size[5];
-                board->base = map_memory(dev->base_addr[5], board->len);
+                    pci_fix_bar_lengths(dev);
+                    board->len = dev->size[5];
+                    board->base = map_memory(dev->base_addr[5], board->len);
 #endif
-                board->ctrl_base_addr = dev->base_addr[1];
-                board->data_base_addr = dev->base_addr[2];
-                board->dev = dev;
-                board->llio.verbose = access->verbose;
+                    board->ctrl_base_addr = dev->base_addr[1];
+                    board->data_base_addr = dev->base_addr[2];
+                    board->dev = dev;
+                    board->llio.verbose = access->verbose;
 
-                boards_count++;
-            } else if (ssid == SUBDEVICEID_MESA4I65) {
-                board->type = BOARD_PCI;
-                strncpy(board->llio.board_name, "4I65", 4);
-                board->llio.num_ioport_connectors = 3;
-                board->llio.pins_per_connector = 24;
-                board->llio.ioport_connector_name[0] = "P1";
-                board->llio.ioport_connector_name[1] = "P3";
-                board->llio.ioport_connector_name[2] = "P4";
-                board->llio.fpga_part_number = "2s200pq208";
-                board->llio.num_leds = 8;
-                board->llio.read = &pci_read;
-                board->llio.write = &pci_write;
-                board->llio.program_fpga = &plx9030_program_fpga;
-                board->llio.reset = &plx9030_reset;
-                board->llio.private = board;
+                    boards_count++;
+                } else if (ssid == SUBDEVICEID_MESA4I65) {
+                    board->type = BOARD_PCI;
+                    strncpy(board->llio.board_name, "4I65", 4);
+                    board->llio.num_ioport_connectors = 3;
+                    board->llio.pins_per_connector = 24;
+                    board->llio.ioport_connector_name[0] = "P1";
+                    board->llio.ioport_connector_name[1] = "P3";
+                    board->llio.ioport_connector_name[2] = "P4";
+                    board->llio.fpga_part_number = "2s200pq208";
+                    board->llio.num_leds = 8;
+                    board->llio.read = &pci_read;
+                    board->llio.write = &pci_write;
+                    board->llio.program_fpga = &plx9030_program_fpga;
+                    board->llio.reset = &plx9030_reset;
+                    board->llio.private = board;
 #ifdef __linux__
-                iopl(3);
-                board->len = dev->size[5];
-                board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[5]);
+                    iopl(3);
+                    board->len = dev->size[5];
+                    board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[5]);
 #elif _WIN32
-                pci_fix_bar_lengths(dev);
-                board->len = dev->size[5];
-                board->base = map_memory(dev->base_addr[5], board->len);
+                    pci_fix_bar_lengths(dev);
+                    board->len = dev->size[5];
+                    board->base = map_memory(dev->base_addr[5], board->len);
 #endif
-                board->ctrl_base_addr = dev->base_addr[1];
-                board->data_base_addr = dev->base_addr[2];
-                board->dev = dev;
-                board->llio.verbose = access->verbose;
+                    board->ctrl_base_addr = dev->base_addr[1];
+                    board->data_base_addr = dev->base_addr[2];
+                    board->dev = dev;
+                    board->llio.verbose = access->verbose;
 
-                boards_count++;
-            }
-        } else if (dev->device_id == DEVICEID_PLX9054) {
-            u16 ssid = pci_read_word(dev, PCI_SUBSYSTEM_ID);
-            if ((ssid == SUBDEVICEID_MESA4I68_OLD) || (ssid == SUBDEVICEID_MESA4I68)) {
-                board->type = BOARD_PCI;
-                strncpy(board->llio.board_name, "4I68", 4);
-                board->llio.num_ioport_connectors = 3;
-                board->llio.pins_per_connector = 24;
-                board->llio.ioport_connector_name[0] = "P1";
-                board->llio.ioport_connector_name[1] = "P2";
-                board->llio.ioport_connector_name[2] = "P4";
-                board->llio.fpga_part_number = "3s400pq208";
-                board->llio.num_leds = 4;
-                board->llio.read = &pci_read;
-                board->llio.write = &pci_write;
-                board->llio.program_fpga = &plx905x_program_fpga;
-                board->llio.reset = &plx905x_reset;
-                board->llio.private = board;
-#ifdef __linux__
-                iopl(3);
-                board->len = dev->size[3];
-                board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
-#elif _WIN32
-                pci_fix_bar_lengths(dev);
-                board->len = dev->size[3];
-                board->base = map_memory(dev->base_addr[3], board->len);
-#endif
-                board->ctrl_base_addr = dev->base_addr[1];
-                board->data_base_addr = dev->base_addr[2];
-                board->dev = dev;
-                board->llio.verbose = access->verbose;
-
-                boards_count++;
-            } else if (ssid == SUBDEVICEID_MESA5I21) {
-                board->type = BOARD_PCI;
-                strncpy(board->llio.board_name, "5I21", 4);
-                board->llio.num_ioport_connectors = 2;
-                board->llio.pins_per_connector = 32;
-                board->llio.ioport_connector_name[0] = "P1";
-                board->llio.ioport_connector_name[1] = "P1";
-                board->llio.fpga_part_number = "3s400pq208";
-                board->llio.num_leds = 8;
-                board->llio.read = &pci_read;
-                board->llio.write = &pci_write;
-                board->llio.program_fpga = &plx905x_program_fpga;
-                board->llio.reset = &plx905x_reset;
-                board->llio.private = board;
-#ifdef __linux__
-                iopl(3);
-                board->len = dev->size[3];
-                board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
-#elif _WIN32
-                pci_fix_bar_lengths(dev);
-                board->len = dev->size[3];
-                board->base = map_memory(dev->base_addr[3], board->len);
-#endif
-                board->ctrl_base_addr = dev->base_addr[1];
-                board->data_base_addr = dev->base_addr[2];
-                board->dev = dev;
-                board->llio.verbose = access->verbose;
-
-                boards_count++;
-            } else if ((ssid == SUBDEVICEID_MESA5I22_10) || (ssid == SUBDEVICEID_MESA5I22_15)) {
-                board->type = BOARD_PCI;
-                strncpy(board->llio.board_name, "5I22", 4);
-                board->llio.num_ioport_connectors = 4;
-                board->llio.pins_per_connector = 24;
-                board->llio.ioport_connector_name[0] = "P2";
-                board->llio.ioport_connector_name[1] = "P3";
-                board->llio.ioport_connector_name[2] = "P4";
-                board->llio.ioport_connector_name[3] = "P5";
-                if (ssid == SUBDEVICEID_MESA5I22_10) {
-                    board->llio.fpga_part_number = "3s1000fg320";
-                } else if (ssid == SUBDEVICEID_MESA5I22_15) {
-                    board->llio.fpga_part_number = "3s1500fg320";
+                    boards_count++;
                 }
-                board->llio.num_leds = 8;
-                board->llio.read = &pci_read;
-                board->llio.write = &pci_write;
-                board->llio.program_fpga = &plx905x_program_fpga;
-                board->llio.reset = &plx905x_reset;
-                board->llio.private = board;
+            } else if (dev->device_id == DEVICEID_PLX9054) {
+                u16 ssid = pci_read_word(dev, PCI_SUBSYSTEM_ID);
+                if ((ssid == SUBDEVICEID_MESA4I68_OLD) || (ssid == SUBDEVICEID_MESA4I68)) {
+                    board->type = BOARD_PCI;
+                    strncpy(board->llio.board_name, "4I68", 4);
+                    board->llio.num_ioport_connectors = 3;
+                    board->llio.pins_per_connector = 24;
+                    board->llio.ioport_connector_name[0] = "P1";
+                    board->llio.ioport_connector_name[1] = "P2";
+                    board->llio.ioport_connector_name[2] = "P4";
+                    board->llio.fpga_part_number = "3s400pq208";
+                    board->llio.num_leds = 4;
+                    board->llio.read = &pci_read;
+                    board->llio.write = &pci_write;
+                    board->llio.program_fpga = &plx905x_program_fpga;
+                    board->llio.reset = &plx905x_reset;
+                    board->llio.private = board;
 #ifdef __linux__
-                iopl(3);
-                board->len = dev->size[3];
-                board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
+                    iopl(3);
+                    board->len = dev->size[3];
+                    board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
 #elif _WIN32
-                pci_fix_bar_lengths(dev);
-                board->len = dev->size[3];
-                board->base = map_memory(dev->base_addr[3], board->len);
+                    pci_fix_bar_lengths(dev);
+                    board->len = dev->size[3];
+                    board->base = map_memory(dev->base_addr[3], board->len);
 #endif
-                board->ctrl_base_addr = dev->base_addr[1];
-                board->data_base_addr = dev->base_addr[2];
-                board->dev = dev;
-                board->llio.verbose = access->verbose;
+                    board->ctrl_base_addr = dev->base_addr[1];
+                    board->data_base_addr = dev->base_addr[2];
+                    board->dev = dev;
+                    board->llio.verbose = access->verbose;
 
-                boards_count++;
-            } else if (ssid == SUBDEVICEID_MESA5I23) {
-                board->type = BOARD_PCI;
-                strncpy(board->llio.board_name, "5I23", 4);
-                board->llio.num_ioport_connectors = 3;
-                board->llio.pins_per_connector = 24;
-                board->llio.ioport_connector_name[0] = "P2";
-                board->llio.ioport_connector_name[1] = "P3";
-                board->llio.ioport_connector_name[2] = "P4";
-                board->llio.fpga_part_number = "3s400pq208";
-                board->llio.num_leds = 2;
-                board->llio.read = &pci_read;
-                board->llio.write = &pci_write;
-                board->llio.program_fpga = &plx905x_program_fpga;
-                board->llio.reset = &plx905x_reset;
-                board->llio.private = board;
+                    boards_count++;
+                } else if (ssid == SUBDEVICEID_MESA5I21) {
+                    board->type = BOARD_PCI;
+                    strncpy(board->llio.board_name, "5I21", 4);
+                    board->llio.num_ioport_connectors = 2;
+                    board->llio.pins_per_connector = 32;
+                    board->llio.ioport_connector_name[0] = "P1";
+                    board->llio.ioport_connector_name[1] = "P1";
+                    board->llio.fpga_part_number = "3s400pq208";
+                    board->llio.num_leds = 8;
+                    board->llio.read = &pci_read;
+                    board->llio.write = &pci_write;
+                    board->llio.program_fpga = &plx905x_program_fpga;
+                    board->llio.reset = &plx905x_reset;
+                    board->llio.private = board;
 #ifdef __linux__
-                iopl(3);
-                board->len = dev->size[3];
-                board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
+                    iopl(3);
+                    board->len = dev->size[3];
+                    board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
 #elif _WIN32
-                pci_fix_bar_lengths(dev);
-                board->len = dev->size[3];
-                board->base = map_memory(dev->base_addr[3], board->len);
+                    pci_fix_bar_lengths(dev);
+                    board->len = dev->size[3];
+                    board->base = map_memory(dev->base_addr[3], board->len);
 #endif
-                board->ctrl_base_addr = dev->base_addr[1];
-                board->data_base_addr = dev->base_addr[2];
-                board->dev = dev;
-                board->llio.verbose = access->verbose;
+                    board->ctrl_base_addr = dev->base_addr[1];
+                    board->data_base_addr = dev->base_addr[2];
+                    board->dev = dev;
+                    board->llio.verbose = access->verbose;
 
-                boards_count++;
-            } else if ((ssid == SUBDEVICEID_MESA4I69_16) || (ssid == SUBDEVICEID_MESA4I69_25)) {
-                board->type = BOARD_PCI;
-                strncpy(board->llio.board_name, "4I69", 4);
-                board->llio.num_ioport_connectors = 3;
-                board->llio.pins_per_connector = 24;
-                board->llio.ioport_connector_name[0] = "P1";
-                board->llio.ioport_connector_name[1] = "P3";
-                board->llio.ioport_connector_name[2] = "P4";
-                if (ssid == SUBDEVICEID_MESA4I69_16) {
-                    board->llio.fpga_part_number = "6slx16fg256";
-                } else if (ssid == SUBDEVICEID_MESA4I69_25) {
-                    board->llio.fpga_part_number = "6slx25fg256";
+                    boards_count++;
+                } else if ((ssid == SUBDEVICEID_MESA5I22_10) || (ssid == SUBDEVICEID_MESA5I22_15)) {
+                    board->type = BOARD_PCI;
+                    strncpy(board->llio.board_name, "5I22", 4);
+                    board->llio.num_ioport_connectors = 4;
+                    board->llio.pins_per_connector = 24;
+                    board->llio.ioport_connector_name[0] = "P2";
+                    board->llio.ioport_connector_name[1] = "P3";
+                    board->llio.ioport_connector_name[2] = "P4";
+                    board->llio.ioport_connector_name[3] = "P5";
+                    if (ssid == SUBDEVICEID_MESA5I22_10) {
+                        board->llio.fpga_part_number = "3s1000fg320";
+                    } else if (ssid == SUBDEVICEID_MESA5I22_15) {
+                        board->llio.fpga_part_number = "3s1500fg320";
+                    }
+                    board->llio.num_leds = 8;
+                    board->llio.read = &pci_read;
+                    board->llio.write = &pci_write;
+                    board->llio.program_fpga = &plx905x_program_fpga;
+                    board->llio.reset = &plx905x_reset;
+                    board->llio.private = board;
+#ifdef __linux__
+                    iopl(3);
+                    board->len = dev->size[3];
+                    board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
+#elif _WIN32
+                    pci_fix_bar_lengths(dev);
+                    board->len = dev->size[3];
+                    board->base = map_memory(dev->base_addr[3], board->len);
+#endif
+                    board->ctrl_base_addr = dev->base_addr[1];
+                    board->data_base_addr = dev->base_addr[2];
+                    board->dev = dev;
+                    board->llio.verbose = access->verbose;
+
+                    boards_count++;
+                } else if (ssid == SUBDEVICEID_MESA5I23) {
+                    board->type = BOARD_PCI;
+                    strncpy(board->llio.board_name, "5I23", 4);
+                    board->llio.num_ioport_connectors = 3;
+                    board->llio.pins_per_connector = 24;
+                    board->llio.ioport_connector_name[0] = "P2";
+                    board->llio.ioport_connector_name[1] = "P3";
+                    board->llio.ioport_connector_name[2] = "P4";
+                    board->llio.fpga_part_number = "3s400pq208";
+                    board->llio.num_leds = 2;
+                    board->llio.read = &pci_read;
+                    board->llio.write = &pci_write;
+                    board->llio.program_fpga = &plx905x_program_fpga;
+                    board->llio.reset = &plx905x_reset;
+                    board->llio.private = board;
+#ifdef __linux__
+                    iopl(3);
+                    board->len = dev->size[3];
+                    board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
+#elif _WIN32
+                    pci_fix_bar_lengths(dev);
+                    board->len = dev->size[3];
+                    board->base = map_memory(dev->base_addr[3], board->len);
+#endif
+                    board->ctrl_base_addr = dev->base_addr[1];
+                    board->data_base_addr = dev->base_addr[2];
+                    board->dev = dev;
+                    board->llio.verbose = access->verbose;
+
+                    boards_count++;
+                } else if ((ssid == SUBDEVICEID_MESA4I69_16) || (ssid == SUBDEVICEID_MESA4I69_25)) {
+                    board->type = BOARD_PCI;
+                    strncpy(board->llio.board_name, "4I69", 4);
+                    board->llio.num_ioport_connectors = 3;
+                    board->llio.pins_per_connector = 24;
+                    board->llio.ioport_connector_name[0] = "P1";
+                    board->llio.ioport_connector_name[1] = "P3";
+                    board->llio.ioport_connector_name[2] = "P4";
+                    if (ssid == SUBDEVICEID_MESA4I69_16) {
+                        board->llio.fpga_part_number = "6slx16fg256";
+                    } else if (ssid == SUBDEVICEID_MESA4I69_25) {
+                        board->llio.fpga_part_number = "6slx25fg256";
+                    }
+                    board->llio.num_leds = 8;
+                    board->llio.read = &pci_read;
+                    board->llio.write = &pci_write;
+                    board->llio.program_fpga = &plx905x_program_fpga;
+                    board->llio.reset = &plx905x_reset;
+                    board->llio.private = board;
+#ifdef __linux__
+                    iopl(3);
+                    board->len = dev->size[3];
+                    board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
+#elif _WIN32
+                    pci_fix_bar_lengths(dev);
+                    board->len = dev->size[3];
+                    board->base = map_memory(dev->base_addr[3], board->len);
+#endif
+                    board->ctrl_base_addr = dev->base_addr[1];
+                    board->data_base_addr = dev->base_addr[2];
+                    board->dev = dev;
+                    board->llio.verbose = access->verbose;
+
+                    boards_count++;
                 }
-                board->llio.num_leds = 8;
-                board->llio.read = &pci_read;
-                board->llio.write = &pci_write;
-                board->llio.program_fpga = &plx905x_program_fpga;
-                board->llio.reset = &plx905x_reset;
-                board->llio.private = board;
+            } else if (dev->device_id == DEVICEID_PLX9056) {
+                u16 ssid = pci_read_word(dev, PCI_SUBSYSTEM_ID);
+                if ((ssid == SUBDEVICEID_MESA3X20_10) || (ssid == SUBDEVICEID_MESA3X20_15) || (ssid == SUBDEVICEID_MESA3X20_20)) {
+                    board->type = BOARD_PCI;
+                    strncpy(board->llio.board_name, "3X20", 4);
+                    board->llio.num_ioport_connectors = 6;
+                    board->llio.pins_per_connector = 24;
+                    board->llio.ioport_connector_name[0] = "P4";
+                    board->llio.ioport_connector_name[1] = "P5";
+                    board->llio.ioport_connector_name[2] = "P6";
+                    board->llio.ioport_connector_name[3] = "P9";
+                    board->llio.ioport_connector_name[4] = "P6";
+                    board->llio.ioport_connector_name[5] = "P7";
+                    if (ssid == SUBDEVICEID_MESA3X20_10) {
+                        board->llio.fpga_part_number = "3s1000fg456";
+                    } else if (ssid == SUBDEVICEID_MESA3X20_15) {
+                        board->llio.fpga_part_number = "3s1500fg456";
+                    } else if (ssid == SUBDEVICEID_MESA3X20_20) {
+                        board->llio.fpga_part_number = "3s2000fg456";
+                    }
+                    board->llio.num_leds = 0;
+                    board->llio.read = &pci_read;
+                    board->llio.write = &pci_write;
+                    board->llio.program_fpga = &plx905x_program_fpga;
+                    board->llio.reset = &plx905x_reset;
+                    board->llio.program_flash = &pci_program_flash;
+                    board->llio.verify_flash = &pci_verify_flash;
+                    board->llio.private = board;
 #ifdef __linux__
-                iopl(3);
-                board->len = dev->size[3];
-                board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
+                    iopl(3);
+                    board->len = dev->size[3];
+                    board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
 #elif _WIN32
-                pci_fix_bar_lengths(dev);
-                board->len = dev->size[3];
-                board->base = map_memory(dev->base_addr[3], board->len);
+                    pci_fix_bar_lengths(dev);
+                    board->len = dev->size[3];
+                    board->base = map_memory(dev->base_addr[3], board->len);
 #endif
-                board->ctrl_base_addr = dev->base_addr[1];
-                board->data_base_addr = dev->base_addr[2];
-                board->dev = dev;
-                board->llio.verbose = access->verbose;
+                    board->ctrl_base_addr = dev->base_addr[1];
+                    board->data_base_addr = dev->base_addr[2];
+                    board->dev = dev;
+                    eeprom_init(&(board->llio), BOARD_FLASH_IO);
+                    board->flash_id = read_flash_id(&(board->llio));
+                    board->flash_start_address = 0;
+                    board->llio.verbose = access->verbose;
 
-                boards_count++;
-            }
-        } else if (dev->device_id == DEVICEID_PLX9056) {
-            u16 ssid = pci_read_word(dev, PCI_SUBSYSTEM_ID);
-            if ((ssid == SUBDEVICEID_MESA3X20_10) || (ssid == SUBDEVICEID_MESA3X20_15) || (ssid == SUBDEVICEID_MESA3X20_20)) {
-                board->type = BOARD_PCI;
-                strncpy(board->llio.board_name, "3X20", 4);
-                board->llio.num_ioport_connectors = 6;
-                board->llio.pins_per_connector = 24;
-                board->llio.ioport_connector_name[0] = "P4";
-                board->llio.ioport_connector_name[1] = "P5";
-                board->llio.ioport_connector_name[2] = "P6";
-                board->llio.ioport_connector_name[3] = "P9";
-                board->llio.ioport_connector_name[4] = "P6";
-                board->llio.ioport_connector_name[5] = "P7";
-                if (ssid == SUBDEVICEID_MESA3X20_10) {
-                    board->llio.fpga_part_number = "3s1000fg456";
-                } else if (ssid == SUBDEVICEID_MESA3X20_15) {
-                    board->llio.fpga_part_number = "3s1500fg456";
-                } else if (ssid == SUBDEVICEID_MESA3X20_20) {
-                    board->llio.fpga_part_number = "3s2000fg456";
+                    boards_count++;
                 }
-                board->llio.num_leds = 0;
-                board->llio.read = &pci_read;
-                board->llio.write = &pci_write;
-                board->llio.program_fpga = &plx905x_program_fpga;
-                board->llio.reset = &plx905x_reset;
-                board->llio.program_flash = &pci_program_flash;
-                board->llio.verify_flash = &pci_verify_flash;
-                board->llio.private = board;
-#ifdef __linux__
-                iopl(3);
-                board->len = dev->size[3];
-                board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
-#elif _WIN32
-                pci_fix_bar_lengths(dev);
-                board->len = dev->size[3];
-                board->base = map_memory(dev->base_addr[3], board->len);
-#endif
-                board->ctrl_base_addr = dev->base_addr[1];
-                board->data_base_addr = dev->base_addr[2];
-                board->dev = dev;
-                eeprom_init(&(board->llio), BOARD_FLASH_IO);
-                board->flash_id = read_flash_id(&(board->llio));
-                board->flash_start_address = 0;
-                board->llio.verbose = access->verbose;
+            } else if (dev->device_id == DEVICEID_PLX8112) {
+                    board->type = BOARD_PCI;
+                    strncpy(board->llio.board_name, "5I71", 4);
+                    board->llio.private = board;
+                    board->dev = dev;
+                    board->llio.verbose = access->verbose;
 
-                boards_count++;
+                    boards_count++;
             }
         }
     }

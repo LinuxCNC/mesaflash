@@ -12,6 +12,7 @@
 #include "hostmot2.h"
 
 #define VENDORID_MESAPCI         0x2718
+#define VENDORID_PLX             0x10B5
 
 #define DEVICEID_MESA4I74        0x4174
 #define DEVICEID_MESA5I25        0x5125
@@ -19,6 +20,7 @@
 #define DEVICEID_PLX9030         0x9030
 #define DEVICEID_PLX9054         0x9054
 #define DEVICEID_PLX9056         0x9056
+#define DEVICEID_PLX8112         0x8112
 
 #define SUBDEVICEID_MESA5I20     0x3131
 #define SUBDEVICEID_MESA4I65     0x3132
