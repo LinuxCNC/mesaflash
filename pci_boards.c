@@ -1017,9 +1017,9 @@ void pci_boards_scan(board_access_t *access) {
                     board->llio.ioport_connector_name[1] = "P3";
                     board->llio.ioport_connector_name[2] = "P4";
                     if (ssid == SUBDEVICEID_MESA4I69_16) {
-                        board->llio.fpga_part_number = "6slx16fg256";
+                        board->llio.fpga_part_number = "6slx16ftg256";
                     } else if (ssid == SUBDEVICEID_MESA4I69_25) {
-                        board->llio.fpga_part_number = "6slx25fg256";
+                        board->llio.fpga_part_number = "6slx25ftg256";
                     }
                     board->llio.num_leds = 8;
                     board->llio.read = &pci_read;
