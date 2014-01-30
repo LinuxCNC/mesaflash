@@ -721,10 +721,42 @@ void pci_boards_scan(board_access_t *access) {
     board_t *board;
 
     pci_scan_bus(pacc);
-    for (dev = pacc->devices; dev != NULL; dev = dev->next) {
-        board = &boards[boards_count];
+
+    for (dev = pacc->devices; dev != NULL; dev = dev->next)
         // first run - fill data struct
         pci_fill_info(dev, PCI_FILL_IDENT | PCI_FILL_IRQ | PCI_FILL_BASES | PCI_FILL_ROM_BASE | PCI_FILL_SIZES | PCI_FILL_CLASS);
+
+    if (access->recover == 1) {
+        for (dev = pacc->devices; dev != NULL; dev = dev->next) {
+            board = &boards[boards_count];
+            if ((dev->vendor_id == VENDORID_XIO2001) && (dev->device_id == DEVICEID_XIO2001)) {
+                board->type = BOARD_PCI;
+                strncpy(board->llio.board_name, "6I25 (RECOVER)", 14);
+                board->llio.num_ioport_connectors = 2;
+                board->llio.pins_per_connector = 17;
+                board->llio.ioport_connector_name[0] = "P3";
+                board->llio.ioport_connector_name[1] = "P2";
+                board->llio.fpga_part_number = "6slx9pq144";
+                board->llio.num_leds = 2;
+                board->llio.program_flash = &pci_program_flash;
+                board->llio.verify_flash = &pci_verify_flash;
+                board->llio.private = board;
+
+                board->dev = dev;
+                eeprom_init(&(board->llio), BOARD_FLASH_GPIO);
+                board->flash_id = read_flash_id(&(board->llio));
+                board->flash_start_address = eeprom_calc_user_space(board->flash_id);
+                board->llio.verbose = access->verbose;
+
+                boards_count++;
+                break;
+            }
+        }
+        return;
+    }
+
+    for (dev = pacc->devices; dev != NULL; dev = dev->next) {
+        board = &boards[boards_count];
 
         if (dev->vendor_id == VENDORID_MESAPCI) {
             if (dev->device_id == DEVICEID_MESA4I74) {
@@ -812,6 +844,7 @@ void pci_boards_scan(board_access_t *access) {
                 board->base = map_memory(dev->base_addr[0], board->len);
 #endif
                 board->dev = dev;
+                eeprom_init(&(board->llio), BOARD_FLASH_HM2);
                 board->flash_id = read_flash_id(&(board->llio));
                 board->flash_start_address = eeprom_calc_user_space(board->flash_id);
                 board->llio.verbose = access->verbose;

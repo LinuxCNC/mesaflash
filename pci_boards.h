@@ -13,6 +13,7 @@
 
 #define VENDORID_MESAPCI         0x2718
 #define VENDORID_PLX             0x10B5
+#define VENDORID_XIO2001         0x104C
 
 #define DEVICEID_MESA4I74        0x4174
 #define DEVICEID_MESA5I25        0x5125
@@ -21,6 +22,7 @@
 #define DEVICEID_PLX9054         0x9054
 #define DEVICEID_PLX9056         0x9056
 #define DEVICEID_PLX8112         0x8112
+#define DEVICEID_XIO2001         0x8240
 
 #define SUBDEVICEID_MESA5I20     0x3131
 #define SUBDEVICEID_MESA4I65     0x3132

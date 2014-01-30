@@ -13,6 +13,7 @@ static int addr_flag;
 static int write_flag;
 static int verify_flag;
 static int fallback_flag;
+static int recover_flag;
 static int program_flag;
 static int readhmid_flag;
 static int sserial_flag;
@@ -35,6 +36,7 @@ static struct option long_options[] = {
     {"write", required_argument, 0, 'w'},
     {"verify", required_argument, 0, 'v'},
     {"fallback", no_argument, &fallback_flag, 1},
+    {"recover", no_argument, &recover_flag, 1},
     {"program", required_argument, 0, 'p'},
     {"readhmid", no_argument, &readhmid_flag, 1},
     {"sserial", no_argument, &sserial_flag, 1},
@@ -55,7 +57,7 @@ void print_short_usage() {
 void print_usage() {
     printf("Syntax:\n");
     printf("    mesaflash --device device_name [options]\n");
-    printf("    mesaflash --device device_name [options] [--write filename [--fallback]]\n");
+    printf("    mesaflash --device device_name [options] [--write filename [--fallback] [--recover]]\n");
     printf("    mesaflash --device device_name [options] [--verify filename [--fallback]]\n");
     printf("    mesaflash --device device_name [options] [--program filename]\n");
     printf("    mesaflash --device device_name [options] [--readhmid]\n");
@@ -70,6 +72,7 @@ void print_usage() {
     printf("  --addr <device_address>\n");
     printf("      select <device address> for looking for <device_name> (network C mask for ETH boards, serial port for USB boards)\n");
     printf("  --verbose     print detailed information while running commands\n");
+    printf("  --recover     access board using PCI bridge GPIO (currently only 6I25)\n");
     printf("Commands:\n");
     printf("  --write       writes a standard bitfile 'filename' configuration to the userarea of the EEPROM (IMPORTANT! 'filename' must be VALID FPGA configuration file)\n");
     printf("  --verify      verifies the EEPROM configuration against the bitfile 'filename'\n");
@@ -272,6 +275,7 @@ int main(int argc, char *argv[]) {
         board_t *board = NULL;
 
         access.verbose = verbose_flag;
+        access.recover = recover_flag;
         access.pci = 1;
         if (addr_flag == 1) {
 //            access.eth = 1;

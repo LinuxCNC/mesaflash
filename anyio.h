@@ -35,6 +35,7 @@ typedef struct {
 typedef struct {
     char *device_name;
     int verbose;
+    int recover;
     int pci;
     int epp;
     int usb;
