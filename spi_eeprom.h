@@ -43,6 +43,7 @@ void prepare_boot_block(u8 flash_id);
 int eeprom_write_area(llio_t *self, char *bitfile_name, u32 start_address);
 int eeprom_verify_area(llio_t *self, char *bitfile_name, u32 start_address);
 u8 read_flash_id(llio_t *self);
-void eeprom_init(llio_t *self, board_flash flash);
+void eeprom_init(llio_t *self);
+void eeprom_cleanup(llio_t *self);
 
 #endif

@@ -18,6 +18,10 @@ int spi_boards_init(board_access_t *access) {
     return 0;
 }
 
+void spi_boards_cleanup(board_access_t *access) {
+    spilbp_release();
+}
+
 void spi_boards_scan(board_access_t *access) {
 }
 

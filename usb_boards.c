@@ -97,6 +97,10 @@ int usb_boards_init(board_access_t *access) {
     return 0;
 }
 
+void usb_boards_cleanup(board_access_t *access) {
+    lbp_release();
+}
+
 void usb_boards_scan(board_access_t *access) {
     board_t *board = &boards[boards_count];
     u8 cmd, data;

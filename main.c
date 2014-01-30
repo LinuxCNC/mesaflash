@@ -352,6 +352,7 @@ int main(int argc, char *argv[]) {
         } else {
             anyio_dev_print_info(board);
         }
+        anyio_cleanup(&access);
     }
 
     return 0;

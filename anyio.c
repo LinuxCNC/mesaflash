@@ -47,6 +47,21 @@ int anyio_init(board_access_t *access) {
     return 0;
 }
 
+void anyio_cleanup(board_access_t *access) {
+    if (access == NULL)
+        return;
+    if (access->pci == 1)
+        pci_boards_cleanup(access);
+    if (access->epp == 1)
+        epp_boards_cleanup(access);
+    if (access->usb == 1)
+        usb_boards_cleanup(access);
+    if (access->eth == 1)
+        eth_boards_cleanup(access);
+    if (access->spi == 1)
+        spi_boards_cleanup(access);
+}
+
 void anyio_scan(board_access_t *access) {
     if (access == NULL)
         return;

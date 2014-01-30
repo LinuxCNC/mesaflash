@@ -16,6 +16,7 @@
 #define EPP_ADDR_AUTOINCREMENT  0x8000
 
 int epp_boards_init(board_access_t *access);
+void epp_boards_cleanup(board_access_t *access);
 void epp_boards_scan(board_access_t *access);
 void epp_print_info(board_t *board);
 

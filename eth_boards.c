@@ -263,6 +263,10 @@ int eth_boards_init(board_access_t *access) {
     return 0;
 }
 
+void eth_boards_cleanup(board_access_t *access) {
+    lbp16_release();
+}
+
 void eth_boards_scan(board_access_t *access) {
     lbp16_cmd_addr packet, packet2;
     char addr[16];

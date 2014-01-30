@@ -50,6 +50,7 @@ board_t boards[MAX_BOARDS];
 int boards_count;
 
 int anyio_init(board_access_t *access);
+void anyio_cleanup(board_access_t *access);
 void anyio_scan(board_access_t *access);
 board_t *anyio_get_dev(board_access_t *access);
 void anyio_set_active_dev(board_t *board);

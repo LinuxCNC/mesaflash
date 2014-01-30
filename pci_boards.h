@@ -111,6 +111,7 @@
 #define PLX905X_DONE_WAIT        20000
 
 int pci_boards_init(board_access_t *access);
+void pci_boards_cleanup(board_access_t *access);
 void pci_boards_scan(board_access_t *access);
 void pci_print_info(board_t *board);
 
