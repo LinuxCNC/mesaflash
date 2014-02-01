@@ -1,6 +1,10 @@
 #ifndef __ANYIO_H
 #define __ANYIO_H
 
+#ifdef _WIN32
+#include <windef.h>
+#include "winio32/winio.h"
+#endif
 #include "hostmot2.h"
 
 #define MAX_BOARDS 8
@@ -20,6 +24,9 @@ typedef struct {
     struct pci_dev *dev;
     void *base;
     int len;
+#ifdef _WIN32
+    tagPhysStruct_t mem_handle;
+#endif
     u16 ctrl_base_addr;
     u16 data_base_addr;
 

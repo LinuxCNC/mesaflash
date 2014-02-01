@@ -5,15 +5,18 @@
 #elif _WIN32
 #include <windows.h>
 #include "libpci/pci.h"
-#include "winio32/winio.h"
 #endif
 #include <stdio.h>
 
 #include "common.h"
 
 #ifdef _WIN32
-void init_winio32() {
+void init_io_library() {
     InitializeWinIo();
+}
+
+void release_io_library() {
+    ShutdownWinIo();
 }
 
 u8 inb(u32 addr) {
@@ -46,16 +49,19 @@ void outl(u32 data, u32 addr) {
     SetPortVal((WORD) addr, (DWORD) data, 4);
 }
 
-void *map_memory(u32 base, u32 size) {
-    tagPhysStruct_t phys;
-    
-    memset(&phys, 0, sizeof(tagPhysStruct_t));
-    phys.pvPhysAddress = ((DWORD64) base) << 32;
-    phys.dwPhysMemSizeInBytes = size;
+void *map_memory(u32 base, u32 size, tagPhysStruct_t *phys) {
+    void *ptr;
 
-    void *ptr = MapPhysToLin(&phys);
-    printf("MAPPED PH MEM %08X TO %08X\n", base, ptr);
+    memset(phys, 0, sizeof(tagPhysStruct_t));
+    phys->pvPhysAddress = (DWORD64)(DWORD32) base;
+    phys->dwPhysMemSizeInBytes = size;
+
+    ptr = MapPhysToLin(phys);
     return ptr;
+}
+
+void *unmap_memory(tagPhysStruct_t *phys) {
+    UnmapPhysicalMemory(phys);
 }
 #endif
 

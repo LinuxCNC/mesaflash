@@ -711,7 +711,7 @@ int pci_boards_init(board_access_t *access) {
         return -1;
     }
 #elif _WIN32
-//    init_winio32();
+    init_io_library();
 #endif
     return 0;
 }
@@ -722,10 +722,21 @@ void pci_boards_cleanup(board_access_t *access) {
     for (i = 0; i < boards_count; i++) {
         board_t *board = &boards[i];
 
+        if (board->base) {
+#ifdef __linux__
+            munmap(board->base, board->len);
+#elif _WIN32        
+            unmap_memory(&(board->mem_handle));
+#endif
+        }
         eeprom_cleanup(&(board->llio));
     }
 
+#ifdef __linux__
     close(memfd);
+#elif _WIN32
+    release_io_library();
+#endif
     pci_cleanup(pacc);
 }
 
@@ -795,7 +806,7 @@ void pci_boards_scan(board_access_t *access) {
 #elif _WIN32
                 pci_fix_bar_lengths(dev);
                 board->len = dev->size[0];
-                board->base = map_memory(dev->base_addr[0], board->len);
+                board->base = map_memory(dev->base_addr[0], board->len, &(board->mem_handle));
 #endif
                 board->dev = dev;
                 board->flash = BOARD_FLASH_HM2;
@@ -826,7 +837,7 @@ void pci_boards_scan(board_access_t *access) {
 #elif _WIN32
                 pci_fix_bar_lengths(dev);
                 board->len = dev->size[0];
-                board->base = map_memory(dev->base_addr[0], board->len);
+                board->base = map_memory(dev->base_addr[0], board->len, &(board->mem_handle));
 #endif
                 board->dev = dev;
                 board->flash = BOARD_FLASH_HM2;
@@ -857,7 +868,7 @@ void pci_boards_scan(board_access_t *access) {
 #elif _WIN32
                 pci_fix_bar_lengths(dev);
                 board->len = dev->size[0];
-                board->base = map_memory(dev->base_addr[0], board->len);
+                board->base = map_memory(dev->base_addr[0], board->len, &(board->mem_handle));
 #endif
                 board->dev = dev;
                 board->flash = BOARD_FLASH_HM2;
@@ -893,7 +904,7 @@ void pci_boards_scan(board_access_t *access) {
 #elif _WIN32
                     pci_fix_bar_lengths(dev);
                     board->len = dev->size[5];
-                    board->base = map_memory(dev->base_addr[5], board->len);
+                    board->base = map_memory(dev->base_addr[5], board->len, &(board->mem_handle));
 #endif
                     board->ctrl_base_addr = dev->base_addr[1];
                     board->data_base_addr = dev->base_addr[2];
@@ -923,7 +934,7 @@ void pci_boards_scan(board_access_t *access) {
 #elif _WIN32
                     pci_fix_bar_lengths(dev);
                     board->len = dev->size[5];
-                    board->base = map_memory(dev->base_addr[5], board->len);
+                    board->base = map_memory(dev->base_addr[5], board->len, &(board->mem_handle));
 #endif
                     board->ctrl_base_addr = dev->base_addr[1];
                     board->data_base_addr = dev->base_addr[2];
@@ -956,7 +967,7 @@ void pci_boards_scan(board_access_t *access) {
 #elif _WIN32
                     pci_fix_bar_lengths(dev);
                     board->len = dev->size[3];
-                    board->base = map_memory(dev->base_addr[3], board->len);
+                    board->base = map_memory(dev->base_addr[3], board->len, &(board->mem_handle));
 #endif
                     board->ctrl_base_addr = dev->base_addr[1];
                     board->data_base_addr = dev->base_addr[2];
@@ -985,7 +996,7 @@ void pci_boards_scan(board_access_t *access) {
 #elif _WIN32
                     pci_fix_bar_lengths(dev);
                     board->len = dev->size[3];
-                    board->base = map_memory(dev->base_addr[3], board->len);
+                    board->base = map_memory(dev->base_addr[3], board->len, &(board->mem_handle));
 #endif
                     board->ctrl_base_addr = dev->base_addr[1];
                     board->data_base_addr = dev->base_addr[2];
@@ -1020,7 +1031,7 @@ void pci_boards_scan(board_access_t *access) {
 #elif _WIN32
                     pci_fix_bar_lengths(dev);
                     board->len = dev->size[3];
-                    board->base = map_memory(dev->base_addr[3], board->len);
+                    board->base = map_memory(dev->base_addr[3], board->len, &(board->mem_handle));
 #endif
                     board->ctrl_base_addr = dev->base_addr[1];
                     board->data_base_addr = dev->base_addr[2];
@@ -1050,7 +1061,7 @@ void pci_boards_scan(board_access_t *access) {
 #elif _WIN32
                     pci_fix_bar_lengths(dev);
                     board->len = dev->size[3];
-                    board->base = map_memory(dev->base_addr[3], board->len);
+                    board->base = map_memory(dev->base_addr[3], board->len, &(board->mem_handle));
 #endif
                     board->ctrl_base_addr = dev->base_addr[1];
                     board->data_base_addr = dev->base_addr[2];
@@ -1084,7 +1095,7 @@ void pci_boards_scan(board_access_t *access) {
 #elif _WIN32
                     pci_fix_bar_lengths(dev);
                     board->len = dev->size[3];
-                    board->base = map_memory(dev->base_addr[3], board->len);
+                    board->base = map_memory(dev->base_addr[3], board->len, &(board->mem_handle));
 #endif
                     board->ctrl_base_addr = dev->base_addr[1];
                     board->data_base_addr = dev->base_addr[2];
@@ -1128,7 +1139,7 @@ void pci_boards_scan(board_access_t *access) {
 #elif _WIN32
                     pci_fix_bar_lengths(dev);
                     board->len = dev->size[3];
-                    board->base = map_memory(dev->base_addr[3], board->len);
+                    board->base = map_memory(dev->base_addr[3], board->len, &(board->mem_handle));
 #endif
                     board->ctrl_base_addr = dev->base_addr[1];
                     board->data_base_addr = dev->base_addr[2];
