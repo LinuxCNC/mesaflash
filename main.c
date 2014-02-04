@@ -6,7 +6,7 @@
 #include <stdlib.h>
 
 #include "anyio.h"
-#include "spi_eeprom.h"
+#include "eeprom.h"
 
 static int device_flag;
 static int addr_flag;
@@ -50,7 +50,7 @@ static struct option long_options[] = {
 };
 
 void print_short_usage() {
-    printf("Configuration and diagnostic tool for mesanet PCI(E)/ETH/EPP/USB boards\n");
+    printf("Configuration and diagnostic tool for Mesa Electronics PCI(E)/ETH/EPP/USB boards\n");
     printf("Try `mesaflash --help' for more information\n");
 }
 
@@ -321,12 +321,12 @@ int main(int argc, char *argv[]) {
                 printf("\n");
             }
         } else if (write_flag == 1) {
-            if (board->llio.program_flash != NULL) {
+            if (board->llio.write_flash != NULL) {
                 u32 addr = board->flash_start_address;
 
                 if (fallback_flag == 1)
                     addr = FALLBACK_ADDRESS;
-                board->llio.program_flash(&(board->llio), bitfile_name, addr);
+                board->llio.write_flash(&(board->llio), bitfile_name, addr);
             } else {
                 printf("Board %s doesn't support flash write.\n", board->llio.board_name);
             }

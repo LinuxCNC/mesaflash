@@ -1,66 +1,242 @@
 
 #ifdef __linux__
 #include <pci/pci.h>
+#include <sys/io.h>
 #elif _WIN32
 #include "libpci/pci.h"
 #endif
 #include <sys/stat.h>
-#include <stdio.h>
 #include <errno.h>
+#include <stdio.h>
 #include <string.h>
 
-#include "spi_eeprom.h"
-#include "spi_access_hm2.h"
-#include "bitfile.h"
-#include "pci_boards.h"
+#include "eeprom.h"
+#include "eeprom_local.h"
+#include "hostmot2.h"
+
+extern u8 boot_block[BOOT_BLOCK_SIZE];
+extern u8 page_buffer[PAGE_SIZE];
+extern u8 file_buffer[SECTOR_SIZE];
 
 spi_eeprom_dev_t access;
 
-u8 boot_block[BOOT_BLOCK_SIZE] = {
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xAA, 0x99, 0x55, 0x66, 0x31, 0xE1,
-    0xFF, 0xFF, 0x32, 0x61, 0x00, 0x00, 0x32, 0x81,
-    0x0B, 0x08, 0x32, 0xA1, 0x00, 0x00, 0x32, 0xC1,
-    0x0B, 0x01, 0x30, 0xA1, 0x00, 0x00, 0x33, 0x01,
-    0x21, 0x00, 0x32, 0x01, 0x00, 0x1F, 0x30, 0xA1,
-    0x00, 0x0E, 0x20, 0x00, 0x20, 0x00, 0x20, 0x00,
-    0x20, 0x00, 0x20, 0x00, 0x20, 0x00, 0x20, 0x00
-};
+// spi access via hm2 registers
 
-static u8 file_buffer[SECTOR_SIZE];
+static void wait_for_data_hm2(llio_t *self) {
+    u32 i = 0;
+    u32 data = 0;
 
-char *eeprom_get_flash_type(u8 flash_id) {
-    switch (flash_id) {
-        case ID_EEPROM_1M:  return "1Mb";
-        case ID_EEPROM_2M:  return "2Mb";
-        case ID_EEPROM_4M:  return "4Mb";
-        case ID_EEPROM_8M:  return "8Mb";
-        case ID_EEPROM_16M: return "16Mb";
-        default:            return "unknown";
+    for (i = 0; (((data & 0xFF) & HM2_DAV_MASK) == 0) && (i < 5000) ; i++) {
+        self->read(self, HM2_SPI_CTRL_REG, &data, sizeof(data));
+    }
+    if (i == 5000) {
+        printf("%x timeout waiting for SPI data\n", data);
     }
 }
 
-// modify MSB of boot block jmp address to user area
-void prepare_boot_block(u8 flash_id) {
-    switch (flash_id) {
-        case ID_EEPROM_1M:  boot_block[25] = 0x01; break;
-        case ID_EEPROM_2M:  boot_block[25] = 0x02; break;
-        case ID_EEPROM_4M:  boot_block[25] = 0x04; break;
-        case ID_EEPROM_8M:  boot_block[25] = 0x08; break;
-        case ID_EEPROM_16M: boot_block[25] = 0x10; break;
+static void set_cs_high_hm2(llio_t *self) {
+    u32 data = 1;
+
+    self->write(self, HM2_SPI_CTRL_REG, &data, sizeof(data));
+}
+
+static void set_cs_low_hm2(llio_t *self) {
+    u32 data = 0;
+
+    self->write(self, HM2_SPI_CTRL_REG, &data, sizeof(data));
+}
+
+static void prefix_hm2(llio_t *self) {
+    set_cs_low_hm2(self);
+}
+
+static void suffix_hm2(llio_t *self) {
+    set_cs_high_hm2(self);
+}
+
+static void send_byte_hm2(llio_t *self, u8 byte) {
+    u32 data = byte;
+
+    self->write(self, HM2_SPI_DATA_REG, &data, sizeof(data));
+    wait_for_data_hm2(self);
+}
+
+static u8 recv_byte_hm2(llio_t *self) {
+    u32 data = 0;
+    u32 recv = 0;
+    
+    self->write(self, HM2_SPI_DATA_REG, &data, sizeof(data));
+    wait_for_data_hm2(self);
+    self->read(self, HM2_SPI_DATA_REG, &recv, sizeof(recv));
+    return (u8) recv & 0xFF;
+}
+
+// spi access via gpio pins of xio2001 bridge on 6i25
+
+static u16 GPIO_reg_val;
+
+static void set_cs_high_gpio(llio_t *self) {
+    board_t *board = self->private;
+
+    GPIO_reg_val = GPIO_reg_val | 0x2;
+    pci_write_word(board->dev, XIO2001_GPIO_DATA_REG, GPIO_reg_val);
+}
+
+static void set_cs_low_gpio(llio_t *self) {
+    board_t *board = self->private;
+
+    GPIO_reg_val = GPIO_reg_val & (~ 0x2);
+    pci_write_word(board->dev, XIO2001_GPIO_DATA_REG, GPIO_reg_val);
+}
+
+static void set_din_high_gpio(llio_t *self) {
+    board_t *board = self->private;
+
+    GPIO_reg_val = GPIO_reg_val | 0x8;
+    pci_write_word(board->dev, XIO2001_GPIO_DATA_REG, GPIO_reg_val);
+}
+
+static void set_din_low_gpio(llio_t *self) {
+    board_t *board = self->private;
+
+    GPIO_reg_val = GPIO_reg_val & (~0x8);
+    pci_write_word(board->dev, XIO2001_GPIO_DATA_REG, GPIO_reg_val);
+}
+
+static void set_clock_high_gpio(llio_t *self) {
+    board_t *board = self->private;
+
+    GPIO_reg_val = GPIO_reg_val | 0x10;
+    pci_write_word(board->dev, XIO2001_GPIO_DATA_REG, GPIO_reg_val);
+}
+
+static void set_clock_low_gpio(llio_t *self) {
+    board_t *board = self->private;
+
+    GPIO_reg_val = GPIO_reg_val & (~ 0x10);
+    pci_write_word(board->dev, XIO2001_GPIO_DATA_REG, GPIO_reg_val);
+}
+
+static int get_bit_gpio(llio_t *self) {
+    board_t *board = self->private;
+    u16 data;
+
+    data = pci_read_word(board->dev, XIO2001_GPIO_DATA_REG);
+    if (data & 0x4)
+        return 1;
+    else
+        return 0;
+}
+
+static void prefix_gpio(llio_t *self) {
+    set_cs_high_gpio(self);
+    set_din_low_gpio(self);
+    set_clock_low_gpio(self);
+    set_cs_low_gpio(self);
+}
+
+static void suffix_gpio(llio_t *self) {
+    set_cs_high_gpio(self);
+    set_din_low_gpio(self);
+}
+
+static void init_gpio(llio_t *self) {
+    board_t *board = self->private;
+
+    pci_write_word(board->dev, XIO2001_GPIO_ADDR_REG, 0x001B);
+    pci_write_word(board->dev, XIO2001_SBAD_STAT_REG, 0x0000);
+    GPIO_reg_val = 0x0003;
+    pci_write_word(board->dev, XIO2001_GPIO_DATA_REG, GPIO_reg_val);
+}
+
+static void restore_gpio(llio_t *self) {
+    board_t *board = self->private;
+
+    GPIO_reg_val = 0x0003;
+    pci_write_word(board->dev, XIO2001_GPIO_DATA_REG, GPIO_reg_val);
+    pci_write_word(board->dev, XIO2001_GPIO_ADDR_REG, 0x0000);
+}
+
+static void send_byte_gpio(llio_t *self, u8 byte) {
+    u32 mask = DATA_MASK;
+    int i;
+
+    for (i = 0; i < CMD_LEN; i++) {
+        if ((mask & byte) == 0)
+            set_din_low_gpio(self);
+        else
+            set_din_high_gpio(self);
+        mask >>= 1;
+        set_clock_high_gpio(self);
+        set_clock_low_gpio(self);
     }
 }
 
-u32 eeprom_calc_user_space(u8 flash_id) {
-    switch (flash_id) {
-        case ID_EEPROM_1M:  return 0x10000; break;
-        case ID_EEPROM_2M:  return 0x20000; break;
-        case ID_EEPROM_4M:  return 0x40000; break;
-        case ID_EEPROM_8M:  return 0x80000; break;
-        case ID_EEPROM_16M: return 0x100000; break;
-        default: return 0x80000; break;
+static u8 recv_byte_gpio(llio_t *self) {
+    u32 mask, data = 0;
+    int i;
+
+    mask = DATA_MASK;
+    for (i = 0; i < DATA_LEN; i++) {
+        if (get_bit_gpio(self) == 1)
+            data |= mask;
+        mask >>= 1;
+        set_clock_high_gpio(self);
+        set_clock_low_gpio(self);
+    }
+  return data;
+}
+
+// spi access via io ports like on 3x20
+
+static void wait_for_data_io(llio_t *self) {
+    board_t *board = self->private;
+    u32 i = 0;
+    u8 data = 0;
+
+    for (i = 0; (((data & 0xFF) & IO_DAV_MASK) == 0) && (i < 5000) ; i++) {
+        data = inb(board->data_base_addr + SPI_CS_OFFSET);
+    }
+    if (i == 5000) {
+        printf("%x timeout waiting for SPI data\n", data);
     }
 }
+
+static void set_cs_high_io(llio_t *self) {
+    board_t *board = self->private;
+
+    outb(1, board->data_base_addr + SPI_CS_OFFSET);
+}
+
+static void set_cs_low_io(llio_t *self) {
+    board_t *board = self->private;
+
+    outb(0, board->data_base_addr + SPI_CS_OFFSET);
+}
+
+static void prefix_io(llio_t *self) {
+    set_cs_low_io(self);
+}
+
+static void suffix_io(llio_t *self) {
+    set_cs_high_io(self);
+}
+
+static void send_byte_io(llio_t *self, u8 byte) {
+    board_t *board = self->private;
+
+    outb(byte, board->data_base_addr + SPI_SREG_OFFSET);
+}
+
+static u8 recv_byte_io(llio_t *self) {
+    board_t *board = self->private;
+
+    outb(0, board->data_base_addr + SPI_SREG_OFFSET);
+    wait_for_data_io(self);
+    return inb(board->data_base_addr + SPI_SREG_OFFSET);
+}
+
+// pci flash
 
 static void send_address(llio_t *self, u32 addr) {
     access.send_byte(self, (addr >> 16) & 0xFF);
@@ -196,7 +372,9 @@ static void done_programming(llio_t *self) {
     access.set_cs_high(self);
 }
 
-int eeprom_write_area(llio_t *self, char *bitfile_name, u32 start_address) {
+// global functions
+
+int local_write_flash(llio_t *self, char *bitfile_name, u32 start_address) {
     int bytesread, i;
     u32 eeprom_addr;
     char part_name[32];
@@ -254,12 +432,14 @@ int eeprom_write_area(llio_t *self, char *bitfile_name, u32 start_address) {
       printf("W");
       fflush(stdout);
     }
+
+    fclose(fp);
     printf("\nBoard configuration updated successfully\n");
     done_programming(self);
     return 0;
 }
 
-int eeprom_verify_area(llio_t *self, char *bitfile_name, u32 start_address) {
+int local_verify_flash(llio_t *self, char *bitfile_name, u32 start_address) {
     int bytesread, i, bindex;
     u8 rdata, mdata;
     char part_name[32];
@@ -319,38 +499,52 @@ int eeprom_verify_area(llio_t *self, char *bitfile_name, u32 start_address) {
     return 0;
 }
 
-void eeprom_init(llio_t *self) {
+void open_spi_access_local(llio_t *self) {
     board_t *board = self->private;
 
     switch (board->flash) {
         case BOARD_FLASH_NONE:
             break;
         case BOARD_FLASH_HM2:
-            open_spi_access_hm2(self, &access);
+            access.set_cs_low = &set_cs_low_hm2; 
+            access.set_cs_high = &set_cs_high_hm2;
+            access.prefix = &prefix_hm2;
+            access.suffix = &suffix_hm2;
+            access.send_byte = &send_byte_hm2;
+            access.recv_byte = &recv_byte_hm2;
             break;
         case BOARD_FLASH_IO:
-            open_spi_access_io(self, &access);
+            access.set_cs_low = &set_cs_low_io; 
+            access.set_cs_high = &set_cs_high_io;
+            access.prefix = &prefix_io;
+            access.suffix = &suffix_io;
+            access.send_byte = &send_byte_io;
+            access.recv_byte = &recv_byte_io;
             break;
         case BOARD_FLASH_GPIO:
-            open_spi_access_gpio(self, &access);
+            access.set_cs_low = &set_cs_low_gpio; 
+            access.set_cs_high = &set_cs_high_gpio;
+            access.prefix = &prefix_gpio;
+            access.suffix = &suffix_gpio;
+            access.send_byte = &send_byte_gpio;
+            access.recv_byte = &recv_byte_gpio;
+            init_gpio(self);
             break;
     }
-}
+};
 
-void eeprom_cleanup(llio_t *self) {
+void close_spi_access_local(llio_t *self) {
     board_t *board = self->private;
 
     switch (board->flash) {
         case BOARD_FLASH_NONE:
             break;
         case BOARD_FLASH_HM2:
-            close_spi_access_hm2(self, &access);
             break;
         case BOARD_FLASH_IO:
-            close_spi_access_io(self, &access);
             break;
         case BOARD_FLASH_GPIO:
-            close_spi_access_gpio(self, &access);
+            restore_gpio(self);
             break;
     }
 }

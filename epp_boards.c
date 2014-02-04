@@ -17,7 +17,8 @@
 #include <sys/stat.h>
 
 #include "common.h"
-#include "spi_eeprom.h"
+#include "eeprom.h"
+#include "eeprom_local.h"
 #include "bitfile.h"
 #include "anyio.h"
 #include "epp_boards.h"
@@ -242,14 +243,6 @@ int epp_program_fpga(llio_t *self, char *bitfile_name) {
     return 0;
 }
 
-int epp_program_flash(llio_t *self, char *bitfile_name, u32 start_address) {
-    return eeprom_write_area(self, bitfile_name, start_address);
-}
-
-int epp_verify_flash(llio_t *self, char *bitfile_name, u32 start_address) {
-    return eeprom_verify_area(self, bitfile_name, start_address);
-}
-
 // return 0 if the board has been reset, -errno if not
 int epp_reset(llio_t *self) {
     board_t *board = self->private;
@@ -356,8 +349,8 @@ void epp_boards_scan(board_access_t *access) {
             board->llio.read = epp_read;
             board->llio.write = epp_write;
             board->llio.program_fpga = epp_program_fpga;
-            board->llio.program_flash = epp_program_flash;
-            board->llio.verify_flash = epp_verify_flash;
+            board->llio.write_flash = local_write_flash;
+            board->llio.verify_flash = local_verify_flash;
 
             board->llio.num_ioport_connectors = 3;
             board->llio.pins_per_connector = 24;
@@ -369,7 +362,7 @@ void epp_boards_scan(board_access_t *access) {
             board->flash = BOARD_FLASH_HM2;
             eeprom_init(&(board->llio));
             board->flash_id = read_flash_id(&(board->llio));
-            prepare_boot_block(board->flash_id);
+            eeprom_prepare_boot_block(board->flash_id);
             board->flash_start_address = eeprom_calc_user_space(board->flash_id);
             board->llio.verbose = access->verbose;
 

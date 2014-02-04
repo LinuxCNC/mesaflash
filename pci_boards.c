@@ -16,7 +16,8 @@
 #include <errno.h>
 
 #include "common.h"
-#include "spi_eeprom.h"
+#include "eeprom.h"
+#include "eeprom_local.h"
 #include "bitfile.h"
 #include "pci_boards.h"
 
@@ -684,14 +685,6 @@ int pci_write(llio_t *self, u32 addr, void *buffer, int size) {
     return 0;
 }
 
-int pci_program_flash(llio_t *self, char *bitfile_name, u32 start_address) {
-    return eeprom_write_area(self, bitfile_name, start_address);
-}
-
-int pci_verify_flash(llio_t *self, char *bitfile_name, u32 start_address) {
-    return eeprom_verify_area(self, bitfile_name, start_address);
-}
-
 int pci_boards_init(board_access_t *access) {
     int eno;
 
@@ -762,8 +755,8 @@ void pci_boards_scan(board_access_t *access) {
                 board->llio.ioport_connector_name[1] = "P2";
                 board->llio.fpga_part_number = "6slx9pq144";
                 board->llio.num_leds = 2;
-                board->llio.program_flash = &pci_program_flash;
-                board->llio.verify_flash = &pci_verify_flash;
+                board->llio.write_flash = &local_write_flash;
+                board->llio.verify_flash = &local_verify_flash;
                 board->llio.private = board;
 
                 board->dev = dev;
@@ -796,8 +789,8 @@ void pci_boards_scan(board_access_t *access) {
                 board->llio.num_leds = 0;
                 board->llio.read = &pci_read;
                 board->llio.write = &pci_write;
-                board->llio.program_flash = &pci_program_flash;
-                board->llio.verify_flash = &pci_verify_flash;
+                board->llio.write_flash = &local_write_flash;
+                board->llio.verify_flash = &local_verify_flash;
                 board->llio.private = board;
 #ifdef __linux__
                 iopl(3);
@@ -812,6 +805,7 @@ void pci_boards_scan(board_access_t *access) {
                 board->flash = BOARD_FLASH_HM2;
                 eeprom_init(&(board->llio));
                 board->flash_id = read_flash_id(&(board->llio));
+                eeprom_prepare_boot_block(board->flash_id);
                 board->flash_start_address = eeprom_calc_user_space(board->flash_id);
                 board->llio.verbose = access->verbose;
 
@@ -827,8 +821,8 @@ void pci_boards_scan(board_access_t *access) {
                 board->llio.num_leds = 2;
                 board->llio.read = &pci_read;
                 board->llio.write = &pci_write;
-                board->llio.program_flash = &pci_program_flash;
-                board->llio.verify_flash = &pci_verify_flash;
+                board->llio.write_flash = &local_write_flash;
+                board->llio.verify_flash = &local_verify_flash;
                 board->llio.private = board;
 #ifdef __linux__
                 iopl(3);
@@ -843,6 +837,7 @@ void pci_boards_scan(board_access_t *access) {
                 board->flash = BOARD_FLASH_HM2;
                 eeprom_init(&(board->llio));
                 board->flash_id = read_flash_id(&(board->llio));
+                eeprom_prepare_boot_block(board->flash_id);
                 board->flash_start_address = eeprom_calc_user_space(board->flash_id);
                 board->llio.verbose = access->verbose;
 
@@ -858,8 +853,8 @@ void pci_boards_scan(board_access_t *access) {
                 board->llio.num_leds = 2;
                 board->llio.read = &pci_read;
                 board->llio.write = &pci_write;
-                board->llio.program_flash = &pci_program_flash;
-                board->llio.verify_flash = &pci_verify_flash;
+                board->llio.write_flash = &local_write_flash;
+                board->llio.verify_flash = &local_verify_flash;
                 board->llio.private = board;
 #ifdef __linux__
                 iopl(3);
@@ -874,6 +869,7 @@ void pci_boards_scan(board_access_t *access) {
                 board->flash = BOARD_FLASH_HM2;
                 eeprom_init(&(board->llio));
                 board->flash_id = read_flash_id(&(board->llio));
+                eeprom_prepare_boot_block(board->flash_id);
                 board->flash_start_address = eeprom_calc_user_space(board->flash_id);
                 board->llio.verbose = access->verbose;
 
@@ -1129,8 +1125,8 @@ void pci_boards_scan(board_access_t *access) {
                     board->llio.write = &pci_write;
                     board->llio.program_fpga = &plx905x_program_fpga;
                     board->llio.reset = &plx905x_reset;
-                    board->llio.program_flash = &pci_program_flash;
-                    board->llio.verify_flash = &pci_verify_flash;
+                    board->llio.write_flash = &local_write_flash;
+                    board->llio.verify_flash = &local_verify_flash;
                     board->llio.private = board;
 #ifdef __linux__
                     iopl(3);

@@ -11,7 +11,7 @@
 
 typedef enum {BOARD_ETH, BOARD_PCI, BOARD_EPP, BOARD_USB, BOARD_SPI} board_type;
 typedef enum {BOARD_MODE_CPLD, BOARD_MODE_FPGA} board_mode;
-typedef enum {BOARD_FLASH_NONE, BOARD_FLASH_HM2, BOARD_FLASH_IO, BOARD_FLASH_GPIO} board_flash;
+typedef enum {BOARD_FLASH_NONE, BOARD_FLASH_HM2, BOARD_FLASH_IO, BOARD_FLASH_GPIO, BOARD_FLASH_REMOTE} board_flash;
 
 typedef struct {
     board_type type;

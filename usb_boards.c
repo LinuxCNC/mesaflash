@@ -13,7 +13,7 @@
 #include "anyio.h"
 #include "usb_boards.h"
 #include "common.h"
-#include "spi_eeprom.h"
+#include "eeprom.h"
 #include "bitfile.h"
 #include "lbp.h"
 #include "hostmot2.h"

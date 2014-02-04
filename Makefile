@@ -27,11 +27,11 @@ endif
 
 CFLAGS = $(INCLUDE) $(OPT) $(DEBUG) $(MATHLIB)
 
-objects = common.o lbp.o bitfile.o hostmot2.o spi_eeprom.o anyio.o eth_boards.o epp_boards.o usb_boards.o pci_boards.o
-objects += sserial_module.o spi_access_hm2.o spi_access_io.o spi_access_gpio.o spi_boards.o spilbp.o main.o
+objects = common.o lbp.o bitfile.o hostmot2.o eeprom.o anyio.o eth_boards.o epp_boards.o usb_boards.o pci_boards.o
+objects += sserial_module.o eeprom_local.o eeprom_remote.o spi_boards.o spilbp.o main.o
 
-headers = eth_boards.h pci_boards.h epp_boards.h usb_boards.h spi_boards.h anyio.h hostmot2.h lbp16.h common.h spi_eeprom.h
-headers += lbp.h spi_access_hm2.h spi_access_io.h spi_access_gpio.h spilbp.h bitfile.h sserial_module.h
+headers = eth_boards.h pci_boards.h epp_boards.h usb_boards.h spi_boards.h anyio.h hostmot2.h lbp16.h common.h eeprom.h
+headers += lbp.h eeprom_local.h eeprom_remote.h spilbp.h bitfile.h sserial_module.h
 
 all : $(objects)
 	$(CC) -o $(BIN) $(objects) $(MATHLIB) $(LIBS)
@@ -60,14 +60,11 @@ spi_boards.o : spi_boards.c $(headers)
 sserial_module.o : sserial_module.c $(headers)
 	$(CC) $(CFLAGS) -c sserial_module.c
 
-spi_access_hm2.o : spi_access_hm2.c $(headers)
-	$(CC) $(CFLAGS) -c spi_access_hm2.c
+eeprom_local.o : eeprom_local.c $(headers)
+	$(CC) $(CFLAGS) -c eeprom_local.c
 
-spi_access_io.o : spi_access_io.c $(headers)
-	$(CC) $(CFLAGS) -c spi_access_io.c
-
-spi_access_gpio.o : spi_access_gpio.c $(headers)
-	$(CC) $(CFLAGS) -c spi_access_gpio.c
+eeprom_remote.o : eeprom_remote.c $(headers)
+	$(CC) $(CFLAGS) -c eeprom_remote.c
 
 lbp.o : lbp.c $(headers)
 	$(CC) $(CFLAGS) -c lbp.c
@@ -78,8 +75,8 @@ spilbp.o : spilbp.c $(headers)
 hostmot2.o : hostmot2.c $(headers)
 	$(CC) $(CFLAGS) -c hostmot2.c
 
-spi_eeprom.o : spi_eeprom.c $(headers)
-	$(CC) $(CFLAGS) -c spi_eeprom.c
+eeprom.o : eeprom.c $(headers)
+	$(CC) $(CFLAGS) -c eeprom.c
 
 bitfile.o : bitfile.c $(headers)
 	$(CC) $(CFLAGS) -c bitfile.c
