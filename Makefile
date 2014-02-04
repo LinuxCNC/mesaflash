@@ -27,7 +27,7 @@ endif
 
 CFLAGS = $(INCLUDE) $(OPT) $(DEBUG) $(MATHLIB)
 
-objects = common.o lbp16.o lbp.o bitfile.o hostmot2.o spi_eeprom.o anyio.o eth_boards.o epp_boards.o usb_boards.o pci_boards.o
+objects = common.o lbp.o bitfile.o hostmot2.o spi_eeprom.o anyio.o eth_boards.o epp_boards.o usb_boards.o pci_boards.o
 objects += sserial_module.o spi_access_hm2.o spi_access_io.o spi_access_gpio.o spi_boards.o spilbp.o main.o
 
 headers = eth_boards.h pci_boards.h epp_boards.h usb_boards.h spi_boards.h anyio.h hostmot2.h lbp16.h common.h spi_eeprom.h
@@ -68,9 +68,6 @@ spi_access_io.o : spi_access_io.c $(headers)
 
 spi_access_gpio.o : spi_access_gpio.c $(headers)
 	$(CC) $(CFLAGS) -c spi_access_gpio.c
-
-lbp16.o : lbp16.c $(headers)
-	$(CC) $(CFLAGS) -c lbp16.c
 
 lbp.o : lbp.c $(headers)
 	$(CC) $(CFLAGS) -c lbp.c

@@ -276,9 +276,9 @@ int main(int argc, char *argv[]) {
 
         access.verbose = verbose_flag;
         access.recover = recover_flag;
-        access.pci = 1;
+        //access.pci = 1;
         if (addr_flag == 1) {
-//            access.eth = 1;
+            access.eth = 1;
 //            access.usb = 1;
 //            access.epp = 1;
         }
@@ -314,8 +314,8 @@ int main(int argc, char *argv[]) {
                     char s[3] = {*pch, *(pch + 1), 0};
                     packet[i] = strtol(s, NULL, 16) & 0xFF;
                 }
-                lbp16_send_packet(&packet, i/2);
-                recv = lbp16_recv_packet(&packet, 512);
+                eth_socket_send_packet(&packet, i/2);
+                recv = eth_socket_recv_packet(&packet, 512);
                 for (i = 0; i < recv; i++)
                     printf("%02X", packet[i]);
                 printf("\n");

@@ -231,17 +231,4 @@ typedef struct {
     u16 jumpers;
 } lbp_info_area;
 
-int lbp16_send_packet(void *packet, int size);
-int lbp16_recv_packet(void *buffer, int size);
-void lbp16_socket_nonblocking();
-void lbp16_socket_blocking();
-void lbp16_socket_set_dest_ip(char *addr_name);
-char *lbp16_socket_get_src_ip();
-int lbp16_read(u16 cmd, u32 addr, void *buffer, int size);
-int lbp16_hm2_read(u32 addr, void *buffer, int size);
-int lbp16_hm2_write(u32 addr, void *buffer, int size);
-void lbp16_print_info();
-void lbp16_init();
-void lbp16_release();
-
 #endif

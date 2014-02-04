@@ -97,7 +97,7 @@ void anyio_dev_set_active(board_t *board) {
         return;
     switch (board->type) {
         case BOARD_ETH:
-            lbp16_socket_set_dest_ip(board->dev_addr);
+            eth_socket_set_dest_ip(board->dev_addr);
             break;
         case BOARD_PCI:
             break;
