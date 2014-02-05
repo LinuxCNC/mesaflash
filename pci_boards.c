@@ -806,6 +806,7 @@ void pci_boards_scan(board_access_t *access) {
                 eeprom_init(&(board->llio));
                 board->flash_id = read_flash_id(&(board->llio));
                 eeprom_prepare_boot_block(board->flash_id);
+                board->fallback_support = 1;
                 board->flash_start_address = eeprom_calc_user_space(board->flash_id);
                 board->llio.verbose = access->verbose;
 
@@ -838,6 +839,7 @@ void pci_boards_scan(board_access_t *access) {
                 eeprom_init(&(board->llio));
                 board->flash_id = read_flash_id(&(board->llio));
                 eeprom_prepare_boot_block(board->flash_id);
+                board->fallback_support = 1;
                 board->flash_start_address = eeprom_calc_user_space(board->flash_id);
                 board->llio.verbose = access->verbose;
 
@@ -870,6 +872,7 @@ void pci_boards_scan(board_access_t *access) {
                 eeprom_init(&(board->llio));
                 board->flash_id = read_flash_id(&(board->llio));
                 eeprom_prepare_boot_block(board->flash_id);
+                board->fallback_support = 1;
                 board->flash_start_address = eeprom_calc_user_space(board->flash_id);
                 board->llio.verbose = access->verbose;
 
@@ -1143,6 +1146,7 @@ void pci_boards_scan(board_access_t *access) {
                     board->flash = BOARD_FLASH_IO;
                     eeprom_init(&(board->llio));
                     board->flash_id = read_flash_id(&(board->llio));
+                    board->fallback_support = 0;
                     board->flash_start_address = 0;
                     board->llio.verbose = access->verbose;
 

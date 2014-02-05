@@ -227,6 +227,7 @@ void eth_boards_scan(board_access_t *access) {
                 eeprom_init(&(board->llio));
                 lbp16_read(CMD_READ_FLASH_IDROM, FLASH_ID_REG, &(board->flash_id), 4);
                 eeprom_prepare_boot_block(board->flash_id);
+                board->fallback_support = 1;
                 board->flash_start_address = eeprom_calc_user_space(board->flash_id);
                 board->llio.verbose = access->verbose;
             } else if (strncmp(buff, "7I80DB-25", 9) == 0) {
@@ -250,6 +251,7 @@ void eth_boards_scan(board_access_t *access) {
                 eeprom_init(&(board->llio));
                 lbp16_read(CMD_READ_FLASH_IDROM, FLASH_ID_REG, &(board->flash_id), 4);
                 eeprom_prepare_boot_block(board->flash_id);
+                board->fallback_support = 1;
                 board->flash_start_address = eeprom_calc_user_space(board->flash_id);
                 board->llio.verbose = access->verbose;
             } else if (strncmp(buff, "7I80HD-16", 9) == 0) {
@@ -272,6 +274,7 @@ void eth_boards_scan(board_access_t *access) {
                 eeprom_init(&(board->llio));
                 lbp16_read(CMD_READ_FLASH_IDROM, FLASH_ID_REG, &(board->flash_id), 4);
                 eeprom_prepare_boot_block(board->flash_id);
+                board->fallback_support = 1;
                 board->flash_start_address = eeprom_calc_user_space(board->flash_id);
                 board->llio.verbose = access->verbose;
             } else if (strncmp(buff, "7I80HD-25", 9) == 0) {
@@ -294,6 +297,7 @@ void eth_boards_scan(board_access_t *access) {
                 eeprom_init(&(board->llio));
                 lbp16_read(CMD_READ_FLASH_IDROM, FLASH_ID_REG, &(board->flash_id), 4);
                 eeprom_prepare_boot_block(board->flash_id);
+                board->fallback_support = 1;
                 board->flash_start_address = eeprom_calc_user_space(board->flash_id);
                 board->llio.verbose = access->verbose;
             } else if (strncmp(buff, "7I76E-16", 9) == 0) {
@@ -316,6 +320,7 @@ void eth_boards_scan(board_access_t *access) {
                 eeprom_init(&(board->llio));
                 lbp16_read(CMD_READ_FLASH_IDROM, FLASH_ID_REG, &(board->flash_id), 4);
                 eeprom_prepare_boot_block(board->flash_id);
+                board->fallback_support = 1;
                 board->flash_start_address = eeprom_calc_user_space(board->flash_id);
                 board->llio.verbose = access->verbose;
             } else {

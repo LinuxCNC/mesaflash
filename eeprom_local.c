@@ -314,8 +314,13 @@ static void write_page(llio_t *self, u32 addr, char *buff, int buff_i) {
 }
 
 static int check_boot(llio_t *self) {
+    board_t *board = self->private;
     int i;
     u8 data;
+
+// if board doesn't support fallback there is no boot block
+    if (board->fallback_support == 0)
+        return 0;
 
     for (i = 0; i < BOOT_BLOCK_SIZE; i++) {
         data = read_byte(self, i);

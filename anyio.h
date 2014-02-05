@@ -19,6 +19,7 @@ typedef struct {
     board_flash flash;
     u8 flash_id;
     u32 flash_start_address;
+    int fallback_support;
     char dev_addr[16];
 
     struct pci_dev *dev;
