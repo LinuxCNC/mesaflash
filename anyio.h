@@ -48,6 +48,7 @@ struct board_struct {
 
 typedef struct {
     char *device_name;
+    int list;
     int verbose;
     int recover;
     int pci;
@@ -67,6 +68,7 @@ int anyio_init(board_access_t *access);
 void anyio_cleanup(board_access_t *access);
 void anyio_scan(board_access_t *access);
 board_t *anyio_get_dev(board_access_t *access);
+void anyio_list_dev(board_access_t *access);
 void anyio_open_dev(board_t *board);
 void anyio_close_dev(board_t *board);
 void anyio_dev_print_info(board_t *board);

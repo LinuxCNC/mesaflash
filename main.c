@@ -17,6 +17,7 @@ static int recover_flag;
 static int program_flag;
 static int readhmid_flag;
 static int sserial_flag;
+static int list_flag;
 static int rpo_flag;
 static int wpo_flag;
 static u16 rpo_addr;
@@ -40,6 +41,7 @@ static struct option long_options[] = {
     {"program", required_argument, 0, 'p'},
     {"readhmid", no_argument, &readhmid_flag, 1},
     {"sserial", no_argument, &sserial_flag, 1},
+    {"list", no_argument, &list_flag, 1},
     {"rpo", required_argument, 0, 'r'},
     {"wpo", required_argument, 0, 'o'},
     {"lbp16", required_argument, 0, 'l'},
@@ -65,6 +67,7 @@ void print_usage() {
     printf("  mesaflash [options] --rpo address\n");
     printf("  mesaflash [options] --wpo address=value\n");
     printf("  mesaflash [options] --lbp16 <command>\n");
+    printf("  mesaflash --list\n");
     printf("  mesaflash --info file_name\n");
     printf("  mesaflash --help\n");
     printf("\nOptions:\n");
@@ -85,6 +88,7 @@ void print_usage() {
     printf("  --lbp16       run <command> directly by lbp16 interface module\n");
     printf("    available commands:\n");
     printf("      send_packet=hex_data    send packet created from <hex_data> and print returned data\n");
+    printf("  --list        show list of all detected boards\n");
     printf("  --info        print info about configuration in 'file_name'\n");
     printf("  --help        print this help message\n");
 }
@@ -271,6 +275,20 @@ int main(int argc, char *argv[]) {
 
     if (info_flag == 1) {
         anyio_bitfile_print_info(bitfile_name);
+    } else if (list_flag == 1) {
+        access.verbose = verbose_flag;
+        access.pci = 1;
+        if (addr_flag == 1) {
+            access.eth = 1;
+//            access.usb = 1;
+//            access.epp = 1;
+        }
+
+        if (anyio_init(&access) != 0)
+            exit(1);
+        anyio_scan(&access);
+        anyio_list_dev(&access);
+        anyio_cleanup(&access);
     } else if (device_flag == 1) {
         board_t *board = NULL;
 

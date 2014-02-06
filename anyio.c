@@ -93,6 +93,18 @@ board_t *anyio_get_dev(board_access_t *access) {
     return NULL;
 }
 
+void anyio_list_dev(board_access_t *access) {
+    int i;
+
+    if (access == NULL)
+        return;
+    for (i = 0; i < boards_count; i++) {
+        board_t *board = &boards[i];
+
+        anyio_dev_print_info(board);
+    }
+}
+
 void anyio_open_dev(board_t *board) {
     if (board == NULL)
         return;
