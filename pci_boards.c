@@ -685,6 +685,42 @@ int pci_write(llio_t *self, u32 addr, void *buffer, int size) {
     return 0;
 }
 
+static int pci_board_open(board_t *board) {
+    if (board->mem_base != 0) {
+#ifdef __linux__
+        board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, board->mem_base);
+#elif _WIN32
+        pci_fix_bar_lengths(dev);
+        board->base = map_memory(board->mem_base, board->len, &(board->mem_handle));
+#endif
+    }
+
+    if (board->flash != BOARD_FLASH_NONE) {
+        eeprom_init(&(board->llio));
+        board->flash_id = read_flash_id(&(board->llio));
+        if (board->fallback_support == 1)
+            board->flash_start_address = eeprom_calc_user_space(board->flash_id);
+        else
+            board->flash_start_address = 0;
+
+        eeprom_prepare_boot_block(board->flash_id);
+    }
+    return 0;
+}
+
+static int pci_board_close(board_t *board) {
+    if (board->base) {
+#ifdef __linux__
+        munmap(board->base, board->len);
+#elif _WIN32
+        unmap_memory(&(board->mem_handle));
+#endif
+    }
+    eeprom_cleanup(&(board->llio));
+
+    return 0;
+}
+
 int pci_boards_init(board_access_t *access) {
     int eno;
 
@@ -703,6 +739,7 @@ int pci_boards_init(board_access_t *access) {
         printf("%s can't open /dev/mem: %s", __func__, strerror(eno));
         return -1;
     }
+    iopl(3);
 #elif _WIN32
     init_io_library();
 #endif
@@ -710,21 +747,6 @@ int pci_boards_init(board_access_t *access) {
 }
 
 void pci_boards_cleanup(board_access_t *access) {
-    int i;
-
-    for (i = 0; i < boards_count; i++) {
-        board_t *board = &boards[i];
-
-        if (board->base) {
-#ifdef __linux__
-            munmap(board->base, board->len);
-#elif _WIN32        
-            unmap_memory(&(board->mem_handle));
-#endif
-        }
-        eeprom_cleanup(&(board->llio));
-    }
-
 #ifdef __linux__
     close(memfd);
 #elif _WIN32
@@ -759,11 +781,12 @@ void pci_boards_scan(board_access_t *access) {
                 board->llio.verify_flash = &local_verify_flash;
                 board->llio.private = board;
 
+                board->open = &pci_board_open;
+                board->close = &pci_board_close;
+                board->mem_base = 0;
                 board->dev = dev;
                 board->flash = BOARD_FLASH_GPIO;
-                eeprom_init(&(board->llio));
-                board->flash_id = read_flash_id(&(board->llio));
-                board->flash_start_address = eeprom_calc_user_space(board->flash_id);
+                board->fallback_support = 1;
                 board->llio.verbose = access->verbose;
 
                 boards_count++;
@@ -792,22 +815,14 @@ void pci_boards_scan(board_access_t *access) {
                 board->llio.write_flash = &local_write_flash;
                 board->llio.verify_flash = &local_verify_flash;
                 board->llio.private = board;
-#ifdef __linux__
-                iopl(3);
+
+                board->open = &pci_board_open;
+                board->close = &pci_board_close;
+                board->mem_base = dev->base_addr[0];
                 board->len = dev->size[0];
-                board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[0]);
-#elif _WIN32
-                pci_fix_bar_lengths(dev);
-                board->len = dev->size[0];
-                board->base = map_memory(dev->base_addr[0], board->len, &(board->mem_handle));
-#endif
                 board->dev = dev;
                 board->flash = BOARD_FLASH_HM2;
-                eeprom_init(&(board->llio));
-                board->flash_id = read_flash_id(&(board->llio));
-                eeprom_prepare_boot_block(board->flash_id);
                 board->fallback_support = 1;
-                board->flash_start_address = eeprom_calc_user_space(board->flash_id);
                 board->llio.verbose = access->verbose;
 
                 boards_count++;
@@ -825,22 +840,14 @@ void pci_boards_scan(board_access_t *access) {
                 board->llio.write_flash = &local_write_flash;
                 board->llio.verify_flash = &local_verify_flash;
                 board->llio.private = board;
-#ifdef __linux__
-                iopl(3);
+
+                board->open = &pci_board_open;
+                board->close = &pci_board_close;
+                board->mem_base = dev->base_addr[0];
                 board->len = dev->size[0];
-                board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[0]);
-#elif _WIN32
-                pci_fix_bar_lengths(dev);
-                board->len = dev->size[0];
-                board->base = map_memory(dev->base_addr[0], board->len, &(board->mem_handle));
-#endif
                 board->dev = dev;
                 board->flash = BOARD_FLASH_HM2;
-                eeprom_init(&(board->llio));
-                board->flash_id = read_flash_id(&(board->llio));
-                eeprom_prepare_boot_block(board->flash_id);
                 board->fallback_support = 1;
-                board->flash_start_address = eeprom_calc_user_space(board->flash_id);
                 board->llio.verbose = access->verbose;
 
                 boards_count++;
@@ -858,22 +865,14 @@ void pci_boards_scan(board_access_t *access) {
                 board->llio.write_flash = &local_write_flash;
                 board->llio.verify_flash = &local_verify_flash;
                 board->llio.private = board;
-#ifdef __linux__
-                iopl(3);
+
+                board->open = &pci_board_open;
+                board->close = &pci_board_close;
+                board->mem_base = dev->base_addr[0];
                 board->len = dev->size[0];
-                board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[0]);
-#elif _WIN32
-                pci_fix_bar_lengths(dev);
-                board->len = dev->size[0];
-                board->base = map_memory(dev->base_addr[0], board->len, &(board->mem_handle));
-#endif
                 board->dev = dev;
                 board->flash = BOARD_FLASH_HM2;
-                eeprom_init(&(board->llio));
-                board->flash_id = read_flash_id(&(board->llio));
-                eeprom_prepare_boot_block(board->flash_id);
                 board->fallback_support = 1;
-                board->flash_start_address = eeprom_calc_user_space(board->flash_id);
                 board->llio.verbose = access->verbose;
 
                 boards_count++;
@@ -896,18 +895,15 @@ void pci_boards_scan(board_access_t *access) {
                     board->llio.program_fpga = &plx9030_program_fpga;
                     board->llio.reset = &plx9030_reset;
                     board->llio.private = board;
-#ifdef __linux__
-                    iopl(3);
+
+                    board->open = &pci_board_open;
+                    board->close = &pci_board_close;
+                    board->mem_base = dev->base_addr[5];
                     board->len = dev->size[5];
-                    board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[5]);
-#elif _WIN32
-                    pci_fix_bar_lengths(dev);
-                    board->len = dev->size[5];
-                    board->base = map_memory(dev->base_addr[5], board->len, &(board->mem_handle));
-#endif
                     board->ctrl_base_addr = dev->base_addr[1];
                     board->data_base_addr = dev->base_addr[2];
                     board->dev = dev;
+                    board->flash = BOARD_FLASH_NONE;
                     board->llio.verbose = access->verbose;
 
                     boards_count++;
@@ -926,18 +922,15 @@ void pci_boards_scan(board_access_t *access) {
                     board->llio.program_fpga = &plx9030_program_fpga;
                     board->llio.reset = &plx9030_reset;
                     board->llio.private = board;
-#ifdef __linux__
-                    iopl(3);
+
+                    board->open = &pci_board_open;
+                    board->close = &pci_board_close;
+                    board->mem_base = dev->base_addr[5];
                     board->len = dev->size[5];
-                    board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[5]);
-#elif _WIN32
-                    pci_fix_bar_lengths(dev);
-                    board->len = dev->size[5];
-                    board->base = map_memory(dev->base_addr[5], board->len, &(board->mem_handle));
-#endif
                     board->ctrl_base_addr = dev->base_addr[1];
                     board->data_base_addr = dev->base_addr[2];
                     board->dev = dev;
+                    board->flash = BOARD_FLASH_NONE;
                     board->llio.verbose = access->verbose;
 
                     boards_count++;
@@ -959,18 +952,15 @@ void pci_boards_scan(board_access_t *access) {
                     board->llio.program_fpga = &plx905x_program_fpga;
                     board->llio.reset = &plx905x_reset;
                     board->llio.private = board;
-#ifdef __linux__
-                    iopl(3);
+
+                    board->open = &pci_board_open;
+                    board->close = &pci_board_close;
+                    board->mem_base = dev->base_addr[3];
                     board->len = dev->size[3];
-                    board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
-#elif _WIN32
-                    pci_fix_bar_lengths(dev);
-                    board->len = dev->size[3];
-                    board->base = map_memory(dev->base_addr[3], board->len, &(board->mem_handle));
-#endif
                     board->ctrl_base_addr = dev->base_addr[1];
                     board->data_base_addr = dev->base_addr[2];
                     board->dev = dev;
+                    board->flash = BOARD_FLASH_NONE;
                     board->llio.verbose = access->verbose;
 
                     boards_count++;
@@ -988,18 +978,15 @@ void pci_boards_scan(board_access_t *access) {
                     board->llio.program_fpga = &plx905x_program_fpga;
                     board->llio.reset = &plx905x_reset;
                     board->llio.private = board;
-#ifdef __linux__
-                    iopl(3);
+
+                    board->open = &pci_board_open;
+                    board->close = &pci_board_close;
+                    board->mem_base = dev->base_addr[3];
                     board->len = dev->size[3];
-                    board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
-#elif _WIN32
-                    pci_fix_bar_lengths(dev);
-                    board->len = dev->size[3];
-                    board->base = map_memory(dev->base_addr[3], board->len, &(board->mem_handle));
-#endif
                     board->ctrl_base_addr = dev->base_addr[1];
                     board->data_base_addr = dev->base_addr[2];
                     board->dev = dev;
+                    board->flash = BOARD_FLASH_NONE;
                     board->llio.verbose = access->verbose;
 
                     boards_count++;
@@ -1023,18 +1010,15 @@ void pci_boards_scan(board_access_t *access) {
                     board->llio.program_fpga = &plx905x_program_fpga;
                     board->llio.reset = &plx905x_reset;
                     board->llio.private = board;
-#ifdef __linux__
-                    iopl(3);
+
+                    board->open = &pci_board_open;
+                    board->close = &pci_board_close;
+                    board->mem_base = dev->base_addr[3];
                     board->len = dev->size[3];
-                    board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
-#elif _WIN32
-                    pci_fix_bar_lengths(dev);
-                    board->len = dev->size[3];
-                    board->base = map_memory(dev->base_addr[3], board->len, &(board->mem_handle));
-#endif
                     board->ctrl_base_addr = dev->base_addr[1];
                     board->data_base_addr = dev->base_addr[2];
                     board->dev = dev;
+                    board->flash = BOARD_FLASH_NONE;
                     board->llio.verbose = access->verbose;
 
                     boards_count++;
@@ -1053,18 +1037,15 @@ void pci_boards_scan(board_access_t *access) {
                     board->llio.program_fpga = &plx905x_program_fpga;
                     board->llio.reset = &plx905x_reset;
                     board->llio.private = board;
-#ifdef __linux__
-                    iopl(3);
+
+                    board->open = &pci_board_open;
+                    board->close = &pci_board_close;
+                    board->mem_base = dev->base_addr[3];
                     board->len = dev->size[3];
-                    board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
-#elif _WIN32
-                    pci_fix_bar_lengths(dev);
-                    board->len = dev->size[3];
-                    board->base = map_memory(dev->base_addr[3], board->len, &(board->mem_handle));
-#endif
                     board->ctrl_base_addr = dev->base_addr[1];
                     board->data_base_addr = dev->base_addr[2];
                     board->dev = dev;
+                    board->flash = BOARD_FLASH_NONE;
                     board->llio.verbose = access->verbose;
 
                     boards_count++;
@@ -1087,18 +1068,15 @@ void pci_boards_scan(board_access_t *access) {
                     board->llio.program_fpga = &plx905x_program_fpga;
                     board->llio.reset = &plx905x_reset;
                     board->llio.private = board;
-#ifdef __linux__
-                    iopl(3);
+
+                    board->open = &pci_board_open;
+                    board->close = &pci_board_close;
+                    board->mem_base = dev->base_addr[3];
                     board->len = dev->size[3];
-                    board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
-#elif _WIN32
-                    pci_fix_bar_lengths(dev);
-                    board->len = dev->size[3];
-                    board->base = map_memory(dev->base_addr[3], board->len, &(board->mem_handle));
-#endif
                     board->ctrl_base_addr = dev->base_addr[1];
                     board->data_base_addr = dev->base_addr[2];
                     board->dev = dev;
+                    board->flash = BOARD_FLASH_NONE;
                     board->llio.verbose = access->verbose;
 
                     boards_count++;
@@ -1131,23 +1109,16 @@ void pci_boards_scan(board_access_t *access) {
                     board->llio.write_flash = &local_write_flash;
                     board->llio.verify_flash = &local_verify_flash;
                     board->llio.private = board;
-#ifdef __linux__
-                    iopl(3);
+
+                    board->open = &pci_board_open;
+                    board->close = &pci_board_close;
+                    board->mem_base = dev->base_addr[3];
                     board->len = dev->size[3];
-                    board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, dev->base_addr[3]);
-#elif _WIN32
-                    pci_fix_bar_lengths(dev);
-                    board->len = dev->size[3];
-                    board->base = map_memory(dev->base_addr[3], board->len, &(board->mem_handle));
-#endif
                     board->ctrl_base_addr = dev->base_addr[1];
                     board->data_base_addr = dev->base_addr[2];
                     board->dev = dev;
                     board->flash = BOARD_FLASH_IO;
-                    eeprom_init(&(board->llio));
-                    board->flash_id = read_flash_id(&(board->llio));
                     board->fallback_support = 0;
-                    board->flash_start_address = 0;
                     board->llio.verbose = access->verbose;
 
                     boards_count++;

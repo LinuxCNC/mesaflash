@@ -4,6 +4,7 @@
 #include <errno.h>
 
 #include "anyio.h"
+#include "eeprom.h"
 #include "bitfile.h"
 #include "eth_boards.h"
 #include "pci_boards.h"
@@ -92,22 +93,24 @@ board_t *anyio_get_dev(board_access_t *access) {
     return NULL;
 }
 
-void anyio_dev_set_active(board_t *board) {
+void anyio_open_dev(board_t *board) {
     if (board == NULL)
         return;
-    switch (board->type) {
-        case BOARD_ETH:
-            eth_socket_set_dest_ip(board->dev_addr);
-            break;
-        case BOARD_PCI:
-            break;
-        case BOARD_EPP:
-            break;
-        case BOARD_USB:
-            break;
-        case BOARD_SPI:
-            break;
-    }
+
+    if (board->open != NULL)
+        board->open(board);
+    else
+        printf("ERROR: board %s doesn't support device opening\n", board->llio.board_name);
+}
+
+void anyio_close_dev(board_t *board) {
+    if (board == NULL)
+        return;
+
+    if (board->close != NULL)
+        board->close(board);
+    else
+        printf("ERROR: board %s doesn't support device closing\n", board->llio.board_name);
 }
 
 void anyio_dev_print_info(board_t *board) {

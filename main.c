@@ -276,7 +276,7 @@ int main(int argc, char *argv[]) {
 
         access.verbose = verbose_flag;
         access.recover = recover_flag;
-        //access.pci = 1;
+        access.pci = 1;
         if (addr_flag == 1) {
             access.eth = 1;
 //            access.usb = 1;
@@ -291,7 +291,9 @@ int main(int argc, char *argv[]) {
             printf("No %s board found\n", access.device_name);
             return -1;
         }
-        anyio_dev_set_active(board);
+
+        anyio_open_dev(board);
+
         if (readhmid_flag == 1) {
             anyio_dev_print_hm2_info(board);
         } else if (sserial_flag == 1) {
@@ -352,6 +354,8 @@ int main(int argc, char *argv[]) {
         } else {
             anyio_dev_print_info(board);
         }
+
+        anyio_close_dev(board);
         anyio_cleanup(&access);
     }
 

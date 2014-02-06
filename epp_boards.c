@@ -359,6 +359,7 @@ void epp_boards_scan(board_access_t *access) {
             board->llio.ioport_connector_name[2] = "P3";
             board->llio.num_leds = 2;
             board->llio.private = board;
+
             board->flash = BOARD_FLASH_HM2;
             eeprom_init(&(board->llio));
             board->flash_id = read_flash_id(&(board->llio));

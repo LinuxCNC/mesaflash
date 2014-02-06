@@ -11,9 +11,11 @@
 
 typedef enum {BOARD_ETH, BOARD_PCI, BOARD_EPP, BOARD_USB, BOARD_SPI} board_type;
 typedef enum {BOARD_MODE_CPLD, BOARD_MODE_FPGA} board_mode;
-typedef enum {BOARD_FLASH_NONE, BOARD_FLASH_HM2, BOARD_FLASH_IO, BOARD_FLASH_GPIO, BOARD_FLASH_REMOTE} board_flash;
+typedef enum {BOARD_FLASH_NONE = 0, BOARD_FLASH_HM2, BOARD_FLASH_IO, BOARD_FLASH_GPIO, BOARD_FLASH_REMOTE} board_flash;
 
-typedef struct {
+typedef struct board_struct board_t;
+
+struct board_struct {
     board_type type;
     board_mode mode;
     board_flash flash;
@@ -25,6 +27,7 @@ typedef struct {
     struct pci_dev *dev;
     void *base;
     int len;
+    u32 mem_base;
 #ifdef _WIN32
     tagPhysStruct_t mem_handle;
 #endif
@@ -37,8 +40,11 @@ typedef struct {
     void *region_hi;
     int epp_wide;
 
+    int (*open)(board_t *self);
+    int (*close)(board_t *self);
+
     llio_t llio;
-} board_t;
+};
 
 typedef struct {
     char *device_name;
@@ -61,7 +67,8 @@ int anyio_init(board_access_t *access);
 void anyio_cleanup(board_access_t *access);
 void anyio_scan(board_access_t *access);
 board_t *anyio_get_dev(board_access_t *access);
-void anyio_set_active_dev(board_t *board);
+void anyio_open_dev(board_t *board);
+void anyio_close_dev(board_t *board);
 void anyio_dev_print_info(board_t *board);
 void anyio_dev_print_hm2_info(board_t *board);
 void anyio_dev_print_sserial_info(board_t *board);

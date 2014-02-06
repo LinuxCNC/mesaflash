@@ -131,6 +131,22 @@ static int eth_write(llio_t *this, u32 addr, void *buffer, int size) {
     return lbp16_write(CMD_WRITE_HOSTMOT2_ADDR32_INCR(size/4), addr, buffer, size);
 }
 
+static int eth_board_open(board_t *board) {
+    eth_socket_set_dest_ip(board->dev_addr);
+    eeprom_init(&(board->llio));
+    lbp16_read(CMD_READ_FLASH_IDROM, FLASH_ID_REG, &(board->flash_id), 4);
+    eeprom_prepare_boot_block(board->flash_id);
+    if (board->fallback_support == 1)
+        board->flash_start_address = eeprom_calc_user_space(board->flash_id);
+    else
+        board->flash_start_address = 0;
+    return 0;
+}
+
+static int eth_board_close(board_t *board) {
+    return 0;
+}
+
 // public functions
 
 int eth_boards_init(board_access_t *access) {
@@ -223,12 +239,11 @@ void eth_boards_scan(board_access_t *access) {
                 board->llio.write_flash = &remote_write_flash;
                 board->llio.verify_flash = &remote_verify_flash;
                 board->llio.private = board;
+
+                board->open = &eth_board_open;
+                board->close = &eth_board_close;
                 board->flash = BOARD_FLASH_REMOTE;
-                eeprom_init(&(board->llio));
-                lbp16_read(CMD_READ_FLASH_IDROM, FLASH_ID_REG, &(board->flash_id), 4);
-                eeprom_prepare_boot_block(board->flash_id);
                 board->fallback_support = 1;
-                board->flash_start_address = eeprom_calc_user_space(board->flash_id);
                 board->llio.verbose = access->verbose;
             } else if (strncmp(buff, "7I80DB-25", 9) == 0) {
                 board->type = BOARD_ETH;
@@ -247,12 +262,11 @@ void eth_boards_scan(board_access_t *access) {
                 board->llio.write_flash = &remote_write_flash;
                 board->llio.verify_flash = &remote_verify_flash;
                 board->llio.private = board;
+
+                board->open = &eth_board_open;
+                board->close = &eth_board_close;
                 board->flash = BOARD_FLASH_REMOTE;
-                eeprom_init(&(board->llio));
-                lbp16_read(CMD_READ_FLASH_IDROM, FLASH_ID_REG, &(board->flash_id), 4);
-                eeprom_prepare_boot_block(board->flash_id);
                 board->fallback_support = 1;
-                board->flash_start_address = eeprom_calc_user_space(board->flash_id);
                 board->llio.verbose = access->verbose;
             } else if (strncmp(buff, "7I80HD-16", 9) == 0) {
                 board->type = BOARD_ETH;
@@ -270,12 +284,11 @@ void eth_boards_scan(board_access_t *access) {
                 board->llio.write_flash = &remote_write_flash;
                 board->llio.verify_flash = &remote_verify_flash;
                 board->llio.private = board;
+
+                board->open = &eth_board_open;
+                board->close = &eth_board_close;
                 board->flash = BOARD_FLASH_REMOTE;
-                eeprom_init(&(board->llio));
-                lbp16_read(CMD_READ_FLASH_IDROM, FLASH_ID_REG, &(board->flash_id), 4);
-                eeprom_prepare_boot_block(board->flash_id);
                 board->fallback_support = 1;
-                board->flash_start_address = eeprom_calc_user_space(board->flash_id);
                 board->llio.verbose = access->verbose;
             } else if (strncmp(buff, "7I80HD-25", 9) == 0) {
                 board->type = BOARD_ETH;
@@ -293,12 +306,11 @@ void eth_boards_scan(board_access_t *access) {
                 board->llio.write_flash = &remote_write_flash;
                 board->llio.verify_flash = &remote_verify_flash;
                 board->llio.private = board;
+
+                board->open = &eth_board_open;
+                board->close = &eth_board_close;
                 board->flash = BOARD_FLASH_REMOTE;
-                eeprom_init(&(board->llio));
-                lbp16_read(CMD_READ_FLASH_IDROM, FLASH_ID_REG, &(board->flash_id), 4);
-                eeprom_prepare_boot_block(board->flash_id);
                 board->fallback_support = 1;
-                board->flash_start_address = eeprom_calc_user_space(board->flash_id);
                 board->llio.verbose = access->verbose;
             } else if (strncmp(buff, "7I76E-16", 9) == 0) {
                 board->type = BOARD_ETH;
@@ -316,12 +328,11 @@ void eth_boards_scan(board_access_t *access) {
                 board->llio.write_flash = &remote_write_flash;
                 board->llio.verify_flash = &remote_verify_flash;
                 board->llio.private = board;
+
+                board->open = &eth_board_open;
+                board->close = &eth_board_close;
                 board->flash = BOARD_FLASH_REMOTE;
-                eeprom_init(&(board->llio));
-                lbp16_read(CMD_READ_FLASH_IDROM, FLASH_ID_REG, &(board->flash_id), 4);
-                eeprom_prepare_boot_block(board->flash_id);
                 board->fallback_support = 1;
-                board->flash_start_address = eeprom_calc_user_space(board->flash_id);
                 board->llio.verbose = access->verbose;
             } else {
                 printf("Unsupported ethernet device %s at %s\n", buff, eth_socket_get_src_ip());
