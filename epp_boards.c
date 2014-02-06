@@ -295,6 +295,14 @@ int epp_boards_init(board_access_t *access) {
 void epp_boards_cleanup(board_access_t *access) {
 }
 
+static int epp_board_open(board_t *board) {
+    return 0;
+}
+
+static int epp_board_close(board_t *board) {
+    return 0;
+}
+
 void epp_boards_scan(board_access_t *access) {
 #ifdef __linux__
     board_t *board = &boards[boards_count];
@@ -360,6 +368,8 @@ void epp_boards_scan(board_access_t *access) {
             board->llio.num_leds = 2;
             board->llio.private = board;
 
+            board->open = &epp_board_open;
+            board->close = &epp_board_close;
             board->flash = BOARD_FLASH_HM2;
             eeprom_init(&(board->llio));
             board->flash_id = read_flash_id(&(board->llio));
