@@ -445,17 +445,13 @@ void eth_print_info(board_t *board) {
         printf("     uSTimeStampReg: 0x%04X\n", timers_area.uSTimeStampReg);
         printf("     WaituSReg: 0x%04X\n", timers_area.WaituSReg);
         printf("     HM2Timeout: 0x%04X\n", timers_area.HM2Timeout);
-        printf("     WaitForHM2RefTime: 0x%04X\n", timers_area.WaitForHM2RefTime);
-        printf("     WaitForHM2Timer1: 0x%04X\n", timers_area.WaitForHM2Timer1);
-        printf("     WaitForHM2Timer2: 0x%04X\n", timers_area.WaitForHM2Timer2);
-        printf("     WaitForHM2Timer3: 0x%04X\n", timers_area.WaitForHM2Timer3);
-        printf("     WaitForHM2Timer4: 0x%04X\n",timers_area.WaitForHM2Timer4);
     }
 
     printf("  [space 6] LBP16 status/control:\n");
     printf("    packets recived: all %d, UDP %d, bad %d\n", stat_area.RXPacketCount, stat_area.RXUDPCount, stat_area.RXBadCount);
     printf("    packets sended: all %d, UDP %d, bad %d\n", stat_area.TXPacketCount, stat_area.TXUDPCount, stat_area.TXBadCount);
     printf("    parse errors: %d, mem errors %d, write errors %d\n", stat_area.LBPParseErrors, stat_area.LBPMemErrors, stat_area.LBPWriteErrors);
+    printf("    error flags: 0x%04X\n", stat_area.ErrorReg);
     printf("    debug LED ptr: 0x%04X\n", stat_area.DebugLEDPtr);
     printf("    scratch: 0x%04X\n", stat_area.Scratch);
 

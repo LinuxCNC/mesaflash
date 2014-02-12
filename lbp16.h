@@ -201,11 +201,6 @@ typedef struct {
     u16 uSTimeStampReg;
     u16 WaituSReg;
     u16 HM2Timeout;
-    u16 WaitForHM2RefTime;
-    u16 WaitForHM2Timer1;
-    u16 WaitForHM2Timer2;
-    u16 WaitForHM2Timer3;
-    u16 WaitForHM2Timer4;
 } lbp_timers_area;
 
 typedef struct {
