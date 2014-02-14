@@ -4,6 +4,7 @@
 #include <getopt.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #include "anyio.h"
 #include "eeprom.h"
@@ -266,6 +267,8 @@ int process_cmd_line(int argc, char *argv[]) {
 }
 
 int main(int argc, char *argv[]) {
+    int ret = 0;
+
     if (argc == 1) {
         print_short_usage();
         return 0;
@@ -361,21 +364,24 @@ int main(int argc, char *argv[]) {
                 printf("Board %s doesn't support flash verification.\n", board->llio.board_name);
             }
         } else if (program_flag == 1) {
-            if (board->llio.reset != NULL)
-                board->llio.reset(&(board->llio));
-            else
+            if (board->llio.reset != NULL) {
+                ret = board->llio.reset(&(board->llio));
+                if (ret)
+                    goto fail0;
+            } else {
                 printf("Board %s doesn't support FPGA reset.\n", board->llio.board_name);
+            }
             if (board->llio.program_fpga != NULL)
-                board->llio.program_fpga(&(board->llio), bitfile_name);
+                ret = board->llio.program_fpga(&(board->llio), bitfile_name);
             else
                 printf("Board %s doesn't support FPGA programming.\n", board->llio.board_name);
         } else {
             anyio_dev_print_info(board);
         }
-
+fail0:
         anyio_close_dev(board);
         anyio_cleanup(&access);
     }
 
-    return 0;
+    return ret;
 }
