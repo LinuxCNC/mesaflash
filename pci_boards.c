@@ -476,6 +476,7 @@ static int plx9030_program_fpga(llio_t *self, char *bitfile_name) {
     control = status | PLX9030_WRITE_MASK | PLX9030_LED_MASK;
     outl(control, board->ctrl_base_addr + PLX9030_CTRL_STAT_OFFSET);
 
+    printf("Board FPGA programmed successfully\n");
     return 0;
 
 
@@ -608,6 +609,7 @@ static int plx905x_program_fpga(llio_t *self, char *bitfile_name) {
         return -EIO;
     }
 
+    printf("Board FPGA programmed successfully\n");
     return 0;
 }
 
