@@ -670,12 +670,6 @@ static void pci_fix_bar_lengths(struct pci_dev *dev) {
 }
 #endif
 
-static void pci_enable_device(struct pci_dev *dev) {
-    u16 cmd = PCI_COMMAND_IO | PCI_COMMAND_MEMORY;
-
-    pci_write_word(dev, PCI_COMMAND, cmd);
-}
-
 int pci_read(llio_t *self, u32 addr, void *buffer, int size) {
     board_t *board = self->private;
 
@@ -692,7 +686,6 @@ int pci_write(llio_t *self, u32 addr, void *buffer, int size) {
 }
 
 static int pci_board_open(board_t *board) {
-    pci_enable_device(board->dev);
     if (board->mem_base != 0) {
 #ifdef __linux__
         board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, board->mem_base);
