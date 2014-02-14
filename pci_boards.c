@@ -1146,7 +1146,7 @@ void pci_boards_scan(board_access_t *access) {
 void pci_print_info(board_t *board) {
     int i;
 
-    printf("\nPCI device %s at %02X:%02X.%X (%04X:%04X)\n", board->llio.board_name, 
+    printf("\nPCI device %s at %04X:%02X:%02X.%1X (%04X:%04X)\n", board->llio.board_name, board->dev->domain,
         board->dev->bus, board->dev->dev, board->dev->func, board->dev->vendor_id, board->dev->device_id);
     if (board->llio.verbose == 0)
         return;
@@ -1161,7 +1161,23 @@ void pci_print_info(board_t *board) {
             }
         }
     }
-    if (board->flash_id > 0) {
+    printf("Communication:\n");
+    if (board->ctrl_base_addr > 0)
+        printf("  Ctrl I/O addr: %04X\n", board->ctrl_base_addr);
+    if (board->data_base_addr > 0)
+        printf("  Data I/O addr: %04X\n", board->data_base_addr);
+    if (board->mem_base > 0)
+        printf("  Memory: %08X\n", board->mem_base);
+
+    printf("Board info:\n");
+    if (board->flash_id > 0)
         printf("  Flash size: %s (id: 0x%02X)\n", eeprom_get_flash_type(board->flash_id), board->flash_id);
-    }
+    printf("  Connectors count: %d\n", board->llio.num_ioport_connectors);
+    printf("  Pins per connector: %d\n", board->llio.pins_per_connector);
+    printf("  Connectors names:");
+    for (i = 0; i < board->llio.num_ioport_connectors; i++)
+        printf(" %s", board->llio.ioport_connector_name[i]);
+    printf("\n");
+    printf("  FPGA type: %s\n", board->llio.fpga_part_number);
+    printf("  Number of leds: %d\n", board->llio.num_leds);
 }
