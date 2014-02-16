@@ -4,6 +4,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <netinet/ip.h>       // struct ip and IP_MAXPACKET (which is 65535)
+#include <netinet/udp.h>      // struct udphdr
 #elif _WIN32
 #include "libpci/pci.h"
 #endif
@@ -14,6 +16,7 @@
 #include <errno.h>
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "common.h"
 #include "bitfile.h"
@@ -22,6 +25,10 @@
 #include "eeprom_remote.h"
 #include "lbp16.h"
 #include "eeprom.h"
+
+#define USE_RAW_SOCKETS
+#define IP4_HDRLEN 20         // IPv4 header length
+#define UDP_HDRLEN  8         // UDP header length, excludes data
 
 extern board_t boards[MAX_BOARDS];
 extern int boards_count;
@@ -33,16 +40,186 @@ socklen_t len;
 SOCKET sd;
 int len;
 #endif
-struct sockaddr_in server_addr, client_addr;
+struct sockaddr_in dst_addr, src_addr;
 
 // eth access functions
 
+#ifdef USE_RAW_SOCKETS
+// Checksum function
+uint16_t
+checksum (uint16_t *addr, int len)
+{
+  int nleft = len;
+  int sum = 0;
+  uint16_t *w = addr;
+  uint16_t answer = 0;
+
+  while (nleft > 1) {
+    sum += *w++;
+    nleft -= sizeof (uint16_t);
+  }
+
+  if (nleft == 1) {
+    *(uint8_t *) (&answer) = *(uint8_t *) w;
+    sum += answer;
+  }
+
+  sum = (sum >> 16) + (sum & 0xFFFF);
+  sum += (sum >> 16);
+  answer = ~sum;
+  return (answer);
+}
+
+// Build IPv4 UDP pseudo-header and call checksum function.
+uint16_t
+udp4_checksum (struct ip iphdr, struct udphdr udphdr, uint8_t *payload, int payloadlen)
+{
+  char buf[IP_MAXPACKET];
+  char *ptr;
+  int chksumlen = 0;
+  int i;
+
+  ptr = &buf[0];  // ptr points to beginning of buffer buf
+
+  // Copy source IP address into buf (32 bits)
+  memcpy (ptr, &iphdr.ip_src.s_addr, sizeof (iphdr.ip_src.s_addr));
+  ptr += sizeof (iphdr.ip_src.s_addr);
+  chksumlen += sizeof (iphdr.ip_src.s_addr);
+
+  // Copy destination IP address into buf (32 bits)
+  memcpy (ptr, &iphdr.ip_dst.s_addr, sizeof (iphdr.ip_dst.s_addr));
+  ptr += sizeof (iphdr.ip_dst.s_addr);
+  chksumlen += sizeof (iphdr.ip_dst.s_addr);
+
+  // Copy zero field to buf (8 bits)
+  *ptr = 0; ptr++;
+  chksumlen += 1;
+
+  // Copy transport layer protocol to buf (8 bits)
+  memcpy (ptr, &iphdr.ip_p, sizeof (iphdr.ip_p));
+  ptr += sizeof (iphdr.ip_p);
+  chksumlen += sizeof (iphdr.ip_p);
+
+  // Copy UDP length to buf (16 bits)
+  memcpy (ptr, &udphdr.len, sizeof (udphdr.len));
+  ptr += sizeof (udphdr.len);
+  chksumlen += sizeof (udphdr.len);
+
+  // Copy UDP source port to buf (16 bits)
+  memcpy (ptr, &udphdr.source, sizeof (udphdr.source));
+  ptr += sizeof (udphdr.source);
+  chksumlen += sizeof (udphdr.source);
+
+  // Copy UDP destination port to buf (16 bits)
+  memcpy (ptr, &udphdr.dest, sizeof (udphdr.dest));
+  ptr += sizeof (udphdr.dest);
+  chksumlen += sizeof (udphdr.dest);
+
+  // Copy UDP length again to buf (16 bits)
+  memcpy (ptr, &udphdr.len, sizeof (udphdr.len));
+  ptr += sizeof (udphdr.len);
+  chksumlen += sizeof (udphdr.len);
+
+  // Copy UDP checksum to buf (16 bits)
+  // Zero, since we don't know it yet
+  *ptr = 0; ptr++;
+  *ptr = 0; ptr++;
+  chksumlen += 2;
+
+  // Copy payload to buf
+  memcpy (ptr, payload, payloadlen);
+  ptr += payloadlen;
+  chksumlen += payloadlen;
+
+  // Pad to the next 16-bit boundary
+  for (i=0; i<payloadlen%2; i++, ptr++) {
+    *ptr = 0;
+    ptr++;
+    chksumlen++;
+  }
+
+  return checksum ((uint16_t *) buf, chksumlen);
+}
+
+#endif
+
 inline int eth_socket_send_packet(void *packet, int size) {
-    return sendto(sd, (char*) packet, size, 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
+#ifdef USE_RAW_SOCKETS
+    struct ip iphdr;
+    struct udphdr udphdr;
+    int status;
+    u8 ip_flags[4];
+    char src_ip[] = "192.168.1.14";
+    u8 send_packet[1500];
+
+    iphdr.ip_hl = IP4_HDRLEN / sizeof (uint32_t);
+    // Internet Protocol version (4 bits): IPv4
+    iphdr.ip_v = 4;
+    // Type of service (8 bits)
+    iphdr.ip_tos = 0;
+    // Total length of datagram (16 bits): IP header + UDP header + datalen
+    iphdr.ip_len = htons (IP4_HDRLEN + UDP_HDRLEN + size);
+    // ID sequence number (16 bits): unused, since single datagram
+    iphdr.ip_id = htons (0);
+    // Flags, and Fragmentation offset (3, 13 bits): 0 since single datagram
+    // Zero (1 bit)
+    ip_flags[0] = 0;
+    // Do not fragment flag (1 bit)
+    ip_flags[1] = 0;
+    // More fragments following flag (1 bit)
+    ip_flags[2] = 0;
+    // Fragmentation offset (13 bits)
+    ip_flags[3] = 0;
+    iphdr.ip_off = htons ((ip_flags[0] << 15) + (ip_flags[1] << 14) + (ip_flags[2] << 13) + ip_flags[3]);
+    // Time-to-Live (8 bits): default to maximum value
+    iphdr.ip_ttl = 255;
+    // Transport layer protocol (8 bits): 17 for UDP
+    iphdr.ip_p = IPPROTO_UDP;
+
+    // Source IPv4 address (32 bits)
+    if ((status = inet_pton (AF_INET, src_ip, &(iphdr.ip_src))) != 1) {
+        fprintf (stderr, "inet_pton() failed.\nError message: %s", strerror (status));
+        exit (EXIT_FAILURE);
+    }
+    iphdr.ip_dst = dst_addr.sin_addr;
+    // IPv4 header checksum (16 bits): set to 0 when calculating checksum
+    iphdr.ip_sum = 0;
+    iphdr.ip_sum = checksum ((uint16_t *) &iphdr, IP4_HDRLEN);
+
+    // UDP header
+    // Source port number (16 bits): pick a number
+    udphdr.source = htons (LBP16_UDP_PORT);
+    // Destination port number (16 bits): pick a number
+    udphdr.dest = htons (LBP16_UDP_PORT);
+    // Length of UDP datagram (16 bits): UDP header + UDP data
+    udphdr.len = htons (UDP_HDRLEN + size);
+    // UDP checksum (16 bits)
+    udphdr.check = udp4_checksum (iphdr, udphdr, packet, size);
+
+    // Prepare packet.
+    // First part is an IPv4 header.
+    memcpy (send_packet, &iphdr, IP4_HDRLEN * sizeof (uint8_t));
+    // Next part of packet is upper layer protocol header.
+    memcpy ((send_packet + IP4_HDRLEN), &udphdr, UDP_HDRLEN * sizeof (uint8_t));
+    // Finally, add the UDP data.
+    memcpy (send_packet + IP4_HDRLEN + UDP_HDRLEN, packet, size * sizeof (uint8_t));
+
+    return sendto(sd, (char*) send_packet, IP4_HDRLEN + UDP_HDRLEN + size, 0, (struct sockaddr *) &dst_addr, sizeof(dst_addr));
+#endif
+    return sendto(sd, (char*) packet, size, 0, (struct sockaddr *) &dst_addr, sizeof(dst_addr));
 }
 
 inline int eth_socket_recv_packet(void *buffer, int size) {
-    return recvfrom(sd, (char*) buffer, size, 0, (struct sockaddr *) &client_addr, &len);
+#ifdef USE_RAW_SOCKETS
+    u8 recv_packet[1500];
+    int recv;
+
+    recv = recvfrom(sd, (char*) recv_packet, IP4_HDRLEN + UDP_HDRLEN + size, 0, (struct sockaddr *) &src_addr, &len);
+    memcpy(buffer, &recv_packet[IP4_HDRLEN + UDP_HDRLEN], size);
+    return recv;
+#else
+    return recvfrom(sd, (char*) buffer, size, 0, (struct sockaddr *) &src_addr, &len);
+#endif
 }
 
 static void eth_socket_nonblocking() {
@@ -72,11 +249,11 @@ static void eth_socket_blocking() {
 }
 
 void eth_socket_set_dest_ip(char *addr_name) {
-    server_addr.sin_addr.s_addr = inet_addr(addr_name);
+    dst_addr.sin_addr.s_addr = inet_addr(addr_name);
 }
 
 static char *eth_socket_get_src_ip() {
-    return inet_ntoa(client_addr.sin_addr);
+    return inet_ntoa(src_addr.sin_addr);
 }
 
 int lbp16_read(u16 cmd, u32 addr, void *buffer, int size) {
@@ -295,7 +472,17 @@ static int eth_scan_one_addr(board_access_t *access) {
 int eth_boards_init(board_access_t *access) {
 // open socket
 #ifdef __linux__
+#ifdef USE_RAW_SOCKETS
+    const int on = 1;
+
+    sd = socket (AF_INET, SOCK_RAW, IPPROTO_UDP);
+    if (setsockopt (sd, IPPROTO_IP, IP_HDRINCL, &on, sizeof (on)) < 0) {
+        perror ("setsockopt() failed to set IP_HDRINCL ");
+        exit (EXIT_FAILURE);
+    }
+#else
     sd = socket (PF_INET, SOCK_DGRAM, 0);
+#endif
 #elif _WIN32
     int iResult;
     WSADATA wsaData;
@@ -313,9 +500,11 @@ int eth_boards_init(board_access_t *access) {
         return;
     }
 #endif
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(LBP16_UDP_PORT);
-    len = sizeof(client_addr);
+    src_addr.sin_family = AF_INET;
+    dst_addr.sin_family = AF_INET;
+    src_addr.sin_port = htons(LBP16_UDP_PORT);
+    dst_addr.sin_port = htons(LBP16_UDP_PORT);
+    len = sizeof(src_addr);
     return 0;
 }
 
