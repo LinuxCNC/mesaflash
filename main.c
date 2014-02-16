@@ -299,6 +299,7 @@ int main(int argc, char *argv[]) {
         access.recover = recover_flag;
         access.pci = 1;
         if (addr_flag == 1) {
+            access.address = 1;
             access.eth = 1;
 //            access.usb = 1;
 //            access.epp = 1;

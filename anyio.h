@@ -49,6 +49,7 @@ struct board_struct {
 typedef struct {
     char *device_name;
     int list;
+    int address;
     int verbose;
     int recover;
     int pci;
