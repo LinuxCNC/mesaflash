@@ -13,6 +13,7 @@
 #include "eeprom.h"
 #include "eeprom_local.h"
 #include "hostmot2.h"
+#include "bitfile.h"
 
 extern u8 boot_block[BOOT_BLOCK_SIZE];
 extern u8 page_buffer[PAGE_SIZE];

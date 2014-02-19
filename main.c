@@ -8,6 +8,7 @@
 
 #include "anyio.h"
 #include "eeprom.h"
+#include "eth_boards.h"
 
 static int device_flag;
 static int addr_flag;

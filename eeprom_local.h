@@ -42,6 +42,7 @@ typedef struct {
     u8   (*recv_byte)(llio_t *self);
 } spi_eeprom_dev_t;
 
+u8 read_flash_id(llio_t *self);
 int local_write_flash(llio_t *self, char *bitfile_name, u32 start_address);
 int local_verify_flash(llio_t *self, char *bitfile_name, u32 start_address);
 void open_spi_access_local(llio_t *self);

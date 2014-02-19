@@ -149,7 +149,7 @@ inline int eth_socket_send_packet(void *packet, int size) {
     struct udphdr udphdr;
     int status;
     u8 ip_flags[4];
-    char src_ip[] = "192.168.1.14";
+    char src_ip[] = "192.168.1.1";
     u8 send_packet[1500];
 
     iphdr.ip_hl = IP4_HDRLEN / sizeof (uint32_t);

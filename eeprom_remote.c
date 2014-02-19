@@ -11,7 +11,9 @@
 
 #include "eeprom.h"
 #include "eeprom_remote.h"
+#include "eth_boards.h"
 #include "lbp16.h"
+#include "bitfile.h"
 
 extern u8 boot_block[BOOT_BLOCK_SIZE];
 extern u8 page_buffer[PAGE_SIZE];
