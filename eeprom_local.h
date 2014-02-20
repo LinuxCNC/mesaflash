@@ -4,18 +4,6 @@
 
 #include "hostmot2.h"
 
-// hm2 access
-#define HM2_DAV_MASK          0x04
-
-#define SPI_CMD_PAGE_WRITE   0x02
-#define SPI_CMD_READ         0x03
-#define SPI_CMD_READ_STATUS  0x05
-#define SPI_CMD_WRITE_ENABLE 0x06
-#define SPI_CMD_READ_IDROM   0xAB
-#define SPI_CMD_SECTOR_ERASE 0xD8
-
-#define WRITE_IN_PROGRESS_MASK 0x01
-
 // gpio access
 #define XIO2001_SBAD_STAT_REG 0x00B2
 #define XIO2001_GPIO_ADDR_REG 0x00B4
