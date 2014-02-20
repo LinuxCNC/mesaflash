@@ -62,8 +62,8 @@ typedef struct {
     u16 epp_base_hi_addr;
 } board_access_t;
 
-board_t boards[MAX_BOARDS];
-int boards_count;
+extern board_t boards[MAX_BOARDS];
+extern int boards_count;
 
 int anyio_init(board_access_t *access);
 void anyio_cleanup(board_access_t *access);

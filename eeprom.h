@@ -17,7 +17,7 @@
 #define BOOT_ADDRESS     0x000000
 #define FALLBACK_ADDRESS 0x010000
 
-u8 boot_block[BOOT_BLOCK_SIZE];
+extern u8 boot_block[BOOT_BLOCK_SIZE];
 
 char *eeprom_get_flash_type(u8 flash_id);
 u32 eeprom_calc_user_space(u8 flash_id);
