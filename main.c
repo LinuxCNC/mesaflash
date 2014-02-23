@@ -7,8 +7,6 @@
 #include <errno.h>
 
 #include "anyio.h"
-#include "eeprom.h"
-#include "eth_boards.h"
 
 static int device_flag;
 static int addr_flag;
@@ -330,57 +328,17 @@ int main(int argc, char *argv[]) {
             board->llio.write(&(board->llio), wpo_addr, &wpo_data, sizeof(u32));
         } else if (lbp16_flag == 1) {
             if (lbp16_send_packet_flag == 1) {
-                u8 packet[512];
-                u8 *pch = lbp16_send_packet_data;
-                u32 *ptr = (u32 *) packet;
-                int i, recv;
-
-                for (i = 0; i < 512, i < strlen(lbp16_send_packet_data); i++, pch += 2) {
-                    char s[3] = {*pch, *(pch + 1), 0};
-                    packet[i] = strtol(s, NULL, 16) & 0xFF;
-                }
-                eth_socket_send_packet(&packet, i/2);
-                recv = eth_socket_recv_packet(&packet, 512);
-                for (i = 0; i < recv; i++)
-                    printf("%02X", packet[i]);
-                printf("\n");
+                ret = anyio_dev_send_packet(board, lbp16_send_packet_data);
             }
         } else if (write_flag == 1) {
-            if (board->llio.write_flash != NULL) {
-                u32 addr = board->flash_start_address;
-
-                if (fallback_flag == 1)
-                    addr = FALLBACK_ADDRESS;
-                board->llio.write_flash(&(board->llio), bitfile_name, addr);
-            } else {
-                printf("Board %s doesn't support flash write.\n", board->llio.board_name);
-            }
+            ret = anyio_dev_write_flash(board, bitfile_name, fallback_flag);
         } else if (verify_flag == 1) {
-            if (board->llio.verify_flash != NULL) {
-                u32 addr = board->flash_start_address;
-
-                if (fallback_flag == 1)
-                    addr = FALLBACK_ADDRESS;
-                board->llio.verify_flash(&(board->llio), bitfile_name, addr);
-            } else {
-                printf("Board %s doesn't support flash verification.\n", board->llio.board_name);
-            }
+            ret = anyio_dev_verify_flash(board, bitfile_name, fallback_flag);
         } else if (program_flag == 1) {
-            if (board->llio.reset != NULL) {
-                ret = board->llio.reset(&(board->llio));
-                if (ret)
-                    goto fail0;
-            } else {
-                printf("Board %s doesn't support FPGA reset.\n", board->llio.board_name);
-            }
-            if (board->llio.program_fpga != NULL)
-                ret = board->llio.program_fpga(&(board->llio), bitfile_name);
-            else
-                printf("Board %s doesn't support FPGA programming.\n", board->llio.board_name);
+            ret = anyio_dev_program_fpga(board, bitfile_name);
         } else {
             anyio_dev_print_info(board);
         }
-fail0:
         anyio_close_dev(board);
         anyio_cleanup(&access);
     }

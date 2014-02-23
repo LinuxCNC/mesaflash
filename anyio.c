@@ -147,6 +147,70 @@ void anyio_dev_print_info(board_t *board) {
     }
 }
 
+int anyio_dev_write_flash(board_t *board, char *bitfile_name, int fallback_flag) {
+    if (board->llio.write_flash != NULL) {
+        u32 addr = board->flash_start_address;
+
+        if (fallback_flag == 1) {
+            addr = FALLBACK_ADDRESS;
+        }
+        board->llio.write_flash(&(board->llio), bitfile_name, addr);
+    } else {
+        printf("ERROR: Board %s doesn't support flash writing.\n", board->llio.board_name);
+        return -EINVAL;
+    }
+    return 0;
+}
+
+int anyio_dev_verify_flash(board_t *board, char *bitfile_name, int fallback_flag) {
+    if (board->llio.verify_flash != NULL) {
+        u32 addr = board->flash_start_address;
+
+        if (fallback_flag == 1) {
+            addr = FALLBACK_ADDRESS;
+        }
+        board->llio.verify_flash(&(board->llio), bitfile_name, addr);
+    } else {
+        printf("ERROR: Board %s doesn't support flash verification.\n", board->llio.board_name);
+        return -EINVAL;
+    }
+    return 0;
+}
+
+int anyio_dev_program_fpga(board_t *board, char *bitfile_name) {
+    if (board->llio.reset != NULL) {
+        board->llio.reset(&(board->llio));
+    } else {
+        printf("ERROR: Board %s doesn't support FPGA resetting.\n", board->llio.board_name);
+        return -EINVAL;
+    }
+    if (board->llio.program_fpga != NULL) {
+        board->llio.program_fpga(&(board->llio), bitfile_name);
+    } else {
+        printf("ERROR: Board %s doesn't support FPGA programming.\n", board->llio.board_name);
+        return -EINVAL;
+    }
+    return 0;
+}
+
+int anyio_dev_send_packet(board_t *board, char *lbp16_send_packet_data) {
+    u8 packet[512];
+    u8 *pch = lbp16_send_packet_data;
+    u32 *ptr = (u32 *) packet;
+    int i, recv;
+
+    for (i = 0; i < 512, i < strlen(lbp16_send_packet_data); i++, pch += 2) {
+        char s[3] = {*pch, *(pch + 1), 0};
+        packet[i] = strtol(s, NULL, 16) & 0xFF;
+    }
+    eth_socket_send_packet(&packet, i/2);
+    recv = eth_socket_recv_packet(&packet, 512);
+    for (i = 0; i < recv; i++)
+        printf("%02X", packet[i]);
+    printf("\n");
+    return 0;
+}
+
 void anyio_dev_print_hm2_info(board_t *board) {
     if (board == NULL)
         return;
