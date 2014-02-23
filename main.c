@@ -313,7 +313,7 @@ int main(int argc, char *argv[]) {
             return -1;
         }
 
-        anyio_open_dev(board);
+        board->open(board);
 
         if (readhmid_flag == 1) {
             anyio_dev_print_hm2_info(board);
@@ -337,9 +337,9 @@ int main(int argc, char *argv[]) {
         } else if (program_flag == 1) {
             ret = anyio_dev_program_fpga(board, bitfile_name);
         } else {
-            anyio_dev_print_info(board);
+           board->print_info(board);
         }
-        anyio_close_dev(board);
+        board->close(board);
         anyio_cleanup(&access);
     }
 

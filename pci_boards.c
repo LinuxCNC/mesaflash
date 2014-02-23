@@ -785,6 +785,7 @@ void pci_boards_scan(board_access_t *access) {
 
                 board->open = &pci_board_open;
                 board->close = &pci_board_close;
+                board->print_info = &pci_print_info;
                 board->mem_base = 0;
                 board->dev = dev;
                 board->flash = BOARD_FLASH_GPIO;
@@ -820,6 +821,7 @@ void pci_boards_scan(board_access_t *access) {
 
                 board->open = &pci_board_open;
                 board->close = &pci_board_close;
+                board->print_info = &pci_print_info;
                 board->mem_base = dev->base_addr[0] & PCI_ADDR_MEM_MASK;
                 board->len = dev->size[0];
                 board->dev = dev;
@@ -845,6 +847,7 @@ void pci_boards_scan(board_access_t *access) {
 
                 board->open = &pci_board_open;
                 board->close = &pci_board_close;
+                board->print_info = &pci_print_info;
                 board->mem_base = dev->base_addr[0] & PCI_ADDR_MEM_MASK;
                 board->len = dev->size[0];
                 board->dev = dev;
@@ -870,6 +873,7 @@ void pci_boards_scan(board_access_t *access) {
 
                 board->open = &pci_board_open;
                 board->close = &pci_board_close;
+                board->print_info = &pci_print_info;
                 board->mem_base = dev->base_addr[0] & PCI_ADDR_MEM_MASK;
                 board->len = dev->size[0];
                 board->dev = dev;
@@ -900,6 +904,7 @@ void pci_boards_scan(board_access_t *access) {
 
                     board->open = &pci_board_open;
                     board->close = &pci_board_close;
+                    board->print_info = &pci_print_info;
                     board->mem_base = dev->base_addr[5] & PCI_ADDR_MEM_MASK;
                     board->len = dev->size[5];
                     board->ctrl_base_addr = dev->base_addr[1] & PCI_ADDR_IO_MASK;
@@ -927,6 +932,7 @@ void pci_boards_scan(board_access_t *access) {
 
                     board->open = &pci_board_open;
                     board->close = &pci_board_close;
+                    board->print_info = &pci_print_info;
                     board->mem_base = dev->base_addr[5] & PCI_ADDR_MEM_MASK;
                     board->len = dev->size[5];
                     board->ctrl_base_addr = dev->base_addr[1] & PCI_ADDR_IO_MASK;
@@ -957,6 +963,7 @@ void pci_boards_scan(board_access_t *access) {
 
                     board->open = &pci_board_open;
                     board->close = &pci_board_close;
+                    board->print_info = &pci_print_info;
                     board->mem_base = dev->base_addr[3] & PCI_ADDR_MEM_MASK;
                     board->len = dev->size[3];
                     board->ctrl_base_addr = dev->base_addr[1] & PCI_ADDR_IO_MASK;
@@ -983,6 +990,7 @@ void pci_boards_scan(board_access_t *access) {
 
                     board->open = &pci_board_open;
                     board->close = &pci_board_close;
+                    board->print_info = &pci_print_info;
                     board->mem_base = dev->base_addr[3] & PCI_ADDR_MEM_MASK;
                     board->len = dev->size[3];
                     board->ctrl_base_addr = dev->base_addr[1] & PCI_ADDR_IO_MASK;
@@ -1015,6 +1023,7 @@ void pci_boards_scan(board_access_t *access) {
 
                     board->open = &pci_board_open;
                     board->close = &pci_board_close;
+                    board->print_info = &pci_print_info;
                     board->mem_base = dev->base_addr[3] & PCI_ADDR_MEM_MASK;
                     board->len = dev->size[3];
                     board->ctrl_base_addr = dev->base_addr[1] & PCI_ADDR_IO_MASK;
@@ -1042,6 +1051,7 @@ void pci_boards_scan(board_access_t *access) {
 
                     board->open = &pci_board_open;
                     board->close = &pci_board_close;
+                    board->print_info = &pci_print_info;
                     board->mem_base = dev->base_addr[3] & PCI_ADDR_MEM_MASK;
                     board->len = dev->size[3];
                     board->ctrl_base_addr = dev->base_addr[1] & PCI_ADDR_IO_MASK;
@@ -1073,6 +1083,7 @@ void pci_boards_scan(board_access_t *access) {
 
                     board->open = &pci_board_open;
                     board->close = &pci_board_close;
+                    board->print_info = &pci_print_info;
                     board->mem_base = dev->base_addr[3] & PCI_ADDR_MEM_MASK;
                     board->len = dev->size[3];
                     board->ctrl_base_addr = dev->base_addr[1] & PCI_ADDR_IO_MASK;
@@ -1114,6 +1125,7 @@ void pci_boards_scan(board_access_t *access) {
 
                     board->open = &pci_board_open;
                     board->close = &pci_board_close;
+                    board->print_info = &pci_print_info;
                     board->mem_base = dev->base_addr[3] & PCI_ADDR_MEM_MASK;
                     board->len = dev->size[3];
                     board->ctrl_base_addr = dev->base_addr[1] & PCI_ADDR_IO_MASK;
@@ -1129,6 +1141,9 @@ void pci_boards_scan(board_access_t *access) {
                     board->type = BOARD_PCI;
                     strncpy(board->llio.board_name, "5I71", 4);
                     board->llio.private = board;
+                    board->open = &pci_board_open;
+                    board->close = &pci_board_close;
+                    board->print_info = &pci_print_info;
                     board->dev = dev;
                     board->llio.verbose = access->verbose;
 

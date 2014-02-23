@@ -42,6 +42,7 @@ struct board_struct {
 
     int (*open)(board_t *self);
     int (*close)(board_t *self);
+    void (*print_info)(board_t *self);
 
     llio_t llio;
 };
@@ -70,13 +71,10 @@ void anyio_cleanup(board_access_t *access);
 void anyio_scan(board_access_t *access);
 board_t *anyio_get_dev(board_access_t *access);
 void anyio_list_dev(board_access_t *access);
-void anyio_open_dev(board_t *board);
-void anyio_close_dev(board_t *board);
 int anyio_dev_write_flash(board_t *board, char *bitfile_name, int fallback_flag);
 int anyio_dev_verify_flash(board_t *board, char *bitfile_name, int fallback_flag);
 int anyio_dev_program_fpga(board_t *board, char *bitfile_name);
 int anyio_dev_send_packet(board_t *board, char *lbp16_send_packet_data);
-void anyio_dev_print_info(board_t *board);
 void anyio_dev_print_hm2_info(board_t *board);
 void anyio_dev_print_sserial_info(board_t *board);
 void anyio_bitfile_print_info(char *bitfile_name);

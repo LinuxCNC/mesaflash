@@ -101,49 +101,7 @@ void anyio_list_dev(board_access_t *access) {
     for (i = 0; i < boards_count; i++) {
         board_t *board = &boards[i];
 
-        anyio_dev_print_info(board);
-    }
-}
-
-void anyio_open_dev(board_t *board) {
-    if (board == NULL)
-        return;
-
-    if (board->open != NULL)
-        board->open(board);
-    else
-        printf("ERROR: board %s doesn't support device opening\n", board->llio.board_name);
-}
-
-void anyio_close_dev(board_t *board) {
-    if (board == NULL)
-        return;
-
-    if (board->close != NULL)
-        board->close(board);
-    else
-        printf("ERROR: board %s doesn't support device closing\n", board->llio.board_name);
-}
-
-void anyio_dev_print_info(board_t *board) {
-    if (board == NULL)
-        return;
-    switch (board->type) {
-        case BOARD_ETH:
-            eth_print_info(board);
-            break;
-        case BOARD_PCI:
-            pci_print_info(board);
-            break;
-        case BOARD_EPP:
-            epp_print_info(board);
-            break;
-        case BOARD_USB:
-            usb_print_info(board);
-            break;
-        case BOARD_SPI:
-            spi_print_info(board);
-            break;
+        board->print_info(board);
     }
 }
 

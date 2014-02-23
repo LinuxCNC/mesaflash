@@ -370,6 +370,7 @@ void epp_boards_scan(board_access_t *access) {
 
             board->open = &epp_board_open;
             board->close = &epp_board_close;
+            board->print_info = &epp_print_info;
             board->flash = BOARD_FLASH_HM2;
             eeprom_init(&(board->llio));
             board->flash_id = read_flash_id(&(board->llio));

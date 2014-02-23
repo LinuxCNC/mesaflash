@@ -364,6 +364,7 @@ static int eth_scan_one_addr(board_access_t *access) {
 
             board->open = &eth_board_open;
             board->close = &eth_board_close;
+            board->print_info = &eth_print_info;
             board->flash = BOARD_FLASH_REMOTE;
             board->fallback_support = 1;
             board->llio.verbose = access->verbose;
@@ -387,6 +388,7 @@ static int eth_scan_one_addr(board_access_t *access) {
 
             board->open = &eth_board_open;
             board->close = &eth_board_close;
+            board->print_info = &eth_print_info;
             board->flash = BOARD_FLASH_REMOTE;
             board->fallback_support = 1;
             board->llio.verbose = access->verbose;
@@ -409,6 +411,7 @@ static int eth_scan_one_addr(board_access_t *access) {
 
             board->open = &eth_board_open;
             board->close = &eth_board_close;
+            board->print_info = &eth_print_info;
             board->flash = BOARD_FLASH_REMOTE;
             board->fallback_support = 1;
             board->llio.verbose = access->verbose;
@@ -431,6 +434,7 @@ static int eth_scan_one_addr(board_access_t *access) {
 
             board->open = &eth_board_open;
             board->close = &eth_board_close;
+            board->print_info = &eth_print_info;
             board->flash = BOARD_FLASH_REMOTE;
             board->fallback_support = 1;
             board->llio.verbose = access->verbose;
@@ -453,6 +457,7 @@ static int eth_scan_one_addr(board_access_t *access) {
 
             board->open = &eth_board_open;
             board->close = &eth_board_close;
+            board->print_info = &eth_print_info;
             board->flash = BOARD_FLASH_REMOTE;
             board->fallback_support = 1;
             board->llio.verbose = access->verbose;

@@ -92,6 +92,14 @@ static int usb_program_fpga(llio_t *self, char *bitfile_name) {
     return 0;
 }
 
+static int usb_board_open(board_t *board) {
+    return 0;
+}
+
+static int usb_board_close(board_t *board) {
+    return 0;
+}
+
 int usb_boards_init(board_access_t *access) {
     lbp_init(access);
     return 0;
@@ -135,6 +143,10 @@ void usb_boards_scan(board_access_t *access) {
             board->llio.read = &usb_read;
             board->llio.write = &usb_write;
             board->llio.private = board;
+
+            board->open = &usb_board_open;
+            board->close = &usb_board_close;
+            board->print_info = &usb_print_info;
             board->llio.verbose = access->verbose;
 
             u32 cookie;
@@ -180,6 +192,9 @@ void usb_boards_scan(board_access_t *access) {
         board->llio.program_fpga = &usb_program_fpga;
         board->llio.private = board;
         board->llio.verbose = access->verbose;
+        board->open = &usb_board_open;
+        board->close = &usb_board_close;
+        board->print_info = &usb_print_info;
 
         boards_count++;
         return;
