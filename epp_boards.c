@@ -310,9 +310,6 @@ void epp_boards_scan(board_access_t *access) {
     u16 epp_addr;
     u32 cookie;
 
-    iopl(3);
-    board->epp_wide = 1;
-
     if (strncmp(access->dev_addr, "0x", 2) == 0) {
         access->dev_addr[0] = '0';
         access->dev_addr[1] = '0';
@@ -320,6 +317,12 @@ void epp_boards_scan(board_access_t *access) {
     } else {
         epp_addr = strtol(access->dev_addr, NULL, 10);
     }
+    if (epp_addr == 0) {
+        return;
+    }
+
+    iopl(3);
+    board->epp_wide = 1;
 
     r = parport_get(board, epp_addr, access->epp_base_hi_addr, PARPORT_MODE_EPP);
     if (r < 0)

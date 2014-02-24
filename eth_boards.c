@@ -530,6 +530,10 @@ void eth_boards_scan(board_access_t *access) {
     int i;
     char *ptr;
 
+    if (inet_pton(AF_INET, access->dev_addr, addr) != 1) {
+        return;
+    };
+
     eth_socket_nonblocking();
 
     if (access->address == 1) {

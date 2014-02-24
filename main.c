@@ -300,8 +300,8 @@ int main(int argc, char *argv[]) {
         if (addr_flag == 1) {
             access.address = 1;
             access.eth = 1;
+            access.epp = 1;
 //            access.usb = 1;
-//            access.epp = 1;
         }
 
         if (anyio_init(&access) != 0)
