@@ -86,3 +86,8 @@ common.o : common.c $(headers)
 
 clean :
 	$(RM) $(BIN) *.o
+
+.PHONY: install
+install: $(BIN)
+       install --mode=0755 --owner root --group root --dir $(DESTDIR)/bin
+       install --mode=0755 --owner root --group root $(BIN) $(DESTDIR)/bin
