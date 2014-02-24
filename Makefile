@@ -33,7 +33,7 @@ objects += sserial_module.o eeprom_local.o eeprom_remote.o spi_boards.o spilbp.o
 headers = eth_boards.h pci_boards.h epp_boards.h usb_boards.h spi_boards.h anyio.h hostmot2.h lbp16.h common.h eeprom.h
 headers += lbp.h eeprom_local.h eeprom_remote.h spilbp.h bitfile.h sserial_module.h hostmot2_def.h
 
-all : $(objects)
+$(BIN) all : $(objects)
 	$(CC) -o $(BIN) $(objects) $(MATHLIB) $(LIBS)
 
 main.o : main.c $(headers)
