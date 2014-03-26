@@ -721,6 +721,12 @@ static int pci_board_open(board_t *board) {
             board->flash_start_address = eeprom_calc_user_space(board->flash_id);
         else
             board->flash_start_address = 0;
+        // fix 5i24 fpga name according to readed flash_id
+        if (strncmp(board->llio.board_name, "5I24", 4) == 0) {
+            if (board->flash_id == ID_EEPROM_25M) {
+                board->llio.fpga_part_number = "xc6slx25ftg256";
+            }
+        }
 
         eeprom_prepare_boot_block(board->flash_id);
     }
@@ -830,6 +836,33 @@ void pci_boards_scan(board_access_t *access) {
                 board->llio.ioport_connector_name[2] = "P4";
                 board->llio.fpga_part_number = "6slx9pq144";
                 board->llio.num_leds = 0;
+                board->llio.read = &pci_read;
+                board->llio.write = &pci_write;
+                board->llio.write_flash = &local_write_flash;
+                board->llio.verify_flash = &local_verify_flash;
+                board->llio.private = board;
+
+                board->open = &pci_board_open;
+                board->close = &pci_board_close;
+                board->print_info = &pci_print_info;
+                board->mem_base = dev->base_addr[0] & PCI_ADDR_MEM_MASK;
+                board->len = dev->size[0];
+                board->dev = dev;
+                board->flash = BOARD_FLASH_HM2;
+                board->fallback_support = 1;
+                board->llio.verbose = access->verbose;
+
+                boards_count++;
+            } else if (dev->device_id == DEVICEID_MESA5I24) {
+                board->type = BOARD_PCI;
+                strncpy((char *) board->llio.board_name, "5I24", 4);
+                board->llio.num_ioport_connectors = 3;
+                board->llio.pins_per_connector = 24;
+                board->llio.ioport_connector_name[0] = "P2";
+                board->llio.ioport_connector_name[1] = "P3";
+                board->llio.ioport_connector_name[2] = "P4";
+                board->llio.fpga_part_number = "xc6slx16ftg256";
+                board->llio.num_leds = 2;
                 board->llio.read = &pci_read;
                 board->llio.write = &pci_write;
                 board->llio.write_flash = &local_write_flash;

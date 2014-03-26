@@ -27,6 +27,7 @@
 #define ID_EEPROM_4M 0x12
 #define ID_EEPROM_8M 0x13
 #define ID_EEPROM_16M 0x14
+#define ID_EEPROM_25M 0x15
 
 #define PAGE_SIZE   256
 #define SECTOR_SIZE 65536

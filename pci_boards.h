@@ -33,6 +33,7 @@
 #define VENDORID_XIO2001         0x104C
 
 #define DEVICEID_MESA4I74        0x4174
+#define DEVICEID_MESA5I24        0x5124
 #define DEVICEID_MESA5I25        0x5125
 #define DEVICEID_MESA6I25        0x6125
 #define DEVICEID_PLX9030         0x9030
