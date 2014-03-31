@@ -38,7 +38,7 @@ ifeq ($(TARGET),windows)
 	MINGW = c:/MinGW
 	INCLUDE = -I$(MINGW)/include
 	BIN = mesaflash.exe
-	LIBS = -lwsock32 libpci.dll winio32.dll
+	LIBS = -lwsock32 -lws2_32 libpci.dll winio32.dll
 	DEBUG += -mno-ms-bitfields
 endif
 

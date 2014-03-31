@@ -24,6 +24,8 @@
 #include <netinet/ip.h>       // struct ip and IP_MAXPACKET (which is 65535)
 #include <netinet/udp.h>      // struct udphdr
 #elif _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
 #include "libpci/pci.h"
 #endif
 #include <sys/stat.h>
@@ -43,7 +45,7 @@
 #include "lbp16.h"
 #include "eeprom.h"
 
-#define USE_RAW_SOCKETS
+//#define USE_RAW_SOCKETS
 #define IP4_HDRLEN 20         // IPv4 header length
 #define UDP_HDRLEN  8         // UDP header length, excludes data
 
@@ -547,7 +549,13 @@ void eth_boards_scan(board_access_t *access) {
     int i;
     char *ptr;
 
+#ifdef __linux__
     if (inet_pton(AF_INET, access->dev_addr, addr) != 1) {
+#elif _WIN32
+    struct sockaddr ss;
+    int size;
+    if (WSAStringToAddress(access->dev_addr, AF_INET, NULL, (struct sockaddr *)&ss, &size) != 0) {
+#endif
         return;
     };
 
