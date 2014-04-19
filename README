@@ -15,10 +15,6 @@ In the source directory, install dependency and build:
   sudo apt-get install libpci-dev
   make
 
-to run the software:
-
-  ./mesaflash
-
 to get command line syntax:
   
   ./mesaflash --help
