@@ -31,7 +31,7 @@ DEBUG = -g
 ifeq ($(TARGET),linux)
 	INCLUDE = -I/usr/include
 	BIN = mesaflash
-	LIBS = -lpci
+	LIBS = $(LDFLAGS) -lpci
 endif
 
 ifeq ($(TARGET),windows)
@@ -106,5 +106,5 @@ clean :
 
 .PHONY: install
 install: $(BIN)
-       install --mode=0755 --owner root --group root --dir $(DESTDIR)/bin
-       install --mode=0755 --owner root --group root $(BIN) $(DESTDIR)/bin
+	install --mode=0755 --owner root --group root --dir $(DESTDIR)/bin
+	install --mode=0755 --owner root --group root $(BIN) $(DESTDIR)/bin
