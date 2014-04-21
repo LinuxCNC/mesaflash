@@ -23,9 +23,9 @@
 #include "libpci/pci.h"
 #endif
 #include <sys/stat.h>
-#include <errno.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 
 #include "eeprom.h"
 #include "eeprom_local.h"
@@ -308,13 +308,15 @@ static u8 read_byte(llio_t *self, u32 addr) {
     return ret;
 }
 
-static void erase_sector(llio_t *self, u32 addr) {
-    write_enable(self);
-    access.prefix(self);
-    access.send_byte(self, SPI_CMD_SECTOR_ERASE);
-    send_address(self, addr);
-    access.suffix(self);
-    wait_for_write(self);
+// eeprom access functions
+
+static void read_page(llio_t *self, u32 addr, void *buff) {
+    int i;
+
+    for (i = 0; i < PAGE_SIZE; i++) {
+        *((u8 *) buff) = read_byte(self, addr + i);
+        buff++;
+    }
 }
 
 static void write_page(llio_t *self, u32 addr, char *buff, int buff_i) {
@@ -331,18 +333,26 @@ static void write_page(llio_t *self, u32 addr, char *buff, int buff_i) {
     wait_for_write(self);
 }
 
+static void erase_sector(llio_t *self, u32 addr) {
+    write_enable(self);
+    access.prefix(self);
+    access.send_byte(self, SPI_CMD_SECTOR_ERASE);
+    send_address(self, addr);
+    access.suffix(self);
+    wait_for_write(self);
+}
+
 static int check_boot(llio_t *self) {
     board_t *board = self->private;
     int i;
-    u8 data;
 
 // if board doesn't support fallback there is no boot block
     if (board->fallback_support == 0)
         return 0;
 
+    read_page(self, 0x0, &page_buffer);
     for (i = 0; i < BOOT_BLOCK_SIZE; i++) {
-        data = read_byte(self, i);
-        if (data != boot_block[i]) {
+        if (boot_block[i] != page_buffer[i]) {
             return -1;
         }
     }
@@ -354,14 +364,14 @@ static void write_boot(llio_t *self) {
     erase_sector(self, BOOT_ADDRESS);
     memset(&file_buffer, 0, PAGE_SIZE);
     memcpy(&file_buffer, &boot_block, BOOT_BLOCK_SIZE);
-    write_page(self, 0, (char *) &file_buffer, 0);
+    write_page(self, 0x0, (char *) &file_buffer, 0);
     printf("BootBlock installed\n");
 }
 
 static int start_programming(llio_t *self, u32 start_address, int fsize) {
+    board_t *board = self->private;
     u32 sec_addr;
     int esectors, sector, max_sectors;
-    board_t *board = self->private;
 
     access.set_cs_high(self);
 
@@ -402,10 +412,8 @@ int local_write_flash(llio_t *self, char *bitfile_name, u32 start_address) {
     u32 eeprom_addr;
     char part_name[32];
     struct stat file_stat;
-    u8 file_buffer[SECTOR_SIZE];
     FILE *fp;
 
-    memset(&file_buffer, 0, sizeof(file_buffer));
     if (stat(bitfile_name, &file_stat) != 0) {
         printf("Can't find file %s\n", bitfile_name);
         return -1;
@@ -440,20 +448,20 @@ int local_write_flash(llio_t *self, char *bitfile_name, u32 start_address) {
         fclose(fp);
         return -1;
     }
-    printf("Programming EEPROM area starting from 0x%X...\n", (unsigned int) start_address);
+    printf("Programming EEPROM sectors starting from 0x%X...\n", (unsigned int) start_address);
     printf("  |");
     fflush(stdout);
     eeprom_addr = start_address;
     while (!feof(fp)) {
-      bytesread = fread(&file_buffer, 1, 8192, fp);
-      i = 0;
-      while (i < bytesread) {
-        write_page(self, eeprom_addr, (char *) &file_buffer, i);
-        i = i + PAGE_SIZE;
-        eeprom_addr = eeprom_addr + PAGE_SIZE;
-      }
-      printf("W");
-      fflush(stdout);
+        bytesread = fread(&file_buffer, 1, 8192, fp);
+        i = 0;
+        while (i < bytesread) {
+            write_page(self, eeprom_addr, (char *) &file_buffer, i);
+            i += PAGE_SIZE;
+            eeprom_addr += PAGE_SIZE;
+        }
+        printf("W");
+        fflush(stdout);
     }
 
     fclose(fp);
@@ -464,7 +472,7 @@ int local_write_flash(llio_t *self, char *bitfile_name, u32 start_address) {
 
 int local_verify_flash(llio_t *self, char *bitfile_name, u32 start_address) {
     int bytesread, i, bindex;
-    u8 rdata, mdata;
+    u32 eeprom_addr;
     char part_name[32];
     struct stat file_stat;
     FILE *fp;
@@ -499,20 +507,20 @@ int local_verify_flash(llio_t *self, char *bitfile_name, u32 start_address) {
     printf("Verifying EEPROM sectors starting from 0x%X...\n", (unsigned int) start_address);
     printf("  |");
     fflush(stdout);
-    i = start_address;
+    eeprom_addr = start_address;
     while (!feof(fp)) {
         bytesread = fread(&file_buffer, 1, 8192, fp);
         bindex = 0;
         while (bindex < bytesread) {
-            rdata = read_byte(self, bindex + i);
-            mdata = file_buffer[bindex];
-            if (mdata != rdata) {
-                printf("\nError at 0x%X expected: 0x%X but read: 0x%X\n", i+bindex, mdata, rdata);
-                return -1;
+            read_page(self, eeprom_addr, &page_buffer);
+            for (i = 0; i < PAGE_SIZE; i++, bindex++) {
+                if (file_buffer[bindex] != page_buffer[i]) {
+                   printf("\nError at 0x%X expected: 0x%X but read: 0x%X\n", eeprom_addr + i, file_buffer[bindex], page_buffer[i]);
+                   return -1;
+                }
             }
-            bindex = bindex + 1;
+            eeprom_addr += PAGE_SIZE;
         }
-        i = i + 8192;
         printf("V");
         fflush(stdout);
     }

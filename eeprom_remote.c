@@ -36,6 +36,8 @@ extern u8 boot_block[BOOT_BLOCK_SIZE];
 extern u8 page_buffer[PAGE_SIZE];
 extern u8 file_buffer[SECTOR_SIZE];
 
+// eeprom access functions
+
 static void read_page(llio_t *self, u32 addr, void *buff) {
     lbp16_cmd_addr_data32 write_addr_pck;
     lbp16_cmd_addr read_page_pck;
@@ -49,10 +51,14 @@ static void read_page(llio_t *self, u32 addr, void *buff) {
     recv = eth_socket_recv_packet(buff, PAGE_SIZE);
 }
 
-static void write_page(llio_t *self, void *buff) {
+static void write_page(llio_t *self, u32 addr, void *buff) {
+    lbp16_cmd_addr_data32 write_addr_pck;
     lbp16_write_flash_page_packets write_page_pck;
     int send, recv;
     u32 ignored;
+
+    LBP16_INIT_PACKET8(write_addr_pck, CMD_WRITE_FPGA_FLASH_ADDR32(1), FLASH_ADDR_REG, addr);
+    send = eth_socket_send_packet(&write_addr_pck, sizeof(write_addr_pck));
 
     LBP16_INIT_PACKET6(write_page_pck.write_ena_pck, CMD_WRITE_COMM_CTRL_ADDR16(1), COMM_CTRL_WRITE_ENA_REG, 0x5A03);
     LBP16_INIT_PACKET4(write_page_pck.fl_write_page_pck, CMD_WRITE_FPGA_FLASH_ADDR32(64), FLASH_DATA_REG);
@@ -104,16 +110,8 @@ static void write_boot(llio_t *self) {
     erase_sector(self, BOOT_ADDRESS);
     memset(&file_buffer, 0, PAGE_SIZE);
     memcpy(&file_buffer, &boot_block, BOOT_BLOCK_SIZE);
-    write_page(self, file_buffer);
+    write_page(self, 0x0, &file_buffer);
     printf("BootBlock installed\n");
-}
-
-static void write_flash_address(llio_t *self, u32 addr) {
-    lbp16_cmd_addr_data32 write_addr_pck;
-    int send;
-
-    LBP16_INIT_PACKET8(write_addr_pck, CMD_WRITE_FPGA_FLASH_ADDR32(1), FLASH_ADDR_REG, addr);
-    send = eth_socket_send_packet(&write_addr_pck, sizeof(write_addr_pck));
 }
 
 static int start_programming(llio_t *self, u32 start_address, int fsize) {
@@ -146,8 +144,11 @@ static int start_programming(llio_t *self, u32 start_address, int fsize) {
     return 0;
 }
 
+// global functions
+
 int remote_write_flash(llio_t *self, char *bitfile_name, u32 start_address) {
-    int bytesread, i, bindex;
+    int bytesread, i;
+    u32 eeprom_addr;
     char part_name[32];
     struct stat file_stat;
     FILE *fp;
@@ -189,15 +190,14 @@ int remote_write_flash(llio_t *self, char *bitfile_name, u32 start_address) {
     printf("Programming EEPROM sectors starting from 0x%X...\n", (unsigned int) start_address);
     printf("  |");
     fflush(stdout);
-    i = start_address;
+    eeprom_addr = start_address;
     while (!feof(fp)) {
         bytesread = fread(&file_buffer, 1, 8192, fp);
-        bindex = 0;
-        while (bindex < bytesread) {
-            write_flash_address(self, i);
-            write_page(self, &file_buffer[bindex]);
+        i = 0;
+        while (i < bytesread) {
+            write_page(self, eeprom_addr, &file_buffer[i]);
             i += PAGE_SIZE;
-            bindex += PAGE_SIZE;
+            eeprom_addr += PAGE_SIZE;
         }
         printf("W");
         fflush(stdout);
@@ -209,11 +209,11 @@ int remote_write_flash(llio_t *self, char *bitfile_name, u32 start_address) {
 }
 
 int remote_verify_flash(llio_t *self, char *bitfile_name, u32 start_address) {
-    int bytesread, fl_addr, bindex;
+    int bytesread, i, bindex;
+    u32 eeprom_addr;
     char part_name[32];
     struct stat file_stat;
     FILE *fp;
-    int i;
 
     if (stat(bitfile_name, &file_stat) != 0) {
         printf("Can't find file %s\n", bitfile_name);
@@ -245,19 +245,19 @@ int remote_verify_flash(llio_t *self, char *bitfile_name, u32 start_address) {
     printf("Verifying EEPROM sectors starting from 0x%X...\n", (unsigned int) start_address);
     printf("  |");
     fflush(stdout);
-    fl_addr = start_address;
+    eeprom_addr = start_address;
     while (!feof(fp)) {
         bytesread = fread(&file_buffer, 1, 8192, fp);
         bindex = 0;
         while (bindex < bytesread) {
-            read_page(self, fl_addr, &page_buffer);
+            read_page(self, eeprom_addr, &page_buffer);
             for (i = 0; i < PAGE_SIZE; i++, bindex++) {
                 if (file_buffer[bindex] != page_buffer[i]) {
-                   printf("\nError at 0x%X expected: 0x%X but read: 0x%X\n", bindex, file_buffer[bindex], page_buffer[i]);
+                   printf("\nError at 0x%X expected: 0x%X but read: 0x%X\n", eeprom_addr + i, file_buffer[bindex], page_buffer[i]);
                    return -1;
                 }
             }
-            fl_addr += PAGE_SIZE;
+            eeprom_addr += PAGE_SIZE;
         }
         printf("V");
         fflush(stdout);
@@ -267,8 +267,6 @@ int remote_verify_flash(llio_t *self, char *bitfile_name, u32 start_address) {
     printf("\nBoard configuration verified successfully\n");
     return 0;
 }
-
-// global functions
 
 void open_spi_access_remote(llio_t *self) {
 };
