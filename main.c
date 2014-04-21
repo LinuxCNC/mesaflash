@@ -78,15 +78,15 @@ void print_short_usage() {
 
 void print_usage() {
     printf("Syntax:\n");
-    printf("  mesaflash [options]\n");
-    printf("  mesaflash [options] --write filename\n");
-    printf("  mesaflash [options] --verify filename\n");
-    printf("  mesaflash [options] --program filename\n");
-    printf("  mesaflash [options] --readhmid\n");
-    printf("  mesaflash [options] --sserial\n");
-    printf("  mesaflash [options] --rpo address\n");
-    printf("  mesaflash [options] --wpo address=value\n");
-    printf("  mesaflash [options] --lbp16 <command>\n");
+    printf("  mesaflash --device device_name [options]\n");
+    printf("  mesaflash --device device_name [options] --write filename\n");
+    printf("  mesaflash --device device_name [options] --verify filename\n");
+    printf("  mesaflash --device device_name [options] --program filename\n");
+    printf("  mesaflash --device device_name [options] --readhmid\n");
+    printf("  mesaflash --device device_name [options] --sserial\n");
+    printf("  mesaflash --device device_name [options] --rpo address\n");
+    printf("  mesaflash --device device_name [options] --wpo address=value\n");
+    printf("  mesaflash --device device_name [options] --lbp16 <command>\n");
     printf("  mesaflash --list\n");
     printf("  mesaflash --info file_name\n");
     printf("  mesaflash --help\n");
