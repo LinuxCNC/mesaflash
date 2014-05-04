@@ -153,8 +153,12 @@ int anyio_dev_verify_flash(board_t *board, char *bitfile_name, int fallback_flag
 }
 
 int anyio_dev_program_fpga(board_t *board, char *bitfile_name) {
+    int ret;
+
     if (board->llio.reset != NULL) {
-        board->llio.reset(&(board->llio));
+        ret = board->llio.reset(&(board->llio));
+        if (ret != 0)
+            return ret;
     } else {
         printf("ERROR: Board %s doesn't support FPGA resetting.\n", board->llio.board_name);
         return -EINVAL;
