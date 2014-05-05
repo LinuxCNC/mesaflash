@@ -344,69 +344,145 @@ void hm2_print_pins(hostmot2_t *hm2) {
     }
 }
 
+// PIN FILE GENERATING SUPPORT
+
+static pin_name_t pin_names[HM2_MAX_TAGS] = {
+  {HM2_GTAG_NONE,  {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_IRQ_LOGIC,  {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_WATCHDOG,  {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_IOPORT,  {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_ENCODER,  {"Quad-A", "Quad-B", "Quad-IDX", "Quad-IDXM", "Quad-Probe", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_MUXED_ENCODER,  {"MuxQ-A", "MuxQ-B", "MuxQ-IDX", "MuxQ-IDXM", "Quad-ProbeM", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_MUXED_ENCODER_SEL,  {"MuxSel0", "MuxSel1", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_MUXED_ENCODER_MIM,  {"MuxQ-A", "MuxQ-B", "MuxQ-IDX", "MuxQ-IDXM", "Quad-ProbeM", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_MUXED_ENCODER_SEL_MIM,  {"MuxSel0", "MuxSel1", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_STEPGEN,  {"Step/Table1", "Dir/Table2", "Table3", "Table4", "Table5", "Table6", "SGindex", "SGProbe", "Null9", "Null10"}},
+  {HM2_GTAG_PWMGEN,      {"PWM", "Dir", "/Enable", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_TPPWM,    {"PWMA", "PWMB", "PWMC", "NPWMA", "NPWMB", "NPWMC", "/ENA", "FAULT", "Null9", "Null10"}},
+  {HM2_GTAG_WAVEGEN,  {"PDMA", "PDMB", "Trig0", "Trig1", "Trig2", "Trig3", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_DAQ_FIFO,  {"Data", "Strobe", "Full", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_BIN_OSC,  {"OscOut", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_BIN_DMDMA,  {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_RESOLVER,  {"PwrEn", "PDMP", "PDMM", "ADChan0", "ADChan1", "ADChan2", "SPICS", "SPIClk", "SPIDI0", "SPIDI1"}},
+  {HM2_GTAG_SSERIAL,  {"RXData", "TXData", "TXEn", "TestPin", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_TWIDDLER,  {"InBit", "IOBit", "OutBit", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_SPI,      {"/Frame", "DOut", "SClk", "DIn", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_BSPI,     {"/Frame", "DOut", "SClk", "DIn", "CS0", "CS1", "CS2", "CS3", "Null9", "Null10"}},
+  {HM2_GTAG_DBSPI,    {"Null1", "DOut", "SClk", "DIn", "/CS-FRM0", "/CS-FRM1", "/CS-FRM2", "/CS-FRM3", "Null9", "Null10"}},
+  {HM2_GTAG_DPLL,     {"Sync", "DDSMSB", "FOut", "PostOut", "SyncToggle", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_SSI,      {"SClk", "DIn", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_UART_TX,   {"TXData", "TXEna", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_UART_RX,   {"RXData", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_TRAM,    {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_LED,      {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+};
+
+static mod_name_t mod_names[HM2_MAX_TAGS] = {
+    {"Null",        HM2_GTAG_NONE},
+    {"IRQLogic",    HM2_GTAG_IRQ_LOGIC},
+    {"WatchDog",    HM2_GTAG_WATCHDOG},
+    {"IOPort",      HM2_GTAG_IOPORT},
+    {"QCount",      HM2_GTAG_ENCODER},
+    {"StepGen",     HM2_GTAG_STEPGEN},
+    {"PWM",         HM2_GTAG_PWMGEN},
+    {"SPI",         HM2_GTAG_SPI},
+    {"SSI",         HM2_GTAG_SSI},
+    {"UARTTX",      HM2_GTAG_UART_TX},
+    {"UARTRX",      HM2_GTAG_UART_RX},
+    {"AddrX",       HM2_GTAG_TRAM},
+    {"MuxedQCount", HM2_GTAG_MUXED_ENCODER},
+    {"MuxedQCountSel", HM2_GTAG_MUXED_ENCODER_SEL},
+    {"BufSPI",      HM2_GTAG_BSPI},
+    {"DBufSPI",     HM2_GTAG_DBSPI},
+    {"DPLL",        HM2_GTAG_DPLL},
+    {"MuxQCntM",    HM2_GTAG_MUXED_ENCODER_MIM},
+    {"MuxQSelM",    HM2_GTAG_MUXED_ENCODER_SEL_MIM},
+    {"TPPWM",       HM2_GTAG_TPPWM},
+    {"WaveGen",     HM2_GTAG_WAVEGEN},
+    {"DAQFIFO",     HM2_GTAG_DAQ_FIFO},
+    {"BinOsc",      HM2_GTAG_BIN_OSC},
+    {"DMDMA",       HM2_GTAG_BIN_DMDMA},
+    {"DPLL",        HM2_GTAG_HM2DPLL},
+    {"LED",         HM2_GTAG_LED},
+    {"ResolverMod", HM2_GTAG_RESOLVER},
+    {"SSerial",     HM2_GTAG_SSERIAL},
+    {"Twiddler",    HM2_GTAG_TWIDDLER},
+};
+
+static char *pin_find_module_name(int gtag) {
+    int i;
+
+    for (i = 0; i < HM2_MAX_TAGS; i++) {
+        if (mod_names[i].tag == gtag)
+            return mod_names[i].name;
+    }
+    return "(unknown-gtag)";
+}
+
+
+static char *pin_get_pin_name(hm2_pin_desc_t *pin) {
+    int i;
+    u8 chan;
+    static char buff[100];
+
+    for (i = 0; i < HM2_MAX_TAGS; i++) {
+        if (pin_names[i].tag == pin->sec_tag) {
+            if (pin->sec_tag == HM2_GTAG_SSERIAL) {
+                chan = pin->sec_pin & 0x1F;
+                if ((pin->sec_pin & 0x80) == 0x00) {
+                    sprintf(buff, "%s%u", pin_names[i].name[0], chan);
+                    break;
+                } else if ((pin->sec_pin & 0x80) == 0x80) {
+                    sprintf(buff, "%s%u", pin_names[i].name[1], chan);
+                    break;
+                } else if ((pin->sec_pin & 0xF0) == 0x90) {
+                    sprintf(buff, "%s%u", pin_names[i].name[2], chan);
+                    break;
+                } else if (pin->sec_pin == 0xA0) {
+                    sprintf(buff, "%s%u", pin_names[i].name[3], chan);
+                    break;
+                }
+            } else if (pin->gtag == HM2_GTAG_DAQ_FIFO) {
+                chan = pin->sec_chan & 0x1F;
+                if ((pin->sec_pin & 0xE0) == 0x00) {
+                    sprintf(buff, "%s%u", pin_names[i].name[0], chan);
+                    break;
+                } else if (pin->sec_pin == 0x41) {
+                    sprintf(buff, "%s%u", pin_names[i].name[1], chan);
+                    break;
+                } else if (pin->sec_pin == 0x81) {
+                    sprintf(buff, "%s%u", pin_names[i].name[2], chan);
+                    break;
+                }
+            } else if (pin->gtag == HM2_GTAG_TWIDDLER) {
+                chan = pin->sec_chan & 0x1F;
+                if ((pin->sec_pin & 0xC0) == 0x00) {
+                    sprintf(buff, "%s%u", pin_names[i].name[0], chan);
+                    break;
+                } else if ((pin->sec_pin & 0xC0) == 0xC0) {
+                    sprintf(buff, "%s%u", pin_names[i].name[1], chan);
+                    break;
+                } else if ((pin->sec_pin & 0xC0) == 0x80) {
+                    sprintf(buff, "%s%u", pin_names[i].name[2], chan);
+                    break;
+                }
+            } else if (pin->gtag == HM2_GTAG_BIN_OSC) {
+                chan = pin->sec_chan & 0x1F;
+                if (pin->sec_pin & 0x80 == 0x80) {
+                    sprintf(buff, "%s%u", pin_names[i].name[0], chan);
+                    break;
+                }
+            } else {
+                sprintf(buff, "%s", pin_names[i].name[(pin->sec_pin & 0x0F) - 1]);
+                break;
+            }
+        };
+    };
+    return buff;
+}
+
 void hm2_print_pin_file(llio_t *llio) {
     unsigned int i, j;
-    static pin_name_t pin_names[HM2_MAX_TAGS] = {
-      {HM2_GTAG_NONE,  {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-      {HM2_GTAG_IRQ_LOGIC,  {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-      {HM2_GTAG_WATCHDOG,  {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-      {HM2_GTAG_IOPORT,  {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-      {HM2_GTAG_ENCODER,  {"Quad-A", "Quad-B", "Quad-IDX", "Quad-IDXM", "Quad-Probe", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-      {HM2_GTAG_MUXED_ENCODER,  {"MuxQ-A", "MuxQ-B", "MuxQ-IDX", "MuxQ-IDXM", "Quad-ProbeM", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-      {HM2_GTAG_MUXED_ENCODER_SEL,  {"MuxSel0", "MuxSel1", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-      {HM2_GTAG_MUXED_ENCODER_MIM,  {"MuxQ-A", "MuxQ-B", "MuxQ-IDX", "MuxQ-IDXM", "Quad-ProbeM", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-      {HM2_GTAG_MUXED_ENCODER_SEL_MIM,  {"MuxSel0", "MuxSel1", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-      {HM2_GTAG_STEPGEN,  {"Step/Table1", "Dir/Table2", "Table3", "Table4", "Table5", "Table6", "SGindex", "SGProbe", "Null9", "Null10"}},
-      {HM2_GTAG_PWMGEN,      {"PWM", "Dir", "/Enable", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-      {HM2_GTAG_TPPWM,    {"PWMA", "PWMB", "PWMC", "NPWMA", "NPWMB", "NPWMC", "/ENA", "FAULT", "Null9", "Null10"}},
-      {HM2_GTAG_WAVEGEN,  {"PDMA", "PDMB", "Trig0", "Trig1", "Trig2", "Trig3", "Null7", "Null8", "Null9", "Null10"}},
-      {HM2_GTAG_DAQ_FIFO,  {"Data", "Strobe", "Full", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-      {HM2_GTAG_BIN_OSC,  {"OscOut", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-      {HM2_GTAG_BIN_DMDMA,  {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-      {HM2_GTAG_RESOLVER,  {"PwrEn", "PDMP", "PDMM", "ADChan0", "ADChan1", "ADChan2", "SPICS", "SPIClk", "SPIDI0", "SPIDI1"}},
-      {HM2_GTAG_SSERIAL,  {"RXData", "TXData", "TXEn", "TestPin", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-      {HM2_GTAG_TWIDDLER,  {"InBit", "IOBit", "OutBit", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-      {HM2_GTAG_SPI,      {"/Frame", "DOut", "SClk", "DIn", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-      {HM2_GTAG_BSPI,     {"/Frame", "DOut", "SClk", "DIn", "CS0", "CS1", "CS2", "CS3", "Null9", "Null10"}},
-      {HM2_GTAG_DBSPI,    {"Null1", "DOut", "SClk", "DIn", "/CS-FRM0", "/CS-FRM1", "/CS-FRM2", "/CS-FRM3", "Null9", "Null10"}},
-      {HM2_GTAG_DPLL,     {"Sync", "DDSMSB", "FOut", "PostOut", "SyncToggle", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-      {HM2_GTAG_SSI,      {"SClk", "DIn", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-      {HM2_GTAG_UART_TX,   {"TXData", "TXEna", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-      {HM2_GTAG_UART_RX,   {"RXData", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-      {HM2_GTAG_TRAM,    {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-      {HM2_GTAG_LED,      {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-    };
-    static mod_name_t mod_names[HM2_MAX_TAGS] = {
-        {"Null",        HM2_GTAG_NONE},
-        {"IRQLogic",    HM2_GTAG_IRQ_LOGIC},
-        {"WatchDog",    HM2_GTAG_WATCHDOG},
-        {"IOPort",      HM2_GTAG_IOPORT},
-        {"QCount",      HM2_GTAG_ENCODER},
-        {"StepGen",     HM2_GTAG_STEPGEN},
-        {"PWM",         HM2_GTAG_PWMGEN},
-        {"SPI",         HM2_GTAG_SPI},
-        {"SSI",         HM2_GTAG_SSI},
-        {"UARTTX",      HM2_GTAG_UART_TX},
-        {"UARTRX",      HM2_GTAG_UART_RX},
-        {"AddrX",       HM2_GTAG_TRAM},
-        {"MuxQCnt",     HM2_GTAG_MUXED_ENCODER},
-        {"MuxQSel",     HM2_GTAG_MUXED_ENCODER_SEL},
-        {"BufSPI",      HM2_GTAG_BSPI},
-        {"DBufSPI",     HM2_GTAG_DBSPI},
-        {"DPLL",        HM2_GTAG_DPLL},
-        {"MuxQCntM",    HM2_GTAG_MUXED_ENCODER_MIM},
-        {"MuxQSelM",    HM2_GTAG_MUXED_ENCODER_SEL_MIM},
-        {"TPPWM",       HM2_GTAG_TPPWM},
-        {"WaveGen",     HM2_GTAG_WAVEGEN},
-        {"DAQFIFO",     HM2_GTAG_DAQ_FIFO},
-        {"BinOsc",      HM2_GTAG_BIN_OSC},
-        {"DMDMA",       HM2_GTAG_BIN_DMDMA},
-        {"DPLL",        HM2_GTAG_HM2DPLL},
-        {"LED",         HM2_GTAG_LED},
-        {"ResolverMod", HM2_GTAG_RESOLVER},
-        {"SSerial",     HM2_GTAG_SSERIAL},
-        {"Twiddler",    HM2_GTAG_TWIDDLER},
-    };
     const u8 db25_pins[] = {1, 14, 2, 15, 3, 16, 4, 17, 5, 6, 7, 8, 9, 10, 11, 12, 13};
 
     printf("Configuration Name: %.*s\n", 8, llio->hm2.config_name);
@@ -419,6 +495,10 @@ void hm2_print_pin_file(llio_t *llio) {
     printf("  Clock Low frequency: %.4f MHz\n", (float) llio->hm2.idrom.clock_low/1000000.0);
     printf("  Clock High frequency: %.4f MHz\n", (float) llio->hm2.idrom.clock_high/1000000.0);
     printf("  IDROM Type: %u\n", llio->hm2.idrom.idrom_type);
+    printf("  Instance Stride 0: %u\n", llio->hm2.idrom.instance_stride0);
+    printf("  Instance Stride 1: %u\n", llio->hm2.idrom.instance_stride1);
+    printf("  Register Stride 0: %u\n", llio->hm2.idrom.register_stride0);
+    printf("  Register Stride 1: %u\n", llio->hm2.idrom.register_stride1);
 
     printf("\nModules in configuration:\n\n");
     for (i = 0; i < HM2_MAX_MODULES; i++) {
@@ -431,6 +511,7 @@ void hm2_print_pin_file(llio_t *llio) {
                 if (mod_names[k].tag == llio->hm2.modules[i].gtag) {
                     printf("  Module: %s\n", mod_names[k].name);
                     printf("  There are %u of %s in configuration\n", llio->hm2.modules[i].instances, mod_names[k].name);
+                    break;
                 }
             }
         }
@@ -438,14 +519,18 @@ void hm2_print_pin_file(llio_t *llio) {
         printf("  Version: %u\n", llio->hm2.modules[i].version);
         printf("  Registers: %u\n", llio->hm2.modules[i].registers);
         printf("  BaseAddress: %04X\n", llio->hm2.modules[i].base_address);
-        printf("  ClockFrequency: %.3f MHz\n\n",
+        printf("  ClockFrequency: %.3f MHz\n",
           llio->hm2.modules[i].clock_tag == HM2_CLOCK_LOW_TAG ? (float) llio->hm2.idrom.clock_low/1000000.0 : (float) llio->hm2.idrom.clock_high/1000000.0);
+        printf("  Register Stride: %u bytes\n",
+          (llio->hm2.modules[i].strides & 0x0F) == 0 ? llio->hm2.idrom.register_stride0 : llio->hm2.idrom.register_stride1);
+        printf("  Instance Stride: %u bytes\n\n",
+          (llio->hm2.modules[i].strides & 0xF0) == 0 ? llio->hm2.idrom.instance_stride0 : llio->hm2.idrom.instance_stride1);
     }
 
     printf("Configuration pin-out:\n");
     for (i = 0; i < llio->hm2.idrom.io_ports; i++) {
-        printf("\n    IO Connections for %s\n", llio->ioport_connector_name[i]);
-        printf("    Pin#    I/O     Pri. func    Sec. func    Chan      Pin func        Pin Dir\n\n");
+        printf("\nIO Connections for %s\n", llio->ioport_connector_name[i]);
+        printf("Pin#  I/O   Pri. func    Sec. func       Chan      Pin func        Pin Dir\n\n");
         for (j = 0; j < llio->hm2.idrom.port_width; j++) {
             hm2_pin_desc_t *pin = &(llio->hm2.pins[i*(llio->hm2.idrom.port_width) + j]);
             int pin_nr;
@@ -461,66 +546,20 @@ void hm2_print_pin_file(llio_t *llio) {
                     pin_nr = i*(llio->hm2.idrom.port_width) + j;
                     break;
             }
-
-            printf("    %2u      %3u", pin_nr, i*(llio->hm2.idrom.port_width) + j);
-            {
-                int k;
-                for (k = 0; k < HM2_MAX_TAGS; k++) {
-                    if (mod_names[k].tag == pin->gtag)
-                        printf("     %-12s", mod_names[k].name);
-                }
-            }
-            {
-                int k;
-                for (k = 0; k < HM2_MAX_TAGS; k++) {
-                    if (mod_names[k].tag == pin->sec_tag)
-                        printf(" %-12s", mod_names[k].name);
-                }
-            }
+            printf("%2u", pin_nr);
+            printf("    %3u", i*(llio->hm2.idrom.port_width) + j);
+            printf("   %-8s     %-15s", pin_find_module_name(pin->gtag), pin_find_module_name(pin->sec_tag));
             if (pin->sec_chan & HM2_CHAN_GLOBAL) {
                 printf("    Global    ");
             } else {
                 printf(" %2u        ", pin->sec_chan);
             }
+            printf("%-12s", pin_get_pin_name(pin));
 
-            {
-                int k;
-                for (k = 0; k < HM2_MAX_TAGS; k++) {
-                    if (pin_names[k].tag == pin->sec_tag) {
-                        if (pin->sec_tag == HM2_GTAG_SSERIAL) {
-                            char buff[32];
-                            char *ptr;
-
-                            if ((pin->sec_pin & 0xF0) == 0) {
-                                ptr = strcpy(buff, pin_names[k].name[0]);
-                                ptr += strlen(pin_names[k].name[0]);
-                                sprintf(ptr, "%d", pin->sec_pin & 0x0F);
-                                printf("%-13s", buff);
-                            } else if ((pin->sec_pin & 0xF0) == 0x80) {
-                                ptr = strcpy(buff, pin_names[k].name[1]);
-                                ptr += strlen(pin_names[k].name[1]);
-                                sprintf(ptr, "%d", pin->sec_pin & 0x0F);
-                                printf("%-13s", buff);
-                            } else if ((pin->sec_pin & 0xF0) == 0x90) {
-                                ptr = strcpy(buff, pin_names[k].name[2]);
-                                ptr += strlen(pin_names[k].name[2]);
-                                sprintf(ptr, "%d", pin->sec_pin & 0x0F);
-                                printf("%-13s", buff);
-                            } else if (pin->sec_pin == 0xA1) {
-                                ptr = strcpy(buff, pin_names[k].name[3]);
-                                ptr += strlen(pin_names[k].name[3]);
-                                sprintf(ptr, "%d", pin->sec_pin & 0x0F);
-                                printf("%-13s", buff);
-                            }
-                        } else
-                            printf("%-12s", pin_names[k].name[pin->gtag - 1]);
-                    }
-                }
-            }
             if (pin->sec_pin & HM2_PIN_OUTPUT) {
-                printf("    (Out)    ");
+                printf("    (Out)");
             } else {
-                printf("    (In)    ");
+                printf("    (In)");
             }
 
             printf("\n");
