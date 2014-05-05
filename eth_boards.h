@@ -30,5 +30,6 @@ inline int eth_socket_recv_packet(void *buffer, int size);
 int lbp16_read(u16 cmd, u32 addr, void *buffer, int size);
 int lbp16_write(u16 cmd, u32 addr, void *buffer, int size);
 void eth_socket_set_dest_ip(char *addr_name);
+int eth_set_remote_ip(char *ip_addr);
 
 #endif

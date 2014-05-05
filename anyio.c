@@ -190,6 +190,24 @@ int anyio_dev_send_packet(board_t *board, char *lbp16_send_packet_data) {
     return 0;
 }
 
+int anyio_dev_set_remote_ip(board_t *board, char *lbp16_set_ip_addr) {
+    int ret;
+
+    if (board == NULL) {
+        return -EINVAL;
+    }
+    if (board->type != BOARD_ETH) {
+        return -EPERM;
+    }
+
+    ret = eth_set_remote_ip(lbp16_set_ip_addr);
+    if (ret == 0) {
+        printf("Board IP updated successfully.\n");
+        printf("You must power cycle board to load updated eeprom settings.\n");
+    }
+    return ret;
+}
+
 void anyio_dev_print_hm2_info(board_t *board) {
     if (board == NULL)
         return;

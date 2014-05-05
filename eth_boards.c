@@ -707,3 +707,18 @@ void eth_print_info(board_t *board) {
     printf("    firmware version %d\n", info_area.firmware_version);
     printf("    IP address jumpers at boot: %s\n", boot_jumpers_types[info_area.jumpers]);
 }
+
+int eth_set_remote_ip(char *ip_addr) {
+    lbp16_write_ip_addr_packets write_ip_pck;
+    u32 addr;
+
+    if (inet_pton(AF_INET, ip_addr, &addr) != 1) {
+        printf("Error: invalid format of IP address\n");
+        return -EINVAL;
+    }
+    addr = htonl(addr);
+    LBP16_INIT_PACKET6(write_ip_pck.write_ena_pck, CMD_WRITE_COMM_CTRL_ADDR16(1), COMM_CTRL_WRITE_ENA_REG, 0x5A02);
+    LBP16_INIT_PACKET8(write_ip_pck.eth_write_ip_pck, CMD_WRITE_ETH_EEPROM_ADDR16_INCR(2), ETH_EEPROM_IP_REG, addr);
+    sendto (sd, (char*) &write_ip_pck, sizeof(write_ip_pck), 0, (struct sockaddr *) &dst_addr, sizeof(dst_addr));
+    return 0;
+}
