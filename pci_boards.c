@@ -1217,10 +1217,14 @@ void pci_boards_scan(board_access_t *access) {
 void pci_print_info(board_t *board) {
     int i;
 
-    printf("\nPCI device %s at %04X:%02X:%02X.%1X (%04X:%04X)\n", board->llio.board_name, board->dev->domain,
-        board->dev->bus, board->dev->dev, board->dev->func, board->dev->vendor_id, board->dev->device_id);
+    printf("\nPCI device %s at %04X:%02X:%02X.%1X\n",
+      board->llio.board_name, board->dev->domain, board->dev->bus, board->dev->dev, board->dev->func);
     if (board->llio.verbose == 0)
         return;
+
+    printf("  Device ID [%04X:%04X], Subsystem device ID [%04X:%04X]\n",
+      board->dev->vendor_id, board->dev->device_id,
+      pci_read_word(board->dev, PCI_SUBSYSTEM_VENDOR_ID), pci_read_word(board->dev, PCI_SUBSYSTEM_ID));
 
     for (i = 0; i < 6; i++) {
         u32 flags = pci_read_long(board->dev, PCI_BASE_ADDRESS_0 + 4*i);
