@@ -452,6 +452,7 @@ void epp_print_info(board_t *board) {
     if (board->llio.verbose == 0) {
         return;
     }
+    printf("Communication:\n");
     if (board->mode == BOARD_MODE_CPLD) {
         printf("  controlled by CPLD\n");
     } else if (board->mode == BOARD_MODE_FPGA) {

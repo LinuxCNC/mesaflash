@@ -644,7 +644,7 @@ void eth_print_info(board_t *board) {
         eth_socket_recv_packet(&timers_area, sizeof(timers_area));
     }
 
-    printf("LBP16 firmware info:\n");
+    printf("Board firmware info:\n");
     printf("  memory spaces:\n");
     for (i = 0; i < LBP16_MEM_SPACE_COUNT; i++) {
         u32 size;
@@ -663,31 +663,31 @@ void eth_print_info(board_t *board) {
         size = pow(2, mem_area.range & 0x3F);
         show_formatted_size(size);
         if (((mem_area.size  >> 8) & 0x7F) >= 0xE)
-            printf(", page size: 0x%X, erase size: 0x%X",
+            printf(", page size: %u, erase size: %u",
               (unsigned int) pow(2, (mem_area.range >> 6) & 0x1F), (unsigned int) pow(2, (mem_area.range >> 11) & 0x1F));
         printf("\n");
     }
  
-    printf("  [space 0] Hostmot2\n");
+    printf("  [space 0] HostMot2\n");
     printf("  [space 2] Ethernet eeprom:\n");
     printf("    mac address: %02X:%02X:%02X:%02X:%02X:%02X\n", HI_BYTE(eth_area.mac_addr_hi), LO_BYTE(eth_area.mac_addr_hi),
       HI_BYTE(eth_area.mac_addr_mid), LO_BYTE(eth_area.mac_addr_mid), HI_BYTE(eth_area.mac_addr_lo), LO_BYTE(eth_area.mac_addr_lo));
-    printf("    ip address: %d.%d.%d.%d\n", HI_BYTE(eth_area.ip_addr_hi), LO_BYTE(eth_area.ip_addr_hi), HI_BYTE(eth_area.ip_addr_lo), LO_BYTE(eth_area.ip_addr_lo));
+    printf("    ip address: %u.%u.%u.%u\n", HI_BYTE(eth_area.ip_addr_hi), LO_BYTE(eth_area.ip_addr_hi), HI_BYTE(eth_area.ip_addr_lo), LO_BYTE(eth_area.ip_addr_lo));
     printf("    board name: %.*s\n", sizeof(eth_area.name), eth_area.name);
     printf("    user leds: %s\n", led_debug_types[eth_area.led_debug & 0x1]);
 
     printf("  [space 3] FPGA flash eeprom:\n");
     lbp16_read(CMD_READ_FLASH_IDROM, FLASH_ID_REG, &flash_id, 4);
-    printf("    flash id: 0x%02X %s\n", flash_id, eeprom_get_flash_type(flash_id));
+    printf("    flash size: %s (id: 0x%02X)\n", eeprom_get_flash_type(flash_id), flash_id);
 
     if (info_area.LBP16_version >= 3) {
         printf("  [space 4] timers:\n");
-        printf("     uSTimeStampReg: 0x%04X\n", timers_area.uSTimeStampReg);
-        printf("     WaituSReg: 0x%04X\n", timers_area.WaituSReg);
-        printf("     HM2Timeout: 0x%04X\n", timers_area.HM2Timeout);
+        printf("    uSTimeStampReg: 0x%04X\n", timers_area.uSTimeStampReg);
+        printf("    WaituSReg: 0x%04X\n", timers_area.WaituSReg);
+        printf("    HM2Timeout: 0x%04X\n", timers_area.HM2Timeout);
     }
 
-    printf("  [space 6] LBP16 status/control:\n");
+    printf("  [space 6] LBP16 control/status:\n");
     printf("    packets recived: all %d, UDP %d, bad %d\n", stat_area.RXPacketCount, stat_area.RXUDPCount, stat_area.RXBadCount);
     printf("    packets sended: all %d, UDP %d, bad %d\n", stat_area.TXPacketCount, stat_area.TXUDPCount, stat_area.TXBadCount);
     printf("    parse errors: %d, mem errors %d, write errors %d\n", stat_area.LBPParseErrors, stat_area.LBPMemErrors, stat_area.LBPWriteErrors);
@@ -697,8 +697,8 @@ void eth_print_info(board_t *board) {
 
     printf("  [space 7] LBP16 info:\n");
     printf("    board name: %.*s\n", sizeof(info_area.name), info_area.name);
-    printf("    LBP16 version %d\n", info_area.LBP16_version);
-    printf("    firmware version %d\n", info_area.firmware_version);
+    printf("    LBP16 protocol version %d\n", info_area.LBP16_version);
+    printf("    board firmware version %d\n", info_area.firmware_version);
     printf("    IP address jumpers at boot: %s\n", boot_jumpers_types[info_area.jumpers]);
 }
 
