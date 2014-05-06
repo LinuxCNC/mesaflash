@@ -661,13 +661,7 @@ void eth_print_info(board_t *board) {
                 printf(", %s)", acc_types[j]);
         }
         size = pow(2, mem_area.range & 0x3F);
-        if (size < 1024) {
-            printf(" [size=%u]", size);
-        } else if ((size >= 1024) && (size < 1024*1024)) {
-            printf(" [size=%uK]", size/1024);
-        } else if (size >= 1024*1024) {
-            printf(" [size=%uM]", size/(1024*1024));
-        }
+        show_formatted_size(size);
         if (((mem_area.size  >> 8) & 0x7F) >= 0xE)
             printf(", page size: 0x%X, erase size: 0x%X",
               (unsigned int) pow(2, (mem_area.range >> 6) & 0x1F), (unsigned int) pow(2, (mem_area.range >> 11) & 0x1F));

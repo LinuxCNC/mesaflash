@@ -1230,9 +1230,13 @@ void pci_print_info(board_t *board) {
         u32 flags = pci_read_long(board->dev, PCI_BASE_ADDRESS_0 + 4*i);
         if (board->dev->base_addr[i] != 0) {
             if (flags & PCI_BASE_ADDRESS_SPACE_IO) {
-                printf("  Region %d: I/O at %04X [size=%04X]\n", i, (unsigned int) (board->dev->base_addr[i] & PCI_BASE_ADDRESS_IO_MASK), (unsigned int) board->dev->size[i]);
+                printf("  Region %d: I/O at %04X", i, (unsigned int) (board->dev->base_addr[i] & PCI_BASE_ADDRESS_IO_MASK));
+                show_formatted_size(board->dev->size[i]);
+                printf("\n");
             }  else {
-                printf("  Region %d: Memory at %08X [size=%08X]\n", i, (unsigned int) board->dev->base_addr[i], (unsigned int) board->dev->size[i]);
+                printf("  Region %d: Memory at %08X", i, (unsigned int) board->dev->base_addr[i]);
+                show_formatted_size(board->dev->size[i]);
+                printf("\n");
             }
         }
     }

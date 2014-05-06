@@ -94,3 +94,14 @@ void sleep_ns(u64 nanoseconds) {
 #endif
 }
 
+void show_formatted_size(u32 size) {
+    if (size < 1024) {
+        printf(" [size=%u]", size);
+    } else if (size < 1024*1024) {
+        printf(" [size=%uK]", size/1024);
+    } else if (size < 0x80000000) {
+        printf(" [size=%uM]", size/(1024*1024));
+    } else {
+        printf(" [size=%08X]", size);
+    }
+}

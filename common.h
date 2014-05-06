@@ -42,5 +42,6 @@ void *unmap_memory(tagPhysStruct_t *phys);
 #define HI_BYTE(x) (((x) & 0xFF00) >> 8)
 
 void sleep_ns(u64 nanoseconds);
+void show_formatted_size(u32 size);
 
 #endif
