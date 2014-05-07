@@ -313,10 +313,23 @@ void epp_boards_cleanup(board_access_t *access) {
 }
 
 static int epp_board_open(board_t *board) {
+    if (board->flash != BOARD_FLASH_NONE) {
+        eeprom_init(&(board->llio));
+        board->flash_id = read_flash_id(&(board->llio));
+        eeprom_prepare_boot_block(board->flash_id);
+        if (board->fallback_support == 1) {
+            board->flash_start_address = eeprom_calc_user_space(board->flash_id);
+        } else {
+            board->flash_start_address = 0;
+        }
+    }
     return 0;
 }
 
 static int epp_board_close(board_t *board) {
+    if (board->flash != BOARD_FLASH_NONE) {
+        eeprom_cleanup(&(board->llio));
+    }
     return 0;
 }
 
@@ -373,30 +386,24 @@ void epp_boards_scan(board_access_t *access) {
             board->mode = BOARD_MODE_FPGA;
             strncpy(board->dev_addr, access->dev_addr, 16);
             strncpy(board->llio.board_name, "7I90HD", 16);
-
-            board->llio.read = epp_read;
-            board->llio.write = epp_write;
-            board->llio.program_fpga = epp_program_fpga;
-            board->llio.write_flash = local_write_flash;
-            board->llio.verify_flash = local_verify_flash;
-
             board->llio.num_ioport_connectors = 3;
             board->llio.pins_per_connector = 24;
             board->llio.ioport_connector_name[0] = "P1";
             board->llio.ioport_connector_name[1] = "P2";
             board->llio.ioport_connector_name[2] = "P3";
+            board->llio.fpga_part_number = "6slx9tqg144";
             board->llio.num_leds = 2;
+            board->llio.read = &epp_read;
+            board->llio.write = &epp_write;
+            board->llio.write_flash = &local_write_flash;
+            board->llio.verify_flash = &local_verify_flash;
             board->llio.private = board;
 
             board->open = &epp_board_open;
             board->close = &epp_board_close;
             board->print_info = &epp_print_info;
             board->flash = BOARD_FLASH_HM2;
-            eeprom_init(&(board->llio));
-            board->flash_id = read_flash_id(&(board->llio));
-            eeprom_prepare_boot_block(board->flash_id);
             board->fallback_support = 1;
-            board->flash_start_address = eeprom_calc_user_space(board->flash_id);
             board->llio.verbose = access->verbose;
 
             boards_count++;
@@ -405,18 +412,21 @@ void epp_boards_scan(board_access_t *access) {
             board->mode = BOARD_MODE_FPGA;
             strncpy(board->dev_addr, access->dev_addr, 16);
             strncpy(board->llio.board_name, "7I43", 16);
-
-            board->llio.read = epp_read;
-            board->llio.write = epp_write;
-            board->llio.program_fpga = epp_program_fpga;
-            board->llio.reset = epp_reset;
-
             board->llio.num_ioport_connectors = 2;
             board->llio.pins_per_connector = 24;
             board->llio.ioport_connector_name[0] = "P4";
             board->llio.ioport_connector_name[1] = "P3";
             board->llio.num_leds = 2;
+            board->llio.read = &epp_read;
+            board->llio.write = &epp_write;
+            board->llio.program_fpga = &epp_program_fpga;
+            board->llio.reset = &epp_reset;
             board->llio.private = board;
+
+            board->open = &epp_board_open;
+            board->close = &epp_board_close;
+            board->print_info = &epp_print_info;
+            board->flash = BOARD_FLASH_HM2;
             board->llio.verbose = access->verbose;
 
             boards_count++;
@@ -426,18 +436,20 @@ void epp_boards_scan(board_access_t *access) {
         board->mode = BOARD_MODE_CPLD;
         strncpy(board->dev_addr, access->dev_addr, 16);
         strncpy(board->llio.board_name, "7I43", 16);
-
-        board->llio.read = epp_read;
-        board->llio.write = epp_write;
-        board->llio.program_fpga = epp_program_fpga;
-        board->llio.reset = epp_reset;
-
         board->llio.num_ioport_connectors = 2;
         board->llio.pins_per_connector = 24;
         board->llio.ioport_connector_name[0] = "P4";
         board->llio.ioport_connector_name[1] = "P3";
         board->llio.num_leds = 2;
+        board->llio.read = &epp_read;
+        board->llio.write = &epp_write;
+        board->llio.program_fpga = &epp_program_fpga;
+        board->llio.reset = &epp_reset;
         board->llio.private = board;
+
+        board->open = &epp_board_open;
+        board->close = &epp_board_close;
+        board->print_info = &epp_print_info;
         board->llio.verbose = access->verbose;
 
         boards_count++;
