@@ -313,6 +313,17 @@ void epp_boards_cleanup(board_access_t *access) {
 }
 
 static int epp_board_open(board_t *board) {
+    if (board->mode == BOARD_MODE_CPLD) {
+        u8 byte;
+
+        epp_addr8(board, 0);
+        byte = epp_read8(board);
+        if (byte & 0x01) {
+            board->llio.fpga_part_number = "3s400tq144";
+        } else {
+            board->llio.fpga_part_number = "3s200tq144";
+        }
+    }
     if (board->flash != BOARD_FLASH_NONE) {
         eeprom_init(&(board->llio));
         board->flash_id = read_flash_id(&(board->llio));
