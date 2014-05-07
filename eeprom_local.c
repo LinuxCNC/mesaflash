@@ -399,12 +399,7 @@ static void erase_sector(llio_t *self, u32 addr) {
 }
 
 static int check_boot(llio_t *self) {
-    board_t *board = self->private;
     int i;
-
-// if board doesn't support fallback there is no boot block
-    if (board->fallback_support == 0)
-        return 0;
 
     read_page(self, 0x0, &page_buffer);
     for (i = 0; i < BOOT_BLOCK_SIZE; i++) {
@@ -468,6 +463,7 @@ static void done_programming(llio_t *self) {
 // global functions
 
 int local_write_flash(llio_t *self, char *bitfile_name, u32 start_address) {
+    board_t *board = self->private;
     int bytesread, i;
     u32 eeprom_addr;
     char part_name[32];
@@ -493,15 +489,18 @@ int local_write_flash(llio_t *self, char *bitfile_name, u32 start_address) {
         fclose(fp);
         return -1;
     }*/
-    if (check_boot(self) == -1) {
-        write_boot(self);
-    } else {
-        printf("Boot sector OK\n");
-    }
-    if (check_boot(self) == -1) {
-        printf("Failed to write valid boot sector\n");
-        fclose(fp);
-        return -1;
+// if board doesn't support fallback there is no boot block
+    if (board->fallback_support == 1) {
+        if (check_boot(self) == -1) {
+            write_boot(self);
+        } else {
+            printf("Boot sector OK\n");
+        }
+        if (check_boot(self) == -1) {
+            printf("Failed to write valid boot sector\n");
+            fclose(fp);
+            return -1;
+        }
     }
 
     if (start_programming(self, start_address, file_stat.st_size) == -1) {
@@ -532,6 +531,7 @@ int local_write_flash(llio_t *self, char *bitfile_name, u32 start_address) {
 }
 
 int local_verify_flash(llio_t *self, char *bitfile_name, u32 start_address) {
+    board_t *board = self->private;
     int bytesread, i, bindex;
     u32 eeprom_addr;
     char part_name[32];
@@ -557,12 +557,15 @@ int local_verify_flash(llio_t *self, char *bitfile_name, u32 start_address) {
         fclose(fp);
         return -1;
     }*/
-    if (check_boot(self) == -1) {
-        printf("Error: BootSector is invalid\n");
-        fclose(fp);
-        return -1;
-    } else {
-        printf("Boot sector OK\n");
+// if board doesn't support fallback there is no boot block
+    if (board->fallback_support == 1) {
+        if (check_boot(self) == -1) {
+            printf("Error: BootSector is invalid\n");
+            fclose(fp);
+            return -1;
+        } else {
+            printf("Boot sector OK\n");
+        }
     }
 
     printf("Verifying EEPROM sectors starting from 0x%X...\n", (unsigned int) start_address);
