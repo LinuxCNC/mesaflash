@@ -66,8 +66,6 @@
 #define HM2_SPI_DATA_REG    0x0074
 
 // hm2 access
-#define HM2_DAV_MASK            0x04
-
 #define SPI_CMD_PAGE_WRITE      0x02
 #define SPI_CMD_READ            0x03
 #define SPI_CMD_READ_STATUS     0x05

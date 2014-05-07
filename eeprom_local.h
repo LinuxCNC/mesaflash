@@ -21,6 +21,8 @@
 
 #include "hostmot2.h"
 
+#define SPI_DAV_MASK    0x04
+
 // gpio access
 #define XIO2001_SBAD_STAT_REG 0x00B2
 #define XIO2001_GPIO_ADDR_REG 0x00B4
@@ -34,9 +36,12 @@
 #define ADDR_LEN 24
 
 // io access
-#define IO_DAV_MASK           0x04
-#define SPI_SREG_OFFSET       0x40
-#define SPI_CS_OFFSET         0x44
+#define IO_SPI_SREG_OFFSET    0x40
+#define IO_SPI_CS_OFFSET      0x44
+
+// epp access
+#define EPP_SPI_CS_REG        0x7D
+#define EPP_SPI_SREG_REG      0x7E
 
 typedef struct {
     void (*set_cs_low)(llio_t *self);

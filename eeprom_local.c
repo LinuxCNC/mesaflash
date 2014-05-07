@@ -31,6 +31,7 @@
 #include "eeprom_local.h"
 #include "hostmot2.h"
 #include "bitfile.h"
+#include "epp_boards.h"
 
 extern u8 boot_block[BOOT_BLOCK_SIZE];
 extern u8 page_buffer[PAGE_SIZE];
@@ -44,7 +45,7 @@ static void wait_for_data_hm2(llio_t *self) {
     u32 i = 0;
     u32 data = 0;
 
-    for (i = 0; (((data & 0xFF) & HM2_DAV_MASK) == 0) && (i < 5000) ; i++) {
+    for (i = 0; (((data & 0xFF) & SPI_DAV_MASK) == 0) && (i < 5000) ; i++) {
         self->read(self, HM2_SPI_CTRL_REG, &data, sizeof(data));
     }
     if (i == 5000) {
@@ -212,8 +213,8 @@ static void wait_for_data_io(llio_t *self) {
     u32 i = 0;
     u8 data = 0;
 
-    for (i = 0; (((data & 0xFF) & IO_DAV_MASK) == 0) && (i < 5000) ; i++) {
-        data = inb(board->data_base_addr + SPI_CS_OFFSET);
+    for (i = 0; (((data & 0xFF) & SPI_DAV_MASK) == 0) && (i < 5000) ; i++) {
+        data = inb(board->data_base_addr + IO_SPI_CS_OFFSET);
     }
     if (i == 5000) {
         printf("%x timeout waiting for SPI data\n", data);
@@ -223,13 +224,13 @@ static void wait_for_data_io(llio_t *self) {
 static void set_cs_high_io(llio_t *self) {
     board_t *board = self->private;
 
-    outb(1, board->data_base_addr + SPI_CS_OFFSET);
+    outb(1, board->data_base_addr + IO_SPI_CS_OFFSET);
 }
 
 static void set_cs_low_io(llio_t *self) {
     board_t *board = self->private;
 
-    outb(0, board->data_base_addr + SPI_CS_OFFSET);
+    outb(0, board->data_base_addr + IO_SPI_CS_OFFSET);
 }
 
 static void prefix_io(llio_t *self) {
@@ -243,15 +244,70 @@ static void suffix_io(llio_t *self) {
 static void send_byte_io(llio_t *self, u8 byte) {
     board_t *board = self->private;
 
-    outb(byte, board->data_base_addr + SPI_SREG_OFFSET);
+    outb(byte, board->data_base_addr + IO_SPI_SREG_OFFSET);
 }
 
 static u8 recv_byte_io(llio_t *self) {
     board_t *board = self->private;
 
-    outb(0, board->data_base_addr + SPI_SREG_OFFSET);
+    outb(0, board->data_base_addr + IO_SPI_SREG_OFFSET);
     wait_for_data_io(self);
-    return inb(board->data_base_addr + SPI_SREG_OFFSET);
+    return inb(board->data_base_addr + IO_SPI_SREG_OFFSET);
+}
+
+// spi access via epp on board 7i43 with EPPIO firmware
+
+void wait_for_data_epp(llio_t *self) {
+    board_t *board = self->private;
+    u32 i = 0;
+    u8 data = 0;
+
+    epp_addr8(board, EPP_SPI_CS_REG);
+    for (i = 0; ((data & SPI_DAV_MASK) == 0) && (i < 100) ; i++) {
+        data = epp_read8(board);
+    }
+    if (i == 100) {
+        printf("%x timeout waiting for SPI data\n", data);
+    }
+}
+
+static void set_cs_high_epp(llio_t *self) {
+    board_t *board = self->private;
+
+    epp_addr8(board, EPP_SPI_CS_REG);
+    epp_write8(board, 1);
+}
+
+static void set_cs_low_epp(llio_t *self) {
+    board_t *board = self->private;
+
+    epp_addr8(board, EPP_SPI_CS_REG);
+    epp_write8(board, 0);
+}
+
+static void prefix_epp(llio_t *self) {
+    set_cs_low_epp(self);
+}
+
+static void suffix_epp(llio_t *self) {
+    set_cs_high_epp(self);
+}
+
+static void send_byte_epp(llio_t *self, u8 byte) {
+    board_t *board = self->private;
+
+    epp_addr8(board, EPP_SPI_SREG_REG);
+    epp_write8(board, byte);
+}
+
+static u8 recv_byte_epp(llio_t *self) {
+    board_t *board = self->private;
+
+    epp_addr8(board, EPP_SPI_SREG_REG);
+    epp_write8(board, 0);
+    wait_for_data_epp(self);
+    epp_addr8(board, EPP_SPI_SREG_REG);
+    return epp_read8(board);
 }
 
 // pci flash
@@ -376,16 +432,20 @@ static int start_programming(llio_t *self, u32 start_address, int fsize) {
     access.set_cs_high(self);
 
     esectors = (fsize - 1) / SECTOR_SIZE;
-    if (start_address == FALLBACK_ADDRESS) {
-        max_sectors = eeprom_calc_user_space(board->flash_id) / SECTOR_SIZE - 1;
+    if (board->fallback_support == 1) {
+        if (start_address == FALLBACK_ADDRESS) {
+            max_sectors = eeprom_calc_user_space(board->flash_id) / SECTOR_SIZE - 1;
+        } else {
+            max_sectors = eeprom_calc_user_space(board->flash_id) / SECTOR_SIZE;
+        }
     } else {
-        max_sectors = eeprom_calc_user_space(board->flash_id) / SECTOR_SIZE;
+        max_sectors = eeprom_get_flash_size(board->flash_id) / SECTOR_SIZE;
     }
     if (esectors > max_sectors) {
         printf("File Size too large to fit\n");
         return -1;
     }
-    printf("EEPROM sectors to write: %d, max sectors in area: %d\n", esectors, max_sectors);
+    printf("EEPROM sectors to write: %d, max sectors in area: %d\n", esectors + 1, max_sectors);
     sec_addr = start_address;
     printf("Erasing EEPROM sectors starting from 0x%X...\n", (unsigned int) start_address);
     printf("  |");
@@ -562,6 +622,14 @@ void open_spi_access_local(llio_t *self) {
             access.recv_byte = &recv_byte_gpio;
             init_gpio(self);
             break;
+        case BOARD_FLASH_EPP:
+            access.set_cs_low = &set_cs_low_epp;
+            access.set_cs_high = &set_cs_high_epp;
+            access.prefix = &prefix_epp;
+            access.suffix = &suffix_epp;
+            access.send_byte = &send_byte_epp;
+            access.recv_byte = &recv_byte_epp;
+            break;
     }
 };
 
@@ -570,10 +638,9 @@ void close_spi_access_local(llio_t *self) {
 
     switch (board->flash) {
         case BOARD_FLASH_NONE:
-            break;
         case BOARD_FLASH_HM2:
-            break;
         case BOARD_FLASH_IO:
+        case BOARD_FLASH_EPP:
             break;
         case BOARD_FLASH_GPIO:
             restore_gpio(self);

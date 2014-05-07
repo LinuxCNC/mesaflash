@@ -102,7 +102,7 @@ static int epp_clear_timeout(board_t *board) {
     return 1;  // success
 }
 
-static inline void epp_addr8(board_t *board, u8 addr) {
+inline void epp_addr8(board_t *board, u8 addr) {
     outb(addr, board->base_lo + EPP_ADDRESS_OFFSET);
 //    printf("selected address 0x%02X\n", addr);
 }
@@ -113,7 +113,7 @@ static inline void epp_addr16(board_t *board, u16 addr) {
 //    printf("selected address 0x%04X\n", addr);
 }
 
-static inline u8 epp_read8(board_t *board) {
+inline u8 epp_read8(board_t *board) {
     u8 data = inb(board->base_lo + EPP_DATA_OFFSET);
 //    printf("read data 0x%02X\n", data);
     return data;
@@ -137,7 +137,7 @@ static inline u32 epp_read32(board_t *board) {
     return data;
 }
 
-static inline void epp_write8(board_t *board, u8 data) {
+inline void epp_write8(board_t *board, u8 data) {
     outb(data, board->base_lo + EPP_DATA_OFFSET);
     //printf("wrote data 0x%02X\n", data);
 }
@@ -350,7 +350,7 @@ void epp_boards_scan(board_access_t *access) {
     board_t *board = &boards[boards_count];
     int r;
     u16 epp_addr;
-    u32 cookie;
+    u32 hm2_cookie, eppio_cookie;
 
     if (strncmp(access->dev_addr, "0x", 2) == 0) {
         access->dev_addr[0] = '0';
@@ -379,10 +379,10 @@ void epp_boards_scan(board_access_t *access) {
     epp_write_control(board, 0x04);  // set control lines and input mode
     epp_clear_timeout(board);
 
-    epp_addr16(board, HM2_COOKIE_REG | EPP_ADDR_AUTOINCREMENT);
-    cookie = epp_read32(board);
-    epp_check_for_timeout(board);
-    if (cookie == HM2_COOKIE) {
+    board->llio.private = board;
+    epp_read(&(board->llio), 0, &eppio_cookie, 4);
+    epp_read(&(board->llio), HM2_COOKIE_REG, &hm2_cookie, 4);
+    if (hm2_cookie == HM2_COOKIE) {
         u32 idrom_addr;
         u8 board_name[8];
         u32 *ptr = (u32 *) &board_name;
@@ -443,6 +443,30 @@ void epp_boards_scan(board_access_t *access) {
 
             boards_count++;
         }
+    } else if (eppio_cookie == HM2_COOKIE) {
+        board->type = BOARD_EPP;
+        board->mode = BOARD_MODE_FPGA;
+        strncpy(board->dev_addr, access->dev_addr, 16);
+        strncpy(board->llio.board_name, "7I43", 16);
+        board->llio.num_ioport_connectors = 2;
+        board->llio.pins_per_connector = 24;
+        board->llio.ioport_connector_name[0] = "P4";
+        board->llio.ioport_connector_name[1] = "P3";
+        board->llio.num_leds = 2;
+        board->llio.read = &epp_read;
+        board->llio.write = &epp_write;
+        board->llio.program_fpga = &epp_program_fpga;
+        board->llio.write_flash = &local_write_flash;
+        board->llio.verify_flash = &local_verify_flash;
+        board->llio.private = board;
+
+        board->open = &epp_board_open;
+        board->close = &epp_board_close;
+        board->print_info = &epp_print_info;
+        board->flash = BOARD_FLASH_EPP;
+        board->llio.verbose = access->verbose;
+
+        boards_count++;
     } else {
         board->type = BOARD_EPP;
         board->mode = BOARD_MODE_CPLD;
@@ -453,8 +477,6 @@ void epp_boards_scan(board_access_t *access) {
         board->llio.ioport_connector_name[0] = "P4";
         board->llio.ioport_connector_name[1] = "P3";
         board->llio.num_leds = 2;
-        board->llio.read = &epp_read;
-        board->llio.write = &epp_write;
         board->llio.program_fpga = &epp_program_fpga;
         board->llio.reset = &epp_reset;
         board->llio.private = board;

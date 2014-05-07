@@ -52,6 +52,16 @@ char *eeprom_get_flash_type(u8 flash_id) {
     }
 }
 
+u32 eeprom_get_flash_size(u8 flash_id) {
+    switch (flash_id) {
+        case ID_EEPROM_1M:  return 0x100000 / 8;
+        case ID_EEPROM_2M:  return 0x200000 / 8;
+        case ID_EEPROM_4M:  return 0x400000 / 8;
+        case ID_EEPROM_8M:  return 0x800000 / 8;
+        case ID_EEPROM_16M: return 0x1000000 / 8;
+    }
+}
+
 // modify MSB of boot block jmp address to user area
 void eeprom_prepare_boot_block(u8 flash_id) {
     switch (flash_id) {
@@ -83,6 +93,7 @@ void eeprom_init(llio_t *self) {
         case BOARD_FLASH_HM2:
         case BOARD_FLASH_IO:
         case BOARD_FLASH_GPIO:
+        case BOARD_FLASH_EPP:
             open_spi_access_local(self);
             break;
         case BOARD_FLASH_REMOTE:
@@ -100,6 +111,7 @@ void eeprom_cleanup(llio_t *self) {
         case BOARD_FLASH_HM2:
         case BOARD_FLASH_IO:
         case BOARD_FLASH_GPIO:
+        case BOARD_FLASH_EPP:
             close_spi_access_local(self);
             break;
         case BOARD_FLASH_REMOTE:
