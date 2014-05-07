@@ -257,6 +257,7 @@ int epp_program_fpga(llio_t *self, char *bitfile_name) {
         return -EIO;
     }
 
+    printf("Board FPGA programmed successfully.\n");
     return 0;
 }
 
