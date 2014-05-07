@@ -331,11 +331,12 @@ static int eth_board_open(board_t *board) {
     eth_socket_set_dest_ip(board->dev_addr);
     eeprom_init(&(board->llio));
     lbp16_read(CMD_READ_FLASH_IDROM, FLASH_ID_REG, &(board->flash_id), 4);
-    eeprom_prepare_boot_block(board->flash_id);
-    if (board->fallback_support == 1)
+    if (board->fallback_support == 1) {
+        eeprom_prepare_boot_block(board->flash_id);
         board->flash_start_address = eeprom_calc_user_space(board->flash_id);
-    else
+    } else {
         board->flash_start_address = 0;
+    }
     return 0;
 }
 

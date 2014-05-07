@@ -316,8 +316,8 @@ static int epp_board_open(board_t *board) {
     if (board->flash != BOARD_FLASH_NONE) {
         eeprom_init(&(board->llio));
         board->flash_id = read_flash_id(&(board->llio));
-        eeprom_prepare_boot_block(board->flash_id);
         if (board->fallback_support == 1) {
+            eeprom_prepare_boot_block(board->flash_id);
             board->flash_start_address = eeprom_calc_user_space(board->flash_id);
         } else {
             board->flash_start_address = 0;

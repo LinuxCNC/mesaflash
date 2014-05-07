@@ -716,18 +716,18 @@ static int pci_board_open(board_t *board) {
     if (board->flash != BOARD_FLASH_NONE) {
         eeprom_init(&(board->llio));
         board->flash_id = read_flash_id(&(board->llio));
-        if (board->fallback_support == 1)
+        if (board->fallback_support == 1) {
+            eeprom_prepare_boot_block(board->flash_id);
             board->flash_start_address = eeprom_calc_user_space(board->flash_id);
-        else
+        } else {
             board->flash_start_address = 0;
+        }
         // fix 5i24 fpga name according to readed flash_id
         if (strncmp(board->llio.board_name, "5I24", 4) == 0) {
             if (board->flash_id == ID_EEPROM_25M) {
                 board->llio.fpga_part_number = "xc6slx25ftg256";
             }
         }
-
-        eeprom_prepare_boot_block(board->flash_id);
     }
     return 0;
 }
