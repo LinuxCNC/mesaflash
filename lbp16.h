@@ -166,6 +166,13 @@ typedef struct {
     packet.addr_lo = HI_BYTE(addr); \
     } while (0);
 
+#define LBP16_INIT_PACKET4_SERIAL(packet, cmd, addr) do { \
+    packet.cmd_hi = HI_BYTE(cmd); \
+    packet.cmd_lo = LO_BYTE(cmd); \
+    packet.addr_hi = HI_BYTE(addr); \
+    packet.addr_lo = LO_BYTE(addr); \
+    } while (0);
+
 #define LBP16_INIT_PACKET6(packet, cmd, addr, data) do { \
     packet.cmd_hi = LO_BYTE(cmd); \
     packet.cmd_lo = HI_BYTE(cmd); \
@@ -226,10 +233,10 @@ typedef struct {
     u16 LBPMemErrors;
     u16 LBPWriteErrors;
     u16 RXPacketCount;
-    u16 RXUDPCount;
+    u16 RXGoodCount;
     u16 RXBadCount;
     u16 TXPacketCount;
-    u16 TXUDPCount;
+    u16 TXGoodCount;
     u16 TXBadCount;
     u16 led_mode;
     u16 DebugLEDPtr;

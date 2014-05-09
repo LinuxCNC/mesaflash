@@ -33,6 +33,7 @@
 #define BOARD_EPP             (1<<3)
 #define BOARD_USB             (1<<4)
 #define BOARD_SPI             (1<<5)
+#define BOARD_SER             (1<<6)
 typedef enum {BOARD_MODE_CPLD, BOARD_MODE_FPGA} board_mode;
 typedef enum {BOARD_FLASH_NONE = 0, BOARD_FLASH_HM2, BOARD_FLASH_IO, BOARD_FLASH_GPIO, BOARD_FLASH_REMOTE, BOARD_FLASH_EPP} board_flash;
 

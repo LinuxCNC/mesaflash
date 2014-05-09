@@ -61,7 +61,6 @@ int anyio_init(board_access_t *access) {
     if (access == NULL) {
         return -EINVAL;
     }
-
     return 0;
 }
 
@@ -79,6 +78,8 @@ void anyio_cleanup(board_access_t *access) {
         usb_boards_cleanup(access);
     if (access->open_iface & BOARD_SPI)
         spi_boards_cleanup(access);
+    if (access->open_iface & BOARD_SER)
+        serial_boards_cleanup(access);
     access->open_iface = 0;
 }
 
@@ -160,6 +161,23 @@ int anyio_find_dev(board_access_t *access) {
             spi_boards_scan(access);
         }
     }
+}
+
+void anyio_scan(board_access_t *access) {
+    if (access == NULL)
+        return;
+    if (access->pci == 1)
+        pci_boards_scan(access);
+    if (access->epp == 1)
+        epp_boards_scan(access);
+    if (access->usb == 1)
+        usb_boards_scan(access);
+    if (access->eth == 1)
+        eth_boards_scan(access);
+    if (access->spi == 1)
+        spi_boards_scan(access);
+    if (access->serial == 1)
+        serial_boards_scan(access);
 }
 
 board_t *anyio_get_dev(board_access_t *access, int board_number) {
