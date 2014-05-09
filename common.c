@@ -26,6 +26,7 @@
 #include <stdio.h>
 
 #include "common.h"
+#include "eeprom.h"
 
 #ifdef _WIN32
 void init_io_library() {
@@ -104,4 +105,22 @@ void show_formatted_size(u32 size) {
     } else {
         printf(" [size=%08X]", size);
     }
+}
+
+void show_board_info(board_t *board) {
+    int i;
+
+    printf("Board info:\n");
+    if (board->flash_id > 0) {
+        printf("  Flash size: %s (id: 0x%02X)\n", eeprom_get_flash_type(board->flash_id), board->flash_id);
+    }
+    printf("  Connectors count: %d\n", board->llio.num_ioport_connectors);
+    printf("  Pins per connector: %d\n", board->llio.pins_per_connector);
+    printf("  Connectors names:");
+    for (i = 0; i < board->llio.num_ioport_connectors; i++) {
+        printf(" %s", board->llio.ioport_connector_name[i]);
+    }
+    printf("\n");
+    printf("  FPGA type: %s\n", board->llio.fpga_part_number);
+    printf("  Number of leds: %d\n", board->llio.num_leds);
 }

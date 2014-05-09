@@ -491,8 +491,6 @@ void epp_boards_scan(board_access_t *access) {
 }
 
 void epp_print_info(board_t *board) {
-    int i;
-
     printf("\nEPP device %s at 0x%04X\n", board->llio.board_name, board->base_lo);
     if (board->llio.verbose == 0) {
         return;
@@ -504,17 +502,5 @@ void epp_print_info(board_t *board) {
         printf("  controlled by FPGA\n");
     }
         
-    printf("Board info:\n");
-    if (board->flash_id > 0) {
-        printf("  Flash size: %s (id: 0x%02X)\n", eeprom_get_flash_type(board->flash_id), board->flash_id);
-    }
-    printf("  Connectors count: %d\n", board->llio.num_ioport_connectors);
-    printf("  Pins per connector: %d\n", board->llio.pins_per_connector);
-    printf("  Connectors names:");
-    for (i = 0; i < board->llio.num_ioport_connectors; i++) {
-        printf(" %s", board->llio.ioport_connector_name[i]);
-    }
-    printf("\n");
-    printf("  FPGA type: %s\n", board->llio.fpga_part_number);
-    printf("  Number of leds: %d\n", board->llio.num_leds);
+    show_board_info(board);
 }

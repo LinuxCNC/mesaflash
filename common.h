@@ -38,10 +38,13 @@ void *map_memory(u32 base, u32 size, tagPhysStruct_t *phys);
 void *unmap_memory(tagPhysStruct_t *phys);
 #endif
 
+#include "boards.h"
+
 #define LO_BYTE(x) ((x) & 0xFF)
 #define HI_BYTE(x) (((x) & 0xFF00) >> 8)
 
 void sleep_ns(u64 nanoseconds);
 void show_formatted_size(u32 size);
+void show_board_info(board_t *board);
 
 #endif
