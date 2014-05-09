@@ -36,7 +36,7 @@ int anyio_init(board_access_t *access) {
     int ret;
 
     if (access == NULL)
-        return;
+        return -EINVAL;
     if (access->pci == 1) {
         ret = pci_boards_init(access);
         if (ret != 0)
@@ -99,8 +99,9 @@ board_t *anyio_get_dev(board_access_t *access) {
     int i;
     board_t *board = NULL;
 
-    if (access == NULL)
-        return;
+    if (access == NULL) {
+        return NULL;
+    }
     for (i = 0; i < boards_count; i++) {
         if (strncmp(access->device_name, boards[i].llio.board_name, strlen(access->device_name)) == 0) {
             board = &boards[i];

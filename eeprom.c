@@ -61,6 +61,7 @@ u32 eeprom_get_flash_size(u8 flash_id) {
         case ID_EEPROM_8M:  return 0x800000 / 8;
         case ID_EEPROM_16M: return 0x1000000 / 8;
     }
+    return 0;
 }
 
 // modify MSB of boot block jmp address to user area
