@@ -968,6 +968,8 @@ void pci_boards_scan(board_access_t *access) {
                     board->llio.verbose = access->verbose;
 
                     boards_count++;
+// fix up LASxBRD READY if needed
+                    plx9030_fixup_LASxBRD_READY(&(board->llio));
                 } else if (ssid == SUBDEVICEID_MESA4I65) {
                     board->type = BOARD_PCI;
                     strncpy(board->llio.board_name, "4I65", 4);
@@ -997,6 +999,8 @@ void pci_boards_scan(board_access_t *access) {
                     board->llio.verbose = access->verbose;
 
                     boards_count++;
+// fix up LASxBRD READY if needed
+                    plx9030_fixup_LASxBRD_READY(&(board->llio));
                 }
             } else if (dev->device_id == DEVICEID_PLX9054) {
                 u16 ssid = pci_read_word(dev, PCI_SUBSYSTEM_ID);
