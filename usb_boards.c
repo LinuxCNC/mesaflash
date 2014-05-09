@@ -27,7 +27,6 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "anyio.h"
 #include "usb_boards.h"
 #include "common.h"
 #include "eeprom.h"

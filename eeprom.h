@@ -19,7 +19,6 @@
 #ifndef __EEPROM_H
 #define __EEPROM_H
 
-#include "anyio.h"
 #include "hostmot2.h"
 
 #define ID_EEPROM_1M 0x10

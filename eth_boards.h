@@ -19,7 +19,7 @@
 #ifndef __ETH_BOARDS_H
 #define __ETH_BOARDS_H
 
-#include "anyio.h"
+#include "boards.h"
 
 int eth_boards_init(board_access_t *access);
 void eth_boards_cleanup(board_access_t *access);

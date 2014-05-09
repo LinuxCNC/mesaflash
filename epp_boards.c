@@ -37,7 +37,6 @@
 #include "eeprom.h"
 #include "eeprom_local.h"
 #include "bitfile.h"
-#include "anyio.h"
 #include "epp_boards.h"
 
 extern board_t boards[MAX_BOARDS];

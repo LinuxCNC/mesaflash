@@ -26,6 +26,7 @@
 #include "eeprom.h"
 #include "eeprom_local.h"
 #include "eeprom_remote.h"
+#include "boards.h"
 
 u8 boot_block[BOOT_BLOCK_SIZE] = {
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,

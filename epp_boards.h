@@ -19,7 +19,7 @@
 #ifndef __EPP_BOARDS_H
 #define __EPP_BOARDS_H
 
-#include "anyio.h"
+#include "boards.h"
 
 #define EPP_STATUS_OFFSET   1
 #define EPP_CONTROL_OFFSET  2

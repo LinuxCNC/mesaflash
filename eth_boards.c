@@ -39,7 +39,6 @@
 
 #include "common.h"
 #include "bitfile.h"
-#include "anyio.h"
 #include "eth_boards.h"
 #include "eeprom_remote.h"
 #include "lbp16.h"

@@ -25,8 +25,7 @@
 #include "libpci/pci.h"
 #endif
 
-#include "anyio.h"
-#include "hostmot2.h"
+#include "boards.h"
 
 #define VENDORID_MESAPCI         0x2718
 #define VENDORID_PLX             0x10B5

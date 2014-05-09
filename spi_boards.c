@@ -22,7 +22,6 @@
 #include "libpci/pci.h"
 #endif
 
-#include "anyio.h"
 #include "spi_boards.h"
 #include "common.h"
 #include "spilbp.h"

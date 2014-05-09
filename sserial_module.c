@@ -25,7 +25,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "anyio.h"
 #include "hostmot2.h"
 
 void sslbp_send_local_cmd(llio_t *llio, int interface, u32 cmd) {

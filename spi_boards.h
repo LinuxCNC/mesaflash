@@ -19,7 +19,7 @@
 #ifndef __SPI_BOARDS_H
 #define __SPI_BOARDS_H
 
-#include "anyio.h"
+#include "boards.h"
 
 int spi_boards_init(board_access_t *access);
 void spi_boards_cleanup(board_access_t *access);

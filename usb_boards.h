@@ -19,7 +19,7 @@
 #ifndef __USB_BOARDS_H
 #define __USB_BOARDS_H
 
-#include "anyio.h"
+#include "boards.h"
 
 int usb_boards_init(board_access_t *access);
 void usb_boards_cleanup(board_access_t *access);
