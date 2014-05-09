@@ -188,14 +188,14 @@ int anyio_dev_program_fpga(board_t *board, char *bitfile_name) {
 
 int anyio_dev_send_packet(board_t *board, char *lbp16_send_packet_data) {
     u8 packet[512];
-    u8 *pch = lbp16_send_packet_data;
+    u8 *pch = (u8 *) lbp16_send_packet_data;
     u32 *ptr = (u32 *) packet;
     int i, recv;
 
     if (board == NULL) {
         return -EINVAL;
     }
-    for (i = 0; i < 512, i < strlen(lbp16_send_packet_data); i++, pch += 2) {
+    for (i = 0; (i < 512) && (i < strlen(lbp16_send_packet_data)); i++, pch += 2) {
         char s[3] = {*pch, *(pch + 1), 0};
         packet[i] = strtol(s, NULL, 16) & 0xFF;
     }

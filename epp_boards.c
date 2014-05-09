@@ -383,7 +383,7 @@ void epp_boards_scan(board_access_t *access) {
     epp_read(&(board->llio), HM2_COOKIE_REG, &hm2_cookie, 4);
     if (hm2_cookie == HM2_COOKIE) {
         u32 idrom_addr;
-        u8 board_name[8];
+        char board_name[8];
         u32 *ptr = (u32 *) &board_name;
 
         epp_addr16(board, HM2_IDROM_ADDR | EPP_ADDR_AUTOINCREMENT);

@@ -468,7 +468,7 @@ static char *pin_get_pin_name(hm2_pin_desc_t *pin) {
                 }
             } else if (pin->gtag == HM2_GTAG_BIN_OSC) {
                 chan = pin->sec_chan & 0x1F;
-                if (pin->sec_pin & 0x80 == 0x80) {
+                if ((pin->sec_pin & 0x80) == 0x80) {
                     sprintf(buff, "%s%u", pin_names[i].name[0], chan);
                     break;
                 }

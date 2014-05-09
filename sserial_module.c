@@ -99,7 +99,7 @@ u32 sslbp_read_remote32(llio_t *llio, int interface, int channel, u32 addr) {
 }
 
 void sslbp_read_remote_bytes(llio_t *llio, int interface, int channel, u32 addr, void *buffer, int size) {
-    char *ptr = (u8 *) buffer;
+    char *ptr = (char *) buffer;
 
     while (size != 0) {
         u8 data = sslbp_read_remote8(llio, interface, channel, addr);

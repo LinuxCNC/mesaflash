@@ -128,7 +128,7 @@ void usb_boards_cleanup(board_access_t *access) {
 void usb_boards_scan(board_access_t *access) {
     board_t *board = &boards[boards_count];
     u8 cmd, data;
-    u8 dev_name[4];
+    char dev_name[4];
     u32 cookie;
 
     data = lbp_read_ctrl(LBP_CMD_READ_COOKIE);

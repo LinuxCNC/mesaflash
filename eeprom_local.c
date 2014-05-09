@@ -633,6 +633,8 @@ void open_spi_access_local(llio_t *self) {
             access.send_byte = &send_byte_epp;
             access.recv_byte = &recv_byte_epp;
             break;
+        case BOARD_FLASH_REMOTE:
+            break;
     }
 };
 
@@ -644,6 +646,7 @@ void close_spi_access_local(llio_t *self) {
         case BOARD_FLASH_HM2:
         case BOARD_FLASH_IO:
         case BOARD_FLASH_EPP:
+        case BOARD_FLASH_REMOTE:
             break;
         case BOARD_FLASH_GPIO:
             restore_gpio(self);
