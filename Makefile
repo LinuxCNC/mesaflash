@@ -18,9 +18,13 @@
 
 # target (linux, windows)
 TARGET = linux
+LIBNAME = libanyio
+LIBANYIO = $(LIBNAME).a
 
 CC = gcc
 RM = rm -f
+AR = ar
+RANLIB = ranlib
 MATHLIB = -lm
 OPT = -O0
 
@@ -31,7 +35,7 @@ DEBUG = -g
 ifeq ($(TARGET),linux)
 	INCLUDE = -I/usr/include
 	BIN = mesaflash
-	LIBS = $(LDFLAGS) -lpci
+	LIBS = -lpci $(MATHLIB)
 endif
 
 ifeq ($(TARGET),windows)
@@ -42,19 +46,26 @@ ifeq ($(TARGET),windows)
 	DEBUG += -mno-ms-bitfields
 endif
 
-CFLAGS = $(INCLUDE) $(OPT) $(DEBUG) $(MATHLIB)
+CFLAGS = $(OPT) $(DEBUG) $(INCLUDE)
 
 objects = common.o lbp.o bitfile.o hostmot2.o eeprom.o anyio.o eth_boards.o epp_boards.o usb_boards.o pci_boards.o
-objects += sserial_module.o eeprom_local.o eeprom_remote.o spi_boards.o spilbp.o main.o
+objects += sserial_module.o eeprom_local.o eeprom_remote.o spi_boards.o spilbp.o
 
 headers = eth_boards.h pci_boards.h epp_boards.h usb_boards.h spi_boards.h anyio.h hostmot2.h lbp16.h common.h eeprom.h
 headers += lbp.h eeprom_local.h eeprom_remote.h spilbp.h bitfile.h sserial_module.h hostmot2_def.h boards.h
 
-$(BIN) all : $(objects)
-	$(CC) -o $(BIN) $(objects) $(MATHLIB) $(LIBS)
+all: $(LIBANYIO) $(BIN)
+
+$(LIBANYIO) : $(objects)
+	$(RM) $(LIBANYIO)
+	$(AR) rcs $(LIBANYIO) $(objects)
+	$(RANLIB) $(LIBANYIO)
 
 main.o : main.c $(headers)
 	$(CC) $(CFLAGS) -c main.c
+
+$(BIN): main.o anyio.h
+	$(CC) -o $(BIN) main.o $(LIBANYIO) $(LIBS)
 
 anyio.o : anyio.c $(headers)
 	$(CC) $(CFLAGS) -c anyio.c
@@ -102,7 +113,7 @@ common.o : common.c $(headers)
 	$(CC) $(CFLAGS) -c common.c
 
 clean :
-	$(RM) $(BIN) *.o
+	$(RM) $(LIBANYIO) $(BIN) $(objects) main.o
 
 .PHONY: install
 install: $(BIN)
