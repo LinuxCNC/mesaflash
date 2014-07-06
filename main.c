@@ -45,9 +45,6 @@ static u16 wpo_addr;
 static u32 wpo_data;
 static int set_flag;
 static char *lbp16_set_ip_addr;
-static int lbp16_flag;
-static int lbp16_send_packet_flag;
-static char *lbp16_send_packet_data;
 static int info_flag;
 static int verbose_flag;
 static char bitfile_name[255];
@@ -70,7 +67,6 @@ static struct option long_options[] = {
     {"rpo", required_argument, 0, 'r'},
     {"wpo", required_argument, 0, 'o'},
     {"set", required_argument, 0, 's'},
-    {"lbp16", required_argument, 0, 'l'},
     {"info", required_argument, 0, 'i'},
     {"help", no_argument, 0, 'h'},
     {"verbose", no_argument, &verbose_flag, 1},
@@ -96,7 +92,6 @@ void print_usage() {
     printf("  mesaflash --device device_name [options] --rpo address\n");
     printf("  mesaflash --device device_name [options] --wpo address=value\n");
     printf("  mesaflash --device device_name [options] --set ip=n.n.n.n\n");
-    printf("  mesaflash --device device_name [options] --lbp16 <command>\n");
     printf("  mesaflash --list\n");
     printf("  mesaflash --info file_name\n");
     printf("  mesaflash --help\n");
@@ -119,9 +114,6 @@ void print_usage() {
     printf("  --rpo         read hostmot2 variable directly at 'address'\n");
     printf("  --wpo         write hostmot2 variable directly at 'address' with 'value'\n");
     printf("  --set         set board IP address in eeprom to n.n.n.n (only ethernet boards)\n");
-    printf("  --lbp16       run <command> directly by lbp16 interface module\n");
-    printf("    available commands:\n");
-    printf("      send_packet=hex_data    send packet created from <hex_data> and print returned data\n");
     printf("  --list        show list of all detected boards\n");
     printf("  --info        print info about configuration in 'file_name'\n");
     printf("  --help        print this help message\n");
@@ -258,28 +250,6 @@ int process_cmd_line(int argc, char *argv[]) {
             }
             break;
 
-            case 'l': {
-                if (lbp16_flag > 0) {
-                    printf("Error: multiply --lbp16 option\n");
-                    exit(-1);
-                }
-                if (strncmp(optarg, "send_packet", 11) == 0) {
-                    char *pch;
-
-                    lbp16_send_packet_flag++;
-                    pch = strtok(optarg, "=");
-                    pch = strtok(NULL, "=");
-                    if (strncmp(pch, "0x", 2) == 0)
-                        pch += 2;
-                    lbp16_send_packet_data = pch;
-                } else {
-                    printf("Error: unknown lbp16 command\n");
-                    exit(-1);
-                }
-                lbp16_flag++;
-            }
-            break;
-
             case 'v': {
                 if (verify_flag > 0) {
                     printf("Error: multiply --verify option\n");
@@ -379,10 +349,6 @@ int main(int argc, char *argv[]) {
             board->llio.write(&(board->llio), wpo_addr, &wpo_data, sizeof(u32));
         } else if (set_flag == 1) {
             ret = anyio_dev_set_remote_ip(board, lbp16_set_ip_addr);
-        } else if (lbp16_flag == 1) {
-            if (lbp16_send_packet_flag == 1) {
-                ret = anyio_dev_send_packet(board, lbp16_send_packet_data);
-            }
         } else if (write_flag == 1) {
             ret = anyio_dev_write_flash(board, bitfile_name, fallback_flag);
         } else if (verify_flag == 1) {

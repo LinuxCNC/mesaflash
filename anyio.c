@@ -252,27 +252,6 @@ int anyio_dev_program_fpga(board_t *board, char *bitfile_name) {
     return 0;
 }
 
-int anyio_dev_send_packet(board_t *board, char *lbp16_send_packet_data) {
-    u8 packet[512];
-    u8 *pch = (u8 *) lbp16_send_packet_data;
-    u32 *ptr = (u32 *) packet;
-    int i, recv;
-
-    if (board == NULL) {
-        return -EINVAL;
-    }
-    for (i = 0; (i < 512) && (i < strlen(lbp16_send_packet_data)); i++, pch += 2) {
-        char s[3] = {*pch, *(pch + 1), 0};
-        packet[i] = strtol(s, NULL, 16) & 0xFF;
-    }
-    eth_socket_send_packet(&packet, i/2);
-    recv = eth_socket_recv_packet(&packet, 512);
-    for (i = 0; i < recv; i++)
-        printf("%02X", packet[i]);
-    printf("\n");
-    return 0;
-}
-
 int anyio_dev_set_remote_ip(board_t *board, char *lbp16_set_ip_addr) {
     int ret;
 
