@@ -57,7 +57,7 @@ headers += lbp.h eeprom_local.h eeprom_remote.h spilbp.h bitfile.h sserial_modul
 all: $(LIBANYIO) $(BIN)
 
 $(LIBANYIO) : $(objects)
-	$(RM) $(LIBANYIO)
+	$(RM) $(LIBANYIO) $(BIN)
 	$(AR) rcs $(LIBANYIO) $(objects)
 	$(RANLIB) $(LIBANYIO)
 
