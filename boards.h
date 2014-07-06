@@ -23,14 +23,25 @@
 
 #define MAX_BOARDS 8
 
-typedef enum {BOARD_ETH, BOARD_PCI, BOARD_EPP, BOARD_USB, BOARD_SPI} board_type;
+#define BOARD_ANY             (0)
+#define BOARD_MULTI_INTERFACE (1<<0)
+#define BOARD_ETH             (1<<1)
+#define BOARD_PCI             (1<<2)
+#define BOARD_EPP             (1<<3)
+#define BOARD_USB             (1<<4)
+#define BOARD_SPI             (1<<5)
 typedef enum {BOARD_MODE_CPLD, BOARD_MODE_FPGA} board_mode;
 typedef enum {BOARD_FLASH_NONE = 0, BOARD_FLASH_HM2, BOARD_FLASH_IO, BOARD_FLASH_GPIO, BOARD_FLASH_REMOTE, BOARD_FLASH_EPP} board_flash;
+
+typedef struct {
+    char *name;
+    u32 type;
+} supported_board_entry_t;
 
 typedef struct board_struct board_t;
 
 struct board_struct {
-    board_type type;
+    u32 type;
     board_mode mode;
     board_flash flash;
     u8 flash_id;
@@ -63,15 +74,12 @@ struct board_struct {
 
 typedef struct {
     char *device_name;
+    u32 type;
+    u32 open_iface;
     int list;
     int address;
     int verbose;
     int recover;
-    int pci;
-    int epp;
-    int usb;
-    int eth;
-    int spi;
     char *dev_addr;
     u16 epp_base_addr;
     u16 epp_base_hi_addr;

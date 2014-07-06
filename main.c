@@ -35,6 +35,9 @@ static int program_flag;
 static int readhmid_flag;
 static int sserial_flag;
 static int list_flag;
+static int epp_flag;
+static int usb_flag;
+static int spi_flag;
 static int rpo_flag;
 static int wpo_flag;
 static u16 rpo_addr;
@@ -61,6 +64,9 @@ static struct option long_options[] = {
     {"readhmid", no_argument, &readhmid_flag, 1},
     {"sserial", no_argument, &sserial_flag, 1},
     {"list", no_argument, &list_flag, 1},
+    {"epp", no_argument, &epp_flag, 1},
+    {"usb", no_argument, &usb_flag, 1},
+    {"spi", no_argument, &spi_flag, 1},
     {"rpo", required_argument, 0, 'r'},
     {"wpo", required_argument, 0, 'o'},
     {"set", required_argument, 0, 's'},
@@ -98,6 +104,9 @@ void print_usage() {
     printf("  --device      select active device name. If no command is given it will detect board with given name and print info about it.\n");
     printf("  --addr <device_address>\n");
     printf("      select <device address> for looking for <device_name> (network C mask for ethernet boards, serial port for USB boards)\n");
+    printf("  --epp         use EPP interface to connect to board, only for boards with multiply intefaces (7i43, 7i90, 7i64)\n");
+    printf("  --usb         use USB interface to connect to board, only for boards with multiply intefaces (7i43, 7i90, 7i64)\n");
+    printf("  --spi         use SPI interface to connect to board, only for boards with multiply intefaces (7i43, 7i90, 7i64)\n");
     printf("  --fallback    use the fallback area of the EEPROM\n");
     printf("  --recover     access board using PCI bridge GPIO (currently only 6I25)\n");
     printf("  --verbose     print detailed information while running commands\n");
@@ -306,6 +315,16 @@ int process_cmd_line(int argc, char *argv[]) {
                 abort();
         }
     }
+
+    access.type = BOARD_ANY;
+    if ((epp_flag == 1) && (usb_flag == 0) && (spi_flag == 0)) {
+        access.type = BOARD_EPP;
+    } else if ((epp_flag == 0) && (usb_flag == 1) && (spi_flag == 0)) {
+        access.type = BOARD_USB;
+    } else if ((epp_flag == 0) && (usb_flag == 0) && (spi_flag == 1)) {
+        access.type = BOARD_SPI;
+    }
+
     return 0;
 }
 
@@ -323,12 +342,6 @@ int main(int argc, char *argv[]) {
         anyio_bitfile_print_info(bitfile_name);
     } else if (list_flag == 1) {
         access.verbose = verbose_flag;
-        access.pci = 1;
-        if (addr_flag == 1) {
-            access.eth = 1;
-//            access.usb = 1;
-//            access.epp = 1;
-        }
 
         if (anyio_init(&access) != 0)
             exit(1);
@@ -340,13 +353,7 @@ int main(int argc, char *argv[]) {
 
         access.verbose = verbose_flag;
         access.recover = recover_flag;
-        access.pci = 1;
-        if (addr_flag == 1) {
-            access.address = 1;
-            access.eth = 1;
-            access.epp = 1;
-//            access.usb = 1;
-        }
+        access.address = addr_flag;
 
         if (anyio_init(&access) != 0)
             exit(1);

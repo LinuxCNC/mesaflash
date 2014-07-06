@@ -29,70 +29,136 @@
 #include "usb_boards.h"
 #include "spi_boards.h"
 
+supported_board_entry_t supported_boards[] = {
+    {"7I80", BOARD_ETH},
+    {"7I76E", BOARD_ETH},
+
+    {"4I74", BOARD_PCI},
+    {"5I24", BOARD_PCI},
+    {"5I25", BOARD_PCI},
+    {"6I25", BOARD_PCI},
+    {"5I20", BOARD_PCI},
+    {"4I65", BOARD_PCI},
+    {"4I68", BOARD_PCI},
+    {"5I21", BOARD_PCI},
+    {"5I22", BOARD_PCI},
+    {"5I23", BOARD_PCI},
+    {"4I69", BOARD_PCI},
+    {"3X20", BOARD_PCI},
+
+    {"7I43", BOARD_MULTI_INTERFACE | BOARD_EPP | BOARD_USB},
+    {"7I90", BOARD_MULTI_INTERFACE | BOARD_EPP | BOARD_SPI},
+    {"7I64", BOARD_MULTI_INTERFACE | BOARD_USB | BOARD_SPI},
+
+    {NULL, 0},
+};
+
 board_t boards[MAX_BOARDS];
 int boards_count;
 
 int anyio_init(board_access_t *access) {
-    int ret;
-
-    if (access == NULL)
+    if (access == NULL) {
         return -EINVAL;
-    if (access->pci == 1) {
-        ret = pci_boards_init(access);
-        if (ret != 0)
-            return ret;
     }
-    if (access->epp == 1) {
-        ret = epp_boards_init(access);
-        if (ret != 0)
-            return ret;
-    }
-    if (access->usb == 1) {
-        ret = usb_boards_init(access);
-        if (ret != 0)
-            return ret;
-    }
-    if (access->eth == 1) {
-        ret = eth_boards_init(access);
-        if (ret != 0)
-            return ret;
-    }
-    if (access->spi == 1) {
-        ret = spi_boards_init(access);
-        if (ret != 0)
-            return ret;
-    }
+
     return 0;
 }
 
 void anyio_cleanup(board_access_t *access) {
-    if (access == NULL)
+    if (access == NULL) {
         return;
-    if (access->pci == 1)
-        pci_boards_cleanup(access);
-    if (access->epp == 1)
-        epp_boards_cleanup(access);
-    if (access->usb == 1)
-        usb_boards_cleanup(access);
-    if (access->eth == 1)
+    }
+    if (access->open_iface & BOARD_ETH)
         eth_boards_cleanup(access);
-    if (access->spi == 1)
+    if (access->open_iface & BOARD_PCI)
+        pci_boards_cleanup(access);
+    if (access->open_iface & BOARD_EPP)
+        epp_boards_cleanup(access);
+    if (access->open_iface & BOARD_USB)
+        usb_boards_cleanup(access);
+    if (access->open_iface & BOARD_SPI)
         spi_boards_cleanup(access);
+    access->open_iface = 0;
 }
 
 void anyio_scan(board_access_t *access) {
-    if (access == NULL)
+    int i, ret = 0;
+    supported_board_entry_t *supported_board = NULL;
+
+    if (access == NULL) {
         return;
-    if (access->pci == 1)
-        pci_boards_scan(access);
-    if (access->epp == 1)
-        epp_boards_scan(access);
-    if (access->usb == 1)
-        usb_boards_scan(access);
-    if (access->eth == 1)
-        eth_boards_scan(access);
-    if (access->spi == 1)
-        spi_boards_scan(access);
+    }
+
+    for (i = 0; supported_boards[i].name != NULL; i++) {
+        if (strncmp(supported_boards[i].name, access->device_name, strlen(supported_boards[i].name)) == 0) {
+            supported_board = &supported_boards[i];
+            break;
+        }
+    }
+
+    if (supported_board == NULL) {
+        printf("ERROR: Unsupported device %s\n", access->device_name);
+        return;
+    }
+
+    access->open_iface = 0;
+    if (access->type == BOARD_ANY) {
+        if (supported_board->type & BOARD_MULTI_INTERFACE) {
+            printf("ERROR: you must select transport layer for board\n");
+            return;
+        }
+        if (supported_board->type & BOARD_ETH) {
+            ret = eth_boards_init(access);
+            access->open_iface |= BOARD_ETH;
+            eth_boards_scan(access);
+        }
+        if (supported_board->type & BOARD_PCI) {
+            ret = pci_boards_init(access);
+            access->open_iface |= BOARD_PCI;
+            pci_boards_scan(access);
+        }
+        if (supported_board->type & BOARD_EPP) {
+            ret = epp_boards_init(access);
+            access->open_iface |= BOARD_EPP;
+            epp_boards_scan(access);
+        }
+        if (supported_board->type & BOARD_USB) {
+            ret = usb_boards_init(access);
+            access->open_iface |= BOARD_USB;
+            usb_boards_scan(access);
+        }
+        if (supported_board->type & BOARD_SPI) {
+            ret = spi_boards_init(access);
+            access->open_iface |= BOARD_SPI;
+            spi_boards_scan(access);
+        }
+    } else {
+        if (access->type & BOARD_ETH) {
+            ret = eth_boards_init(access);
+            access->open_iface |= BOARD_ETH;
+            eth_boards_scan(access);
+        }
+        if (access->type & BOARD_PCI) {
+            ret = pci_boards_init(access);
+            access->open_iface |= BOARD_PCI;
+            pci_boards_scan(access);
+        }
+        if (access->type & BOARD_EPP) {
+            ret = epp_boards_init(access);
+            access->open_iface |= BOARD_EPP;
+            epp_boards_scan(access);
+        }
+        if (access->type & BOARD_USB) {
+            ret = usb_boards_init(access);
+            access->open_iface |= BOARD_USB;
+            usb_boards_scan(access);
+        }
+        if (access->type & BOARD_SPI) {
+            ret = spi_boards_init(access);
+            access->open_iface |= BOARD_SPI;
+            spi_boards_scan(access);
+        }
+    }
 }
 
 board_t *anyio_get_dev(board_access_t *access) {
@@ -213,7 +279,7 @@ int anyio_dev_set_remote_ip(board_t *board, char *lbp16_set_ip_addr) {
     if (board == NULL) {
         return -EINVAL;
     }
-    if (board->type != BOARD_ETH) {
+    if ((board->type & BOARD_ETH) == 0) {
         return -EPERM;
     }
 
