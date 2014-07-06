@@ -313,9 +313,9 @@ int main(int argc, char *argv[]) {
     } else if (list_flag == 1) {
         access.verbose = verbose_flag;
 
-        if (anyio_init(&access) != 0)
+       if (anyio_init(&access) != 0)
             exit(1);
-        anyio_scan(&access);
+        anyio_find_dev(&access);
         anyio_list_dev(&access);
         anyio_cleanup(&access);
     } else if (device_flag == 1) {
@@ -327,8 +327,8 @@ int main(int argc, char *argv[]) {
 
         if (anyio_init(&access) != 0)
             exit(1);
-        anyio_scan(&access);
-        board = anyio_get_dev(&access);
+        anyio_find_dev(&access);
+        board = anyio_get_dev(&access, 1);
         if (board == NULL) {
             printf("No %s board found\n", access.device_name);
             return -1;

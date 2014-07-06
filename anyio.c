@@ -81,12 +81,12 @@ void anyio_cleanup(board_access_t *access) {
     access->open_iface = 0;
 }
 
-void anyio_scan(board_access_t *access) {
+int anyio_find_dev(board_access_t *access) {
     int i, ret = 0;
     supported_board_entry_t *supported_board = NULL;
 
     if (access == NULL) {
-        return;
+        return -1;
     }
 
     for (i = 0; supported_boards[i].name != NULL; i++) {
@@ -98,14 +98,14 @@ void anyio_scan(board_access_t *access) {
 
     if (supported_board == NULL) {
         printf("ERROR: Unsupported device %s\n", access->device_name);
-        return;
+        return -1;
     }
 
     access->open_iface = 0;
     if (access->type == BOARD_ANY) {
         if (supported_board->type & BOARD_MULTI_INTERFACE) {
             printf("ERROR: you must select transport layer for board\n");
-            return;
+            return -1;
         }
         if (supported_board->type & BOARD_ETH) {
             ret = eth_boards_init(access);
@@ -161,17 +161,20 @@ void anyio_scan(board_access_t *access) {
     }
 }
 
-board_t *anyio_get_dev(board_access_t *access) {
-    int i;
+board_t *anyio_get_dev(board_access_t *access, int board_number) {
+    int i, j;
     board_t *board = NULL;
 
     if (access == NULL) {
         return NULL;
     }
-    for (i = 0; i < boards_count; i++) {
+    for (i = 0, j = 0; i < boards_count; i++) {
         if (strncmp(access->device_name, boards[i].llio.board_name, strlen(access->device_name)) == 0) {
-            board = &boards[i];
-            return board;
+            j++;
+            if (j == board_number) {
+                board = &boards[i];
+                return board;
+            }
         }
     }
     return NULL;

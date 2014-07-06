@@ -27,8 +27,8 @@
 
 int anyio_init(board_access_t *access);
 void anyio_cleanup(board_access_t *access);
-void anyio_scan(board_access_t *access);
-board_t *anyio_get_dev(board_access_t *access);
+int anyio_find_dev(board_access_t *access);
+board_t *anyio_get_dev(board_access_t *access, int board_number);
 void anyio_list_dev(board_access_t *access);
 int anyio_dev_write_flash(board_t *board, char *bitfile_name, int fallback_flag);
 int anyio_dev_verify_flash(board_t *board, char *bitfile_name, int fallback_flag);
