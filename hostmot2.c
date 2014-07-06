@@ -412,6 +412,10 @@ static mod_name_t mod_names[HM2_MAX_TAGS] = {
 static char *pin_find_module_name(int gtag) {
     int i;
 
+    if (gtag == HM2_GTAG_NONE) {
+        return "None";
+    }
+
     for (i = 0; i < HM2_MAX_TAGS; i++) {
         if (mod_names[i].tag == gtag)
             return mod_names[i].name;
@@ -424,6 +428,11 @@ static char *pin_get_pin_name(hm2_pin_desc_t *pin) {
     int i;
     u8 chan;
     static char buff[100];
+
+    if (pin->sec_tag == HM2_GTAG_NONE) {
+        sprintf(buff, "None");
+        return buff;
+    }
 
     for (i = 0; i < HM2_MAX_TAGS; i++) {
         if (pin_names[i].tag == pin->sec_tag) {
