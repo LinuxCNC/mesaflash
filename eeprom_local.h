@@ -43,15 +43,6 @@
 #define EPP_SPI_CS_REG        0x7D
 #define EPP_SPI_SREG_REG      0x7E
 
-typedef struct {
-    void (*set_cs_low)(llio_t *self);
-    void (*set_cs_high)(llio_t *self);
-    void (*prefix)(llio_t *self);
-    void (*suffix)(llio_t *self);
-    void (*send_byte)(llio_t *self, u8 byte);
-    u8   (*recv_byte)(llio_t *self);
-} spi_eeprom_dev_t;
-
 u8 read_flash_id(llio_t *self);
 int local_write_flash(llio_t *self, char *bitfile_name, u32 start_address);
 int local_verify_flash(llio_t *self, char *bitfile_name, u32 start_address);

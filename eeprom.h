@@ -35,12 +35,27 @@
 #define BOOT_ADDRESS     0x000000
 #define FALLBACK_ADDRESS 0x010000
 
+typedef struct {
+    void (*set_cs_low)(llio_t *self);
+    void (*set_cs_high)(llio_t *self);
+    void (*prefix)(llio_t *self);
+    void (*suffix)(llio_t *self);
+    void (*send_byte)(llio_t *self, u8 byte);
+    u8   (*recv_byte)(llio_t *self);
+    void (*read_page)(llio_t *self, u32 addr, void *buff);
+    void (*write_page)(llio_t *self, u32 addr, void *buff);
+    void (*erase_sector)(llio_t *self, u32 addr);
+    int  (*start_programming)(llio_t *self, u32 start_address, int fsize);
+} spi_eeprom_dev_t;
+
 extern u8 boot_block[BOOT_BLOCK_SIZE];
 
 char *eeprom_get_flash_type(u8 flash_id);
-u32 eeprom_get_flash_size(u8 flash_id);
 u32 eeprom_calc_user_space(u8 flash_id);
 void eeprom_prepare_boot_block(u8 flash_id);
+int start_programming(llio_t *self, u32 start_address, int fsize);
+int eeprom_write(llio_t *self, char *bitfile_name, u32 start_address);
+int eeprom_verify(llio_t *self, char *bitfile_name, u32 start_address);
 void eeprom_init(llio_t *self);
 void eeprom_cleanup(llio_t *self);
 

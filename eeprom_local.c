@@ -37,7 +37,7 @@ extern u8 boot_block[BOOT_BLOCK_SIZE];
 extern u8 page_buffer[PAGE_SIZE];
 extern u8 file_buffer[SECTOR_SIZE];
 
-spi_eeprom_dev_t access;
+extern spi_eeprom_dev_t eeprom_access;
 
 // spi access via hm2 registers
 
@@ -313,35 +313,35 @@ static u8 recv_byte_epp(llio_t *self) {
 // pci flash
 
 static void send_address(llio_t *self, u32 addr) {
-    access.send_byte(self, (addr >> 16) & 0xFF);
-    access.send_byte(self, (addr >> 8) & 0xFF);
-    access.send_byte(self, addr & 0xFF);
+    eeprom_access.send_byte(self, (addr >> 16) & 0xFF);
+    eeprom_access.send_byte(self, (addr >> 8) & 0xFF);
+    eeprom_access.send_byte(self, addr & 0xFF);
 }
 
 static void write_enable(llio_t *self) {
-    access.prefix(self);
-    access.send_byte(self, SPI_CMD_WRITE_ENABLE);
-    access.suffix(self);
+    eeprom_access.prefix(self);
+    eeprom_access.send_byte(self, SPI_CMD_WRITE_ENABLE);
+    eeprom_access.suffix(self);
 }
 
 static u8 read_status(llio_t *self) {
     u8 ret;
 
-    access.prefix(self);
-    access.send_byte(self, SPI_CMD_READ_STATUS);
-    ret = access.recv_byte(self);
-    access.suffix(self);
+    eeprom_access.prefix(self);
+    eeprom_access.send_byte(self, SPI_CMD_READ_STATUS);
+    ret = eeprom_access.recv_byte(self);
+    eeprom_access.suffix(self);
     return ret;
 }
 
 u8 read_flash_id(llio_t *self) {
     u8 ret;
 
-    access.prefix(self);
-    access.send_byte(self, SPI_CMD_READ_IDROM);
+    eeprom_access.prefix(self);
+    eeprom_access.send_byte(self, SPI_CMD_READ_IDROM);
     send_address(self, 0); // three dummy bytes
-    ret = access.recv_byte(self);
-    access.suffix(self);
+    ret = eeprom_access.recv_byte(self);
+    eeprom_access.suffix(self);
     return ret;
 }
 
@@ -356,11 +356,11 @@ static void wait_for_write(llio_t *self) {
 static u8 read_byte(llio_t *self, u32 addr) {
     u8 ret;
 
-    access.prefix(self);
-    access.send_byte(self, SPI_CMD_READ);
+    eeprom_access.prefix(self);
+    eeprom_access.send_byte(self, SPI_CMD_READ);
     send_address(self, addr);
-    ret = access.recv_byte(self);
-    access.suffix(self);
+    ret = eeprom_access.recv_byte(self);
+    eeprom_access.suffix(self);
     return ret;
 }
 
@@ -375,223 +375,56 @@ static void read_page(llio_t *self, u32 addr, void *buff) {
     }
 }
 
-static void write_page(llio_t *self, u32 addr, char *buff, int buff_i) {
+static void write_page(llio_t *self, u32 addr, void *buff) {
     int i;
+    u8 byte;
 
     write_enable(self);
-    access.prefix(self);
-    access.send_byte(self, SPI_CMD_PAGE_WRITE);
+    eeprom_access.prefix(self);
+    eeprom_access.send_byte(self, SPI_CMD_PAGE_WRITE);
     send_address(self, addr);// { note that add 0..7 should be 0}
     for (i = 0; i < PAGE_SIZE; i++) {
-        access.send_byte(self, buff[buff_i + i]);
+        byte = *(u8 *) (buff + i); 
+        eeprom_access.send_byte(self, byte);
     }
-    access.suffix(self);
+    eeprom_access.suffix(self);
     wait_for_write(self);
 }
 
 static void erase_sector(llio_t *self, u32 addr) {
     write_enable(self);
-    access.prefix(self);
-    access.send_byte(self, SPI_CMD_SECTOR_ERASE);
+    eeprom_access.prefix(self);
+    eeprom_access.send_byte(self, SPI_CMD_SECTOR_ERASE);
     send_address(self, addr);
-    access.suffix(self);
+    eeprom_access.suffix(self);
     wait_for_write(self);
 }
 
-static int check_boot(llio_t *self) {
-    int i;
+static int local_start_programming(llio_t *self, u32 start_address, int fsize) {
+    int ret;
 
-    read_page(self, 0x0, &page_buffer);
-    for (i = 0; i < BOOT_BLOCK_SIZE; i++) {
-        if (boot_block[i] != page_buffer[i]) {
-            return -1;
-        }
-    }
-    return 0;
-}
-
-static void write_boot(llio_t *self) {
-    printf("Erasing sector 0 for boot block\n");
-    erase_sector(self, BOOT_ADDRESS);
-    memset(&file_buffer, 0, PAGE_SIZE);
-    memcpy(&file_buffer, &boot_block, BOOT_BLOCK_SIZE);
-    write_page(self, 0x0, (char *) &file_buffer, 0);
-    printf("BootBlock installed\n");
-}
-
-static int start_programming(llio_t *self, u32 start_address, int fsize) {
-    board_t *board = self->private;
-    u32 sec_addr;
-    int esectors, sector, max_sectors;
-
-    access.set_cs_high(self);
-
-    esectors = (fsize - 1) / SECTOR_SIZE;
-    if (board->fallback_support == 1) {
-        if (start_address == FALLBACK_ADDRESS) {
-            max_sectors = eeprom_calc_user_space(board->flash_id) / SECTOR_SIZE - 1;
-        } else {
-            max_sectors = eeprom_calc_user_space(board->flash_id) / SECTOR_SIZE;
-        }
-    } else {
-        max_sectors = eeprom_get_flash_size(board->flash_id) / SECTOR_SIZE;
-    }
-    if (esectors > max_sectors) {
-        printf("File Size too large to fit\n");
-        return -1;
-    }
-    printf("EEPROM sectors to write: %d, max sectors in area: %d\n", esectors + 1, max_sectors);
-    sec_addr = start_address;
-    printf("Erasing EEPROM sectors starting from 0x%X...\n", (unsigned int) start_address);
-    printf("  |");
-    fflush(stdout);
-    for (sector = 0; sector <= esectors; sector++) {
-        erase_sector(self, sec_addr);
-        sec_addr = sec_addr + SECTOR_SIZE;
-        printf("E");
-        fflush(stdout);
-    }
-    printf("\n");
-    access.set_cs_high(self);
-    return 0;
+    eeprom_access.set_cs_high(self);
+    ret = start_programming(self, start_address, fsize);
+    eeprom_access.set_cs_high(self);
+    return ret;
 }
 
 static void done_programming(llio_t *self) {
-    access.set_cs_high(self);
+    eeprom_access.set_cs_high(self);
 }
 
 // global functions
 
 int local_write_flash(llio_t *self, char *bitfile_name, u32 start_address) {
-    board_t *board = self->private;
-    int bytesread, i;
-    u32 eeprom_addr;
-    char part_name[32];
-    struct stat file_stat;
-    FILE *fp;
+    int ret;
 
-    if (stat(bitfile_name, &file_stat) != 0) {
-        printf("Can't find file %s\n", bitfile_name);
-        return -1;
-    }
-
-    fp = fopen(bitfile_name, "rb");
-    if (fp == NULL) {
-        printf("Can't open file %s: %s\n", bitfile_name, strerror(errno));
-        return -1;
-    }
-    if (print_bitfile_header(fp, (char*) &part_name) == -1) {
-        fclose(fp);
-        return -1;
-    }
-/*    if (strcmp(part_name, active_board.fpga_part_number) != 0) {
-        printf("Error: wrong bitfile destination device: %s, should be %s\n", part_name, active_board.fpga_part_number);
-        fclose(fp);
-        return -1;
-    }*/
-// if board doesn't support fallback there is no boot block
-    if (board->fallback_support == 1) {
-        if (check_boot(self) == -1) {
-            write_boot(self);
-        } else {
-            printf("Boot sector OK\n");
-        }
-        if (check_boot(self) == -1) {
-            printf("Failed to write valid boot sector\n");
-            fclose(fp);
-            return -1;
-        }
-    }
-
-    if (start_programming(self, start_address, file_stat.st_size) == -1) {
-        fclose(fp);
-        return -1;
-    }
-    printf("Programming EEPROM sectors starting from 0x%X...\n", (unsigned int) start_address);
-    printf("  |");
-    fflush(stdout);
-    eeprom_addr = start_address;
-    while (!feof(fp)) {
-        bytesread = fread(&file_buffer, 1, 8192, fp);
-        i = 0;
-        while (i < bytesread) {
-            write_page(self, eeprom_addr, (char *) &file_buffer, i);
-            i += PAGE_SIZE;
-            eeprom_addr += PAGE_SIZE;
-        }
-        printf("W");
-        fflush(stdout);
-    }
-
-    fclose(fp);
-    printf("\nBoard configuration updated successfully.\n");
-    printf("\nYou must power cycle board to load updated firmware.\n");
+    ret = eeprom_write(self, bitfile_name, start_address);
     done_programming(self);
-    return 0;
+    return ret;
 }
 
 int local_verify_flash(llio_t *self, char *bitfile_name, u32 start_address) {
-    board_t *board = self->private;
-    int bytesread, i, bindex;
-    u32 eeprom_addr;
-    char part_name[32];
-    struct stat file_stat;
-    FILE *fp;
-
-    if (stat(bitfile_name, &file_stat) != 0) {
-        printf("Can't find file %s\n", bitfile_name);
-        return -1;
-    }
-
-    fp = fopen(bitfile_name, "rb");
-    if (fp == NULL) {
-        printf("Can't open file %s: %s\n", bitfile_name, strerror(errno));
-        return -1;
-    }
-    if (print_bitfile_header(fp, (char*) &part_name) == -1) {
-        fclose(fp);
-        return -1;
-    }
-/*    if (strcmp(part_name, active_board.fpga_part_number) != 0) {
-        printf("Error: wrong bitfile destination device: %s, should be %s\n", part_name, active_board.fpga_part_number);
-        fclose(fp);
-        return -1;
-    }*/
-// if board doesn't support fallback there is no boot block
-    if (board->fallback_support == 1) {
-        if (check_boot(self) == -1) {
-            printf("Error: BootSector is invalid\n");
-            fclose(fp);
-            return -1;
-        } else {
-            printf("Boot sector OK\n");
-        }
-    }
-
-    printf("Verifying EEPROM sectors starting from 0x%X...\n", (unsigned int) start_address);
-    printf("  |");
-    fflush(stdout);
-    eeprom_addr = start_address;
-    while (!feof(fp)) {
-        bytesread = fread(&file_buffer, 1, 8192, fp);
-        bindex = 0;
-        while (bindex < bytesread) {
-            read_page(self, eeprom_addr, &page_buffer);
-            for (i = 0; i < PAGE_SIZE; i++, bindex++) {
-                if (file_buffer[bindex] != page_buffer[i]) {
-                   printf("\nError at 0x%X expected: 0x%X but read: 0x%X\n", eeprom_addr + i, file_buffer[bindex], page_buffer[i]);
-                   return -1;
-                }
-            }
-            eeprom_addr += PAGE_SIZE;
-        }
-        printf("V");
-        fflush(stdout);
-    }
-
-    fclose(fp);
-    printf("\nBoard configuration verified successfully\n");
-    return 0;
+    return eeprom_verify(self, bitfile_name, start_address);
 }
 
 void open_spi_access_local(llio_t *self) {
@@ -601,41 +434,45 @@ void open_spi_access_local(llio_t *self) {
         case BOARD_FLASH_NONE:
             break;
         case BOARD_FLASH_HM2:
-            access.set_cs_low = &set_cs_low_hm2; 
-            access.set_cs_high = &set_cs_high_hm2;
-            access.prefix = &prefix_hm2;
-            access.suffix = &suffix_hm2;
-            access.send_byte = &send_byte_hm2;
-            access.recv_byte = &recv_byte_hm2;
+            eeprom_access.set_cs_low = &set_cs_low_hm2;
+            eeprom_access.set_cs_high = &set_cs_high_hm2;
+            eeprom_access.prefix = &prefix_hm2;
+            eeprom_access.suffix = &suffix_hm2;
+            eeprom_access.send_byte = &send_byte_hm2;
+            eeprom_access.recv_byte = &recv_byte_hm2;
             break;
         case BOARD_FLASH_IO:
-            access.set_cs_low = &set_cs_low_io; 
-            access.set_cs_high = &set_cs_high_io;
-            access.prefix = &prefix_io;
-            access.suffix = &suffix_io;
-            access.send_byte = &send_byte_io;
-            access.recv_byte = &recv_byte_io;
+            eeprom_access.set_cs_low = &set_cs_low_io;
+            eeprom_access.set_cs_high = &set_cs_high_io;
+            eeprom_access.prefix = &prefix_io;
+            eeprom_access.suffix = &suffix_io;
+            eeprom_access.send_byte = &send_byte_io;
+            eeprom_access.recv_byte = &recv_byte_io;
             break;
         case BOARD_FLASH_GPIO:
-            access.set_cs_low = &set_cs_low_gpio; 
-            access.set_cs_high = &set_cs_high_gpio;
-            access.prefix = &prefix_gpio;
-            access.suffix = &suffix_gpio;
-            access.send_byte = &send_byte_gpio;
-            access.recv_byte = &recv_byte_gpio;
+            eeprom_access.set_cs_low = &set_cs_low_gpio;
+            eeprom_access.set_cs_high = &set_cs_high_gpio;
+            eeprom_access.prefix = &prefix_gpio;
+            eeprom_access.suffix = &suffix_gpio;
+            eeprom_access.send_byte = &send_byte_gpio;
+            eeprom_access.recv_byte = &recv_byte_gpio;
             init_gpio(self);
             break;
         case BOARD_FLASH_EPP:
-            access.set_cs_low = &set_cs_low_epp;
-            access.set_cs_high = &set_cs_high_epp;
-            access.prefix = &prefix_epp;
-            access.suffix = &suffix_epp;
-            access.send_byte = &send_byte_epp;
-            access.recv_byte = &recv_byte_epp;
+            eeprom_access.set_cs_low = &set_cs_low_epp;
+            eeprom_access.set_cs_high = &set_cs_high_epp;
+            eeprom_access.prefix = &prefix_epp;
+            eeprom_access.suffix = &suffix_epp;
+            eeprom_access.send_byte = &send_byte_epp;
+            eeprom_access.recv_byte = &recv_byte_epp;
             break;
         case BOARD_FLASH_REMOTE:
             break;
     }
+    eeprom_access.read_page = &read_page;
+    eeprom_access.write_page = &write_page;
+    eeprom_access.erase_sector = &erase_sector;
+    eeprom_access.start_programming = &local_start_programming;
 };
 
 void close_spi_access_local(llio_t *self) {
