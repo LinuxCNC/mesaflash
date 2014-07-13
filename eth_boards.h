@@ -25,7 +25,7 @@ int eth_boards_init(board_access_t *access);
 void eth_boards_cleanup(board_access_t *access);
 void eth_boards_scan(board_access_t *access);
 void eth_print_info(board_t *board);
-int eth_board_reload(board_t *board);
+int eth_board_reload(board_t *board, int fallback_flag);
 int eth_board_reset(board_t *board);
 inline int eth_socket_send_packet(void *packet, int size);
 inline int eth_socket_recv_packet(void *buffer, int size);

@@ -317,18 +317,26 @@ static int eth_scan_one_addr(board_access_t *access) {
     return ret;
 }
 
-int eth_board_reload(board_t *board) {
+int eth_board_reload(board_t *board, int fallback_flag) {
     int send;
+    u32 boot_addr;
     lbp16_cmd_addr_data16 packet[14];
+
+    if (fallback_flag == 1) {
+        boot_addr = 0x10000;
+    } else {
+        boot_addr = 0x0;
+    }
+    boot_addr |= 0x0B000000; // plus read command in high byte
 
     LBP16_INIT_PACKET6(packet[0], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0xFFFF);   // dummy
     LBP16_INIT_PACKET6(packet[1], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0xFFFF);   // dummy
     LBP16_INIT_PACKET6(packet[2], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0xAA99);   // sync
     LBP16_INIT_PACKET6(packet[3], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x5566);   // sync
     LBP16_INIT_PACKET6(packet[4], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x3261);   // load low flash start address
-    LBP16_INIT_PACKET6(packet[5], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x0000);   // start at 0
+    LBP16_INIT_PACKET6(packet[5], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, boot_addr & 0xFFFF);   // start addr
     LBP16_INIT_PACKET6(packet[6], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x3281);   // load high start address + read command
-    LBP16_INIT_PACKET6(packet[7], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x0B00);   // start at 0 (plus read command in high byte)
+    LBP16_INIT_PACKET6(packet[7], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, boot_addr >> 16);   // start addr (plus read command in high byte)
     LBP16_INIT_PACKET6(packet[8], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x30A1);   // load command register
     LBP16_INIT_PACKET6(packet[9], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x000E);   // IPROG command
     LBP16_INIT_PACKET6(packet[10], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x2000);  // NOP
