@@ -416,8 +416,6 @@ void eth_print_info(board_t *board) {
     if (board->llio.verbose == 0)
         return;
         
-    show_board_info(board);
-
     LBP16_INIT_PACKET4(cmds[0], CMD_READ_AREA_INFO_ADDR16_INCR(LBP16_SPACE_HM2, sizeof(mem_area)/2), 0);
     LBP16_INIT_PACKET4(cmds[1], CMD_READ_AREA_INFO_ADDR16_INCR(LBP16_SPACE_ETH_CHIP, sizeof(mem_area)/2), 0);
     LBP16_INIT_PACKET4(cmds[2], CMD_READ_AREA_INFO_ADDR16_INCR(LBP16_SPACE_ETH_EEPROM, sizeof(mem_area)/2), 0);
@@ -449,6 +447,15 @@ void eth_print_info(board_t *board) {
         eth_socket_send_packet(&packet, sizeof(packet));
         eth_socket_recv_packet(&timers_area, sizeof(timers_area));
     }
+
+    printf("Communication:\n");
+    printf("  transport layer: ethernet IPv4 UDP\n");
+    printf("  ip address: %s\n", board->dev_addr);
+    printf("  mac address: %02X:%02X:%02X:%02X:%02X:%02X\n", HI_BYTE(eth_area.mac_addr_hi), LO_BYTE(eth_area.mac_addr_hi),
+      HI_BYTE(eth_area.mac_addr_mid), LO_BYTE(eth_area.mac_addr_mid), HI_BYTE(eth_area.mac_addr_lo), LO_BYTE(eth_area.mac_addr_lo));
+    printf("  protocol: LBP16 version %d\n", info_area.LBP16_version);
+
+    show_board_info(board);
 
     printf("Board firmware info:\n");
     printf("  memory spaces:\n");
