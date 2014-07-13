@@ -273,6 +273,14 @@ int anyio_dev_set_remote_ip(board_t *board, char *lbp16_set_ip_addr) {
     return ret;
 }
 
+int anyio_dev_reload(board_t *board) {
+    return eth_board_reload(board);
+}
+
+int anyio_dev_reset(board_t *board) {
+    return eth_board_reset(board);
+}
+
 void anyio_dev_print_hm2_info(board_t *board) {
     if (board == NULL) {
         return;

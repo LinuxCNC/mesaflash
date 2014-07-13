@@ -33,6 +33,8 @@ static int fallback_flag;
 static int recover_flag;
 static int program_flag;
 static int readhmid_flag;
+static int reload_flag;
+static int reset_flag;
 static int sserial_flag;
 static int list_flag;
 static int epp_flag;
@@ -59,6 +61,8 @@ static struct option long_options[] = {
     {"recover", no_argument, &recover_flag, 1},
     {"program", required_argument, 0, 'p'},
     {"readhmid", no_argument, &readhmid_flag, 1},
+    {"reload", no_argument, &reload_flag, 1},
+    {"reset", no_argument, &reset_flag, 1},
     {"sserial", no_argument, &sserial_flag, 1},
     {"list", no_argument, &list_flag, 1},
     {"epp", no_argument, &epp_flag, 1},
@@ -88,6 +92,7 @@ void print_usage() {
     printf("  mesaflash --device device_name [options] --verify filename\n");
     printf("  mesaflash --device device_name [options] --program filename\n");
     printf("  mesaflash --device device_name [options] --readhmid\n");
+    printf("  mesaflash --device device_name [options] --reload | --reset\n");
     printf("  mesaflash --device device_name [options] --sserial\n");
     printf("  mesaflash --device device_name [options] --rpo address\n");
     printf("  mesaflash --device device_name [options] --wpo address=value\n");
@@ -110,6 +115,8 @@ void print_usage() {
     printf("  --verify      verifies the EEPROM configuration against the bitfile 'filename'\n");
     printf("  --program     writes a standard bitfile 'filename' configuration to the FPGA (IMPORTANT! 'filename' must be VALID FPGA configuration file)\n");
     printf("  --readhmid    print hostmot2 configuration in PIN file format\n");
+    printf("  --reload      do full FPGA reload from flash (only ethernet boards)\n");
+    printf("  --reset       do full firmware reset (only ethernet boards)\n");
     printf("  --sserial     print full information about all sserial remote boards\n");
     printf("  --rpo         read hostmot2 variable directly at 'address'\n");
     printf("  --wpo         write hostmot2 variable directly at 'address' with 'value'\n");
@@ -338,6 +345,10 @@ int main(int argc, char *argv[]) {
 
         if (readhmid_flag == 1) {
             anyio_dev_print_hm2_info(board);
+        } else if (reload_flag == 1) {
+            anyio_dev_reload(board);
+        } else if (reset_flag == 1) {
+            anyio_dev_reset(board);
         } else if (sserial_flag == 1) {
             anyio_dev_print_sserial_info(board);
         } else if (rpo_flag == 1) {
