@@ -375,7 +375,6 @@ void epp_boards_scan(board_access_t *access) {
     }
 
     iopl(3);
-    board->epp_wide = 1;
 
     r = parport_get(board, epp_addr, epp_hi_addr, PARPORT_MODE_EPP);
     if (r < 0)
@@ -390,9 +389,19 @@ void epp_boards_scan(board_access_t *access) {
     epp_write_control(board, 0x04);  // set control lines and input mode
     epp_clear_timeout(board);
 
+    board->epp_wide = 1;
     board->llio.private = board;
     epp_read(&(board->llio), 0, &eppio_cookie, 4);
     epp_read(&(board->llio), HM2_COOKIE_REG, &hm2_cookie, 4);
+
+    // Check for a wide mode failure and re-read
+    if ((hm2_cookie & 0x000000FF) == (HM2_COOKIE & 0x000000FF)) {
+        board->epp_wide = 0;
+        epp_read(&(board->llio), 0, &eppio_cookie, 4);
+        epp_read(&(board->llio), HM2_COOKIE_REG, &hm2_cookie, 4);
+	// printf("epp wide is broken!\n");
+    }
+
     if (hm2_cookie == HM2_COOKIE) {
         u32 idrom_addr;
         char board_name[8];
