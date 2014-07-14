@@ -27,6 +27,7 @@
 
 static int device_flag;
 static int addr_flag;
+static int addr_hi_flag;
 static int write_flag;
 static int verify_flag;
 static int fallback_flag;
@@ -55,6 +56,7 @@ static board_access_t access;
 static struct option long_options[] = {
     {"device", required_argument, 0, 'd'},
     {"addr", required_argument, 0, 'a'},
+    {"addr_hi", required_argument, 0, 'b'},
     {"write", required_argument, 0, 'w'},
     {"verify", required_argument, 0, 'v'},
     {"fallback", no_argument, &fallback_flag, 1},
@@ -104,6 +106,7 @@ void print_usage() {
     printf("  --device      select active device name. If no command is given it will detect board with given name and print info about it.\n");
     printf("  --addr <device_address>\n");
     printf("      select <device address> for looking for <device_name> (network C mask for ethernet boards, serial port for USB boards)\n");
+    printf("  --addr_hi     set the high register address for the EPP interface\n");
     printf("  --epp         use EPP interface to connect to board, only for boards with multiply intefaces (7i43, 7i90, 7i64)\n");
     printf("  --usb         use USB interface to connect to board, only for boards with multiply intefaces (7i43, 7i90, 7i64)\n");
     printf("  --spi         use SPI interface to connect to board, only for boards with multiply intefaces (7i43, 7i90, 7i64)\n");
@@ -174,6 +177,16 @@ int process_cmd_line(int argc, char *argv[]) {
                 addr_flag++;
             }
             break;
+
+	        case 'b': {
+                if (addr_hi_flag > 0) {
+                    printf("Error: multiple --addr_hi option\n");
+                    exit(-1);
+                }
+                access.dev_hi_addr = optarg;
+                addr_hi_flag++;
+            }
+	        break;
 
             case 'w': {
                 if (write_flag > 0) {

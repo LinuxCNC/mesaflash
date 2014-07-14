@@ -81,8 +81,7 @@ typedef struct {
     int verbose;
     int recover;
     char *dev_addr;
-    u16 epp_base_addr;
-    u16 epp_base_hi_addr;
+    char *dev_hi_addr;
 } board_access_t;
 
 extern board_t boards[MAX_BOARDS];

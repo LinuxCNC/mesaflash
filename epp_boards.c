@@ -348,7 +348,7 @@ void epp_boards_scan(board_access_t *access) {
 #ifdef __linux__
     board_t *board = &boards[boards_count];
     int r;
-    u16 epp_addr;
+    u16 epp_addr = 0, epp_hi_addr = 0;
     u32 hm2_cookie, eppio_cookie;
 
     if (strncmp(access->dev_addr, "0x", 2) == 0) {
@@ -362,10 +362,22 @@ void epp_boards_scan(board_access_t *access) {
         return;
     }
 
+    // Parse the base_hi address.
+    epp_hi_addr = 0;
+    if (access->dev_hi_addr != NULL) {
+        if (strncmp(access->dev_hi_addr, "0x", 2) == 0) {
+            access->dev_hi_addr[0] = '0';
+            access->dev_hi_addr[1] = '0';
+            epp_hi_addr = strtol(access->dev_hi_addr, NULL, 16);
+        } else {
+            epp_hi_addr = strtol(access->dev_hi_addr, NULL, 10);
+        }
+    }
+
     iopl(3);
     board->epp_wide = 1;
 
-    r = parport_get(board, epp_addr, access->epp_base_hi_addr, PARPORT_MODE_EPP);
+    r = parport_get(board, epp_addr, epp_hi_addr, PARPORT_MODE_EPP);
     if (r < 0)
        return;
 
@@ -491,7 +503,7 @@ void epp_boards_scan(board_access_t *access) {
 }
 
 void epp_print_info(board_t *board) {
-    printf("\nEPP device %s at 0x%04X\n", board->llio.board_name, board->base_lo);
+    printf("\nEPP device %s at 0x%04X:0x%04X\n", board->llio.board_name, board->base_lo, board->base_hi);
     if (board->llio.verbose == 0) {
         return;
     }
