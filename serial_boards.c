@@ -174,7 +174,7 @@ void serial_boards_scan(board_access_t *access) {
     if (strncmp(buff, "7I90HD", 6) == 0) {
         board_t *board = &boards[boards_count];
 
-        board->type = BOARD_SERIAL;
+        board->type = BOARD_SER;
         strncpy(board->dev_addr, access->dev_addr, 16);
         strncpy(board->llio.board_name, buff, 16);
         board->llio.num_ioport_connectors = 3;

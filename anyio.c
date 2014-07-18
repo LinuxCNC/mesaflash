@@ -163,23 +163,6 @@ int anyio_find_dev(board_access_t *access) {
     }
 }
 
-void anyio_scan(board_access_t *access) {
-    if (access == NULL)
-        return;
-    if (access->pci == 1)
-        pci_boards_scan(access);
-    if (access->epp == 1)
-        epp_boards_scan(access);
-    if (access->usb == 1)
-        usb_boards_scan(access);
-    if (access->eth == 1)
-        eth_boards_scan(access);
-    if (access->spi == 1)
-        spi_boards_scan(access);
-    if (access->serial == 1)
-        serial_boards_scan(access);
-}
-
 board_t *anyio_get_dev(board_access_t *access, int board_number) {
     int i, j;
     board_t *board = NULL;

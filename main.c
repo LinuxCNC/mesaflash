@@ -331,18 +331,7 @@ int main(int argc, char *argv[]) {
 
         access.verbose = verbose_flag;
         access.recover = recover_flag;
-<<<<<<< HEAD
         access.address = addr_flag;
-=======
-        access.pci = 1;
-        if (addr_flag == 1) {
-            access.address = 1;
-            access.eth = 1;
-            access.epp = 1;
-            access.serial = 1;
-//            access.usb = 1;
-        }
->>>>>>> add support for serial lbp16 communication with 7i90
 
         if (anyio_init(&access) != 0)
             exit(1);
