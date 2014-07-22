@@ -36,6 +36,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stddef.h>
 
 #include "common.h"
 #include "bitfile.h"
@@ -320,7 +321,18 @@ static int eth_scan_one_addr(board_access_t *access) {
 int eth_board_reload(board_t *board, int fallback_flag) {
     int send;
     u32 boot_addr;
+    u16 fw_ver;
     lbp16_cmd_addr_data16 packet[14];
+    lbp16_cmd_addr fw_packet;
+
+    LBP16_INIT_PACKET4(fw_packet, CMD_READ_BOARD_INFO_ADDR16(1), offsetof(lbp_info_area, firmware_version));
+    eth_socket_send_packet(&fw_packet, sizeof(fw_packet));
+    eth_socket_recv_packet(&fw_ver, sizeof(fw_ver));
+
+    if (fw_ver < 15) {
+        printf("ERROR: FPGA reload only supported by card firmware > 14.\n");
+        return -1;
+    }
 
     if (fallback_flag == 1) {
         boot_addr = 0x10000;
