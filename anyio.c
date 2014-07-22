@@ -262,11 +262,21 @@ int anyio_dev_set_remote_ip(board_t *board, char *lbp16_set_ip_addr) {
 }
 
 int anyio_dev_reload(board_t *board, int fallback_flag) {
-    return eth_board_reload(board, fallback_flag);
+    if (board->type == BOARD_ETH) {
+        return eth_board_reload(board, fallback_flag);
+    } else {
+        printf("ERROR: FPGA reload only supported by ethernet cards.\n");
+        return -1;
+    }
 }
 
 int anyio_dev_reset(board_t *board) {
-    return eth_board_reset(board);
+    if (board->type == BOARD_ETH) {
+        return eth_board_reset(board);
+    } else {
+        printf("ERROR: FPGA reset only supported by ethernet cards.\n");
+        return -1;
+    }
 }
 
 void anyio_dev_print_hm2_info(board_t *board) {
