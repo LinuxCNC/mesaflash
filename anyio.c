@@ -180,18 +180,6 @@ board_t *anyio_get_dev(board_access_t *access, int board_number) {
     return NULL;
 }
 
-void anyio_list_dev(board_access_t *access) {
-    int i;
-
-    if (access == NULL)
-        return;
-    for (i = 0; i < boards_count; i++) {
-        board_t *board = &boards[i];
-
-        board->print_info(board);
-    }
-}
-
 int anyio_dev_write_flash(board_t *board, char *bitfile_name, int fallback_flag) {
     int ret;
 

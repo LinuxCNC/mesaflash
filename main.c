@@ -37,7 +37,6 @@ static int readhmid_flag;
 static int reload_flag;
 static int reset_flag;
 static int sserial_flag;
-static int list_flag;
 static int epp_flag;
 static int usb_flag;
 static int spi_flag;
@@ -66,7 +65,6 @@ static struct option long_options[] = {
     {"reload", no_argument, &reload_flag, 1},
     {"reset", no_argument, &reset_flag, 1},
     {"sserial", no_argument, &sserial_flag, 1},
-    {"list", no_argument, &list_flag, 1},
     {"epp", no_argument, &epp_flag, 1},
     {"usb", no_argument, &usb_flag, 1},
     {"spi", no_argument, &spi_flag, 1},
@@ -99,7 +97,6 @@ void print_usage() {
     printf("  mesaflash --device device_name [options] --rpo address\n");
     printf("  mesaflash --device device_name [options] --wpo address=value\n");
     printf("  mesaflash --device device_name [options] --set ip=n.n.n.n\n");
-    printf("  mesaflash --list\n");
     printf("  mesaflash --info file_name\n");
     printf("  mesaflash --help\n");
     printf("\nOptions:\n");
@@ -124,7 +121,6 @@ void print_usage() {
     printf("  --rpo         read hostmot2 variable directly at 'address'\n");
     printf("  --wpo         write hostmot2 variable directly at 'address' with 'value'\n");
     printf("  --set         set board IP address in eeprom to n.n.n.n (only ethernet boards)\n");
-    printf("  --list        show list of all detected boards\n");
     printf("  --info        print info about configuration in 'file_name'\n");
     printf("  --help        print this help message\n");
 }
@@ -330,14 +326,6 @@ int main(int argc, char *argv[]) {
 
     if (info_flag == 1) {
         anyio_bitfile_print_info(bitfile_name);
-    } else if (list_flag == 1) {
-        access.verbose = verbose_flag;
-
-       if (anyio_init(&access) != 0)
-            exit(1);
-        anyio_find_dev(&access);
-        anyio_list_dev(&access);
-        anyio_cleanup(&access);
     } else if (device_flag == 1) {
         board_t *board = NULL;
 
