@@ -211,7 +211,7 @@ typedef struct {
 #define SSLBP_CMD_STOPALL              (SSLBP_STOP)
 #define SSLBP_CMD_RESET                (SSLBP_RESET)
 #define SSLBP_CMD_DOIT(x)              (SSLBP_DOIT | ((1 << x) & 0xFF))
-#define SSLBP_CMD_READ(x)              (SSLBP_REQUEST | SSLBP_READ | (x & 0xFF))
+#define SSLBP_CMD_READ(x)              (SSLBP_REQUEST | SSLBP_READ | (x & 0x3FF))
 //#define SSLBP_CMD_WRITE(x)             (SSLBP_REQUEST | SSLBP_WRITE | ((x & 0xFF))
 
 #define LBP_DATA                0xA0
