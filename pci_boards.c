@@ -1218,6 +1218,57 @@ void pci_boards_scan(board_access_t *access) {
     }
 }
 
+int pci_board_reload(board_t *board, int fallback_flag) {
+    int i;
+    u32 boot_addr, bar0_reg;
+    u16 cmd_reg;
+    u8 rev_id = pci_read_word(board->dev, PCI_REVISION_ID);
+    if (rev_id < 1) {
+        printf("ERROR: FPGA reload only supported by mesa PCI core version > 0.\n");
+        return -1;
+    }
+
+    if (fallback_flag == 1) {
+        boot_addr = 0x10000;
+    } else {
+        boot_addr = 0x0;
+    }
+    boot_addr |= 0x0B000000; // plus read command in high byte
+
+    u32 data[14] = {
+      0xFFFF,   // dummy
+      0xFFFF,   // dummy
+      0xAA99,   // sync
+      0x5566,   // sync
+      0x3261,   // load low flash start address
+      boot_addr & 0xFFFF,   // start addr
+      0x3281,   // load high start address + read command
+      boot_addr >> 16,   // start addr (plus read command in high byte)
+      0x30A1,   // load command register
+      0x000E,   // IPROG command
+      0x2000,  // NOP
+      0x2000,  // NOP
+      0x2000,  // NOP
+      0x2000  // NOP
+    };
+
+    cmd_reg = pci_read_word(board->dev, PCI_COMMAND);
+    bar0_reg = pci_read_long(board->dev, PCI_BASE_ADDRESS_0);
+    for (i = 0; i < 14; i++) {
+        pci_write(&(board->llio), HM2_ICAP_REG, &data[i], sizeof(u32));
+        sleep_ns(1000*1000);
+    }
+    sleep_ns(1000*1000*100);
+    sleep_ns(1000*1000*100);
+    sleep_ns(1000*1000*100);
+    sleep_ns(1000*1000*100);
+    sleep_ns(1000*1000*100);
+    pci_write_word(board->dev, PCI_COMMAND, cmd_reg);
+    pci_write_long(board->dev, PCI_BASE_ADDRESS_0, bar0_reg);
+
+    return 0;
+}
+
 void pci_print_info(board_t *board) {
     int i;
 

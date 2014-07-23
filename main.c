@@ -115,7 +115,7 @@ void print_usage() {
     printf("  --verify      verifies the EEPROM configuration against the bitfile 'filename'\n");
     printf("  --program     writes a standard bitfile 'filename' configuration to the FPGA (IMPORTANT! 'filename' must be VALID FPGA configuration file)\n");
     printf("  --readhmid    print hostmot2 configuration in PIN file format\n");
-    printf("  --reload      do full FPGA reload from flash (only ethernet boards)\n");
+    printf("  --reload      do full FPGA reload from flash (only ethernet and pci boards)\n");
     printf("  --reset       do full firmware reset (only ethernet boards)\n");
     printf("  --sserial     print full information about all sserial remote boards\n");
     printf("  --rpo         read hostmot2 variable directly at 'address'\n");

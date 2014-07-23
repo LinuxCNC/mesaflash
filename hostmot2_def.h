@@ -65,6 +65,10 @@
 #define HM2_SPI_CTRL_REG    0x0070
 #define HM2_SPI_DATA_REG    0x0074
 
+// HM2 ICAP INTERFACE
+
+#define HM2_ICAP_REG        0x0078
+
 // hm2 access
 #define SPI_CMD_PAGE_WRITE      0x02
 #define SPI_CMD_READ            0x03
