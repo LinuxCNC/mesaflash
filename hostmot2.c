@@ -429,64 +429,60 @@ static char *pin_get_pin_name(hm2_pin_desc_t *pin) {
     u8 chan;
     static char buff[100];
 
-    if (pin->sec_tag == HM2_GTAG_NONE) {
-        sprintf(buff, "None");
-        return buff;
-    }
-
     for (i = 0; i < HM2_MAX_TAGS; i++) {
         if (pin_names[i].tag == pin->sec_tag) {
             if (pin->sec_tag == HM2_GTAG_SSERIAL) {
                 chan = pin->sec_pin & 0x0F;
                 if ((pin->sec_pin & 0xF0) == 0x00) {
                     sprintf(buff, "%s%u", pin_names[i].name[0], chan);
-                    break;
+                    return buff;
                 } else if ((pin->sec_pin & 0xF0) == 0x80) {
                     sprintf(buff, "%s%u", pin_names[i].name[1], chan);
-                    break;
+                    return buff;
                 } else if ((pin->sec_pin & 0xF0) == 0x90) {
                     sprintf(buff, "%s%u", pin_names[i].name[2], chan);
-                    break;
+                    return buff;
                 } else if (pin->sec_pin == 0xA1) {
                     sprintf(buff, "%s%u", pin_names[i].name[3], chan);
-                    break;
+                    return buff;
                 }
             } else if (pin->gtag == HM2_GTAG_DAQ_FIFO) {
                 chan = pin->sec_chan & 0x1F;
                 if ((pin->sec_pin & 0xE0) == 0x00) {
                     sprintf(buff, "%s%u", pin_names[i].name[0], chan);
-                    break;
+                    return buff;
                 } else if (pin->sec_pin == 0x41) {
                     sprintf(buff, "%s%u", pin_names[i].name[1], chan);
-                    break;
+                    return buff;
                 } else if (pin->sec_pin == 0x81) {
                     sprintf(buff, "%s%u", pin_names[i].name[2], chan);
-                    break;
+                    return buff;
                 }
             } else if (pin->gtag == HM2_GTAG_TWIDDLER) {
                 chan = pin->sec_chan & 0x1F;
                 if ((pin->sec_pin & 0xC0) == 0x00) {
                     sprintf(buff, "%s%u", pin_names[i].name[0], chan);
-                    break;
+                    return buff;
                 } else if ((pin->sec_pin & 0xC0) == 0xC0) {
                     sprintf(buff, "%s%u", pin_names[i].name[1], chan);
-                    break;
+                    return buff;
                 } else if ((pin->sec_pin & 0xC0) == 0x80) {
                     sprintf(buff, "%s%u", pin_names[i].name[2], chan);
-                    break;
+                    return buff;
                 }
             } else if (pin->gtag == HM2_GTAG_BIN_OSC) {
                 chan = pin->sec_chan & 0x1F;
                 if ((pin->sec_pin & 0x80) == 0x80) {
                     sprintf(buff, "%s%u", pin_names[i].name[0], chan);
-                    break;
+                    return buff;
                 }
             } else {
                 sprintf(buff, "%s", pin_names[i].name[(pin->sec_pin & 0x0F) - 1]);
-                break;
+                return buff;
             }
         };
     };
+    sprintf(buff, "Unknown");
     return buff;
 }
 
