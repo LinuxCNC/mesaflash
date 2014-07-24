@@ -370,7 +370,7 @@ static pin_name_t pin_names[HM2_MAX_TAGS] = {
   {HM2_GTAG_BSPI,     {"/Frame", "DOut", "SClk", "DIn", "CS0", "CS1", "CS2", "CS3", "Null9", "Null10"}},
   {HM2_GTAG_DBSPI,    {"Null1", "DOut", "SClk", "DIn", "/CS-FRM0", "/CS-FRM1", "/CS-FRM2", "/CS-FRM3", "Null9", "Null10"}},
   {HM2_GTAG_DPLL,     {"Sync", "DDSMSB", "FOut", "PostOut", "SyncToggle", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-  {HM2_GTAG_SSI,      {"SClk", "DIn", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_SSI,      {"SClk", "SClkEn", "Data", "DAv", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_UART_TX,   {"TXData", "TXEna", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_UART_RX,   {"RXData", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_TRAM,    {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
