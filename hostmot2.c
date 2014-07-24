@@ -437,17 +437,17 @@ static char *pin_get_pin_name(hm2_pin_desc_t *pin) {
     for (i = 0; i < HM2_MAX_TAGS; i++) {
         if (pin_names[i].tag == pin->sec_tag) {
             if (pin->sec_tag == HM2_GTAG_SSERIAL) {
-                chan = pin->sec_pin & 0x1F;
-                if ((pin->sec_pin & 0x80) == 0x00) {
+                chan = pin->sec_pin & 0x0F;
+                if ((pin->sec_pin & 0xF0) == 0x00) {
                     sprintf(buff, "%s%u", pin_names[i].name[0], chan);
                     break;
-                } else if ((pin->sec_pin & 0x80) == 0x80) {
+                } else if ((pin->sec_pin & 0xF0) == 0x80) {
                     sprintf(buff, "%s%u", pin_names[i].name[1], chan);
                     break;
                 } else if ((pin->sec_pin & 0xF0) == 0x90) {
                     sprintf(buff, "%s%u", pin_names[i].name[2], chan);
                     break;
-                } else if (pin->sec_pin == 0xA0) {
+                } else if (pin->sec_pin == 0xA1) {
                     sprintf(buff, "%s%u", pin_names[i].name[3], chan);
                     break;
                 }
