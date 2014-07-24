@@ -553,18 +553,24 @@ void hm2_print_pin_file(llio_t *llio) {
             }
             printf("%2u", pin_nr);
             printf("    %3u", i*(llio->hm2.idrom.port_width) + j);
-            printf("   %-8s     %-15s", pin_find_module_name(pin->gtag), pin_find_module_name(pin->sec_tag));
-            if (pin->sec_chan & HM2_CHAN_GLOBAL) {
-                printf("    Global    ");
+            printf("   %-8s", pin_find_module_name(pin->gtag));
+            if (pin->sec_tag == HM2_GTAG_NONE) {
+                printf("     %-15s", "None");
             } else {
-                printf(" %2u        ", pin->sec_chan);
-            }
-            printf("%-12s", pin_get_pin_name(pin));
+                printf("     %-15s", pin_find_module_name(pin->sec_tag));
 
-            if (pin->sec_pin & HM2_PIN_OUTPUT) {
-                printf("    (Out)");
-            } else {
-                printf("    (In)");
+                if (pin->sec_chan & HM2_CHAN_GLOBAL) {
+                    printf("    Global    ");
+                } else {
+                    printf(" %2u        ", pin->sec_chan);
+                }
+                printf("%-12s", pin_get_pin_name(pin));
+
+                if (pin->sec_pin & HM2_PIN_OUTPUT) {
+                    printf("    (Out)");
+                } else {
+                    printf("    (In)");
+                }
             }
 
             printf("\n");
