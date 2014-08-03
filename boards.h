@@ -19,6 +19,9 @@
 #ifndef __BOARDS_H
 #define __BOARDS_H
 
+#ifdef _WIN32
+#include "winio32/winio.h"
+#endif
 #include "hostmot2.h"
 
 #define MAX_BOARDS 8

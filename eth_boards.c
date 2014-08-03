@@ -568,7 +568,13 @@ int eth_set_remote_ip(char *ip_addr) {
     lbp16_write_ip_addr_packets write_ip_pck;
     u32 addr;
 
+#ifdef __linux__
     if (inet_pton(AF_INET, ip_addr, &addr) != 1) {
+#elif _WIN32
+    struct sockaddr ss;
+    int size;
+    if (WSAStringToAddress(ip_addr, AF_INET, NULL, (struct sockaddr *)&addr, &size) != 0) {
+#endif
         printf("Error: invalid format of IP address\n");
         return -EINVAL;
     }
