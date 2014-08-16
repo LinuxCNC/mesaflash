@@ -275,6 +275,8 @@ int anyio_dev_reload(board_t *board, int fallback_flag) {
 int anyio_dev_reset(board_t *board) {
     if (board->type == BOARD_ETH) {
         return eth_board_reset(board);
+    } else if (board->type == BOARD_PCI) {
+        return board->llio.reset(&(board->llio));
     } else {
         printf("ERROR: FPGA reset only supported by ethernet cards.\n");
         return -1;
