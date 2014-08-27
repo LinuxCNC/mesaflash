@@ -3,7 +3,7 @@ Maintainer: Michael Geszkiewicz <micges@wp.pl>
 Section: misc
 Priority: optional
 Standards-Version: 3.9.4
-Build-Depends: libpci-dev, debhelper (>= 9)
+Build-Depends: libpci-dev, debhelper
 
 Package: mesaflash
 Architecture: any
