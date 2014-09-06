@@ -168,11 +168,11 @@ int eeprom_write(llio_t *self, char *bitfile_name, u32 start_address) {
         fclose(fp);
         return -1;
     }
-/*    if (strcmp(part_name, active_board.fpga_part_number) != 0) {
-        printf("Error: wrong bitfile destination device: %s, should be %s\n", part_name, active_board.fpga_part_number);
+    if (strcmp(part_name, board->llio.fpga_part_number) != 0) {
+        printf("Error: wrong bitfile destination device: %s, should be %s\n", part_name, board->llio.fpga_part_number);
         fclose(fp);
         return -1;
-    }*/
+    }
 // if board doesn't support fallback there is no boot block
     if (board->fallback_support == 1) {
         if (check_boot(self) == -1) {
@@ -234,11 +234,11 @@ int eeprom_verify(llio_t *self, char *bitfile_name, u32 start_address) {
         fclose(fp);
         return -1;
     }
-/*    if (strcmp(part_name, active_board.fpga_part_number) != 0) {
-        printf("Error: wrong bitfile destination device: %s, should be %s\n", part_name, active_board.fpga_part_number);
+    if (strcmp(part_name, board->llio.fpga_part_number) != 0) {
+        printf("Error: wrong bitfile destination device: %s, should be %s\n", part_name, board->llio.fpga_part_number);
         fclose(fp);
         return -1;
-    }*/
+    }
 // if board doesn't support fallback there is no boot block
     if (board->fallback_support == 1) {
         if (check_boot(self) == -1) {
