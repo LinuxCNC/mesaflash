@@ -209,7 +209,6 @@ int eeprom_write(llio_t *self, char *bitfile_name, u32 start_address) {
 
     fclose(fp);
     printf("\nBoard configuration updated successfully.\n");
-    printf("\nYou must power cycle board to load updated firmware.\n");
     return 0;
 }
 

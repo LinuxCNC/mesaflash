@@ -346,10 +346,6 @@ int main(int argc, char *argv[]) {
 
         if (readhmid_flag == 1) {
             anyio_dev_print_hm2_info(board);
-        } else if (reload_flag == 1) {
-            anyio_dev_reload(board, fallback_flag);
-        } else if (reset_flag == 1) {
-            anyio_dev_reset(board);
         } else if (sserial_flag == 1) {
             anyio_dev_print_sserial_info(board);
         } else if (rpo_flag == 1) {
@@ -363,10 +359,20 @@ int main(int argc, char *argv[]) {
             ret = anyio_dev_set_remote_ip(board, lbp16_set_ip_addr);
         } else if (write_flag == 1) {
             ret = anyio_dev_write_flash(board, bitfile_name, fallback_flag);
+            if (reload_flag == 1) {
+                ret = anyio_dev_reload(board, fallback_flag);
+                if (ret == -1) {
+                    printf("\nYou must power cycle board to load updated firmware.\n");
+                }
+            }
         } else if (verify_flag == 1) {
             ret = anyio_dev_verify_flash(board, bitfile_name, fallback_flag);
         } else if (program_flag == 1) {
             ret = anyio_dev_program_fpga(board, bitfile_name);
+        } else if (reload_flag == 1) {
+            anyio_dev_reload(board, fallback_flag);
+        } else if (reset_flag == 1) {
+            anyio_dev_reset(board);
         } else {
            board->print_info(board);
         }
