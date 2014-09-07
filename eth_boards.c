@@ -572,7 +572,7 @@ void eth_print_info(board_t *board) {
     }
 
     printf("  [space 6] LBP16 control/status:\n");
-    printf("    packets recived: all %d, UDP %d, bad %d\n", stat_area.RXPacketCount, stat_area.RXGoodCount, stat_area.RXBadCount);
+    printf("    packets received: all %d, UDP %d, bad %d\n", stat_area.RXPacketCount, stat_area.RXGoodCount, stat_area.RXBadCount);
     printf("    packets sended: all %d, UDP %d, bad %d\n", stat_area.TXPacketCount, stat_area.TXGoodCount, stat_area.TXBadCount);
     printf("    parse errors: %d, mem errors %d, write errors %d\n", stat_area.LBPParseErrors, stat_area.LBPMemErrors, stat_area.LBPWriteErrors);
     printf("    error flags: 0x%04X\n", stat_area.ErrorReg);

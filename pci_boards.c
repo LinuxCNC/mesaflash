@@ -1169,7 +1169,7 @@ void pci_boards_scan(board_access_t *access) {
                     board->llio.ioport_connector_name[1] = "P5";
                     board->llio.ioport_connector_name[2] = "P6";
                     board->llio.ioport_connector_name[3] = "P9";
-                    board->llio.ioport_connector_name[4] = "P6";
+                    board->llio.ioport_connector_name[4] = "P8";
                     board->llio.ioport_connector_name[5] = "P7";
                     if (ssid == SUBDEVICEID_MESA3X20_10) {
                         board->llio.fpga_part_number = "3s1000fg456";
