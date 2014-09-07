@@ -102,9 +102,9 @@ static int serial_board_open(board_t *board) {
 
 //    eeprom_init(&(board->llio));
     LBP16_INIT_PACKET4(packet, CMD_READ_FLASH_IDROM, FLASH_ID_REG);
-    serial_send_packet(&packet, sizeof(packet));
-    serial_recv_packet(&flash_id, 4);
-    board->flash_id = flash_id;
+    //serial_send_packet(&packet, sizeof(packet));
+    //serial_recv_packet(&flash_id, 4);
+    board->flash_id = 0;
     if (board->fallback_support == 1) {
         eeprom_prepare_boot_block(board->flash_id);
         board->flash_start_address = eeprom_calc_user_space(board->flash_id);
@@ -202,6 +202,7 @@ void serial_boards_scan(board_access_t *access) {
 void serial_print_info(board_t *board) {
     lbp16_cmd_addr packet;
     int i, j, recv;
+    u32 flash_id;
     char *mem_types[16] = {NULL, "registers", "memory", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "EEPROM", "flash"};
     char *mem_writeable[2] = {"RO", "RW"};
     char *acc_types[4] = {"8-bit", "16-bit", "32-bit", "64-bit"};
@@ -217,18 +218,6 @@ void serial_print_info(board_t *board) {
     if (board->llio.verbose == 0)
         return;
         
-    printf("Board info:\n");
-    if (board->flash_id > 0)
-        printf("  Flash size: %s (id: 0x%02X)\n", eeprom_get_flash_type(board->flash_id), board->flash_id);
-    printf("  Connectors count: %d\n", board->llio.num_ioport_connectors);
-    printf("  Pins per connector: %d\n", board->llio.pins_per_connector);
-    printf("  Connectors names:");
-    for (i = 0; i < board->llio.num_ioport_connectors; i++)
-        printf(" %s", board->llio.ioport_connector_name[i]);
-    printf("\n");
-    printf("  FPGA type: %s\n", board->llio.fpga_part_number);
-    printf("  Number of leds: %d\n", board->llio.num_leds);
-
     LBP16_INIT_PACKET4(cmds[0], CMD_READ_AREA_INFO_ADDR16_INCR(LBP16_SPACE_HM2, sizeof(mem_area)/2), 0);
     LBP16_INIT_PACKET4(cmds[1], 0, 0);
     LBP16_INIT_PACKET4(cmds[2], 0, 0);
@@ -256,6 +245,12 @@ void serial_print_info(board_t *board) {
         recv = serial_recv_packet(&timers_area, sizeof(timers_area));
     }
 
+    printf("Communication:\n");
+    printf("  transport layer: serial\n");
+    printf("  protocol: LBP16 version %d\n", info_area.LBP16_version);
+
+    show_board_info(board);
+
     printf("Board firmware info:\n");
     printf("  memory spaces:\n");
     for (i = 0; i < LBP16_MEM_SPACE_COUNT; i++) {
@@ -282,7 +277,8 @@ void serial_print_info(board_t *board) {
  
     printf("  [space 0] HostMot2\n");
     printf("  [space 3] FPGA flash eeprom:\n");
-    printf("    flash size: %s (id: 0x%02X)\n", eeprom_get_flash_type(board->flash_id), board->flash_id);
+    lbp16_read(CMD_READ_FLASH_IDROM, FLASH_ID_REG, &flash_id, 4);
+    printf("    flash size: %s (id: 0x%02X)\n", eeprom_get_flash_type(flash_id), flash_id);
 
     if (info_area.LBP16_version >= 3) {
         printf("  [space 4] timers:\n");

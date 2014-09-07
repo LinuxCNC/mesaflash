@@ -48,7 +48,7 @@ supported_board_entry_t supported_boards[] = {
     {"3X20", BOARD_PCI},
 
     {"7I43", BOARD_MULTI_INTERFACE | BOARD_EPP | BOARD_USB},
-    {"7I90", BOARD_MULTI_INTERFACE | BOARD_EPP | BOARD_SPI},
+    {"7I90", BOARD_MULTI_INTERFACE | BOARD_EPP | BOARD_SPI | BOARD_SER},
     {"7I64", BOARD_MULTI_INTERFACE | BOARD_USB | BOARD_SPI},
 
     {NULL, 0},
@@ -134,6 +134,11 @@ int anyio_find_dev(board_access_t *access) {
             access->open_iface |= BOARD_SPI;
             spi_boards_scan(access);
         }
+        if (supported_board->type & BOARD_SER) {
+            ret = serial_boards_init(access);
+            access->open_iface |= BOARD_SER;
+            serial_boards_scan(access);
+        }
     } else {
         if (access->type & BOARD_ETH) {
             ret = eth_boards_init(access);
@@ -159,6 +164,11 @@ int anyio_find_dev(board_access_t *access) {
             ret = spi_boards_init(access);
             access->open_iface |= BOARD_SPI;
             spi_boards_scan(access);
+        }
+        if (access->type & BOARD_SER) {
+            ret = serial_boards_init(access);
+            access->open_iface |= BOARD_SER;
+            serial_boards_scan(access);
         }
     }
 }

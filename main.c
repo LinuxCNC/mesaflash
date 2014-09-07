@@ -40,6 +40,7 @@ static int sserial_flag;
 static int epp_flag;
 static int usb_flag;
 static int spi_flag;
+static int serial_flag;
 static int rpo_flag;
 static int wpo_flag;
 static u16 rpo_addr;
@@ -68,6 +69,7 @@ static struct option long_options[] = {
     {"epp", no_argument, &epp_flag, 1},
     {"usb", no_argument, &usb_flag, 1},
     {"spi", no_argument, &spi_flag, 1},
+    {"serial", no_argument, &serial_flag, 1},
     {"rpo", required_argument, 0, 'r'},
     {"wpo", required_argument, 0, 'o'},
     {"set", required_argument, 0, 's'},
@@ -303,12 +305,14 @@ int process_cmd_line(int argc, char *argv[]) {
     }
 
     access.type = BOARD_ANY;
-    if ((epp_flag == 1) && (usb_flag == 0) && (spi_flag == 0)) {
+    if ((epp_flag == 1) && (usb_flag == 0) && (spi_flag == 0) && (serial_flag == 0)) {
         access.type = BOARD_EPP;
-    } else if ((epp_flag == 0) && (usb_flag == 1) && (spi_flag == 0)) {
+    } else if ((epp_flag == 0) && (usb_flag == 1) && (spi_flag == 0) && (serial_flag == 0)) {
         access.type = BOARD_USB;
-    } else if ((epp_flag == 0) && (usb_flag == 0) && (spi_flag == 1)) {
+    } else if ((epp_flag == 0) && (usb_flag == 0) && (spi_flag == 1) && (serial_flag == 0)) {
         access.type = BOARD_SPI;
+    } else if ((epp_flag == 0) && (usb_flag == 0) && (spi_flag == 0) && (serial_flag == 1)) {
+        access.type = BOARD_SER;
     }
 
     return 0;
