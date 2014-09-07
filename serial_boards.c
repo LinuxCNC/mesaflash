@@ -16,23 +16,17 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#ifdef __linux__
-#include <pci/pci.h>
-#elif _WIN32
-#include "libpci/pci.h"
-#endif
-
-#include "anyio.h"
-#include "serial_boards.h"
-#include "lbp16.h"
-#include "eeprom.h"
-
 #include <stdio.h>
 #include <fcntl.h>
 #include <termios.h>
 #include <string.h>
 #include <errno.h>
 #include <math.h>
+#include "types.h"
+#include "anyio.h"
+#include "serial_boards.h"
+#include "lbp16.h"
+#include "eeprom.h"
 
 extern board_t boards[MAX_BOARDS];
 extern int boards_count;

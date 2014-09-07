@@ -16,14 +16,9 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#ifdef __linux__
-    #include <pci/pci.h>
-#elif _WIN32
-    #include "libpci/pci.h"
-#endif
 #include <stdio.h>
 #include <string.h>
-
+#include "types.h"
 #include "bitfile.h"
 
 // prints info about bitfile and returns header length or -1 when error

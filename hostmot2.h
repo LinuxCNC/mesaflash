@@ -19,11 +19,7 @@
 #ifndef __HOSTMOT2_H
 #define __HOSTMOT2_H
 
-#ifdef __linux__
-#include <pci/pci.h>
-#elif _WIN32
-#include "libpci/pci.h"
-#endif
+#include "types.h"
 #include "hostmot2_def.h"
 
 typedef struct {

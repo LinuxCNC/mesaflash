@@ -17,16 +17,13 @@
 //
 
 #ifdef __linux__
-#include <pci/pci.h>
 #include <sys/io.h>
-#elif _WIN32
-#include "libpci/pci.h"
 #endif
 #include <sys/stat.h>
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
-
+#include "types.h"
 #include "eeprom.h"
 #include "eeprom_local.h"
 #include "hostmot2.h"

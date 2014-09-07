@@ -22,8 +22,12 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <errno.h>
-
 #include "anyio.h"
+#ifdef __linux__
+#include <pci/pci.h>
+#elif _WIN32
+#include "libpci/pci.h"
+#endif
 
 static int device_flag;
 static int addr_flag;

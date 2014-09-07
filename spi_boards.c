@@ -16,12 +16,7 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#ifdef __linux__
-#include <pci/pci.h>
-#elif _WIN32
-#include "libpci/pci.h"
-#endif
-
+#include "types.h"
 #include "spi_boards.h"
 #include "common.h"
 #include "spilbp.h"

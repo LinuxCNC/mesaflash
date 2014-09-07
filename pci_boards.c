@@ -17,9 +17,9 @@
 //
 
 #ifdef __linux__
-#include <pci/pci.h>
 #include <sys/mman.h>
 #include <sys/io.h>
+#include <pci/pci.h>
 #elif _WIN32
 #include <windows.h>
 #include "libpci/pci.h"
@@ -31,7 +31,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
-
+#include "types.h"
 #include "common.h"
 #include "eeprom.h"
 #include "eeprom_local.h"

@@ -17,14 +17,12 @@
 //
 
 #ifdef __linux__
-#include <pci/pci.h>
 #include <time.h>
 #elif _WIN32
 #include <windows.h>
-#include "libpci/pci.h"
 #endif
 #include <stdio.h>
-
+#include "types.h"
 #include "common.h"
 #include "eeprom.h"
 

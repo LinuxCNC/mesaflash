@@ -19,12 +19,7 @@
 #ifndef __SPILBP_H
 #define __SPILBP_H
 
-#ifdef __linux__
-#include <pci/pci.h>
-#elif _WIN32
-#include "libpci/pci.h"
-#endif
-
+#include "types.h"
 #include "common.h"
 
 #define SPILBP_SENDRECV_DEBUG       0

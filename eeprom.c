@@ -16,16 +16,11 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#ifdef __linux__
-#include <pci/pci.h>
-#elif _WIN32
-#include "libpci/pci.h"
-#endif
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <sys/stat.h>
-
+#include "types.h"
 #include "eeprom.h"
 #include "eeprom_local.h"
 #include "eeprom_remote.h"

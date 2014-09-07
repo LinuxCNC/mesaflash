@@ -17,7 +17,6 @@
 //
 
 #ifdef __linux__
-#include <pci/pci.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -26,7 +25,6 @@
 #elif _WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
-#include "libpci/pci.h"
 #endif
 #include <sys/stat.h>
 #include <unistd.h>
@@ -37,7 +35,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
-
+#include "types.h"
 #include "common.h"
 #include "bitfile.h"
 #include "eth_boards.h"

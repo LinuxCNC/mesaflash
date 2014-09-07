@@ -16,15 +16,10 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#ifdef __linux__
-#include <pci/pci.h>
-#elif _WIN32
-#include "libpci/pci.h"
-#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
+#include "types.h"
 #include "hostmot2.h"
 
 void sslbp_send_local_cmd(llio_t *llio, int interface, u32 cmd) {

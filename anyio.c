@@ -19,7 +19,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-
 #include "anyio.h"
 #include "eeprom.h"
 #include "bitfile.h"

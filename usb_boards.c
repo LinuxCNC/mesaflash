@@ -16,23 +16,18 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#ifdef __linux__
-#include <pci/pci.h>
-#elif _WIN32
-#include "libpci/pci.h"
-#endif
 #include <sys/stat.h>
 #include <stddef.h>
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
-
-#include "usb_boards.h"
+#include "types.h"
 #include "common.h"
 #include "eeprom.h"
 #include "bitfile.h"
 #include "lbp.h"
 #include "hostmot2.h"
+#include "usb_boards.h"
 
 extern board_t boards[MAX_BOARDS];
 extern int boards_count;

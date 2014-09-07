@@ -18,7 +18,6 @@
 
 #include <stdio.h>
 #include <string.h>
-
 #include "hostmot2.h"
 
 void hm2_read_idrom(llio_t *llio) {
