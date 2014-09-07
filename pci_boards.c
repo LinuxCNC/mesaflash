@@ -1220,11 +1220,12 @@ void pci_boards_scan(board_access_t *access) {
 
 int pci_board_reload(board_t *board, int fallback_flag) {
     int i;
-    u32 boot_addr, bar0_reg;
+    u32 boot_addr, bar0_reg, cookie;
     u16 cmd_reg;
-    u8 rev_id = pci_read_word(board->dev, PCI_REVISION_ID);
-    if (rev_id < 1) {
-        printf("ERROR: FPGA reload only supported by mesa PCI core version > 0.\n");
+
+    pci_read(&(board->llio), HM2_ICAP_REG, &cookie, sizeof(u32));
+    if (cookie != HM2_ICAP_COOKIE) {
+        printf("ERROR: FPGA reload not supported\n");
         return -1;
     }
 

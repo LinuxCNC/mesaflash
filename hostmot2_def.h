@@ -64,6 +64,7 @@
 // HM2 ICAP INTERFACE
 
 #define HM2_ICAP_REG        0x0078
+#define HM2_ICAP_COOKIE     0x1CAB1CAB
 
 // hm2 access
 #define SPI_CMD_PAGE_WRITE      0x02

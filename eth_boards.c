@@ -350,7 +350,7 @@ int eth_board_reload(board_t *board, int fallback_flag) {
     eth_socket_recv_packet(&fw_ver, sizeof(fw_ver));
 
     if (fw_ver < 15) {
-        printf("ERROR: FPGA reload only supported by card firmware > 14.\n");
+        printf("ERROR: FPGA reload only supported by ethernet card firmware > 14.\n");
         return -1;
     }
 
