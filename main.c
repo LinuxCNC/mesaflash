@@ -109,6 +109,7 @@ void print_usage() {
     printf("  --epp         use EPP interface to connect to board, only for boards with multiply intefaces (7i43, 7i90, 7i64)\n");
     printf("  --usb         use USB interface to connect to board, only for boards with multiply intefaces (7i43, 7i90, 7i64)\n");
     printf("  --spi         use SPI interface to connect to board, only for boards with multiply intefaces (7i43, 7i90, 7i64)\n");
+    printf("  --serial      use serial interface to connect to board, only for boards with multiply intefaces (7i43, 7i90, 7i64)\n");
     printf("  --fallback    use the fallback area of the EEPROM while executing commands\n");
     printf("  --recover     access board using PCI bridge GPIO (currently only 6I25)\n");
     printf("  --verbose     print detailed information while running commands\n");
