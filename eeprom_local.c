@@ -366,10 +366,13 @@ static u8 read_byte(llio_t *self, u32 addr) {
 static void read_page(llio_t *self, u32 addr, void *buff) {
     int i;
 
-    for (i = 0; i < PAGE_SIZE; i++) {
-        *((u8 *) buff) = read_byte(self, addr + i);
-        buff++;
+    eeprom_access.prefix(self);
+    eeprom_access.send_byte(self, SPI_CMD_READ);
+    send_address(self, addr);
+    for (i = 0; i < PAGE_SIZE; i++, buff++) {
+        *((u8 *) buff) = eeprom_access.recv_byte(self);
     }
+    eeprom_access.suffix(self);
 }
 
 static void write_page(llio_t *self, u32 addr, void *buff) {
