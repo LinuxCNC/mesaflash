@@ -61,11 +61,11 @@ $(LIBANYIO) : $(objects)
 	$(AR) rcs $(LIBANYIO) $(objects)
 	$(RANLIB) $(LIBANYIO)
 
-main.o : main.c $(headers)
-	$(CC) $(CFLAGS) -c main.c
+mesaflash.o : mesaflash.c $(headers)
+	$(CC) $(CFLAGS) -c mesaflash.c
 
-$(BIN): main.o anyio.h
-	$(CC) -o $(BIN) main.o $(LIBANYIO) $(LIBS)
+$(BIN): mesaflash.o anyio.h
+	$(CC) -o $(BIN) mesaflash.o $(LIBANYIO) $(LIBS)
 
 anyio.o : anyio.c $(headers)
 	$(CC) $(CFLAGS) -c anyio.c
@@ -116,7 +116,7 @@ common.o : common.c $(headers)
 	$(CC) $(CFLAGS) -c common.c
 
 clean :
-	$(RM) $(LIBANYIO) $(BIN) $(objects) main.o
+	$(RM) $(LIBANYIO) $(BIN) $(objects) mesaflash.o
 
 .PHONY: install
 install: $(BIN)

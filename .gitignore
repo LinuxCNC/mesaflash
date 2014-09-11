@@ -1,3 +1,4 @@
 *.o
 libanyio*
-mesaflash*
+mesaflash
+mesaflash.exe
