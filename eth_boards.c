@@ -434,6 +434,10 @@ void eth_boards_scan(board_access_t *access) {
     int i;
     char *ptr;
 
+    if (access->address == 0) {
+        access->dev_addr = LBP16_HW_IP;
+    }
+
 #ifdef __linux__
     if (inet_pton(AF_INET, access->dev_addr, addr) != 1) {
 #elif _WIN32
