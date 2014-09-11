@@ -387,7 +387,8 @@ int main(int argc, char *argv[]) {
         }
         board->close(board);
         anyio_cleanup(&access);
+    } else {
+        printf("No action requested (must specify --device or --info)\n");
     }
-
     return ret;
 }
