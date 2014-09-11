@@ -334,7 +334,7 @@ int main(int argc, char *argv[]) {
         return -1;
 
     if (info_flag == 1) {
-        anyio_bitfile_print_info(bitfile_name);
+        anyio_bitfile_print_info(bitfile_name, verbose_flag);
     } else if (device_flag == 1) {
         board_t *board = NULL;
 

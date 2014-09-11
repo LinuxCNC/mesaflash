@@ -22,7 +22,7 @@
 #include "bitfile.h"
 
 // prints info about bitfile and returns header length or -1 when error
-int print_bitfile_header(FILE *fp, char *part_name) {
+int print_bitfile_header(FILE *fp, char *part_name, int verbose_flag) {
     u8 buff[256];
     int sleng;
     int bytesread, conflength;
@@ -46,14 +46,18 @@ int print_bitfile_header(FILE *fp, char *part_name) {
             sleng = buff[0]*256 + buff[1];
             bytesread = fread(&buff, 1, sleng, fp);
             ret += bytesread;
-            printf("  Design name: %s\n", buff);
+            if (verbose_flag == 1) {
+                printf("  Design name: %s\n", buff);
+            }
 
             bytesread = fread(&buff, 1, 3, fp);
             ret += bytesread;
             sleng = buff[1]*256 + buff[2];
             bytesread = fread(&buff, 1, sleng, fp);
             ret += bytesread;
-            printf("  Part name: %s\n", buff);
+            if (verbose_flag == 1) {
+                printf("  Part name: %s\n", buff);
+            }
             strcpy(part_name, (char*) &buff);
 
             bytesread = fread(&buff, 1, 3, fp);
@@ -61,14 +65,18 @@ int print_bitfile_header(FILE *fp, char *part_name) {
             sleng = buff[1]*256 + buff[2];
             bytesread = fread(&buff, 1, sleng, fp);
             ret += bytesread;
-            printf("  Design date: %s\n", buff);
+            if (verbose_flag == 1) {
+                printf("  Design date: %s\n", buff);
+            }
 
             bytesread = fread(&buff, 1, 3, fp);
             ret += bytesread;
             sleng = buff[1]*256 + buff[2];
             bytesread = fread(&buff, 1, sleng, fp);
             ret += bytesread;
-            printf("  Design time: %s\n", buff);
+            if (verbose_flag == 1) {
+                printf("  Design time: %s\n", buff);
+            }
 
             bytesread = fread(&buff, 1, 5, fp);
             ret += bytesread;
@@ -76,7 +84,9 @@ int print_bitfile_header(FILE *fp, char *part_name) {
             conflength = conflength + buff[2]*65536;
             conflength = conflength + buff[3]*256;
             conflength = conflength + buff[4];
-            printf("  Config Length: %d\n", conflength);
+            if (verbose_flag == 1) {
+                printf("  Config Length: %d\n", conflength);
+            }
         }
         return ret;
     }

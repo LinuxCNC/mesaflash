@@ -71,7 +71,7 @@ static int usb_program_fpga(llio_t *self, char *bitfile_name) {
         printf("Can't open file %s: %s\n", bitfile_name, strerror(errno));
         return -1;
     }
-    if (print_bitfile_header(fp, (char*) &part_name) == -1) {
+    if (print_bitfile_header(fp, (char*) &part_name, board->llio.verbose) == -1) {
         fclose(fp);
         return -1;
     }

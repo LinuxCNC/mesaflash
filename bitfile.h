@@ -22,7 +22,7 @@
 #include <stdio.h>
 #include "types.h"
 
-int print_bitfile_header(FILE *fp, char *part_name);
+int print_bitfile_header(FILE *fp, char *part_name, int verbose_flag);
 u8 bitfile_reverse_bits(u8 data);
 
 #endif

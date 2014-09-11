@@ -159,7 +159,7 @@ int eeprom_write(llio_t *self, char *bitfile_name, u32 start_address) {
         printf("Can't open file %s: %s\n", bitfile_name, strerror(errno));
         return -1;
     }
-    if (print_bitfile_header(fp, (char*) &part_name) == -1) {
+    if (print_bitfile_header(fp, (char*) &part_name, board->llio.verbose) == -1) {
         fclose(fp);
         return -1;
     }
@@ -225,7 +225,7 @@ int eeprom_verify(llio_t *self, char *bitfile_name, u32 start_address) {
         printf("Can't open file %s: %s\n", bitfile_name, strerror(errno));
         return -1;
     }
-    if (print_bitfile_header(fp, (char*) &part_name) == -1) {
+    if (print_bitfile_header(fp, (char*) &part_name, board->llio.verbose) == -1) {
         fclose(fp);
         return -1;
     }
