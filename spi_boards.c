@@ -16,18 +16,52 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#include "types.h"
-
+#include <fcntl.h>
+#include <linux/spi/spidev.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
+#include <sys/ioctl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <stdio.h>
 #include <string.h>
-
+#include "types.h"
 #include "eeprom_local.h"
 #include "spi_boards.h"
 #include "common.h"
-#include "spilbp.h"
 
 extern board_t boards[MAX_BOARDS];
 extern int boards_count;
+
+int sd = -1;
+struct spi_ioc_transfer settings;
+
+static int spidev_set_lsb_first(int fd, u8 lsb_first) {
+    return ioctl(fd, SPI_IOC_WR_LSB_FIRST, &lsb_first);
+}
+
+static int spidev_set_mode(int fd, u8 mode) {
+    return ioctl(fd, SPI_IOC_WR_MODE, &mode);
+}
+
+static int spidev_set_max_speed_hz(int fd, u32 speed_hz) {
+    return ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed_hz);
+}
+
+static int spidev_set_bits_per_word(int fd, u8 bits) {
+    return ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &bits);
+}
+
+static u32 read_command(u16 addr, unsigned nelem) {
+    bool increment = true;
+    return (addr << 16) | SPILBP_CMD_READ | (increment ? SPILBP_ADDR_AUTO_INC : 0) | (nelem << 4);
+}
+
+static u32 write_command(u16 addr, unsigned nelem) {
+    bool increment = true;
+    return (addr << 16) | SPILBP_CMD_WRITE | (increment ? SPILBP_ADDR_AUTO_INC : 0) | (nelem << 4);
+}
 
 static int spi_board_open(board_t *board) {
     eeprom_init(&(board->llio));
@@ -46,35 +80,77 @@ static int spi_board_close(board_t *board) {
 }
 
 int spi_boards_init(board_access_t *access) {
-    spilbp_init(access);
+    settings.speed_hz = 8 * 1000 * 1000;
+    settings.bits_per_word = 32;
+
+    sd = open(access->dev_addr, O_RDWR);
+    if(sd == -1) {
+        perror("open");
+        return;
+    }
+    spidev_set_lsb_first(sd, false);
+    spidev_set_mode(sd, 0);
+    spidev_set_bits_per_word(sd, 32);
+    spidev_set_max_speed_hz(sd, settings.speed_hz);
+
     return 0;
 }
 
 void spi_boards_cleanup(board_access_t *access) {
-    spilbp_release();
+    if(sd != -1) close(sd);
 }
 
-void spi_read(llio_t *self, u32 off, void *buf, int sz) {
-    return spilbp_read(off, buf, sz);
+int spi_read(llio_t *self, u32 addr, void *buffer, int size) {
+    if(size % 4 != 0) return -1;
+    u32 trxbuf[1+size/4];
+    trxbuf[0] = read_command(addr, size/4);
+    memset(trxbuf+1, 0, size);
+
+    struct spi_ioc_transfer t;
+    t = settings;
+    t.tx_buf = t.rx_buf = (uint64_t)(intptr_t)trxbuf;
+    t.len = sizeof(trxbuf);
+
+    int r = ioctl(sd, SPI_IOC_MESSAGE(1), &t);
+    if(r < 0) return r;
+
+    memcpy(buffer, trxbuf+1, size);
+    return 0;
 }
 
-void spi_write(llio_t *self, u32 off, void *buf, int sz) {
-    return spilbp_write(off, buf, sz);
+int spi_write(llio_t *self, u32 addr, void *buffer, int size) {
+    if(size % 4 != 0) return -1;
+    u32 txbuf[1+size/4];
+    txbuf[0] = write_command(addr, size/4);
+    memcpy(txbuf + 1, buffer, size);
+
+    struct spi_ioc_transfer t;
+    t = settings;
+    t.tx_buf = (uint64_t)(intptr_t)txbuf;
+    t.len = sizeof(txbuf);
+
+    int r = ioctl(sd, SPI_IOC_MESSAGE(1), &t);
+    if(r <= 0) return r;
+    return 0;
 }
 
 void spi_boards_scan(board_access_t *access) {
     u32 buf[4];
     u32 cookie[] = {0x55aacafe, 0x54534f48, 0x32544f4d};
-    if(spilbp_read(0x100, &buf, sizeof(buf)) < 0) return;
+    board_t *board = &boards[boards_count];
+
+    if (spi_read(&(board->llio), HM2_COOKIE_REG, &buf, sizeof(buf)) < 0) {
+        return;
+    }
 
     if(memcmp(buf, cookie, sizeof(cookie))) {
         fprintf(stderr, "Unexpected cookie at 0000..000c:\n%08x %08x %08x\n",
             buf[0], buf[1], buf[2]);
-        return 0;
+        return;
     }
 
     char ident[8];
-    if(spilbp_read(buf[3] + 0xc, &ident, sizeof(ident)) < 0) return;
+    if(spi_read(&(board->llio), buf[3] + 0xc, &ident, sizeof(ident)) < 0) return;
     
     if(!memcmp(ident, "MESA7I90", 8)) {
         board_t *board = &boards[boards_count];
@@ -106,10 +182,6 @@ void spi_boards_scan(board_access_t *access) {
 
         fprintf(stderr, "Unknown board: %.8s\n", ident);
     }
-}
-
-void spi_boards_release(board_access_t *access) {
-    spilbp_release();
 }
 
 void spi_print_info(board_t *board) {

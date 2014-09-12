@@ -21,11 +21,13 @@
 
 #include "boards.h"
 
+#define SPILBP_ADDR_AUTO_INC        0b0000100000000000
+#define SPILBP_CMD_READ             0b1010000000000000
+#define SPILBP_CMD_WRITE            0b1011000000000000
+
 int spi_boards_init(board_access_t *access);
 void spi_boards_cleanup(board_access_t *access);
 void spi_boards_scan(board_access_t *access);
-void spi_boards_release(board_access_t *access);
 void spi_print_info(board_t *board);
 
 #endif
-

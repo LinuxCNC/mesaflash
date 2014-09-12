@@ -49,10 +49,10 @@ endif
 CFLAGS = $(OPT) $(DEBUG) $(INCLUDE)
 
 objects = common.o lbp.o lbp16.o bitfile.o hostmot2.o eeprom.o anyio.o eth_boards.o epp_boards.o usb_boards.o pci_boards.o
-objects += sserial_module.o eeprom_local.o eeprom_remote.o spi_boards.o serial_boards.o spilbp.o
+objects += sserial_module.o eeprom_local.o eeprom_remote.o spi_boards.o serial_boards.o
 
 headers = eth_boards.h pci_boards.h epp_boards.h usb_boards.h spi_boards.h serial_boards.h anyio.h hostmot2.h lbp16.h types.h
-headers +=  common.h eeprom.h lbp.h eeprom_local.h eeprom_remote.h spilbp.h bitfile.h sserial_module.h hostmot2_def.h boards.h
+headers +=  common.h eeprom.h lbp.h eeprom_local.h eeprom_remote.h bitfile.h sserial_module.h hostmot2_def.h boards.h
 
 all: $(LIBANYIO) $(BIN)
 
@@ -102,9 +102,6 @@ lbp.o : lbp.c $(headers)
 
 lbp16.o : lbp16.c $(headers)
 	$(CC) $(CFLAGS) -c lbp16.c
-
-spilbp.o : spilbp.c $(headers)
-	$(CC) $(CFLAGS) -c spilbp.c
 
 hostmot2.o : hostmot2.c $(headers)
 	$(CC) $(CFLAGS) -c hostmot2.c
