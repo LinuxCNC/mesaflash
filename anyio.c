@@ -115,11 +115,17 @@ int anyio_find_dev(board_access_t *access) {
         }
         if (supported_board->type & BOARD_PCI) {
             ret = pci_boards_init(access);
+            if (ret < 0) {
+                return ret;
+            }
             access->open_iface |= BOARD_PCI;
             pci_boards_scan(access);
         }
         if (supported_board->type & BOARD_EPP) {
             ret = epp_boards_init(access);
+            if (ret < 0) {
+                return ret;
+            }
             access->open_iface |= BOARD_EPP;
             epp_boards_scan(access);
         }
@@ -146,11 +152,17 @@ int anyio_find_dev(board_access_t *access) {
         }
         if (access->type & BOARD_PCI) {
             ret = pci_boards_init(access);
+            if (ret < 0) {
+                return ret;
+            }
             access->open_iface |= BOARD_PCI;
             pci_boards_scan(access);
         }
         if (access->type & BOARD_EPP) {
             ret = epp_boards_init(access);
+            if (ret < 0) {
+                return ret;
+            }
             access->open_iface |= BOARD_EPP;
             epp_boards_scan(access);
         }

@@ -344,7 +344,10 @@ int main(int argc, char *argv[]) {
 
         if (anyio_init(&access) != 0)
             exit(1);
-        anyio_find_dev(&access);
+        ret = anyio_find_dev(&access);
+        if (ret < 0) {
+            return -1;
+        }
         board = anyio_get_dev(&access, 1);
         if (board == NULL) {
             printf("No %s board found\n", access.device_name);

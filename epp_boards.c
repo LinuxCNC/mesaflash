@@ -303,6 +303,14 @@ int epp_reset(llio_t *self) {
 ////////////////////////////////////////////////////////////////////////
 
 int epp_boards_init(board_access_t *access) {
+#ifdef __linux__
+    if (seteuid(0) != 0) {
+        printf("You need root privileges (or setuid root) to access EPP hardware\n");
+        return -1;
+    }
+    iopl(3);
+#endif
+
     return 0;
 }
 
@@ -384,8 +392,6 @@ void epp_boards_scan(board_access_t *access) {
             }
         }
     }
-
-    iopl(3);
 
     r = parport_get(board, epp_addr, epp_hi_addr, PARPORT_MODE_EPP);
     if (r < 0)

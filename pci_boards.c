@@ -748,14 +748,14 @@ static int pci_board_close(board_t *board) {
 int pci_boards_init(board_access_t *access) {
     int eno;
 
+#ifdef __linux__
+    if (seteuid(0) != 0) {
+        printf("You need root privileges (or setuid root) to access PCI hardware\n");
+        return -1;
+    }
     pacc = pci_alloc();
     pci_init(pacc);            // inicjowanie biblioteki libpci
 
-#ifdef __linux__
-    if (seteuid(0) != 0) {
-        printf("%s need root privilges (or setuid root)\n", __func__);
-        return -1;
-    }
     memfd = open("/dev/mem", O_RDWR);
     eno = errno;
     seteuid(getuid());
