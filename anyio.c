@@ -249,20 +249,20 @@ int anyio_dev_program_fpga(board_t *board, char *bitfile_name) {
     if (board == NULL) {
         return -EINVAL;
     }
-    if (board->llio.reset != NULL) {
-        ret = board->llio.reset(&(board->llio));
-        if (ret != 0)
-            return ret;
-    } else {
+    if (board->llio.reset == NULL) {
         printf("ERROR: Board %s doesn't support FPGA resetting.\n", board->llio.board_name);
         return -EINVAL;
     }
-    if (board->llio.program_fpga != NULL) {
-        board->llio.program_fpga(&(board->llio), bitfile_name);
-    } else {
+    if (board->llio.program_fpga == NULL) {
         printf("ERROR: Board %s doesn't support FPGA programming.\n", board->llio.board_name);
         return -EINVAL;
     }
+
+    ret = board->llio.reset(&(board->llio));
+    if (ret != 0) {
+       return ret;
+    }
+    board->llio.program_fpga(&(board->llio), bitfile_name);
     return 0;
 }
 
