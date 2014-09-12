@@ -42,19 +42,6 @@ static u8 page_buffer[PAGE_SIZE];
 extern u8 boot_block[BOOT_BLOCK_SIZE];
 static u8 file_buffer[SECTOR_SIZE];
 
-static int parport_get(board_t *board, unsigned short base_lo, unsigned short base_hi, unsigned int modes) {
-    if (base_hi == 0)
-       base_hi = base_lo + 0x400;
-
-    board->base_lo = base_lo;
-    board->base_hi = base_hi;
-    //printf("Using direct parport at ioaddr=0x%x:0x%x\n", base_lo, base_hi);
-    return 0;
-}
-
-static void parport_release(board_t *board) {
-}
-
 static inline u8 epp_read_status(board_t *board) {
     u8 data = inb(board->base_lo + EPP_STATUS_OFFSET);
 //    printf("read status 0x%02X\n", data);
@@ -385,9 +372,12 @@ void epp_boards_scan(board_access_t *access) {
         }
     }
 
-    r = parport_get(board, epp_addr, epp_hi_addr, PARPORT_MODE_EPP);
-    if (r < 0)
-       return;
+    if (epp_hi_addr == 0) {
+       epp_hi_addr = epp_addr + 0x400;
+   }
+
+    board->base_lo = epp_addr;
+    board->base_hi = epp_hi_addr;
 
     // set up the parport for EPP
     if(board->base_hi) {
