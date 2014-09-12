@@ -362,25 +362,17 @@ void epp_boards_scan(board_access_t *access) {
         epp_addr = 0x378;
         epp_hi_addr = 0x778;
     } else {
-        printf("%x %x\n", epp_addr, epp_hi_addr);
         if (strncmp(access->dev_addr, "0x", 2) == 0) {
-        printf("%x %x\n", epp_addr, epp_hi_addr);
             access->dev_addr[0] = '0';
-        printf("%x %x\n", epp_addr, epp_hi_addr);
             access->dev_addr[1] = '0';
-        printf("%x %x\n", epp_addr, epp_hi_addr);
             epp_addr = strtol(access->dev_addr, NULL, 16);
-        printf("%x %x\n", epp_addr, epp_hi_addr);
         } else {
-        printf("%x %x\n", epp_addr, epp_hi_addr);
             epp_addr = strtol(access->dev_addr, NULL, 10);
         }
-        printf("%x %x\n", epp_addr, epp_hi_addr);
         if (epp_addr == 0) {
             return;
         }
 
-        printf("%x %x\n", epp_addr, epp_hi_addr);
         // Parse the base_hi address.
         if (access->dev_hi_addr != NULL) {
             if (strncmp(access->dev_hi_addr, "0x", 2) == 0) {
