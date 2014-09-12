@@ -40,6 +40,8 @@ typedef struct {
 void spilbp_print_info();
 void spilbp_init(board_access_t *access);
 void spilbp_release();
+int spilbp_write(u32 addr, void *buffer, int size);
+int spilbp_read(u32 addr, void *buffer, int size);
 
 #endif
 
