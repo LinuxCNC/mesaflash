@@ -168,6 +168,14 @@ static int eth_board_close(board_t *board) {
     return 0;
 }
 
+static int eth_board_reset(llio_t *self) {
+    int send;
+    lbp16_cmd_addr_data16 packet;
+
+    LBP16_INIT_PACKET6(packet, CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1C, 0x0001);   // reset if != 0
+    send = eth_socket_send_packet(&packet, sizeof(packet));
+}
+
 static int eth_scan_one_addr(board_access_t *access) {
     lbp16_cmd_addr packet, packet2;
     int send = 0, recv = 0, ret = 0;
@@ -204,6 +212,7 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.write = &eth_write;
             board->llio.write_flash = &remote_write_flash;
             board->llio.verify_flash = &remote_verify_flash;
+            board->llio.reset = &eth_board_reset;
             board->llio.private = board;
 
             board->open = &eth_board_open;
@@ -228,6 +237,7 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.write = &eth_write;
             board->llio.write_flash = &remote_write_flash;
             board->llio.verify_flash = &remote_verify_flash;
+            board->llio.reset = &eth_board_reset;
             board->llio.private = board;
 
             board->open = &eth_board_open;
@@ -251,6 +261,7 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.write = &eth_write;
             board->llio.write_flash = &remote_write_flash;
             board->llio.verify_flash = &remote_verify_flash;
+            board->llio.reset = &eth_board_reset;
             board->llio.private = board;
 
             board->open = &eth_board_open;
@@ -274,6 +285,7 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.write = &eth_write;
             board->llio.write_flash = &remote_write_flash;
             board->llio.verify_flash = &remote_verify_flash;
+            board->llio.reset = &eth_board_reset;
             board->llio.private = board;
 
             board->open = &eth_board_open;
@@ -297,6 +309,7 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.write = &eth_write;
             board->llio.write_flash = &remote_write_flash;
             board->llio.verify_flash = &remote_verify_flash;
+            board->llio.reset = &eth_board_reset;
             board->llio.private = board;
 
             board->open = &eth_board_open;
@@ -319,6 +332,7 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.write = &eth_write;
             board->llio.write_flash = &remote_write_flash;
             board->llio.verify_flash = &remote_verify_flash;
+            board->llio.reset = &eth_board_reset;
             board->llio.private = board;
 
             board->open = &eth_board_open;
@@ -375,14 +389,6 @@ int eth_board_reload(board_t *board, int fallback_flag) {
     LBP16_INIT_PACKET6(packet[11], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x2000);  // NOP
     LBP16_INIT_PACKET6(packet[12], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x2000);  // NOP
     LBP16_INIT_PACKET6(packet[13], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x2000);  // NOP
-    send = eth_socket_send_packet(&packet, sizeof(packet));
-}
-
-int eth_board_reset(board_t *board) {
-    int send;
-    lbp16_cmd_addr_data16 packet;
-
-    LBP16_INIT_PACKET6(packet, CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1C, 0x0001);   // reset if != 0
     send = eth_socket_send_packet(&packet, sizeof(packet));
 }
 
