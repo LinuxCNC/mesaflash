@@ -21,6 +21,8 @@
 
 #include "anyio.h"
 
+int serial_send_packet(void *packet, int size);
+int serial_recv_packet(void *packet, int size);
 int serial_boards_init(board_access_t *access);
 void serial_boards_cleanup(board_access_t *access);
 void serial_boards_scan(board_access_t *access);

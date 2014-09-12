@@ -57,11 +57,11 @@ struct sockaddr_in dst_addr, src_addr;
 
 // eth access functions
 
-inline int eth_socket_send_packet(void *packet, int size) {
+inline int eth_send_packet(void *packet, int size) {
     return sendto(sd, (char*) packet, size, 0, (struct sockaddr *) &dst_addr, sizeof(dst_addr));
 }
 
-inline int eth_socket_recv_packet(void *buffer, int size) {
+inline int eth_recv_packet(void *buffer, int size) {
     return recvfrom(sd, (char*) buffer, size, 0, (struct sockaddr *) &src_addr, &len);
 }
 
@@ -97,40 +97,6 @@ void eth_socket_set_dest_ip(char *addr_name) {
 
 static char *eth_socket_get_src_ip() {
     return inet_ntoa(src_addr.sin_addr);
-}
-
-int lbp16_read(u16 cmd, u32 addr, void *buffer, int size) {
-    lbp16_cmd_addr packet;
-    int send, recv;
-    u8 local_buff[size];
-
-    LBP16_INIT_PACKET4(packet, cmd, addr);
-    if (LBP16_SENDRECV_DEBUG)
-        printf("SEND: %02X %02X %02X %02X | REQUEST %d bytes\n", packet.cmd_hi, packet.cmd_lo, packet.addr_hi, packet.addr_lo, size);
-    send = eth_socket_send_packet(&packet, sizeof(packet));
-    recv = eth_socket_recv_packet(&local_buff, sizeof(local_buff));
-    if (LBP16_SENDRECV_DEBUG)
-        printf("RECV: %d bytes\n", recv);
-    memcpy(buffer, local_buff, size);
-
-    return 0;
-}
-
-int lbp16_write(u16 cmd, u32 addr, void *buffer, int size) {
-    static struct {
-        lbp16_cmd_addr wr_packet;
-        u8 tmp_buffer[127*8];
-    } packet;
-    int send;
-
-    LBP16_INIT_PACKET4(packet.wr_packet, cmd, addr);
-    memcpy(&packet.tmp_buffer, buffer, size);
-    if (LBP16_SENDRECV_DEBUG)
-        printf("SEND: %02X %02X %02X %02X | WRITE %d bytes\n", packet.wr_packet.cmd_hi, packet.wr_packet.cmd_lo,
-          packet.wr_packet.addr_hi, packet.wr_packet.addr_lo, size);
-    send = eth_socket_send_packet(&packet, sizeof(lbp16_cmd_addr) + size);
-
-    return 0;
 }
 
 static int eth_read(llio_t *self, u32 addr, void *buffer, int size) {
@@ -173,7 +139,7 @@ static int eth_board_reset(llio_t *self) {
     lbp16_cmd_addr_data16 packet;
 
     LBP16_INIT_PACKET6(packet, CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1C, 0x0001);   // reset if != 0
-    send = eth_socket_send_packet(&packet, sizeof(packet));
+    send = lbp16_send_packet(&packet, sizeof(packet));
 }
 
 static int eth_board_reload(llio_t *self, int fallback_flag) {
@@ -184,8 +150,8 @@ static int eth_board_reload(llio_t *self, int fallback_flag) {
     lbp16_cmd_addr fw_packet;
 
     LBP16_INIT_PACKET4(fw_packet, CMD_READ_BOARD_INFO_ADDR16(1), offsetof(lbp_info_area, firmware_version));
-    eth_socket_send_packet(&fw_packet, sizeof(fw_packet));
-    eth_socket_recv_packet(&fw_ver, sizeof(fw_ver));
+    lbp16_send_packet(&fw_packet, sizeof(fw_packet));
+    lbp16_recv_packet(&fw_ver, sizeof(fw_ver));
 
     if (fw_ver < 15) {
         printf("ERROR: FPGA reload only supported by ethernet card firmware > 14.\n");
@@ -213,7 +179,7 @@ static int eth_board_reload(llio_t *self, int fallback_flag) {
     LBP16_INIT_PACKET6(packet[11], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x2000);  // NOP
     LBP16_INIT_PACKET6(packet[12], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x2000);  // NOP
     LBP16_INIT_PACKET6(packet[13], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x2000);  // NOP
-    send = eth_socket_send_packet(&packet, sizeof(packet));
+    send = lbp16_send_packet(&packet, sizeof(packet));
 }
 
 static int eth_scan_one_addr(board_access_t *access) {
@@ -222,9 +188,9 @@ static int eth_scan_one_addr(board_access_t *access) {
     u32 cookie;
 
     LBP16_INIT_PACKET4(packet, CMD_READ_HM2_COOKIE, HM2_COOKIE_REG);
-    send = eth_socket_send_packet(&packet, sizeof(packet));
+    send = lbp16_send_packet(&packet, sizeof(packet));
     sleep_ns(2*1000*1000);
-    recv = eth_socket_recv_packet(&cookie, sizeof(cookie));
+    recv = lbp16_recv_packet(&cookie, sizeof(cookie));
 
     if ((recv > 0) && (cookie == HM2_COOKIE)) {
         char buff[20];
@@ -233,8 +199,8 @@ static int eth_scan_one_addr(board_access_t *access) {
         eth_socket_blocking();
         LBP16_INIT_PACKET4(packet2, CMD_READ_BOARD_INFO_ADDR16_INCR(8), 0);
         memset(buff, 0, sizeof(buff));
-        send = eth_socket_send_packet(&packet2, sizeof(packet2));
-        recv = eth_socket_recv_packet(&buff, sizeof(buff));
+        send = lbp16_send_packet(&packet2, sizeof(packet2));
+        recv = lbp16_recv_packet(&buff, sizeof(buff));
 
         if (strncmp(buff, "7I80DB-16", 9) == 0) {
             board->type = BOARD_ETH;
@@ -426,6 +392,7 @@ int eth_boards_init(board_access_t *access) {
     src_addr.sin_port = htons(LBP16_UDP_PORT);
     dst_addr.sin_port = htons(LBP16_UDP_PORT);
     len = sizeof(src_addr);
+    lbp16_init(BOARD_ETH);
     return 0;
 }
 
@@ -512,25 +479,25 @@ void eth_print_info(board_t *board) {
 
     LBP16_INIT_PACKET4(packet, CMD_READ_ETH_EEPROM_ADDR16_INCR(sizeof(eth_area)/2), 0);
     memset(&eth_area, 0, sizeof(eth_area));
-    eth_socket_send_packet(&packet, sizeof(packet));
-    eth_socket_recv_packet(&eth_area, sizeof(eth_area));
+    lbp16_send_packet(&packet, sizeof(packet));
+    lbp16_recv_packet(&eth_area, sizeof(eth_area));
 
     LBP16_INIT_PACKET4(packet, CMD_READ_COMM_CTRL_ADDR16_INCR(sizeof(stat_area)/2), 0);
     memset(&stat_area, 0, sizeof(stat_area));
-    eth_socket_send_packet(&packet, sizeof(packet));
-    eth_socket_recv_packet(&stat_area, sizeof(stat_area));
+    lbp16_send_packet(&packet, sizeof(packet));
+    lbp16_recv_packet(&stat_area, sizeof(stat_area));
 
     LBP16_INIT_PACKET4(packet, CMD_READ_BOARD_INFO_ADDR16_INCR(sizeof(info_area)/2), 0);
     memset(&info_area, 0, sizeof(info_area));
-    eth_socket_send_packet(&packet, sizeof(packet));
-    eth_socket_recv_packet(&info_area, sizeof(info_area));
+    lbp16_send_packet(&packet, sizeof(packet));
+    lbp16_recv_packet(&info_area, sizeof(info_area));
 
     if (info_area.LBP16_version >= 3) {
         LBP16_INIT_PACKET4(cmds[4], CMD_READ_AREA_INFO_ADDR16_INCR(LBP16_SPACE_TIMER, sizeof(mem_area)/2), 0);
         LBP16_INIT_PACKET4(packet, CMD_READ_TIMER_ADDR16_INCR(sizeof(timers_area)/2), 0);
         memset(&timers_area, 0, sizeof(timers_area));
-        eth_socket_send_packet(&packet, sizeof(packet));
-        eth_socket_recv_packet(&timers_area, sizeof(timers_area));
+        lbp16_send_packet(&packet, sizeof(packet));
+        lbp16_recv_packet(&timers_area, sizeof(timers_area));
     }
 
     printf("Communication:\n");
@@ -549,8 +516,8 @@ void eth_print_info(board_t *board) {
 
         if ((cmds[i].cmd_lo == 0) && (cmds[i].cmd_hi == 0)) continue;
         memset(&mem_area, 0, sizeof(mem_area));
-        eth_socket_send_packet(&cmds[i], sizeof(cmds[i]));
-        eth_socket_recv_packet(&mem_area, sizeof (mem_area));
+        lbp16_send_packet(&cmds[i], sizeof(cmds[i]));
+        lbp16_recv_packet(&mem_area, sizeof (mem_area));
 
         printf("    %d: %.*s (%s, %s", i, sizeof(mem_area.name), mem_area.name, mem_types[(mem_area.size  >> 8) & 0x7F],
           mem_writeable[(mem_area.size & 0x8000) >> 15]);
