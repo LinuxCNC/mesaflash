@@ -176,183 +176,7 @@ static int eth_board_reset(llio_t *self) {
     send = eth_socket_send_packet(&packet, sizeof(packet));
 }
 
-static int eth_scan_one_addr(board_access_t *access) {
-    lbp16_cmd_addr packet, packet2;
-    int send = 0, recv = 0, ret = 0;
-    u32 cookie;
-
-    LBP16_INIT_PACKET4(packet, CMD_READ_HM2_COOKIE, HM2_COOKIE_REG);
-    send = eth_socket_send_packet(&packet, sizeof(packet));
-    sleep_ns(2*1000*1000);
-    recv = eth_socket_recv_packet(&cookie, sizeof(cookie));
-
-    if ((recv > 0) && (cookie == HM2_COOKIE)) {
-        char buff[20];
-        board_t *board = &boards[boards_count];
-
-        eth_socket_blocking();
-        LBP16_INIT_PACKET4(packet2, CMD_READ_BOARD_INFO_ADDR16_INCR(8), 0);
-        memset(buff, 0, sizeof(buff));
-        send = eth_socket_send_packet(&packet2, sizeof(packet2));
-        recv = eth_socket_recv_packet(&buff, sizeof(buff));
-
-        if (strncmp(buff, "7I80DB-16", 9) == 0) {
-            board->type = BOARD_ETH;
-            strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
-            strncpy(board->llio.board_name, buff, 16);
-            board->llio.num_ioport_connectors = 4;
-            board->llio.pins_per_connector = 17;
-            board->llio.ioport_connector_name[0] = "J2";
-            board->llio.ioport_connector_name[1] = "J3";
-            board->llio.ioport_connector_name[2] = "J4";
-            board->llio.ioport_connector_name[3] = "J5";
-            board->llio.fpga_part_number = "6slx16ftg256";
-            board->llio.num_leds = 4;
-            board->llio.read = &eth_read;
-            board->llio.write = &eth_write;
-            board->llio.write_flash = &remote_write_flash;
-            board->llio.verify_flash = &remote_verify_flash;
-            board->llio.reset = &eth_board_reset;
-            board->llio.private = board;
-
-            board->open = &eth_board_open;
-            board->close = &eth_board_close;
-            board->print_info = &eth_print_info;
-            board->flash = BOARD_FLASH_REMOTE;
-            board->fallback_support = 1;
-            board->llio.verbose = access->verbose;
-        } else if (strncmp(buff, "7I80DB-25", 9) == 0) {
-            board->type = BOARD_ETH;
-            strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
-            strncpy(board->llio.board_name, buff, 16);
-            board->llio.num_ioport_connectors = 4;
-            board->llio.pins_per_connector = 17;
-            board->llio.ioport_connector_name[0] = "J2";
-            board->llio.ioport_connector_name[1] = "J3";
-            board->llio.ioport_connector_name[2] = "J4";
-            board->llio.ioport_connector_name[3] = "J5";
-            board->llio.fpga_part_number = "6slx25ftg256";
-            board->llio.num_leds = 4;
-            board->llio.read = &eth_read;
-            board->llio.write = &eth_write;
-            board->llio.write_flash = &remote_write_flash;
-            board->llio.verify_flash = &remote_verify_flash;
-            board->llio.reset = &eth_board_reset;
-            board->llio.private = board;
-
-            board->open = &eth_board_open;
-            board->close = &eth_board_close;
-            board->print_info = &eth_print_info;
-            board->flash = BOARD_FLASH_REMOTE;
-            board->fallback_support = 1;
-            board->llio.verbose = access->verbose;
-        } else if (strncmp(buff, "7I80HD-16", 9) == 0) {
-            board->type = BOARD_ETH;
-            strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
-            strncpy(board->llio.board_name, buff, 16);
-            board->llio.num_ioport_connectors = 3;
-            board->llio.pins_per_connector = 24;
-            board->llio.ioport_connector_name[0] = "P1";
-            board->llio.ioport_connector_name[1] = "P2";
-            board->llio.ioport_connector_name[2] = "P3";
-            board->llio.fpga_part_number = "6slx16ftg256";
-            board->llio.num_leds = 4;
-            board->llio.read = &eth_read;
-            board->llio.write = &eth_write;
-            board->llio.write_flash = &remote_write_flash;
-            board->llio.verify_flash = &remote_verify_flash;
-            board->llio.reset = &eth_board_reset;
-            board->llio.private = board;
-
-            board->open = &eth_board_open;
-            board->close = &eth_board_close;
-            board->print_info = &eth_print_info;
-            board->flash = BOARD_FLASH_REMOTE;
-            board->fallback_support = 1;
-            board->llio.verbose = access->verbose;
-        } else if (strncmp(buff, "7I80HD-25", 9) == 0) {
-            board->type = BOARD_ETH;
-            strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
-            strncpy(board->llio.board_name, buff, 16);
-            board->llio.num_ioport_connectors = 3;
-            board->llio.pins_per_connector = 24;
-            board->llio.ioport_connector_name[0] = "P1";
-            board->llio.ioport_connector_name[1] = "P2";
-            board->llio.ioport_connector_name[2] = "P3";
-            board->llio.fpga_part_number = "6slx25ftg256";
-            board->llio.num_leds = 4;
-            board->llio.read = &eth_read;
-            board->llio.write = &eth_write;
-            board->llio.write_flash = &remote_write_flash;
-            board->llio.verify_flash = &remote_verify_flash;
-            board->llio.reset = &eth_board_reset;
-            board->llio.private = board;
-
-            board->open = &eth_board_open;
-            board->close = &eth_board_close;
-            board->print_info = &eth_print_info;
-            board->flash = BOARD_FLASH_REMOTE;
-            board->fallback_support = 1;
-            board->llio.verbose = access->verbose;
-        } else if (strncmp(buff, "7I76E-16", 9) == 0) {
-            board->type = BOARD_ETH;
-            strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
-            strncpy(board->llio.board_name, buff, 16);
-            board->llio.num_ioport_connectors = 3;
-            board->llio.pins_per_connector = 17;
-            board->llio.ioport_connector_name[0] = "on-card";
-            board->llio.ioport_connector_name[1] = "P1";
-            board->llio.ioport_connector_name[2] = "P2";
-            board->llio.fpga_part_number = "6slx16ftg256";
-            board->llio.num_leds = 4;
-            board->llio.read = &eth_read;
-            board->llio.write = &eth_write;
-            board->llio.write_flash = &remote_write_flash;
-            board->llio.verify_flash = &remote_verify_flash;
-            board->llio.reset = &eth_board_reset;
-            board->llio.private = board;
-
-            board->open = &eth_board_open;
-            board->close = &eth_board_close;
-            board->print_info = &eth_print_info;
-            board->flash = BOARD_FLASH_REMOTE;
-            board->fallback_support = 1;
-            board->llio.verbose = access->verbose;
-        } else if (strncmp(buff, "7I92", 4) == 0) {
-            board->type = BOARD_ETH;
-            strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
-            strncpy(board->llio.board_name, buff, 16);
-            board->llio.num_ioport_connectors = 2;
-            board->llio.pins_per_connector = 17;
-            board->llio.ioport_connector_name[0] = "P2";
-            board->llio.ioport_connector_name[1] = "P1";
-            board->llio.fpga_part_number = "xc6slx9";
-            board->llio.num_leds = 4;
-            board->llio.read = &eth_read;
-            board->llio.write = &eth_write;
-            board->llio.write_flash = &remote_write_flash;
-            board->llio.verify_flash = &remote_verify_flash;
-            board->llio.reset = &eth_board_reset;
-            board->llio.private = board;
-
-            board->open = &eth_board_open;
-            board->close = &eth_board_close;
-            board->print_info = &eth_print_info;
-            board->flash = BOARD_FLASH_REMOTE;
-            board->fallback_support = 1;
-            board->llio.verbose = access->verbose;
-        } else {
-            printf("Unsupported ethernet device %s at %s\n", buff, eth_socket_get_src_ip());
-            ret = -1;
-        }
-        boards_count++;
-
-        eth_socket_nonblocking();
-    }
-    return ret;
-}
-
-int eth_board_reload(board_t *board, int fallback_flag) {
+static int eth_board_reload(llio_t *self, int fallback_flag) {
     int send;
     u32 boot_addr;
     u16 fw_ver;
@@ -390,6 +214,188 @@ int eth_board_reload(board_t *board, int fallback_flag) {
     LBP16_INIT_PACKET6(packet[12], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x2000);  // NOP
     LBP16_INIT_PACKET6(packet[13], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x2000);  // NOP
     send = eth_socket_send_packet(&packet, sizeof(packet));
+}
+
+static int eth_scan_one_addr(board_access_t *access) {
+    lbp16_cmd_addr packet, packet2;
+    int send = 0, recv = 0, ret = 0;
+    u32 cookie;
+
+    LBP16_INIT_PACKET4(packet, CMD_READ_HM2_COOKIE, HM2_COOKIE_REG);
+    send = eth_socket_send_packet(&packet, sizeof(packet));
+    sleep_ns(2*1000*1000);
+    recv = eth_socket_recv_packet(&cookie, sizeof(cookie));
+
+    if ((recv > 0) && (cookie == HM2_COOKIE)) {
+        char buff[20];
+        board_t *board = &boards[boards_count];
+
+        eth_socket_blocking();
+        LBP16_INIT_PACKET4(packet2, CMD_READ_BOARD_INFO_ADDR16_INCR(8), 0);
+        memset(buff, 0, sizeof(buff));
+        send = eth_socket_send_packet(&packet2, sizeof(packet2));
+        recv = eth_socket_recv_packet(&buff, sizeof(buff));
+
+        if (strncmp(buff, "7I80DB-16", 9) == 0) {
+            board->type = BOARD_ETH;
+            strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
+            strncpy(board->llio.board_name, buff, 16);
+            board->llio.num_ioport_connectors = 4;
+            board->llio.pins_per_connector = 17;
+            board->llio.ioport_connector_name[0] = "J2";
+            board->llio.ioport_connector_name[1] = "J3";
+            board->llio.ioport_connector_name[2] = "J4";
+            board->llio.ioport_connector_name[3] = "J5";
+            board->llio.fpga_part_number = "6slx16ftg256";
+            board->llio.num_leds = 4;
+            board->llio.read = &eth_read;
+            board->llio.write = &eth_write;
+            board->llio.write_flash = &remote_write_flash;
+            board->llio.verify_flash = &remote_verify_flash;
+            board->llio.reset = &eth_board_reset;
+            board->llio.reload = &eth_board_reload;
+            board->llio.private = board;
+
+            board->open = &eth_board_open;
+            board->close = &eth_board_close;
+            board->print_info = &eth_print_info;
+            board->flash = BOARD_FLASH_REMOTE;
+            board->fallback_support = 1;
+            board->llio.verbose = access->verbose;
+        } else if (strncmp(buff, "7I80DB-25", 9) == 0) {
+            board->type = BOARD_ETH;
+            strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
+            strncpy(board->llio.board_name, buff, 16);
+            board->llio.num_ioport_connectors = 4;
+            board->llio.pins_per_connector = 17;
+            board->llio.ioport_connector_name[0] = "J2";
+            board->llio.ioport_connector_name[1] = "J3";
+            board->llio.ioport_connector_name[2] = "J4";
+            board->llio.ioport_connector_name[3] = "J5";
+            board->llio.fpga_part_number = "6slx25ftg256";
+            board->llio.num_leds = 4;
+            board->llio.read = &eth_read;
+            board->llio.write = &eth_write;
+            board->llio.write_flash = &remote_write_flash;
+            board->llio.verify_flash = &remote_verify_flash;
+            board->llio.reset = &eth_board_reset;
+            board->llio.reload = &eth_board_reload;
+            board->llio.private = board;
+
+            board->open = &eth_board_open;
+            board->close = &eth_board_close;
+            board->print_info = &eth_print_info;
+            board->flash = BOARD_FLASH_REMOTE;
+            board->fallback_support = 1;
+            board->llio.verbose = access->verbose;
+        } else if (strncmp(buff, "7I80HD-16", 9) == 0) {
+            board->type = BOARD_ETH;
+            strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
+            strncpy(board->llio.board_name, buff, 16);
+            board->llio.num_ioport_connectors = 3;
+            board->llio.pins_per_connector = 24;
+            board->llio.ioport_connector_name[0] = "P1";
+            board->llio.ioport_connector_name[1] = "P2";
+            board->llio.ioport_connector_name[2] = "P3";
+            board->llio.fpga_part_number = "6slx16ftg256";
+            board->llio.num_leds = 4;
+            board->llio.read = &eth_read;
+            board->llio.write = &eth_write;
+            board->llio.write_flash = &remote_write_flash;
+            board->llio.verify_flash = &remote_verify_flash;
+            board->llio.reset = &eth_board_reset;
+            board->llio.reload = &eth_board_reload;
+            board->llio.private = board;
+
+            board->open = &eth_board_open;
+            board->close = &eth_board_close;
+            board->print_info = &eth_print_info;
+            board->flash = BOARD_FLASH_REMOTE;
+            board->fallback_support = 1;
+            board->llio.verbose = access->verbose;
+        } else if (strncmp(buff, "7I80HD-25", 9) == 0) {
+            board->type = BOARD_ETH;
+            strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
+            strncpy(board->llio.board_name, buff, 16);
+            board->llio.num_ioport_connectors = 3;
+            board->llio.pins_per_connector = 24;
+            board->llio.ioport_connector_name[0] = "P1";
+            board->llio.ioport_connector_name[1] = "P2";
+            board->llio.ioport_connector_name[2] = "P3";
+            board->llio.fpga_part_number = "6slx25ftg256";
+            board->llio.num_leds = 4;
+            board->llio.read = &eth_read;
+            board->llio.write = &eth_write;
+            board->llio.write_flash = &remote_write_flash;
+            board->llio.verify_flash = &remote_verify_flash;
+            board->llio.reset = &eth_board_reset;
+            board->llio.reload = &eth_board_reload;
+            board->llio.private = board;
+
+            board->open = &eth_board_open;
+            board->close = &eth_board_close;
+            board->print_info = &eth_print_info;
+            board->flash = BOARD_FLASH_REMOTE;
+            board->fallback_support = 1;
+            board->llio.verbose = access->verbose;
+        } else if (strncmp(buff, "7I76E-16", 9) == 0) {
+            board->type = BOARD_ETH;
+            strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
+            strncpy(board->llio.board_name, buff, 16);
+            board->llio.num_ioport_connectors = 3;
+            board->llio.pins_per_connector = 17;
+            board->llio.ioport_connector_name[0] = "on-card";
+            board->llio.ioport_connector_name[1] = "P1";
+            board->llio.ioport_connector_name[2] = "P2";
+            board->llio.fpga_part_number = "6slx16ftg256";
+            board->llio.num_leds = 4;
+            board->llio.read = &eth_read;
+            board->llio.write = &eth_write;
+            board->llio.write_flash = &remote_write_flash;
+            board->llio.verify_flash = &remote_verify_flash;
+            board->llio.reset = &eth_board_reset;
+            board->llio.reload = &eth_board_reload;
+            board->llio.private = board;
+
+            board->open = &eth_board_open;
+            board->close = &eth_board_close;
+            board->print_info = &eth_print_info;
+            board->flash = BOARD_FLASH_REMOTE;
+            board->fallback_support = 1;
+            board->llio.verbose = access->verbose;
+        } else if (strncmp(buff, "7I92", 4) == 0) {
+            board->type = BOARD_ETH;
+            strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
+            strncpy(board->llio.board_name, buff, 16);
+            board->llio.num_ioport_connectors = 2;
+            board->llio.pins_per_connector = 17;
+            board->llio.ioport_connector_name[0] = "P2";
+            board->llio.ioport_connector_name[1] = "P1";
+            board->llio.fpga_part_number = "xc6slx9";
+            board->llio.num_leds = 4;
+            board->llio.read = &eth_read;
+            board->llio.write = &eth_write;
+            board->llio.write_flash = &remote_write_flash;
+            board->llio.verify_flash = &remote_verify_flash;
+            board->llio.reset = &eth_board_reset;
+            board->llio.reload = &eth_board_reload;
+            board->llio.private = board;
+
+            board->open = &eth_board_open;
+            board->close = &eth_board_close;
+            board->print_info = &eth_print_info;
+            board->flash = BOARD_FLASH_REMOTE;
+            board->fallback_support = 1;
+            board->llio.verbose = access->verbose;
+        } else {
+            printf("Unsupported ethernet device %s at %s\n", buff, eth_socket_get_src_ip());
+            ret = -1;
+        }
+        boards_count++;
+
+        eth_socket_nonblocking();
+    }
+    return ret;
 }
 
 // public functions

@@ -285,14 +285,14 @@ int anyio_dev_set_remote_ip(board_t *board, char *lbp16_set_ip_addr) {
 }
 
 int anyio_dev_reload(board_t *board, int fallback_flag) {
-    if (board->type == BOARD_ETH) {
-        return eth_board_reload(board, fallback_flag);
-    } else if (board->type == BOARD_PCI) {
-        return pci_board_reload(board, fallback_flag);
-    } else {
-        printf("ERROR: FPGA reload only supported by ethernet and pci cards.\n");
-        return -1;
+    if (board == NULL) {
+        return -EINVAL;
     }
+    if (board->llio.reload == NULL) {
+        printf("ERROR: Board %s doesn't support FPGA configuration reloading.\n", board->llio.board_name);
+        return -EINVAL;
+    }
+    return board->llio.reload(&(board->llio), fallback_flag);
 }
 
 int anyio_dev_reset(board_t *board) {

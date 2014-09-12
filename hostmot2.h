@@ -47,6 +47,7 @@ struct llio_struct {
     int (*verify_flash)(llio_t *self, char *bitfile_name, u32 start_address);
     int (*program_fpga)(llio_t *self, char *bitfile_name);
     int (*reset)(llio_t *self);
+    int (*reload)(llio_t *self, int fallback_flag);
     int num_ioport_connectors;
     int pins_per_connector;
     const char *ioport_connector_name[ANYIO_MAX_IOPORT_CONNECTORS];

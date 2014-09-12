@@ -665,6 +665,59 @@ static int plx905x_reset(llio_t *self) {
     return 0;
 }
 
+static int pci_board_reload(llio_t *self, int fallback_flag) {
+    board_t *board = self->private;
+    int i;
+    u32 boot_addr, bar0_reg, cookie;
+    u16 cmd_reg;
+
+    pci_read(&(board->llio), HM2_ICAP_REG, &cookie, sizeof(u32));
+    if (cookie != HM2_ICAP_COOKIE) {
+        printf("ERROR: FPGA reload not supported\n");
+        return -1;
+    }
+
+    if (fallback_flag == 1) {
+        boot_addr = 0x10000;
+    } else {
+        boot_addr = 0x0;
+    }
+    boot_addr |= 0x0B000000; // plus read command in high byte
+
+    u32 data[14] = {
+      0xFFFF,   // dummy
+      0xFFFF,   // dummy
+      0xAA99,   // sync
+      0x5566,   // sync
+      0x3261,   // load low flash start address
+      boot_addr & 0xFFFF,   // start addr
+      0x3281,   // load high start address + read command
+      boot_addr >> 16,   // start addr (plus read command in high byte)
+      0x30A1,   // load command register
+      0x000E,   // IPROG command
+      0x2000,  // NOP
+      0x2000,  // NOP
+      0x2000,  // NOP
+      0x2000  // NOP
+    };
+
+    cmd_reg = pci_read_word(board->dev, PCI_COMMAND);
+    bar0_reg = pci_read_long(board->dev, PCI_BASE_ADDRESS_0);
+    for (i = 0; i < 14; i++) {
+        pci_write(&(board->llio), HM2_ICAP_REG, &data[i], sizeof(u32));
+        sleep_ns(1000*1000);
+    }
+    sleep_ns(1000*1000*100);
+    sleep_ns(1000*1000*100);
+    sleep_ns(1000*1000*100);
+    sleep_ns(1000*1000*100);
+    sleep_ns(1000*1000*100);
+    pci_write_word(board->dev, PCI_COMMAND, cmd_reg);
+    pci_write_long(board->dev, PCI_BASE_ADDRESS_0, bar0_reg);
+
+    return 0;
+}
+
 static void pci_fix_bar_lengths(struct pci_dev *dev) {
 #ifdef _WIN32
     int i;
@@ -867,6 +920,7 @@ void pci_boards_scan(board_access_t *access) {
                 board->llio.write = &pci_write;
                 board->llio.write_flash = &local_write_flash;
                 board->llio.verify_flash = &local_verify_flash;
+                board->llio.reload = &pci_board_reload;
                 board->llio.private = board;
 
                 board->open = &pci_board_open;
@@ -894,6 +948,7 @@ void pci_boards_scan(board_access_t *access) {
                 board->llio.write = &pci_write;
                 board->llio.write_flash = &local_write_flash;
                 board->llio.verify_flash = &local_verify_flash;
+                board->llio.reload = &pci_board_reload;
                 board->llio.private = board;
 
                 board->open = &pci_board_open;
@@ -921,6 +976,7 @@ void pci_boards_scan(board_access_t *access) {
                 board->llio.write = &pci_write;
                 board->llio.write_flash = &local_write_flash;
                 board->llio.verify_flash = &local_verify_flash;
+                board->llio.reload = &pci_board_reload;
                 board->llio.private = board;
 
                 board->open = &pci_board_open;
@@ -1216,58 +1272,6 @@ void pci_boards_scan(board_access_t *access) {
             }
         }
     }
-}
-
-int pci_board_reload(board_t *board, int fallback_flag) {
-    int i;
-    u32 boot_addr, bar0_reg, cookie;
-    u16 cmd_reg;
-
-    pci_read(&(board->llio), HM2_ICAP_REG, &cookie, sizeof(u32));
-    if (cookie != HM2_ICAP_COOKIE) {
-        printf("ERROR: FPGA reload not supported\n");
-        return -1;
-    }
-
-    if (fallback_flag == 1) {
-        boot_addr = 0x10000;
-    } else {
-        boot_addr = 0x0;
-    }
-    boot_addr |= 0x0B000000; // plus read command in high byte
-
-    u32 data[14] = {
-      0xFFFF,   // dummy
-      0xFFFF,   // dummy
-      0xAA99,   // sync
-      0x5566,   // sync
-      0x3261,   // load low flash start address
-      boot_addr & 0xFFFF,   // start addr
-      0x3281,   // load high start address + read command
-      boot_addr >> 16,   // start addr (plus read command in high byte)
-      0x30A1,   // load command register
-      0x000E,   // IPROG command
-      0x2000,  // NOP
-      0x2000,  // NOP
-      0x2000,  // NOP
-      0x2000  // NOP
-    };
-
-    cmd_reg = pci_read_word(board->dev, PCI_COMMAND);
-    bar0_reg = pci_read_long(board->dev, PCI_BASE_ADDRESS_0);
-    for (i = 0; i < 14; i++) {
-        pci_write(&(board->llio), HM2_ICAP_REG, &data[i], sizeof(u32));
-        sleep_ns(1000*1000);
-    }
-    sleep_ns(1000*1000*100);
-    sleep_ns(1000*1000*100);
-    sleep_ns(1000*1000*100);
-    sleep_ns(1000*1000*100);
-    sleep_ns(1000*1000*100);
-    pci_write_word(board->dev, PCI_COMMAND, cmd_reg);
-    pci_write_long(board->dev, PCI_BASE_ADDRESS_0, bar0_reg);
-
-    return 0;
 }
 
 void pci_print_info(board_t *board) {
