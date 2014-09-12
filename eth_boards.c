@@ -133,7 +133,7 @@ int lbp16_write(u16 cmd, u32 addr, void *buffer, int size) {
     return 0;
 }
 
-static int eth_read(llio_t *this, u32 addr, void *buffer, int size) {
+static int eth_read(llio_t *self, u32 addr, void *buffer, int size) {
     if ((size/4) > LBP16_MAX_PACKET_DATA_SIZE) {
         printf("ERROR: LBP16: Requested %d units to read, but protocol supports up to %d units to be read per packet\n", size/4, LBP16_MAX_PACKET_DATA_SIZE);
         return -1;
@@ -142,7 +142,7 @@ static int eth_read(llio_t *this, u32 addr, void *buffer, int size) {
     return lbp16_read(CMD_READ_HOSTMOT2_ADDR32_INCR(size/4), addr, buffer, size);
 }
 
-static int eth_write(llio_t *this, u32 addr, void *buffer, int size) {
+static int eth_write(llio_t *self, u32 addr, void *buffer, int size) {
     if ((size/4) > LBP16_MAX_PACKET_DATA_SIZE) {
         printf("ERROR: LBP16: Requested %d units to write, but protocol supports up to %d units to be write per packet\n", size/4, LBP16_MAX_PACKET_DATA_SIZE);
         return -1;

@@ -20,7 +20,7 @@
 #include <string.h>
 #include <errno.h>
 #include <sys/stat.h>
-#include <time.h>
+#include <sys/time.h>
 #include "types.h"
 #include "eeprom.h"
 #include "eeprom_local.h"
@@ -112,7 +112,7 @@ int start_programming(llio_t *self, u32 start_address, int fsize) {
     board_t *board = self->private;
     u32 sec_addr;
     int esectors, sector, max_sectors;
-    clock_t time1;
+    struct timeval tv1, tv2;
 
     esectors = (fsize - 1) / SECTOR_SIZE;
     if (board->fallback_support == 1) {
@@ -133,7 +133,7 @@ int start_programming(llio_t *self, u32 start_address, int fsize) {
     printf("Erasing EEPROM sectors starting from 0x%X...\n", (unsigned int) start_address);
     printf("  |");
     fflush(stdout);
-    time1 = clock();
+    gettimeofday(&tv1, NULL);
     for (sector = 0; sector <= esectors; sector++) {
         eeprom_access.erase_sector(self, sec_addr);
         sec_addr = sec_addr + SECTOR_SIZE;
@@ -141,7 +141,9 @@ int start_programming(llio_t *self, u32 start_address, int fsize) {
         fflush(stdout);
     }
     if (board->llio.verbose == 1) {
-        printf("\n  Erasing time: %.2f seconds", (double)(clock() - time1) / CLOCKS_PER_SEC);
+        gettimeofday(&tv2, NULL);
+        printf("\n  Erasing time: %.2f seconds", (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +
+         (double) (tv2.tv_sec - tv1.tv_sec));
     }
     printf("\n");
     return 0;
@@ -154,7 +156,7 @@ int eeprom_write(llio_t *self, char *bitfile_name, u32 start_address) {
     char part_name[32];
     struct stat file_stat;
     FILE *fp;
-    clock_t time1;
+    struct timeval tv1, tv2;
 
     if (stat(bitfile_name, &file_stat) != 0) {
         printf("Can't find file %s\n", bitfile_name);
@@ -196,7 +198,7 @@ int eeprom_write(llio_t *self, char *bitfile_name, u32 start_address) {
     printf("Programming EEPROM sectors starting from 0x%X...\n", (unsigned int) start_address);
     printf("  |");
     fflush(stdout);
-    time1 = clock();
+    gettimeofday(&tv1, NULL);
     eeprom_addr = start_address;
     while (!feof(fp)) {
         bytesread = fread(&file_buffer, 1, 8192, fp);
@@ -212,7 +214,9 @@ int eeprom_write(llio_t *self, char *bitfile_name, u32 start_address) {
 
     fclose(fp);
     if (board->llio.verbose == 1) {
-        printf("\n  Programming time: %.2f seconds", (double)(clock() - time1) / CLOCKS_PER_SEC);
+        gettimeofday(&tv2, NULL);
+        printf("\n  Programming time: %.2f seconds", (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +
+         (double) (tv2.tv_sec - tv1.tv_sec));
     }
     printf("\nBoard configuration updated successfully.\n");
     return 0;
@@ -225,7 +229,7 @@ int eeprom_verify(llio_t *self, char *bitfile_name, u32 start_address) {
     char part_name[32];
     struct stat file_stat;
     FILE *fp;
-    clock_t time1;
+    struct timeval tv1, tv2;
 
     if (stat(bitfile_name, &file_stat) != 0) {
         printf("Can't find file %s\n", bitfile_name);
@@ -260,7 +264,7 @@ int eeprom_verify(llio_t *self, char *bitfile_name, u32 start_address) {
     printf("Verifying EEPROM sectors starting from 0x%X...\n", (unsigned int) start_address);
     printf("  |");
     fflush(stdout);
-    time1 = clock();
+    gettimeofday(&tv1, NULL);
     eeprom_addr = start_address;
     while (!feof(fp)) {
         bytesread = fread(&file_buffer, 1, 8192, fp);
@@ -281,7 +285,9 @@ int eeprom_verify(llio_t *self, char *bitfile_name, u32 start_address) {
 
     fclose(fp);
     if (board->llio.verbose == 1) {
-        printf("\n  Verification time: %.2f seconds", (double)(clock() - time1) / CLOCKS_PER_SEC);
+        gettimeofday(&tv2, NULL);
+        printf("\n  Verification time: %.2f seconds", (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +
+         (double) (tv2.tv_sec - tv1.tv_sec));
     }
     printf("\nBoard configuration verified successfully\n");
     return 0;
