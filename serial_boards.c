@@ -22,6 +22,7 @@
 #include <string.h>
 #include <errno.h>
 #include <math.h>
+#include <sys/poll.h>
 #include "types.h"
 #include "anyio.h"
 #include "serial_boards.h"
@@ -36,17 +37,57 @@ int sd;
 // serial access functions
 
 int serial_send_packet(void *packet, int size) {
-    int send = write(sd, packet, size);
+    int send, rc, ret;
+    int r = 0, timeouts = 0;
+    struct timespec timeout = {0, 100000};
+    struct pollfd fds[1];
+    fds[0].fd = sd;
+    fds[0].events = POLLOUT;
 
-    return send;
+    while (r < size) {
+        rc = ppoll(fds, 1, &timeout, NULL);
+        if (rc > 0) {
+            ret = write(sd, packet, size);
+            r += ret;
+        } else if (rc == 0) {
+            timeouts ++;
+            if (timeouts == 5) {
+                printf("serial write timeout!\n");
+                return -1;
+            }
+        } else if (rc < 0) {
+            break;
+        }
+    }
+    return r;
 }
 
 int serial_recv_packet(void *packet, int size) {
-    int recv;
+    int recv, rc, ret;
+    int r = 0, timeouts = 0;
+    struct timespec timeout = {0, 30000000};
+    struct pollfd fds[1];
+    fds[0].fd = sd;
+    fds[0].events = POLLIN;
+    char buffer[1024];
 
-    usleep(27000);
-    recv = read(sd, packet, size);
-    return recv;
+    while (r < size) {
+        rc = ppoll(fds, 1, &timeout, NULL);
+        if (rc > 0) {
+            ret = read(sd, buffer + r, rc);
+            r += rc;
+        } else if (rc == 0) {
+            timeouts ++;
+            if (timeouts == 5) {
+                printf("serial read timeout!\n");
+                return -1;
+            }
+        } else if (rc < 0) {
+            break;
+        }
+    }
+    memcpy(packet, buffer, r);
+    return r;
 }
 
 static int serial_read(llio_t *self, u32 addr, void *buffer, int size) {
@@ -58,14 +99,8 @@ static int serial_write(llio_t *self, u32 addr, void *buffer, int size) {
 }
 
 static int serial_board_open(board_t *board) {
-    lbp16_cmd_addr packet;
-    u32 flash_id;
-
-//    eeprom_init(&(board->llio));
-    LBP16_INIT_PACKET4(packet, CMD_READ_FLASH_IDROM, FLASH_ID_REG);
-    //lbp16_send_packet(&packet, sizeof(packet));
-    //lbp16_recv_packet(&flash_id, 4);
-    board->flash_id = 0;
+    eeprom_init(&(board->llio));
+    lbp16_read(CMD_READ_FLASH_IDROM, FLASH_ID_REG, &(board->flash_id), sizeof(u32));
     if (board->fallback_support == 1) {
         eeprom_prepare_boot_block(board->flash_id);
         board->flash_start_address = eeprom_calc_user_space(board->flash_id);
@@ -241,8 +276,7 @@ void serial_print_info(board_t *board) {
  
     printf("  [space 0] HostMot2\n");
     printf("  [space 3] FPGA flash eeprom:\n");
-    lbp16_read(CMD_READ_FLASH_IDROM, FLASH_ID_REG, &flash_id, 4);
-    printf("    flash size: %s (id: 0x%02X)\n", eeprom_get_flash_type(flash_id), flash_id);
+    printf("    flash size: %s (id: 0x%02X)\n", eeprom_get_flash_type(board->flash_id), board->flash_id);
 
     if (info_area.LBP16_version >= 3) {
         printf("  [space 4] timers:\n");
