@@ -28,6 +28,7 @@
 #include "serial_boards.h"
 #include "lbp16.h"
 #include "eeprom.h"
+#include "eeprom_remote.h"
 
 extern board_t boards[MAX_BOARDS];
 extern int boards_count;
@@ -39,7 +40,7 @@ int sd;
 int serial_send_packet(void *packet, int size) {
     int send, rc, ret;
     int r = 0, timeouts = 0;
-    struct timespec timeout = {0, 100000};
+    struct timespec timeout = {0, 50*1000*1000};
     struct pollfd fds[1];
     fds[0].fd = sd;
     fds[0].events = POLLOUT;
@@ -65,7 +66,7 @@ int serial_send_packet(void *packet, int size) {
 int serial_recv_packet(void *packet, int size) {
     int recv, rc, ret;
     int r = 0, timeouts = 0;
-    struct timespec timeout = {0, 30000000};
+    struct timespec timeout = {0, 300*1000*1000};
     struct pollfd fds[1];
     fds[0].fd = sd;
     fds[0].events = POLLIN;
@@ -183,6 +184,8 @@ void serial_boards_scan(board_access_t *access) {
         board->llio.num_leds = 2;
         board->llio.read = &serial_read;
         board->llio.write = &serial_write;
+        board->llio.write_flash = &remote_write_flash;
+        board->llio.verify_flash = &remote_verify_flash;
         board->llio.reset = &lbp16_board_reset;
         board->llio.reload = &lbp16_board_reload;
         board->llio.private = board;
