@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stddef.h>
 #include "types.h"
 #include "lbp16.h"
 #include "eth_boards.h"
@@ -68,6 +69,58 @@ int lbp16_write(u16 cmd, u32 addr, void *buffer, int size) {
     send = lbp16_access.send_packet(&packet, sizeof(lbp16_cmd_addr) + size);
 
     return 0;
+}
+
+int lbp16_board_reset(llio_t *self) {
+    int send;
+    lbp16_cmd_addr_data16 packet;
+
+    LBP16_INIT_PACKET6(packet, CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1C, 0x0001);   // reset if != 0
+    send = lbp16_send_packet(&packet, sizeof(packet));
+}
+
+int lbp16_board_reload(llio_t *self, int fallback_flag) {
+    board_t *board = self->private;
+    int send;
+    u32 boot_addr;
+    u16 fw_ver;
+    lbp16_cmd_addr_data16 packet[14];
+    lbp16_cmd_addr fw_packet;
+
+    LBP16_INIT_PACKET4(fw_packet, CMD_READ_BOARD_INFO_ADDR16(1), offsetof(lbp_info_area, firmware_version));
+    lbp16_send_packet(&fw_packet, sizeof(fw_packet));
+    lbp16_recv_packet(&fw_ver, sizeof(fw_ver));
+
+    if ((board->type & BOARD_ETH) && (fw_ver < 15)) {
+        printf("ERROR: FPGA reload only supported by ethernet card firmware > 14.\n");
+        return -1;
+    } else if ((board->type & BOARD_SER) && (fw_ver < 2)) {
+        printf("ERROR: FPGA reload only supported by serial card firmware > 2.\n");
+        return -1;
+    }
+
+    if (fallback_flag == 1) {
+        boot_addr = 0x10000;
+    } else {
+        boot_addr = 0x0;
+    }
+    boot_addr |= 0x0B000000; // plus read command in high byte
+
+    LBP16_INIT_PACKET6(packet[0], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0xFFFF);   // dummy
+    LBP16_INIT_PACKET6(packet[1], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0xFFFF);   // dummy
+    LBP16_INIT_PACKET6(packet[2], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0xAA99);   // sync
+    LBP16_INIT_PACKET6(packet[3], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x5566);   // sync
+    LBP16_INIT_PACKET6(packet[4], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x3261);   // load low flash start address
+    LBP16_INIT_PACKET6(packet[5], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, boot_addr & 0xFFFF);   // start addr
+    LBP16_INIT_PACKET6(packet[6], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x3281);   // load high start address + read command
+    LBP16_INIT_PACKET6(packet[7], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, boot_addr >> 16);   // start addr (plus read command in high byte)
+    LBP16_INIT_PACKET6(packet[8], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x30A1);   // load command register
+    LBP16_INIT_PACKET6(packet[9], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x000E);   // IPROG command
+    LBP16_INIT_PACKET6(packet[10], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x2000);  // NOP
+    LBP16_INIT_PACKET6(packet[11], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x2000);  // NOP
+    LBP16_INIT_PACKET6(packet[12], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x2000);  // NOP
+    LBP16_INIT_PACKET6(packet[13], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x2000);  // NOP
+    send = lbp16_send_packet(&packet, sizeof(packet));
 }
 
 void lbp16_init(int board_type) {

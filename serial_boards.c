@@ -148,6 +148,8 @@ void serial_boards_scan(board_access_t *access) {
         board->llio.num_leds = 2;
         board->llio.read = &serial_read;
         board->llio.write = &serial_write;
+        board->llio.reset = &lbp16_board_reset;
+        board->llio.reload = &lbp16_board_reload;
         board->llio.private = board;
 
         board->open = &serial_board_open;

@@ -254,6 +254,8 @@ void lbp16_init(int board_type);
 void lbp16_cleanup(int board_type);
 int lbp16_read(u16 cmd, u32 addr, void *buffer, int size);
 int lbp16_write(u16 cmd, u32 addr, void *buffer, int size);
+int lbp16_board_reset(llio_t *self);
+int lbp16_board_reload(llio_t *self, int fallback_flag);
 int lbp16_send_packet(void *packet, int size);
 int lbp16_recv_packet(void *packet, int size);
 
