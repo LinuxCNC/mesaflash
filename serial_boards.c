@@ -38,13 +38,14 @@ int sd;
 int serial_send_packet(void *packet, int size) {
     int send = write(sd, packet, size);
 
-    sleep_ns((size + 100)*100000);
     return send;
 }
 
 int serial_recv_packet(void *packet, int size) {
-    int recv = read(sd, packet, size);
+    int recv;
 
+    usleep(27000);
+    recv = read(sd, packet, size);
     return recv;
 }
 
@@ -84,7 +85,7 @@ int serial_boards_init(board_access_t *access) {
 #ifdef __linux__
     struct termios options;
 
-    sd = open(access->dev_addr, O_RDWR | O_NOCTTY | O_NDELAY);
+    sd = open(access->dev_addr, O_RDWR | O_NOCTTY | O_NONBLOCK);
     if (sd == -1) {
         perror("Unable to open the serial port\n");
     }
