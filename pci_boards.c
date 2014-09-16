@@ -852,7 +852,7 @@ void pci_boards_scan(board_access_t *access) {
                 board->llio.pins_per_connector = 17;
                 board->llio.ioport_connector_name[0] = "P3";
                 board->llio.ioport_connector_name[1] = "P2";
-                board->llio.fpga_part_number = "6slx9pq144";
+                board->llio.fpga_part_number = "6slx9tqg144";
                 board->llio.num_leds = 2;
                 board->llio.write_flash = &local_write_flash;
                 board->llio.verify_flash = &local_verify_flash;
