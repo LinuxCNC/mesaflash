@@ -376,6 +376,8 @@ int main(int argc, char *argv[]) {
                 if (ret == -1) {
                     printf("\nYou must power cycle board to load updated firmware.\n");
                 }
+            } else {
+                printf("\nYou must power cycle board or use --reload command to load updated firmware.\n");
             }
         } else if (verify_flag == 1) {
             ret = anyio_dev_verify_flash(board, bitfile_name, fallback_flag);
