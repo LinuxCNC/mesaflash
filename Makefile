@@ -55,7 +55,7 @@ headers = eth_boards.h pci_boards.h epp_boards.h usb_boards.h spi_boards.h seria
 headers +=  common.h eeprom.h lbp.h eeprom_local.h eeprom_remote.h bitfile.h sserial_module.h hostmot2_def.h boards.h
 headers +=  encoder_module.h
 
-all: $(LIBANYIO) $(BIN)
+all: $(LIBANYIO) $(BIN) pci_encoder_read
 
 $(LIBANYIO) : $(objects)
 	$(RM) $(LIBANYIO) $(BIN)
@@ -119,8 +119,14 @@ bitfile.o : bitfile.c $(headers)
 common.o : common.c $(headers)
 	$(CC) $(CFLAGS) -c common.c
 
+pci_encoder_read.o : examples/pci_encoder_read.c $(LIBANYIO) $(headers)
+	$(CC) $(CFLAGS) -c examples/pci_encoder_read.c
+
+pci_encoder_read: pci_encoder_read.o anyio.h encoder_module.h
+	$(CC) -o pci_encoder_read pci_encoder_read.o $(LIBANYIO) $(LIBS)
+
 clean :
-	$(RM) $(LIBANYIO) $(BIN) $(objects) mesaflash.o
+	$(RM) *.o $(LIBANYIO) $(BIN) pci_encoder_read
 
 .PHONY: install
 install: $(BIN)

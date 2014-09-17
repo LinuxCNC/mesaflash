@@ -50,6 +50,7 @@ int encoder_init(encoder_module_t *enc, board_t *board) {
     u32 clock, control;
 
     if (md == NULL) {
+        printf("No encoder module found.\n");
         return -1;
     }
 
@@ -78,6 +79,7 @@ int encoder_cleanup(encoder_module_t *enc) {
 }
 
 int encoder_read(encoder_module_t *enc) {
+    board_t *board;
     u32 tsc, count, control;
     u16 reg_count, reg_time_stamp, ctrl;
     int prev_raw_counts = enc->raw_counts, reg_count_diff, tsc_rollover = 0;
@@ -89,10 +91,11 @@ int encoder_read(encoder_module_t *enc) {
     if (enc == NULL) {
         return -1;
     }
+    board = enc->board;
 
-    enc->board->llio.read(&(enc->board->llio), HM2_MODULE_MUX_ENCODER_TS_COUNT, &tsc, sizeof(tsc));
-    enc->board->llio.read(&(enc->board->llio), HM2_MODULE_MUX_ENCODER_COUNTER, &count, sizeof(count));
-    enc->board->llio.read(&(enc->board->llio), HM2_MODULE_MUX_ENCODER_LATCH_CCR, &control, sizeof(control));
+    board->llio.read(&(board->llio), HM2_MODULE_MUX_ENCODER_TS_COUNT, &tsc, sizeof(tsc));
+    board->llio.read(&(board->llio), HM2_MODULE_MUX_ENCODER_COUNTER, &count, sizeof(count));
+    board->llio.read(&(board->llio), HM2_MODULE_MUX_ENCODER_LATCH_CCR, &control, sizeof(control));
 
     if (enc->scale == 0) {
         enc->scale = 1.0;

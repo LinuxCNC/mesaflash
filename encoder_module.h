@@ -34,6 +34,8 @@ typedef struct {
     board_t *board;
 } encoder_module_t;
 
-void encoder_module_init(llio_t *llio);
+int encoder_init(encoder_module_t *enc, board_t *board);
+int encoder_cleanup(encoder_module_t *enc);
+int encoder_read(encoder_module_t *enc);
 
 #endif
