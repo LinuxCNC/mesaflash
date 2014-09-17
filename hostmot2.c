@@ -263,6 +263,46 @@ hm2_module_desc_t *hm2_find_module(hostmot2_t *hm2, u8 gtag) {
     return NULL;
 }
 
+void hm2_set_pin_source(llio_t *llio, int pin_number, u8 source) {
+    u32 data;
+    
+    if ((pin_number < 0) || (pin_number >= (llio->hm2.idrom.io_ports*llio->hm2.idrom.io_width))) {
+        printf("hm2_set_pin_source(): invalid pin number %d\n", pin_number);
+        return;
+    }
+
+    llio->read(llio, HM2_MODULE_GPIO_ALT_SOURCE + (pin_number / 24)*4, &data, sizeof(data));
+    if (source == HM2_PIN_SOURCE_IS_PRIMARY) {
+        data &= ~(1 << (pin_number % 24));
+    } else if (source == HM2_PIN_SOURCE_IS_SECONDARY) {
+        data |= (1 << (pin_number % 24));
+    } else {
+        printf("hm2_set_pin_source(): invalid pin source 0x%02X\n", source);
+        return;
+    }
+    llio->write(llio, HM2_MODULE_GPIO_ALT_SOURCE + (pin_number / 24)*4, &data, sizeof(data));
+}
+
+void hm2_set_pin_direction(llio_t *llio, int pin_number, u8 direction) {
+    u32 data;
+
+    if ((pin_number < 0) || (pin_number >= (llio->hm2.idrom.io_ports*llio->hm2.idrom.io_width))) {
+        printf("hm2_set_pin_direction(): invalid pin number %d\n", pin_number);
+        return;
+    }
+
+    llio->read(llio, HM2_MODULE_GPIO_DDR + (pin_number / 24)*4, &data, sizeof(data));
+    if (direction == HM2_PIN_DIR_IS_INPUT) {
+        data &= ~(1 << (pin_number % 24));
+    } else if (direction == HM2_PIN_DIR_IS_OUTPUT) {
+        data |= (1 << (pin_number % 24));
+    } else {
+        printf("hm2_set_pin_direction(): invalid pin direction 0x%02X\n", direction);
+        return;
+    }
+    llio->write(llio, HM2_MODULE_GPIO_DDR + (pin_number / 24)*4, &data, sizeof(data));
+}
+
 void hm2_print_idrom(hostmot2_t *hm2) {
     printf("IDRom:\n");
     printf("  IDRom Type: 0x%02X\n", hm2->idrom.idrom_type);

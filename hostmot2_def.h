@@ -23,6 +23,15 @@
 
 #define HM2_AREA_SIZE    0x10000
 
+// 
+// Pin Descriptor constants
+// 
+
+#define HM2_PIN_SOURCE_IS_PRIMARY   0x00
+#define HM2_PIN_SOURCE_IS_SECONDARY 0x01
+#define HM2_PIN_DIR_IS_INPUT        0x02
+#define HM2_PIN_DIR_IS_OUTPUT       0x04
+
 #define HM2_GTAG_NONE              0x00
 #define HM2_GTAG_IRQ_LOGIC         0x01
 #define HM2_GTAG_WATCHDOG          0x02
@@ -172,10 +181,36 @@ typedef struct {
 // ENCODER MODULE
 
 #define HM2_MODULE_ENCODER_COUNTER          0x3000
-#define HM2_MODULE_ENCODER_COUNTER_CCR      0x3100
+#define HM2_MODULE_ENCODER_LATCH_CCR        0x3100
 #define HM2_MODULE_ENCODER_TSSDIV           0x3200
 #define HM2_MODULE_ENCODER_TS_COUNT         0x3300
 #define HM2_MODULE_ENCODER_FILTER_RATE      0x3400
+
+// MUXED ENCODER MODULE
+
+#define HM2_MODULE_MUX_ENCODER_COUNTER      0x3500
+#define HM2_MODULE_MUX_ENCODER_LATCH_CCR    0x3600
+#define HM2_MODULE_MUX_ENCODER_TSSDIV       0x3700
+#define HM2_MODULE_MUX_ENCODER_TS_COUNT     0x3800
+#define HM2_MODULE_MUX_ENCODER_FILTER_RATE  0x3900
+
+#define HM2_ENCODER_QUADRATURE_ERROR    (1 << 15)
+#define HM2_ENCODER_AB_MASK_POLARITY    (1 << 14)
+#define HM2_ENCODER_LATCH_ON_PROBE      (1 << 13)
+#define HM2_ENCODER_PROBE_POLARITY      (1 << 12)
+#define HM2_ENCODER_FILTER              (1 << 11)
+#define HM2_ENCODER_COUNTER_MODE        (1 << 10)
+#define HM2_ENCODER_INDEX_MASK          (1 << 9)
+#define HM2_ENCODER_INDEX_MASK_POLARITY (1 << 8)
+#define HM2_ENCODER_INDEX_JUSTONCE      (1 << 6)
+#define HM2_ENCODER_CLEAR_ON_INDEX      (1 << 5)
+#define HM2_ENCODER_LATCH_ON_INDEX      (1 << 4)
+#define HM2_ENCODER_INDEX_POLARITY      (1 << 3)
+#define HM2_ENCODER_INPUT_INDEX         (1 << 2)
+#define HM2_ENCODER_INPUT_B             (1 << 1)
+#define HM2_ENCODER_INPUT_A             (1 << 0)
+
+#define HM2_ENCODER_CONTROL_MASK        0x0000FFFF
 
 // SSERIAL MODULE
 
