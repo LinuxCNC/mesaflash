@@ -45,7 +45,7 @@ static void enable_encoder_pins(llio_t *llio) {
 static void disable_encoder_pins(llio_t *llio) {
 }
 
-int encoder_init(encoder_module_t *enc, board_t *board, int instance) {
+int encoder_init(encoder_module_t *enc, board_t *board, int instance, int delay) {
     hm2_module_desc_t *md = hm2_find_module(&(board->llio.hm2), HM2_GTAG_MUXED_ENCODER);
     u32 clock, control;
 
@@ -67,10 +67,10 @@ int encoder_init(encoder_module_t *enc, board_t *board, int instance) {
     enable_encoder_pins(&(enc->board->llio));
 
     if (md->clock_tag == HM2_CLOCK_LOW_TAG) {
-        clock = (enc->board->llio.hm2.idrom.clock_low / 1e6) - 2;
+        clock = (enc->board->llio.hm2.idrom.clock_low / 1e6 * delay) - 2;
         seconds_per_tsdiv_clock = (double)(clock + 2) / (double)enc->board->llio.hm2.idrom.clock_low;
     } else if (md->clock_tag == HM2_CLOCK_HIGH_TAG) {
-        clock = (enc->board->llio.hm2.idrom.clock_high / 1e6) - 2;
+        clock = (enc->board->llio.hm2.idrom.clock_high / 1e6 * delay) - 2;
         seconds_per_tsdiv_clock = (double)(clock + 2) / (double)enc->board->llio.hm2.idrom.clock_high;
     } 
     enc->board->llio.write(&(enc->board->llio), HM2_MODULE_MUX_ENCODER_TSSDIV, &clock, sizeof(clock));

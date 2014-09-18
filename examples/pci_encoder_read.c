@@ -158,14 +158,14 @@ int main(int argc, char *argv[]) {
     board->print_info(board);           // print what card it is 
     hm2_read_idrom(&(board->llio));     // read hostmot2 idrom
 
-    ret = encoder_init(&enc, board, instance);   // init encoder 'instance' module on 'board'
+    ret = encoder_init(&enc, board, instance, delay);   // init encoder 'instance' module on 'board'
     if (ret < 0) {
         goto fail0;
     }
 
     while (1) {
         encoder_read(&enc);             // read encoder 
-        printf("raw_counts = %u, velocity = %.2f\n", enc.raw_counts, enc.velocity);
+        printf("tsc = %u, raw_counts = %u, velocity = %.2f\n", enc.global_time_stamp, enc.raw_counts, enc.velocity);
         usleep(delay*1000);             // wait delay ms
     }
 
