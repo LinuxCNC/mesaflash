@@ -32,9 +32,11 @@ typedef struct {
     double scale;
     int quad_error;
     board_t *board;
+    int instance;
+    int instance_stride;
 } encoder_module_t;
 
-int encoder_init(encoder_module_t *enc, board_t *board);
+int encoder_init(encoder_module_t *enc, board_t *board, int instance);
 int encoder_cleanup(encoder_module_t *enc);
 int encoder_read(encoder_module_t *enc);
 

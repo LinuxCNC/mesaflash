@@ -158,7 +158,7 @@ int main(int argc, char *argv[]) {
     board->print_info(board);
     hm2_read_idrom(&(board->llio));
 
-    ret = encoder_init(&enc, board);
+    ret = encoder_init(&enc, board, instance);
     if (ret < 0) {
         goto fail0;
     }

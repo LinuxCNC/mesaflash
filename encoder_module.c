@@ -45,7 +45,7 @@ static void enable_encoder_pins(llio_t *llio) {
 static void disable_encoder_pins(llio_t *llio) {
 }
 
-int encoder_init(encoder_module_t *enc, board_t *board) {
+int encoder_init(encoder_module_t *enc, board_t *board, int instance) {
     hm2_module_desc_t *md = hm2_find_module(&(board->llio.hm2), HM2_GTAG_MUXED_ENCODER);
     u32 clock, control;
 
@@ -53,10 +53,16 @@ int encoder_init(encoder_module_t *enc, board_t *board) {
         printf("No encoder module found.\n");
         return -1;
     }
+    if (instance >= (md->instances - 1)) {
+        printf("encoder instance number to high.\n");
+        return -1;
+    }
 
     memset(enc, 0, sizeof(encoder_module_t));
     enc->scale = 1.0;
     enc->board = board;
+    enc->instance = instance;
+    enc->instance_stride = (md->strides & 0xF0) == 0 ? board->llio.hm2.idrom.instance_stride0 : board->llio.hm2.idrom.instance_stride1;
 
     enable_encoder_pins(&(enc->board->llio));
 
@@ -68,10 +74,10 @@ int encoder_init(encoder_module_t *enc, board_t *board) {
         seconds_per_tsdiv_clock = (double)(clock + 2) / (double)enc->board->llio.hm2.idrom.clock_high;
     } 
     enc->board->llio.write(&(enc->board->llio), HM2_MODULE_MUX_ENCODER_TSSDIV, &clock, sizeof(clock));
-    enc->board->llio.read(&(enc->board->llio), HM2_MODULE_MUX_ENCODER_LATCH_CCR, &control, sizeof(control));
+    enc->board->llio.read(&(enc->board->llio), HM2_MODULE_MUX_ENCODER_LATCH_CCR + enc->instance*enc->instance_stride, &control, sizeof(control));
     control |= HM2_ENCODER_FILTER;
     control &= ~(HM2_ENCODER_QUADRATURE_ERROR);
-    enc->board->llio.write(&(enc->board->llio), HM2_MODULE_MUX_ENCODER_LATCH_CCR, &control, sizeof(control));
+    enc->board->llio.write(&(enc->board->llio), HM2_MODULE_MUX_ENCODER_LATCH_CCR + enc->instance*enc->instance_stride, &control, sizeof(control));
 }
 
 int encoder_cleanup(encoder_module_t *enc) {
@@ -94,8 +100,8 @@ int encoder_read(encoder_module_t *enc) {
     board = enc->board;
 
     board->llio.read(&(board->llio), HM2_MODULE_MUX_ENCODER_TS_COUNT, &tsc, sizeof(tsc));
-    board->llio.read(&(board->llio), HM2_MODULE_MUX_ENCODER_COUNTER, &count, sizeof(count));
-    board->llio.read(&(board->llio), HM2_MODULE_MUX_ENCODER_LATCH_CCR, &control, sizeof(control));
+    board->llio.read(&(board->llio), HM2_MODULE_MUX_ENCODER_COUNTER + enc->instance*enc->instance_stride, &count, sizeof(count));
+    board->llio.read(&(board->llio), HM2_MODULE_MUX_ENCODER_LATCH_CCR + enc->instance*enc->instance_stride, &control, sizeof(control));
 
     if (enc->scale == 0) {
         enc->scale = 1.0;
