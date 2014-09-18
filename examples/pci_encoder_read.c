@@ -141,40 +141,40 @@ int main(int argc, char *argv[]) {
 
     access.verbose = verbose_flag;
 
-    if (anyio_init(&access) != 0) {
+    if (anyio_init(&access) != 0) {     // init library
         return -1;
     }
-    ret = anyio_find_dev(&access);
+    ret = anyio_find_dev(&access);      // find board
     if (ret < 0) {
         return -1;
     }
-    board = anyio_get_dev(&access, 1);
+    board = anyio_get_dev(&access, 1);  // if found the get board handle
     if (board == NULL) {
         printf("No %s board found\n", access.device_name);
         return -1;
     }
 
-    board->open(board);
-    board->print_info(board);
-    hm2_read_idrom(&(board->llio));
+    board->open(board);                 // open board for communication
+    board->print_info(board);           // print what card it is 
+    hm2_read_idrom(&(board->llio));     // read hostmot2 idrom
 
-    ret = encoder_init(&enc, board, instance);
+    ret = encoder_init(&enc, board, instance);   // init encoder 'instance' module on 'board'
     if (ret < 0) {
         goto fail0;
     }
 
     while (1) {
-        encoder_read(&enc);
+        encoder_read(&enc);             // read encoder 
         printf("raw_counts = %u, velocity = %.2f\n", enc.raw_counts, enc.velocity);
-        usleep(delay*1000);
+        usleep(delay*1000);             // wait delay ms
     }
 
-    encoder_cleanup(&enc);
+    encoder_cleanup(&enc);              // cleanup enocder module
     
 fail0:
-    board->close(board);
+    board->close(board);                // close board communication
 
-    anyio_cleanup(&access);
+    anyio_cleanup(&access);             // close library
 
     return 0;
 }
