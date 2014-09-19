@@ -56,8 +56,8 @@ struct llio_struct {
     char board_name[16];
     void *private;
     hostmot2_t hm2;
-    sserial_interface_t ss_interface[HM2_MAX_SSERIAL_MODULES];
-    sserial_device_t ss_device[HM2_MAX_SSERIAL_CHANNELS];
+    sserial_interface_t ss_interface[HM2_SSERIAL_MAX_INTEFACES];
+    sserial_device_t ss_device[HM2_SSERIAL_MAX_CHANNELS];
     int verbose;
 };
 

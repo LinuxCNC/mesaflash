@@ -21,6 +21,47 @@
 #include <string.h>
 #include "types.h"
 #include "hostmot2.h"
+#include "sserial_module.h"
+
+// Temporarily enable the pins that are not masked by sserial_mode
+static void enable_sserial_pins(llio_t *llio) {
+    int port_pin, port;
+    int pin = -1;
+    int chan_counts[] = {0,0,0,0,0,0,0,0};
+
+    for (port  = 0; port < 2; port ++) {
+        u32 ddr_reg = 0;
+        u32 src_reg = 0;
+        for (port_pin = 0; port_pin < llio->hm2.idrom.port_width; port_pin++) {
+            pin++;
+            if (llio->hm2.pins[pin].sec_tag == HM2_GTAG_SSERIAL) {
+                // look for highest-indexed pin to determine number of channels
+                if ((llio->hm2.pins[pin].sec_pin & 0x0F) > chan_counts[llio->hm2.pins[pin].sec_chan]) {
+                    chan_counts[llio->hm2.pins[pin].sec_chan] = (llio->hm2.pins[pin].sec_pin & 0x0F);
+                }
+                // check if the channel is enabled
+                //printf("sec unit = %i, sec pin = %i\n", llio->hm2.pins[pin].sec_chan, llio->hm2.pins[pin].sec_pin & 0x0F);
+                    src_reg |= (1 << port_pin);
+                    if (llio->hm2.pins[pin].sec_pin & 0x80) 
+                        ddr_reg |= (1 << port_pin);
+            }
+        }
+        llio->write(llio, 0x1100 + 4*port, &ddr_reg, sizeof(u32));
+        llio->write(llio, 0x1200 + 4*port, &src_reg, sizeof(u32));
+    }
+}
+
+// Return the physical ports to default
+static void disable_sserial_pins(llio_t *llio) {
+    int port_pin, port;
+    u32 ddr_reg = 0;
+    u32 src_reg = 0;
+
+    for (port = 0; port < 2; port ++) {
+        llio->write(llio, 0x1100 + 4*port, &ddr_reg, sizeof(u32));
+        llio->write(llio, 0x1200 + 4*port, &src_reg, sizeof(u32));
+    }
+}
 
 void sslbp_send_local_cmd(llio_t *llio, int interface, u32 cmd) {
     llio->write(llio, HM2_MODULE_SSERIAL_CMD + interface*0x40, &(cmd), sizeof(u32));
@@ -108,44 +149,111 @@ void sslbp_read_remote_bytes(llio_t *llio, int interface, int channel, u32 addr,
     }
 }
 
-// Temporarily enable the pins that are not masked by sserial_mode
-void enable_sserial_pins(llio_t *llio) {
-    int port_pin, port;
-    int pin = -1;
-    int chan_counts[] = {0,0,0,0,0,0,0,0};
+int sserial_init(sserial_module_t *ssmod, board_t *board, int interface_num, int channel_num, u32 remote_type) {
+    u32 cmd, status, data, addr;
+    u16 d;
+    int i;
+    hm2_module_desc_t *md = hm2_find_module(&(board->llio.hm2), HM2_GTAG_SSERIAL);
 
-    for (port  = 0; port < 2; port ++) {
-        u32 ddr_reg = 0;
-        u32 src_reg = 0;
-        for (port_pin = 0; port_pin < llio->hm2.idrom.port_width; port_pin++) {
-            pin++;
-            if (llio->hm2.pins[pin].sec_tag == HM2_GTAG_SSERIAL) {
-                // look for highest-indexed pin to determine number of channels
-                if ((llio->hm2.pins[pin].sec_pin & 0x0F) > chan_counts[llio->hm2.pins[pin].sec_chan]) {
-                    chan_counts[llio->hm2.pins[pin].sec_chan] = (llio->hm2.pins[pin].sec_pin & 0x0F);
-                }
-                // check if the channel is enabled
-                //printf("sec unit = %i, sec pin = %i\n", llio->hm2.pins[pin].sec_chan, llio->hm2.pins[pin].sec_pin & 0x0F);
-                    src_reg |= (1 << port_pin);
-                    if (llio->hm2.pins[pin].sec_pin & 0x80) 
-                        ddr_reg |= (1 << port_pin);
-            }
-        }
-        llio->write(llio, 0x1100 + 4*port, &ddr_reg, sizeof(u32));
-        llio->write(llio, 0x1200 + 4*port, &src_reg, sizeof(u32));
+    if (md == NULL) {
+        printf("No sserial module found.\n");
+        return -1;
     }
+    if (interface_num >= HM2_SSERIAL_MAX_INTEFACES) {
+        printf("sserial inteface number too high.\n");
+        return -1;
+    }
+    if (channel_num >= HM2_SSERIAL_MAX_CHANNELS) {
+        printf("sserial channel number too high.\n");
+        return -1;
+    }
+
+    memset(ssmod, 0, sizeof(sserial_module_t));
+    ssmod->board = board;
+    ssmod->interface_num = interface_num;
+    ssmod->channel_num = channel_num;
+    ssmod->instance_stride = (md->strides & 0xF0) == 0 ? board->llio.hm2.idrom.instance_stride0 : board->llio.hm2.idrom.instance_stride1;
+
+    enable_sserial_pins(&(ssmod->board->llio));
+    sslbp_send_local_cmd(&(ssmod->board->llio), 0, SSLBP_CMD_RESET);
+
+    ssmod->interface.type = sslbp_read_local8(&(ssmod->board->llio), interface_num, SSLBP_TYPE_LOC);
+    ssmod->interface.width = sslbp_read_local8(&(ssmod->board->llio), interface_num, SSLBP_WIDTH_LOC);
+    ssmod->interface.ver_major = sslbp_read_local8(&(ssmod->board->llio), interface_num, SSLBP_MAJOR_REV_LOC);
+    ssmod->interface.ver_minor = sslbp_read_local8(&(ssmod->board->llio), interface_num, SSLBP_MINOR_REV_LOC);
+    ssmod->interface.gp_inputs = sslbp_read_local8(&(ssmod->board->llio), interface_num, SSLBP_CHANNEL_START_LOC);
+    ssmod->interface.gp_outputs = sslbp_read_local8(&(ssmod->board->llio), interface_num, SSLBP_CHANNEL_STRIDE_LOC);
+    ssmod->interface.processor_type = sslbp_read_local8(&(ssmod->board->llio), interface_num, SSLBP_PROCESSOR_TYPE_LOC);
+    ssmod->interface.channels_count = sslbp_read_local8(&(ssmod->board->llio), interface_num, SSLBP_NR_CHANNELS_LOC);
+    ssmod->interface.baud_rate = sslbp_read_local32(&(ssmod->board->llio), interface_num, ssmod->interface.gp_inputs + 42);
+    ssmod->interface.clock = sslbp_read_local32(&(ssmod->board->llio), interface_num, SSLBP_CLOCK_LOC);
+
+    if (0) {//ssmod->board->llio.verbose == 1) {
+        printf("SSLBP port %d:\n", interface_num);
+        printf("  interface type: %0x\n", ssmod->interface.type);
+        printf("  interface width: %d\n", ssmod->interface.width);
+        printf("  SSLBP Version: %d.%d\n", ssmod->interface.ver_major, ssmod->interface.ver_minor);
+        printf("  SSLBP Channel Start: %d\n", ssmod->interface.gp_inputs);
+        printf("  SSLBP Channel Stride: %d\n", ssmod->interface.gp_outputs);
+        printf("  SSLBP Processor Type: %x\n", ssmod->interface.processor_type);
+        printf("  SSLBP Channels: %d\n", ssmod->interface.channels_count);
+        printf("  SSLBP Baud Rate: %.1f Mb\n", ssmod->interface.baud_rate/1000000.0);
+        printf("  SSLBP Clock: %u MHz\n", ssmod->interface.clock/1000000);
+    }
+
+    cmd = 0;
+    board->llio.write(&(ssmod->board->llio), HM2_MODULE_SSERIAL_CS + interface_num*ssmod->instance_stride + channel_num*4, &(cmd), sizeof(u32));
+
+    sslbp_send_local_cmd(&(ssmod->board->llio), interface_num, SSLBP_CMD_START_SETUP_MODE(channel_num));
+    sslbp_wait_complete(&(ssmod->board->llio), interface_num);
+    if (sslbp_read_data(&(ssmod->board->llio), interface_num) != 0) {
+        printf("Error reading sserial interface %d channel %d\n", interface_num, channel_num);
+        return -1;
+    }
+
+    board->llio.read(&(ssmod->board->llio), HM2_MODULE_SSERIAL_CS + interface_num*ssmod->instance_stride + channel_num*4, &(status), sizeof(u32));
+    board->llio.read(&(ssmod->board->llio), HM2_MODULE_SSERIAL_INTERFACE0 + interface_num*ssmod->instance_stride + channel_num*4, &(status), sizeof(u32));
+    if ((status & 0xFF000000) != remote_type) {
+        printf("Found wrong remote at %d:%d, reqeust %x but found %x\n", interface_num, channel_num, remote_type, status);
+        return -1;
+    }
+    ssmod->device.unit = status;
+    board->llio.read(&(ssmod->board->llio), HM2_MODULE_SSERIAL_INTERFACE1 + interface_num*ssmod->instance_stride + channel_num*4, &(ssmod->device.name), sizeof(u32));
+    board->llio.read(&(ssmod->board->llio), HM2_MODULE_SSERIAL_INTERFACE2 + interface_num*ssmod->instance_stride + channel_num*4, &(status), sizeof(u32));
+
+    printf("device at %d:%d: %.*s (unit 0x%08X)\n", interface_num, channel_num, 4, ssmod->device.name, ssmod->device.unit);
+
+    sslbp_send_local_cmd(&(ssmod->board->llio), 0, SSLBP_CMD_STOPALL);
+    sslbp_wait_complete(&(ssmod->board->llio), 0);
+    cmd = 0;
+    board->llio.write(&(ssmod->board->llio), HM2_MODULE_SSERIAL_CS + channel_num*4, &(cmd), sizeof(cmd));
+    printf("starting device %d:%d\n", interface_num, channel_num);
+    sslbp_send_local_cmd(&(ssmod->board->llio), 0, SSLBP_CMD_START_NORMAL_MODE(channel_num));
+    sslbp_wait_complete(&(ssmod->board->llio), 0);
+    board->llio.read(&(ssmod->board->llio), HM2_MODULE_SSERIAL_DATA + channel_num*4, &(status), sizeof(u32));
+    if (status != 0) {
+        printf("Error while starting sserial: %X\n", status);
+        return -1;
+    }
+    return 0;
 }
 
-// Return the physical ports to default
-void disable_sserial_pins(llio_t *llio) {
-    int port_pin, port;
-    u32 ddr_reg = 0;
-    u32 src_reg = 0;
+int sserial_cleanup(sserial_module_t *ssmod) {
+    disable_sserial_pins(&(ssmod->board->llio));
 
-    for (port = 0; port < 2; port ++) {
-        llio->write(llio, 0x1100 + 4*port, &ddr_reg, sizeof(u32));
-        llio->write(llio, 0x1200 + 4*port, &src_reg, sizeof(u32));
-    }
+    return 0;
+}
+
+int sserial_write(sserial_module_t *ssmod) {
+    ssmod->board->llio.write(&(ssmod->board->llio), HM2_MODULE_SSERIAL_INTERFACE0 + ssmod->interface_num*ssmod->instance_stride + ssmod->channel_num*4, &(ssmod->interface0), sizeof(u32));
+    ssmod->board->llio.write(&(ssmod->board->llio), HM2_MODULE_SSERIAL_INTERFACE1 + ssmod->interface_num*ssmod->instance_stride + ssmod->channel_num*4, &(ssmod->interface1), sizeof(u32));
+    ssmod->board->llio.write(&(ssmod->board->llio), HM2_MODULE_SSERIAL_INTERFACE2 + ssmod->interface_num*ssmod->instance_stride + ssmod->channel_num*4, &(ssmod->interface2), sizeof(u32));
+    sslbp_send_local_cmd(&(ssmod->board->llio), 0, SSLBP_CMD_DOIT(1));
+    sslbp_wait_complete(&(ssmod->board->llio), 0);
+    ssmod->board->llio.read(&(ssmod->board->llio), HM2_MODULE_SSERIAL_DATA + ssmod->interface_num*ssmod->instance_stride + ssmod->channel_num*4, &(ssmod->data), sizeof(u32));
+    ssmod->board->llio.read(&(ssmod->board->llio), HM2_MODULE_SSERIAL_CS + ssmod->interface_num*ssmod->instance_stride + ssmod->channel_num*4, &(ssmod->cs), sizeof(u32));
+
+    return 0;
 }
 
 void sserial_module_init(llio_t *llio) {

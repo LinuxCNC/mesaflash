@@ -55,7 +55,7 @@ headers = eth_boards.h pci_boards.h epp_boards.h usb_boards.h spi_boards.h seria
 headers +=  common.h eeprom.h lbp.h eeprom_local.h eeprom_remote.h bitfile.h sserial_module.h hostmot2_def.h boards.h
 headers +=  encoder_module.h
 
-all: $(LIBANYIO) $(BIN) pci_encoder_read
+all: $(LIBANYIO) $(BIN) pci_encoder_read pci_analog_write
 
 $(LIBANYIO) : $(objects)
 	$(RM) $(LIBANYIO) $(BIN)
@@ -125,8 +125,14 @@ pci_encoder_read.o : examples/pci_encoder_read.c $(LIBANYIO) $(headers)
 pci_encoder_read: pci_encoder_read.o anyio.h encoder_module.h
 	$(CC) -o pci_encoder_read pci_encoder_read.o $(LIBANYIO) $(LIBS)
 
+pci_analog_write.o : examples/pci_analog_write.c $(LIBANYIO) $(headers)
+	$(CC) $(CFLAGS) -c examples/pci_analog_write.c
+
+pci_analog_write: pci_analog_write.o anyio.h sserial_module.h
+	$(CC) -o pci_analog_write pci_analog_write.o $(LIBANYIO) $(LIBS)
+
 clean :
-	$(RM) *.o $(LIBANYIO) $(BIN) pci_encoder_read
+	$(RM) *.o $(LIBANYIO) $(BIN) pci_encoder_read pci_analog_write
 
 .PHONY: install
 install: $(BIN)

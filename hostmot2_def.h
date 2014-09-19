@@ -214,6 +214,9 @@ typedef struct {
 
 // SSERIAL MODULE
 
+#define HM2_SSERIAL_MAX_INTEFACES       4
+#define HM2_SSERIAL_MAX_CHANNELS        8
+
 #define HM2_MODULE_SSERIAL                  0x5A00
 #define HM2_MODULE_SSERIAL_CMD              HM2_MODULE_SSERIAL
 #define HM2_MODULE_SSERIAL_DATA             0x5B00
@@ -221,9 +224,9 @@ typedef struct {
 #define HM2_MODULE_SSERIAL_INTERFACE0       0x5D00
 #define HM2_MODULE_SSERIAL_INTERFACE1       0x5E00
 #define HM2_MODULE_SSERIAL_INTERFACE2       0x5F00
-#define HM2_MAX_SSERIAL_MODULES     2
-#define HM2_MAX_SSERIAL_CHANNELS    16
 
+#define SSLBP_TYPE_LOC              0
+#define SSLBP_WIDTH_LOC             1
 #define SSLBP_MAJOR_REV_LOC         2
 #define SSLBP_MINOR_REV_LOC         3
 #define SSLBP_CHANNEL_START_LOC     4
@@ -248,7 +251,7 @@ typedef struct {
 #define SSLBP_CMD_RESET                (SSLBP_RESET)
 #define SSLBP_CMD_DOIT(x)              (SSLBP_DOIT | ((1 << x) & 0xFF))
 #define SSLBP_CMD_READ(x)              (SSLBP_REQUEST | SSLBP_READ | (x & 0x3FF))
-//#define SSLBP_CMD_WRITE(x)             (SSLBP_REQUEST | SSLBP_WRITE | ((x & 0xFF))
+#define SSLBP_CMD_WRITE(x)             (SSLBP_REQUEST | SSLBP_WRITE | ((x & 0x3FF))
 
 #define LBP_DATA                0xA0
 #define LBP_MODE                0xB0
@@ -268,6 +271,9 @@ typedef struct {
 #define LBP_ENCODER             0x08
 #define LBP_ENCODER_H           0x18 // For Fanuc Absolute Encoders with separate
 #define LBP_ENCODER_L           0x28 // part and full count fields
+
+#define SSLBP_REMOTE_7I77_ANALOG 0x11000000
+#define SSLBP_REMOTE_7I77_IO     0x12000000
 
 struct sserial_pdd_struct {
     u8 record_type;
