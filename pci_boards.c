@@ -719,13 +719,11 @@ static int pci_board_reload(llio_t *self, int fallback_flag) {
     bar0_reg = pci_read_long(board->dev, PCI_BASE_ADDRESS_0);
     for (i = 0; i < 14; i++) {
         pci_write(&(board->llio), HM2_ICAP_REG, &data[i], sizeof(u32));
-        sleep_ns(1000*1000);
+        usleep(1000);
     }
-    sleep_ns(1000*1000*100);
-    sleep_ns(1000*1000*100);
-    sleep_ns(1000*1000*100);
-    sleep_ns(1000*1000*100);
-    sleep_ns(1000*1000*100);
+    printf("Waiting for FPGA configuration...");
+    sleep(2);
+    printf("OK\n");
     pci_write_word(board->dev, PCI_COMMAND, cmd_reg);
     pci_write_long(board->dev, PCI_BASE_ADDRESS_0, bar0_reg);
 
