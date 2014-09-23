@@ -440,6 +440,7 @@ static int plx9030_program_fpga(llio_t *self, char *bitfile_name) {
     char part_name[32];
     struct stat file_stat;
     FILE *fp;
+    struct timeval tv1, tv2;
 
     if (stat(bitfile_name, &file_stat) != 0) {
         printf("Can't find file %s\n", bitfile_name);
@@ -462,6 +463,7 @@ static int plx9030_program_fpga(llio_t *self, char *bitfile_name) {
     printf("Programming FPGA...\n");
     printf("  |");
     fflush(stdout);
+    gettimeofday(&tv1, NULL);
     // program the FPGA
     while (!feof(fp)) {
         bytesread = fread(&file_buffer, 1, 8192, fp);
@@ -473,9 +475,13 @@ static int plx9030_program_fpga(llio_t *self, char *bitfile_name) {
         printf("W");
         fflush(stdout);
     }
-
-    printf("\n");
     fclose(fp);
+    printf("\n");
+    if (board->llio.verbose == 1) {
+        gettimeofday(&tv2, NULL);
+        printf("  Programming time: %.2f seconds\n", (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +
+         (double) (tv2.tv_sec - tv1.tv_sec));
+    }
 
     // all bytes transferred, make sure FPGA is all set up now
     status = inl(board->ctrl_base_addr + PLX9030_CTRL_STAT_OFFSET);
@@ -493,9 +499,8 @@ static int plx9030_program_fpga(llio_t *self, char *bitfile_name) {
     control = status | PLX9030_WRITE_MASK | PLX9030_LED_MASK;
     outl(control, board->ctrl_base_addr + PLX9030_CTRL_STAT_OFFSET);
 
-    printf("Board FPGA programmed successfully\n");
+    printf("Board FPGA programmed successfully.\n");
     return 0;
-
 
 fail:
     // set /PROGRAM low (reset device), /WRITE high and LED off
@@ -511,6 +516,7 @@ static int plx9030_reset(llio_t *self) {
     u32 status;
     u32 control;
 
+    printf("Resetting FPGA... ");
     status = inl(board->ctrl_base_addr + PLX9030_CTRL_STAT_OFFSET);
 
     // set /PROGRAM bit low to reset the FPGA
@@ -555,6 +561,7 @@ static int plx9030_reset(llio_t *self) {
         }
     }
 
+    printf("OK\n");
     return 0;
 }
 
@@ -583,6 +590,7 @@ static int plx905x_program_fpga(llio_t *self, char *bitfile_name) {
     char part_name[32];
     struct stat file_stat;
     FILE *fp;
+    struct timeval tv1, tv2;
 
     if (stat(bitfile_name, &file_stat) != 0) {
         printf("Can't find file %s\n", bitfile_name);
@@ -600,6 +608,7 @@ static int plx905x_program_fpga(llio_t *self, char *bitfile_name) {
     printf("Programming FPGA...\n");
     printf("  |");
     fflush(stdout);
+    gettimeofday(&tv1, NULL);
     // program the FPGA
     while (!feof(fp)) {
         bytesread = fread(&file_buffer, 1, 8192, fp);
@@ -611,10 +620,13 @@ static int plx905x_program_fpga(llio_t *self, char *bitfile_name) {
         printf("W");
         fflush(stdout);
     }
-
-    printf("\n");
     fclose(fp);
-
+    printf("\n");
+    if (board->llio.verbose == 1) {
+        gettimeofday(&tv2, NULL);
+        printf("  Programming time: %.2f seconds\n", (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +
+         (double) (tv2.tv_sec - tv1.tv_sec));
+    }
 
     // all bytes transferred, make sure FPGA is all set up now
     for (i = 0; i < PLX905X_DONE_WAIT; i++) {
@@ -626,7 +638,7 @@ static int plx905x_program_fpga(llio_t *self, char *bitfile_name) {
         return -EIO;
     }
 
-    printf("Board FPGA programmed successfully\n");
+    printf("Board FPGA programmed successfully.\n");
     return 0;
 }
 
@@ -635,6 +647,7 @@ static int plx905x_reset(llio_t *self) {
     int i;
     u32 status, control;
 
+    printf("Resetting FPGA... ");
     // set GPIO bits to GPIO function
     status = inl(board->ctrl_base_addr + PLX905X_CTRL_STAT_OFFSET);
     control = status | PLX905X_DONE_ENABLE | PLX905X_PROG_ENABLE;
@@ -662,6 +675,7 @@ static int plx905x_reset(llio_t *self) {
         status = inl(board->ctrl_base_addr + PLX905X_CTRL_STAT_OFFSET);
     }
 
+    printf("OK\n");
     return 0;
 }
 

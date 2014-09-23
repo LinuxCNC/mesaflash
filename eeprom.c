@@ -213,12 +213,13 @@ int eeprom_write(llio_t *self, char *bitfile_name, u32 start_address) {
     }
 
     fclose(fp);
+    printf("\n");
     if (board->llio.verbose == 1) {
         gettimeofday(&tv2, NULL);
-        printf("\n  Programming time: %.2f seconds", (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +
+        printf("  Programming time: %.2f seconds\n", (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +
          (double) (tv2.tv_sec - tv1.tv_sec));
     }
-    printf("\nBoard configuration updated successfully.\n");
+    printf("Board configuration updated successfully.\n");
     return 0;
 }
 
@@ -284,12 +285,13 @@ int eeprom_verify(llio_t *self, char *bitfile_name, u32 start_address) {
     }
 
     fclose(fp);
+    printf("\n");
     if (board->llio.verbose == 1) {
         gettimeofday(&tv2, NULL);
-        printf("\n  Verification time: %.2f seconds", (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +
+        printf("  Verification time: %.2f seconds\n", (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +
          (double) (tv2.tv_sec - tv1.tv_sec));
     }
-    printf("\nBoard configuration verified successfully\n");
+    printf("Board configuration verified successfully.\n");
     return 0;
 }
 
