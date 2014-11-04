@@ -24,6 +24,7 @@
 
 typedef struct {
     u32 unit;
+    u16 sw_revision;
     char name[4];
 } sserial_device_t;
 

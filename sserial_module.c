@@ -352,39 +352,46 @@ void sserial_module_init(llio_t *llio) {
                 sserial_pdd_t sserial_pdd;
                 sserial_md_t sserial_md;
                 u8 record_type;
-                char name[48];
+                char name[48], unit[48], buff[32];
 
                 d = sslbp_read_remote16(llio, i, channel, addr);
                 if (d == 0) break;
                 record_type = sslbp_read_remote8(llio, i, channel, d);
                 addr += 2;
-                if (llio->verbose == 0)
-                    continue;
                 if (record_type == LBP_DATA) {
                     sslbp_read_remote_bytes(llio, i, channel, d, &(sserial_pdd), sizeof(sserial_pdd_t));
-                    printf("    RecordType: %02X\n", sserial_pdd.record_type);
-                    printf("    DataSize: %02X\n", sserial_pdd.data_size);
-                    printf("    DataType: %02X\n", sserial_pdd.data_type);
-                    printf("    DataDir: %02X\n", sserial_pdd.data_dir);
-                    printf("    param min: %f\n", sserial_pdd.param_min);
-                    printf("    param max: %f\n", sserial_pdd.param_max);
-                    printf("    param addr: %04X\n", sserial_pdd.param_addr);
-                    sslbp_read_remote_bytes(llio, i, channel, d + sizeof(sserial_pdd_t), &(name), -1);
-                    printf("    unit: %s\n", name);
-                    sslbp_read_remote_bytes(llio, i, channel, d + sizeof(sserial_pdd_t) + strlen(name) + 1, &(name), -1);
-                    printf("    name: %s\n", name);
+                    sslbp_read_remote_bytes(llio, i, channel, d + sizeof(sserial_pdd_t), &(unit), -1);
+                    sslbp_read_remote_bytes(llio, i, channel, d + sizeof(sserial_pdd_t) + strlen(unit) + 1, &(name), -1);
+                    if (llio->verbose == 1) {
+                        printf("    RecordType: %02X\n", sserial_pdd.record_type);
+                        printf("    DataSize: %02X\n", sserial_pdd.data_size);
+                        printf("    DataType: %02X\n", sserial_pdd.data_type);
+                        printf("    DataDir: %02X\n", sserial_pdd.data_dir);
+                        printf("    param min: %f\n", sserial_pdd.param_min);
+                        printf("    param max: %f\n", sserial_pdd.param_max);
+                        printf("    param addr: %04X\n", sserial_pdd.param_addr);
+                        printf("    unit: %s\n", unit);
+                        printf("    name: %s\n", name);
+                    }
+                    if (strncmp(name, "SwRevision", 10) == 0) {
+                        sslbp_read_remote_bytes(llio, i, channel, sserial_pdd.param_addr, &(d), sserial_pdd.data_size/8);
+                        llio->ss_device[channel].sw_revision = d;
+                    }
                 } else if (record_type == LBP_MODE) {
                     sslbp_read_remote_bytes(llio, i, channel, d, &(sserial_md), sizeof(sserial_md_t));
-                    printf("    record type: %02X\n", sserial_md.record_type);
-                    printf("    mode index: %02X\n", sserial_md.mode_index);
-                    printf("    mode type: %02X\n", sserial_md.mode_type);
-                    printf("    unused: %02X\n", sserial_md.unused);
                     sslbp_read_remote_bytes(llio, i, channel, d + sizeof(sserial_md_t), &(name), -1);
-                    printf("    mode name: %s\n", name);
+                    if (llio->verbose == 1) {
+                        printf("    record type: %02X\n", sserial_md.record_type);
+                        printf("    mode index: %02X\n", sserial_md.mode_index);
+                        printf("    mode type: %02X\n", sserial_md.mode_type);
+                        printf("    unused: %02X\n", sserial_md.unused);
+                        printf("    mode name: %s\n", name);
+                    }
                 }
             }
 
-            printf("  device at channel %d: %.*s (unit 0x%08X)\n", channel, 4, llio->ss_device[channel].name, llio->ss_device[channel].unit);
+            printf("  sserial device at channel %d: %.*s (unit 0x%08X, sw revision: %u)\n", channel, 4,
+              llio->ss_device[channel].name, llio->ss_device[channel].unit, llio->ss_device[channel].sw_revision);
         }
     }
     disable_sserial_pins(llio);
