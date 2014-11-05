@@ -175,7 +175,9 @@ int sserial_init(sserial_module_t *ssmod, board_t *board, int interface_num, int
     ssmod->instance_stride = (md->strides & 0xF0) == 0 ? board->llio.hm2.idrom.instance_stride0 : board->llio.hm2.idrom.instance_stride1;
 
     enable_sserial_pins(&(ssmod->board->llio));
-    sslbp_send_local_cmd(&(ssmod->board->llio), 0, SSLBP_CMD_RESET);
+    sslbp_send_local_cmd(&(ssmod->board->llio), interface_num, SSLBP_CMD_STOPALL | SSLBP_CMD_RESET); // assert reset flag
+    sslbp_send_local_cmd(&(ssmod->board->llio), interface_num, SSLBP_CMD_STOPALL);                   // deassert reset flag
+    sslbp_wait_complete(&(ssmod->board->llio), interface_num);                                       // wait for reset to finish
 
     ssmod->interface.type = sslbp_read_local8(&(ssmod->board->llio), interface_num, SSLBP_TYPE_LOC);
     ssmod->interface.width = sslbp_read_local8(&(ssmod->board->llio), interface_num, SSLBP_WIDTH_LOC);
@@ -266,9 +268,12 @@ void sserial_module_init(llio_t *llio) {
         return;
 
     enable_sserial_pins(llio);
-    sslbp_send_local_cmd(llio, 0, SSLBP_CMD_RESET);
 
     for (i = 0; i < 1; i++) {
+        sslbp_send_local_cmd(llio, i, SSLBP_CMD_STOPALL | SSLBP_CMD_RESET); // assert reset flag
+        sslbp_send_local_cmd(llio, i, SSLBP_CMD_STOPALL);                   // deassert reset flag
+        sslbp_wait_complete(llio, i);                                       // wait for reset to finish
+
         llio->ss_interface[i].type = sslbp_read_local8(llio, i, 0);
         llio->ss_interface[i].width = sslbp_read_local8(llio, i, 1);
         llio->ss_interface[i].ver_major = sslbp_read_local8(llio, i, SSLBP_MAJOR_REV_LOC);
