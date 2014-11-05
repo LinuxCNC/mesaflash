@@ -390,8 +390,11 @@ void sserial_module_init(llio_t *llio) {
                 }
             }
 
-            printf("  sserial device at channel %d: %.*s (unit 0x%08X, sw revision: %u)\n", channel, 4,
-              llio->ss_device[channel].name, llio->ss_device[channel].unit, llio->ss_device[channel].sw_revision);
+            printf("  sserial device at channel %d: %.*s", channel, 4, llio->ss_device[channel].name);
+            if ((llio->ss_device[channel].unit & 0xFF000000) == SSLBP_REMOTE_7I77_IO) {
+                printf(" IO");
+            }
+            printf(" (unit 0x%08X, sw revision: %u)\n", llio->ss_device[channel].unit, llio->ss_device[channel].sw_revision);
         }
     }
     disable_sserial_pins(llio);
