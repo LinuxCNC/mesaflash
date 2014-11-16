@@ -263,6 +263,8 @@ void sserial_module_init(llio_t *llio) {
     u16 d;
     int i, channel;
     hm2_module_desc_t *sserial_mod = hm2_find_module(&(llio->hm2), HM2_GTAG_SSERIAL);
+    char *record_types[9] = {"PADDING", "BITFIELD", "UNSIGNED", "SIGNED", "NV UNSIGNED", "NV SIGNED", "STREAM", "BOOLEAN", "ENCODER"};
+    char *mode_types[2] = {"HARDWARE", "SOFTWARE"};
 
     if (sserial_mod == NULL)
         return;
@@ -315,43 +317,53 @@ void sserial_module_init(llio_t *llio) {
             llio->ss_device[channel].name[3] = (status >> 24) & 0xFF;
             llio->read(llio, HM2_MODULE_SSERIAL_INTERFACE2 + i*0x40 + channel*4, &(status), sizeof(u32));
 
+            if (llio->verbose == 1) {
+                printf("  PTOC:\n");
+            }
             addr = status & 0xFFFF;
             while (1) {
                 sserial_pdd_t sserial_pdd;
                 sserial_md_t sserial_md;
                 u8 record_type;
-                char name[48];
+                char name[48], unit[48];
 
                 d = sslbp_read_remote16(llio, i, channel, addr);
                 if (d == 0) break;
                 record_type = sslbp_read_remote8(llio, i, channel, d);
                 addr += 2;
-                if (llio->verbose == 0)
-                    continue;
                 if (record_type == LBP_DATA) {
                     sslbp_read_remote_bytes(llio, i, channel, d, &(sserial_pdd), sizeof(sserial_pdd_t));
-                    printf("    RecordType: %02X\n", sserial_pdd.record_type);
-                    printf("    DataSize: %02X\n", sserial_pdd.data_size);
-                    printf("    DataType: %02X\n", sserial_pdd.data_type);
-                    printf("    DataDir: %02X\n", sserial_pdd.data_dir);
-                    printf("    param min: %f\n", sserial_pdd.param_min);
-                    printf("    param max: %f\n", sserial_pdd.param_max);
-                    printf("    param addr: %04X\n", sserial_pdd.param_addr);
-                    sslbp_read_remote_bytes(llio, i, channel, d + sizeof(sserial_pdd_t), &(name), -1);
-                    printf("    unit: %s\n", name);
-                    sslbp_read_remote_bytes(llio, i, channel, d + sizeof(sserial_pdd_t) + strlen(name) + 1, &(name), -1);
-                    printf("    name: %s\n", name);
+                    sslbp_read_remote_bytes(llio, i, channel, d + sizeof(sserial_pdd_t), &(unit), -1);
+                    sslbp_read_remote_bytes(llio, i, channel, d + sizeof(sserial_pdd_t) + strlen(unit) + 1, &(name), -1);
+                    if (llio->verbose == 1) {
+                        printf("    DATA %s [%u bits %s", name, sserial_pdd.data_size, record_types[sserial_pdd.data_type]);
+                        if (sserial_pdd.data_dir & LBP_IO) {
+                            printf(" IO");
+                        } else if (sserial_pdd.data_dir & LBP_OUT) {
+                            printf(" OUT");
+                        } else {
+                            printf(" IN");
+                        }
+                        printf(" | UNIT: %s", unit);
+                        if ((sserial_pdd.data_type == LBP_SIGNED) || (sserial_pdd.data_type == LBP_UNSIGNED) ||
+                           (sserial_pdd.data_type == LBP_NONVOL_SIGNED) || (sserial_pdd.data_type == LBP_NONVOL_UNSIGNED)) {
+                            printf(" | RANGE: %.2f - %.2f", sserial_pdd.param_min, sserial_pdd.param_max);
+                        }
+                        printf(" | ADDR: %04X", sserial_pdd.param_addr);
+                        printf("]\n");
+                    }
                 } else if (record_type == LBP_MODE) {
                     sslbp_read_remote_bytes(llio, i, channel, d, &(sserial_md), sizeof(sserial_md_t));
-                    printf("    record type: %02X\n", sserial_md.record_type);
-                    printf("    mode index: %02X\n", sserial_md.mode_index);
-                    printf("    mode type: %02X\n", sserial_md.mode_type);
-                    printf("    unused: %02X\n", sserial_md.unused);
                     sslbp_read_remote_bytes(llio, i, channel, d + sizeof(sserial_md_t), &(name), -1);
-                    printf("    mode name: %s\n", name);
+                    if (llio->verbose == 1) {
+                        printf("    MODE %s [index %02X | type: %s]\n", name, sserial_md.mode_index, mode_types[sserial_md.mode_type]);
+                    }
                 }
             }
 
+            if (llio->verbose == 1) {
+                printf("  GTOC:\n");
+            }
             addr = (status >> 16) & 0xFFFF;
             while (1) {
                 sserial_pdd_t sserial_pdd;
@@ -368,15 +380,21 @@ void sserial_module_init(llio_t *llio) {
                     sslbp_read_remote_bytes(llio, i, channel, d + sizeof(sserial_pdd_t), &(unit), -1);
                     sslbp_read_remote_bytes(llio, i, channel, d + sizeof(sserial_pdd_t) + strlen(unit) + 1, &(name), -1);
                     if (llio->verbose == 1) {
-                        printf("    RecordType: %02X\n", sserial_pdd.record_type);
-                        printf("    DataSize: %02X\n", sserial_pdd.data_size);
-                        printf("    DataType: %02X\n", sserial_pdd.data_type);
-                        printf("    DataDir: %02X\n", sserial_pdd.data_dir);
-                        printf("    param min: %f\n", sserial_pdd.param_min);
-                        printf("    param max: %f\n", sserial_pdd.param_max);
-                        printf("    param addr: %04X\n", sserial_pdd.param_addr);
-                        printf("    unit: %s\n", unit);
-                        printf("    name: %s\n", name);
+                        printf("    DATA %s [%u bits %s", name, sserial_pdd.data_size, record_types[sserial_pdd.data_type]);
+                        if (sserial_pdd.data_dir & LBP_IO) {
+                            printf(" IO");
+                        } else if (sserial_pdd.data_dir & LBP_OUT) {
+                            printf(" OUT");
+                        } else {
+                            printf(" IN");
+                        }
+                        printf(" | UNIT: %s", unit);
+                        if ((sserial_pdd.data_type == LBP_SIGNED) || (sserial_pdd.data_type == LBP_UNSIGNED) ||
+                           (sserial_pdd.data_type == LBP_NONVOL_SIGNED) || (sserial_pdd.data_type == LBP_NONVOL_UNSIGNED)) {
+                            printf(" | RANGE: %.2f - %.2f", sserial_pdd.param_min, sserial_pdd.param_max);
+                        }
+                        printf(" | ADDR: %04X", sserial_pdd.param_addr);
+                        printf("]\n");
                     }
                     if (strncmp(name, "SwRevision", 10) == 0) {
                         sslbp_read_remote_bytes(llio, i, channel, sserial_pdd.param_addr, &(d), sserial_pdd.data_size/8);
@@ -386,11 +404,7 @@ void sserial_module_init(llio_t *llio) {
                     sslbp_read_remote_bytes(llio, i, channel, d, &(sserial_md), sizeof(sserial_md_t));
                     sslbp_read_remote_bytes(llio, i, channel, d + sizeof(sserial_md_t), &(name), -1);
                     if (llio->verbose == 1) {
-                        printf("    record type: %02X\n", sserial_md.record_type);
-                        printf("    mode index: %02X\n", sserial_md.mode_index);
-                        printf("    mode type: %02X\n", sserial_md.mode_type);
-                        printf("    unused: %02X\n", sserial_md.unused);
-                        printf("    mode name: %s\n", name);
+                        printf("    MODE %s [index %02X | type: %s]\n", name, sserial_md.mode_index, mode_types[sserial_md.mode_type]);
                     }
                 }
             }
