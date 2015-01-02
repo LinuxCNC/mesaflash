@@ -440,6 +440,7 @@ static int plx9030_program_fpga(llio_t *self, char *bitfile_name) {
     char part_name[32];
     struct stat file_stat;
     FILE *fp;
+    struct timeval tv1, tv2;
 
     if (stat(bitfile_name, &file_stat) != 0) {
         printf("Can't find file %s\n", bitfile_name);
@@ -462,6 +463,7 @@ static int plx9030_program_fpga(llio_t *self, char *bitfile_name) {
     printf("Programming FPGA...\n");
     printf("  |");
     fflush(stdout);
+    gettimeofday(&tv1, NULL);
     // program the FPGA
     while (!feof(fp)) {
         bytesread = fread(&file_buffer, 1, 8192, fp);
@@ -474,7 +476,6 @@ static int plx9030_program_fpga(llio_t *self, char *bitfile_name) {
         fflush(stdout);
     }
 
-    printf("\n");
     fclose(fp);
 
     // all bytes transferred, make sure FPGA is all set up now
@@ -493,7 +494,12 @@ static int plx9030_program_fpga(llio_t *self, char *bitfile_name) {
     control = status | PLX9030_WRITE_MASK | PLX9030_LED_MASK;
     outl(control, board->ctrl_base_addr + PLX9030_CTRL_STAT_OFFSET);
 
-    printf("Board FPGA programmed successfully\n");
+    if (board->llio.verbose == 1) {
+        gettimeofday(&tv2, NULL);
+        printf("\n  Programming time: %.3f seconds", (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +
+         (double) (tv2.tv_sec - tv1.tv_sec));
+    }
+    printf("\nBoard FPGA programmed successfully.\n");
     return 0;
 
 
@@ -583,6 +589,7 @@ static int plx905x_program_fpga(llio_t *self, char *bitfile_name) {
     char part_name[32];
     struct stat file_stat;
     FILE *fp;
+    struct timeval tv1, tv2;
 
     if (stat(bitfile_name, &file_stat) != 0) {
         printf("Can't find file %s\n", bitfile_name);
@@ -600,6 +607,7 @@ static int plx905x_program_fpga(llio_t *self, char *bitfile_name) {
     printf("Programming FPGA...\n");
     printf("  |");
     fflush(stdout);
+    gettimeofday(&tv1, NULL);
     // program the FPGA
     while (!feof(fp)) {
         bytesread = fread(&file_buffer, 1, 8192, fp);
@@ -612,7 +620,6 @@ static int plx905x_program_fpga(llio_t *self, char *bitfile_name) {
         fflush(stdout);
     }
 
-    printf("\n");
     fclose(fp);
 
 
@@ -626,7 +633,12 @@ static int plx905x_program_fpga(llio_t *self, char *bitfile_name) {
         return -EIO;
     }
 
-    printf("Board FPGA programmed successfully\n");
+    if (board->llio.verbose == 1) {
+        gettimeofday(&tv2, NULL);
+        printf("\n  Programming time: %.3f seconds", (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +
+         (double) (tv2.tv_sec - tv1.tv_sec));
+    }
+    printf("\nBoard FPGA programmed successfully.\n");
     return 0;
 }
 
