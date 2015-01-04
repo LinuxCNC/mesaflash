@@ -51,6 +51,7 @@ static u16 rpo_addr;
 static u16 wpo_addr;
 static u32 wpo_data;
 static int set_flag;
+static int xml_flag;
 static char *lbp16_set_ip_addr;
 static int info_flag;
 static int verbose_flag;
@@ -77,6 +78,7 @@ static struct option long_options[] = {
     {"rpo", required_argument, 0, 'r'},
     {"wpo", required_argument, 0, 'o'},
     {"set", required_argument, 0, 's'},
+    {"xml", no_argument, &xml_flag, 1},
     {"info", required_argument, 0, 'i'},
     {"help", no_argument, 0, 'h'},
     {"verbose", no_argument, &verbose_flag, 1},
@@ -116,6 +118,7 @@ void print_usage() {
     printf("  --serial      use serial interface to connect to board, only for boards with multiply intefaces (7i43, 7i90, 7i64)\n");
     printf("  --fallback    use the fallback area of the EEPROM while executing commands\n");
     printf("  --recover     access board using PCI bridge GPIO (currently only 6I25)\n");
+    printf("  --xml         format output from 'readhmid' command into XML\n");
     printf("  --verbose     print detailed information while running commands\n");
     printf("\nCommands:\n");
     printf("  --write       writes a standard bitfile 'filename' configuration to the userarea of the EEPROM (IMPORTANT! 'filename' must be VALID FPGA configuration file)\n");
@@ -357,7 +360,7 @@ int main(int argc, char *argv[]) {
         board->open(board);
 
         if (readhmid_flag == 1) {
-            anyio_dev_print_hm2_info(board);
+            anyio_dev_print_hm2_info(board, xml_flag);
         } else if (sserial_flag == 1) {
             anyio_dev_print_sserial_info(board);
         } else if (rpo_flag == 1) {

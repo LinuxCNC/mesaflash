@@ -306,12 +306,12 @@ int anyio_dev_reset(board_t *board) {
     return board->llio.reset(&(board->llio));
 }
 
-void anyio_dev_print_hm2_info(board_t *board) {
+void anyio_dev_print_hm2_info(board_t *board, int xml_flag) {
     if (board == NULL) {
         return;
     }
     hm2_read_idrom(&(board->llio));
-    hm2_print_pin_file(&(board->llio));
+    hm2_print_pin_file(&(board->llio), xml_flag);
 }
 
 void anyio_dev_print_sserial_info(board_t *board) {

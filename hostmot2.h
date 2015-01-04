@@ -78,7 +78,7 @@ hm2_module_desc_t *hm2_find_module(hostmot2_t *hm2, u8 gtag);
 void hm2_print_idrom(hostmot2_t *hm2);
 void hm2_print_modules(hostmot2_t *hm2);
 void hm2_print_pins(hostmot2_t *hm2);
-void hm2_print_pin_file(llio_t *llio);
+void hm2_print_pin_file(llio_t *llio, int xml_flag);
 void sserial_module_init(llio_t *llio);
 
 #endif
