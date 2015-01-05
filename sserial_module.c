@@ -261,7 +261,7 @@ int sserial_write(sserial_module_t *ssmod) {
 void sserial_module_init(llio_t *llio) {
     u32 cmd, status, data, addr;
     u16 d;
-    int i, channel;
+    int port, channel, i;
     hm2_module_desc_t *sserial_mod = hm2_find_module(&(llio->hm2), HM2_GTAG_SSERIAL);
     char *record_types[9] = {"PADDING", "BITFIELD", "UNSIGNED", "SIGNED", "NV UNSIGNED", "NV SIGNED", "STREAM", "BOOLEAN", "ENCODER"};
     char *mode_types[2] = {"HARDWARE", "SOFTWARE"};
@@ -271,99 +271,58 @@ void sserial_module_init(llio_t *llio) {
 
     enable_sserial_pins(llio);
 
-    for (i = 0; i < 1; i++) {
-        sslbp_send_local_cmd(llio, i, SSLBP_CMD_STOPALL | SSLBP_CMD_RESET); // assert reset flag
-        sslbp_send_local_cmd(llio, i, SSLBP_CMD_STOPALL);                   // deassert reset flag
-        sslbp_wait_complete(llio, i);                                       // wait for reset to finish
+    for (port = 0; port < 1; port++) {
+        sslbp_send_local_cmd(llio, port, SSLBP_CMD_STOPALL | SSLBP_CMD_RESET); // assert reset flag
+        sslbp_send_local_cmd(llio, port, SSLBP_CMD_STOPALL);                   // deassert reset flag
+        sslbp_wait_complete(llio, port);                                       // wait for reset to finish
 
-        llio->ss_interface[i].type = sslbp_read_local8(llio, i, 0);
-        llio->ss_interface[i].width = sslbp_read_local8(llio, i, 1);
-        llio->ss_interface[i].ver_major = sslbp_read_local8(llio, i, SSLBP_MAJOR_REV_LOC);
-        llio->ss_interface[i].ver_minor = sslbp_read_local8(llio, i, SSLBP_MINOR_REV_LOC);
-        llio->ss_interface[i].gp_inputs = sslbp_read_local8(llio, i, SSLBP_CHANNEL_START_LOC);
-        llio->ss_interface[i].gp_outputs = sslbp_read_local8(llio, i, SSLBP_CHANNEL_STRIDE_LOC);
-        llio->ss_interface[i].processor_type = sslbp_read_local8(llio, i, SSLBP_PROCESSOR_TYPE_LOC);
-        llio->ss_interface[i].channels_count = sslbp_read_local8(llio, i, SSLBP_NR_CHANNELS_LOC);
-        llio->ss_interface[i].baud_rate = sslbp_read_local32(llio, i, llio->ss_interface[i].gp_inputs + 42);
-        llio->ss_interface[i].clock = sslbp_read_local32(llio, i, SSLBP_CLOCK_LOC);
+        llio->ss_interface[port].type = sslbp_read_local8(llio, port, 0);
+        llio->ss_interface[port].width = sslbp_read_local8(llio, port, 1);
+        llio->ss_interface[port].ver_major = sslbp_read_local8(llio, port, SSLBP_MAJOR_REV_LOC);
+        llio->ss_interface[port].ver_minor = sslbp_read_local8(llio, port, SSLBP_MINOR_REV_LOC);
+        llio->ss_interface[port].gp_inputs = sslbp_read_local8(llio, port, SSLBP_CHANNEL_START_LOC);
+        llio->ss_interface[port].gp_outputs = sslbp_read_local8(llio, port, SSLBP_CHANNEL_STRIDE_LOC);
+        llio->ss_interface[port].processor_type = sslbp_read_local8(llio, port, SSLBP_PROCESSOR_TYPE_LOC);
+        llio->ss_interface[port].channels_count = sslbp_read_local8(llio, port, SSLBP_NR_CHANNELS_LOC);
+        llio->ss_interface[port].baud_rate = sslbp_read_local32(llio, port, llio->ss_interface[port].gp_inputs + 42);
+        llio->ss_interface[port].clock = sslbp_read_local32(llio, port, SSLBP_CLOCK_LOC);
 
-        printf("SSLBP port %d:\n", i);
-        printf("  interface type: %0x\n", llio->ss_interface[i].type);
-        printf("  interface width: %d\n", llio->ss_interface[i].width);
-        printf("  SSLBP Version: %d.%d\n", llio->ss_interface[i].ver_major, llio->ss_interface[i].ver_minor);
-        printf("  SSLBP Channel Start: %d\n", llio->ss_interface[i].gp_inputs);
-        printf("  SSLBP Channel Stride: %d\n", llio->ss_interface[i].gp_outputs);
-        printf("  SSLBP Processor Type: %x\n", llio->ss_interface[i].processor_type);
-        printf("  SSLBP Channels: %d\n", llio->ss_interface[i].channels_count);
-        printf("  SSLBP Baud Rate: %d\n", llio->ss_interface[i].baud_rate);
-        printf("  SSLBP Clock: %u MHz\n", llio->ss_interface[i].clock/1000000);
+        printf("SSLBP port %d:\n", port);
+        printf("  interface type: %0x\n", llio->ss_interface[port].type);
+        printf("  interface width: %d\n", llio->ss_interface[port].width);
+        printf("  SSLBP Version: %d.%d\n", llio->ss_interface[port].ver_major, llio->ss_interface[port].ver_minor);
+        printf("  SSLBP Channel Start: %d\n", llio->ss_interface[port].gp_inputs);
+        printf("  SSLBP Channel Stride: %d\n", llio->ss_interface[port].gp_outputs);
+        printf("  SSLBP Processor Type: %x\n", llio->ss_interface[port].processor_type);
+        printf("  SSLBP Channels: %d\n", llio->ss_interface[port].channels_count);
+        printf("  SSLBP Baud Rate: %d\n", llio->ss_interface[port].baud_rate);
+        printf("  SSLBP Clock: %u MHz\n", llio->ss_interface[port].clock/1000000);
 
-        for (channel = 0; channel < llio->ss_interface[i].width; channel++) {
+        for (channel = 0; channel < llio->ss_interface[port].width; channel++) {
             cmd = 0;
-            llio->write(llio, HM2_MODULE_SSERIAL_CS + i*0x40 + channel*4, &(cmd), sizeof(u32));
+            llio->write(llio, HM2_MODULE_SSERIAL_CS + port*0x40 + channel*4, &(cmd), sizeof(u32));
 
-            sslbp_send_local_cmd(llio, i, SSLBP_CMD_START_SETUP_MODE(channel));
-            sslbp_wait_complete(llio, i);
-            if (sslbp_read_data(llio, i) != 0)
+            sslbp_send_local_cmd(llio, port, SSLBP_CMD_START_SETUP_MODE(channel));
+            sslbp_wait_complete(llio, port);
+            if (sslbp_read_data(llio, port) != 0)
                 continue;
 
-            llio->read(llio, HM2_MODULE_SSERIAL_CS + i*0x40 + channel*4, &(status), sizeof(u32));
-            llio->read(llio, HM2_MODULE_SSERIAL_INTERFACE0 + i*0x40 + channel*4, &(status), sizeof(u32));
+            llio->read(llio, HM2_MODULE_SSERIAL_CS + port*0x40 + channel*4, &(status), sizeof(u32));
+            llio->read(llio, HM2_MODULE_SSERIAL_INTERFACE0 + port*0x40 + channel*4, &(status), sizeof(u32));
             llio->ss_device[channel].unit = status;
-            llio->read(llio, HM2_MODULE_SSERIAL_INTERFACE1 + i*0x40 + channel*4, &(status), sizeof(u32));
+            llio->read(llio, HM2_MODULE_SSERIAL_INTERFACE1 + port*0x40 + channel*4, &(status), sizeof(u32));
             llio->ss_device[channel].name[0] = status & 0xFF;
             llio->ss_device[channel].name[1] = (status >> 8) & 0xFF;
             llio->ss_device[channel].name[2] = (status >> 16) & 0xFF;
             llio->ss_device[channel].name[3] = (status >> 24) & 0xFF;
-            llio->read(llio, HM2_MODULE_SSERIAL_INTERFACE2 + i*0x40 + channel*4, &(status), sizeof(u32));
+            llio->read(llio, HM2_MODULE_SSERIAL_INTERFACE2 + port*0x40 + channel*4, &(status), sizeof(u32));
 
-            if (llio->verbose == 1) {
-                printf("  PTOC:\n");
+            printf("  sserial device at channel %d: %.*s", channel, 4, llio->ss_device[channel].name);
+            if ((llio->ss_device[channel].unit & 0xFF000000) == SSLBP_REMOTE_7I77_IO) {
+                printf(" IO");
             }
-            addr = status & 0xFFFF;
-            while (1) {
-                sserial_pdd_t sserial_pdd;
-                sserial_md_t sserial_md;
-                u8 record_type;
-                char name[48], unit[48];
+            printf(" (unit 0x%08X)\n", llio->ss_device[channel].unit);
 
-                d = sslbp_read_remote16(llio, i, channel, addr);
-                if (d == 0) break;
-                record_type = sslbp_read_remote8(llio, i, channel, d);
-                addr += 2;
-                if (record_type == LBP_DATA) {
-                    sslbp_read_remote_bytes(llio, i, channel, d, &(sserial_pdd), sizeof(sserial_pdd_t));
-                    sslbp_read_remote_bytes(llio, i, channel, d + sizeof(sserial_pdd_t), &(unit), -1);
-                    sslbp_read_remote_bytes(llio, i, channel, d + sizeof(sserial_pdd_t) + strlen(unit) + 1, &(name), -1);
-                    if (llio->verbose == 1) {
-                        printf("    DATA %s [%u bits %s", name, sserial_pdd.data_size, record_types[sserial_pdd.data_type]);
-                        if (sserial_pdd.data_dir & LBP_IO) {
-                            printf(" IO");
-                        } else if (sserial_pdd.data_dir & LBP_OUT) {
-                            printf(" OUT");
-                        } else {
-                            printf(" IN");
-                        }
-                        printf(" | UNIT: %s", unit);
-                        if ((sserial_pdd.data_type == LBP_SIGNED) || (sserial_pdd.data_type == LBP_UNSIGNED) ||
-                           (sserial_pdd.data_type == LBP_NONVOL_SIGNED) || (sserial_pdd.data_type == LBP_NONVOL_UNSIGNED)) {
-                            printf(" | RANGE: %.2f - %.2f", sserial_pdd.param_min, sserial_pdd.param_max);
-                        }
-                        printf(" | ADDR: %04X", sserial_pdd.param_addr);
-                        printf("]\n");
-                    }
-                } else if (record_type == LBP_MODE) {
-                    sslbp_read_remote_bytes(llio, i, channel, d, &(sserial_md), sizeof(sserial_md_t));
-                    sslbp_read_remote_bytes(llio, i, channel, d + sizeof(sserial_md_t), &(name), -1);
-                    if (llio->verbose == 1) {
-                        printf("    MODE %s [index %02X | type: %s]\n", name, sserial_md.mode_index, mode_types[sserial_md.mode_type]);
-                    }
-                }
-            }
-
-            if (llio->verbose == 1) {
-                printf("  GTOC:\n");
-            }
             addr = (status >> 16) & 0xFFFF;
             while (1) {
                 sserial_pdd_t sserial_pdd;
@@ -371,49 +330,119 @@ void sserial_module_init(llio_t *llio) {
                 u8 record_type;
                 char name[48], unit[48], buff[32];
 
-                d = sslbp_read_remote16(llio, i, channel, addr);
+                d = sslbp_read_remote16(llio, port, channel, addr);
                 if (d == 0) break;
-                record_type = sslbp_read_remote8(llio, i, channel, d);
+                record_type = sslbp_read_remote8(llio, port, channel, d);
                 addr += 2;
                 if (record_type == LBP_DATA) {
-                    sslbp_read_remote_bytes(llio, i, channel, d, &(sserial_pdd), sizeof(sserial_pdd_t));
-                    sslbp_read_remote_bytes(llio, i, channel, d + sizeof(sserial_pdd_t), &(unit), -1);
-                    sslbp_read_remote_bytes(llio, i, channel, d + sizeof(sserial_pdd_t) + strlen(unit) + 1, &(name), -1);
-                    if (llio->verbose == 1) {
-                        printf("    DATA %s [%u bits %s", name, sserial_pdd.data_size, record_types[sserial_pdd.data_type]);
-                        if (sserial_pdd.data_dir & LBP_IO) {
-                            printf(" IO");
-                        } else if (sserial_pdd.data_dir & LBP_OUT) {
-                            printf(" OUT");
-                        } else {
-                            printf(" IN");
-                        }
-                        printf(" | UNIT: %s", unit);
-                        if ((sserial_pdd.data_type == LBP_SIGNED) || (sserial_pdd.data_type == LBP_UNSIGNED) ||
-                           (sserial_pdd.data_type == LBP_NONVOL_SIGNED) || (sserial_pdd.data_type == LBP_NONVOL_UNSIGNED)) {
-                            printf(" | RANGE: %.2f - %.2f", sserial_pdd.param_min, sserial_pdd.param_max);
-                        }
-                        printf(" | ADDR: %04X", sserial_pdd.param_addr);
-                        printf("]\n");
-                    }
+                    sslbp_read_remote_bytes(llio, port, channel, d, &(sserial_pdd), sizeof(sserial_pdd_t));
+                    sslbp_read_remote_bytes(llio, port, channel, d + sizeof(sserial_pdd_t), &(unit), -1);
+                    sslbp_read_remote_bytes(llio, port, channel, d + sizeof(sserial_pdd_t) + strlen(unit) + 1, &(name), -1);
                     if (strncmp(name, "SwRevision", 10) == 0) {
-                        sslbp_read_remote_bytes(llio, i, channel, sserial_pdd.param_addr, &(d), sserial_pdd.data_size/8);
+                        sslbp_read_remote_bytes(llio, port, channel, sserial_pdd.param_addr, &(d), sserial_pdd.data_size/8);
                         llio->ss_device[channel].sw_revision = d;
+                        printf("    SwRevision = %u\n", d);
+                    } else if (strncmp(name, "HwRevision", 10) == 0) {
+                        sslbp_read_remote_bytes(llio, port, channel, sserial_pdd.param_addr, &(d), sserial_pdd.data_size/8);
+                        llio->ss_device[channel].hw_revision = d;
+                        printf("    HwRevision = %u\n", d);
+                    } else if ((strncmp(name, "NV", 2) == 0) || (sserial_pdd.data_type == LBP_UNSIGNED && strncmp(unit, "None", 4) == 0)) {
+                        if (llio->verbose == 1) {
+                            printf("    %s", name);
+                            if (sserial_pdd.data_type == LBP_UNSIGNED || sserial_pdd.data_type == LBP_NONVOL_UNSIGNED) {
+                                if (sserial_pdd.data_size == 16) {
+                                    sslbp_read_remote_bytes(llio, port, channel, sserial_pdd.param_addr, &(d), sserial_pdd.data_size/8);
+                                    printf(" = %x", d);
+                                } else if (sserial_pdd.data_size == 32) {
+                                    sslbp_read_remote_bytes(llio, port, channel, sserial_pdd.param_addr, &(data), sserial_pdd.data_size/8);
+                                    printf(" = %08X", data);
+                                }
+                            }
+                            printf(" [%u bits %s", sserial_pdd.data_size, record_types[sserial_pdd.data_type]);
+                            if (sserial_pdd.data_dir & LBP_IO) {
+                                printf(" IO");
+                            } else if (sserial_pdd.data_dir & LBP_OUT) {
+                                printf(" OUT");
+                            } else {
+                                printf(" IN");
+                            }
+                            printf(" | UNIT: %s", unit);
+                            if ((sserial_pdd.data_type == LBP_SIGNED) || (sserial_pdd.data_type == LBP_UNSIGNED) ||
+                               (sserial_pdd.data_type == LBP_NONVOL_SIGNED) || (sserial_pdd.data_type == LBP_NONVOL_UNSIGNED)) {
+                                printf(" | RANGE: %.2f - %.2f", sserial_pdd.param_min, sserial_pdd.param_max);
+                            }
+                            printf(" | ADDR: %04X", sserial_pdd.param_addr);
+                            printf("]\n");
+                        }
                     }
                 } else if (record_type == LBP_MODE) {
-                    sslbp_read_remote_bytes(llio, i, channel, d, &(sserial_md), sizeof(sserial_md_t));
-                    sslbp_read_remote_bytes(llio, i, channel, d + sizeof(sserial_md_t), &(name), -1);
-                    if (llio->verbose == 1) {
-                        printf("    MODE %s [index %02X | type: %s]\n", name, sserial_md.mode_index, mode_types[sserial_md.mode_type]);
+                    sslbp_read_remote_bytes(llio, port, channel, d, &(sserial_md), sizeof(sserial_md_t));
+                    sslbp_read_remote_bytes(llio, port, channel, d + sizeof(sserial_md_t), &(name), -1);
+                    if (sserial_md.mode_type == 0x01) {
+                        llio->ss_device[channel].sw_modes[llio->ss_device[channel].sw_modes_cnt].index = sserial_md.mode_index;
+                        strncpy(llio->ss_device[channel].sw_modes[llio->ss_device[channel].sw_modes_cnt].name, name, strlen(name));
+                        llio->ss_device[channel].sw_modes_cnt++;
                     }
                 }
             }
 
-            printf("  sserial device at channel %d: %.*s", channel, 4, llio->ss_device[channel].name);
-            if ((llio->ss_device[channel].unit & 0xFF000000) == SSLBP_REMOTE_7I77_IO) {
-                printf(" IO");
+            for (i = 0; i < llio->ss_device[channel].sw_modes_cnt; i++) {
+                printf("    SOFTWARE MODE %s [index %02X]\n", llio->ss_device[channel].sw_modes[i].name, llio->ss_device[channel].sw_modes[i].index);
+                sslbp_send_local_cmd(llio, port, SSLBP_CMD_STOP(channel));
+                sslbp_wait_complete(llio, port);
+
+                cmd = llio->ss_device[channel].sw_modes[i].index << 24;
+                llio->write(llio, HM2_MODULE_SSERIAL_CS + port*0x40 + channel*4, &(cmd), sizeof(u32));
+
+                sslbp_send_local_cmd(llio, port, SSLBP_CMD_START_SETUP_MODE(channel));
+                sslbp_wait_complete(llio, port);
+                if (sslbp_read_data(llio, port) != 0)
+                    continue;
+
+                llio->read(llio, HM2_MODULE_SSERIAL_INTERFACE2 + port*0x40 + channel*4, &(status), sizeof(u32));
+
+                addr = status & 0xFFFF;
+                while (1) {
+                    sserial_pdd_t sserial_pdd;
+                    sserial_md_t sserial_md;
+                    u8 record_type;
+                    char name[48], unit[48];
+
+                    d = sslbp_read_remote16(llio, port, channel, addr);
+                    if (d == 0) break;
+                    record_type = sslbp_read_remote8(llio, port, channel, d);
+                    addr += 2;
+                    if (record_type == LBP_DATA) {
+                        sslbp_read_remote_bytes(llio, port, channel, d, &(sserial_pdd), sizeof(sserial_pdd_t));
+                        sslbp_read_remote_bytes(llio, port, channel, d + sizeof(sserial_pdd_t), &(unit), -1);
+                        sslbp_read_remote_bytes(llio, port, channel, d + sizeof(sserial_pdd_t) + strlen(unit) + 1, &(name), -1);
+                        if (llio->verbose == 1) {
+                            printf("      DATA %s [%u bits %s", name, sserial_pdd.data_size, record_types[sserial_pdd.data_type]);
+                            if (sserial_pdd.data_dir & LBP_IO) {
+                                printf(" IO");
+                            } else if (sserial_pdd.data_dir & LBP_OUT) {
+                                printf(" OUT");
+                            } else {
+                                printf(" IN");
+                            }
+                            printf(" | UNIT: %s", unit);
+                            if ((sserial_pdd.data_type == LBP_SIGNED) || (sserial_pdd.data_type == LBP_UNSIGNED) ||
+                               (sserial_pdd.data_type == LBP_NONVOL_SIGNED) || (sserial_pdd.data_type == LBP_NONVOL_UNSIGNED)) {
+                                printf(" | RANGE: %.2f - %.2f", sserial_pdd.param_min, sserial_pdd.param_max);
+                            }
+                            printf(" | ADDR: %04X", sserial_pdd.param_addr);
+                            printf("]\n");
+                        }
+                    } else if (record_type == LBP_MODE) {
+                        sslbp_read_remote_bytes(llio, port, channel, d, &(sserial_md), sizeof(sserial_md_t));
+                        sslbp_read_remote_bytes(llio, port, channel, d + sizeof(sserial_md_t), &(name), -1);
+                        if (llio->verbose == 1) {
+                            printf("      MODE %s [index %02X | type: %s]\n", name, sserial_md.mode_index, mode_types[sserial_md.mode_type]);
+                        }
+                    }
+                }
+
             }
-            printf(" (unit 0x%08X, sw revision: %u)\n", llio->ss_device[channel].unit, llio->ss_device[channel].sw_revision);
         }
     }
     disable_sserial_pins(llio);

@@ -23,9 +23,17 @@
 #include "hostmot2_def.h"
 
 typedef struct {
+    int index;
+    char name[64];
+} sw_mode_t;
+
+typedef struct {
     u32 unit;
     u16 sw_revision;
+    u16 hw_revision;
     char name[4];
+    sw_mode_t sw_modes[256];
+    int sw_modes_cnt;
 } sserial_device_t;
 
 #define HM2_MAX_TAGS     29
