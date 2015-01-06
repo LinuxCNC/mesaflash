@@ -61,6 +61,9 @@
 #define LBP_CMD_READ_RPC_SIZE_LO    0xDD
 #define LBP_CMD_READ_RPC_SIZE_HI    0xDE
 #define LBP_CMD_READ_COOKIE         0xDF
+#define LBP_CMD_READ_NV             0xEC
+
+#define LBP_NVEEPROM_BYTE           0x01
 
 struct lbp_cmd_addr_struct {
     u8 cmd;

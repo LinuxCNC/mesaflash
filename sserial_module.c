@@ -22,6 +22,7 @@
 #include "types.h"
 #include "hostmot2.h"
 #include "sserial_module.h"
+#include "lbp.h"
 
 // Temporarily enable the pins that are not masked by sserial_mode
 static void enable_sserial_pins(llio_t *llio) {
@@ -109,7 +110,7 @@ u32 sslbp_read_local32(llio_t *llio, int interface, u32 addr) {
 u8 sslbp_read_remote8(llio_t *llio, int interface, int channel, u32 addr) {
     u32 data;
 
-    sslbp_send_remote_cmd(llio, interface, channel, 0x4C000000 | addr);
+    sslbp_send_remote_cmd(llio, interface, channel, ((LBP_CMD_READ | LBP_ADDR_AUTO_INC) << 24) | addr);
     sslbp_send_local_cmd(llio, interface, SSLBP_CMD_DOIT(channel));
     sslbp_wait_complete(llio, interface);
     llio->read(llio, HM2_MODULE_SSERIAL_INTERFACE0 + interface*0x40 + channel*4, &(data), sizeof(u32));
@@ -132,6 +133,73 @@ u32 sslbp_read_remote32(llio_t *llio, int interface, int channel, u32 addr) {
     for (byte = 3; byte >=0; byte--)
         ret = (ret << 8) | sslbp_read_remote8(llio, interface, channel, addr + byte);
     return ret;
+}
+
+void sslbp_write_remote8(llio_t *llio, int interface, int channel, u32 addr, u8 data) {
+    u32 d = data;
+
+    sslbp_send_remote_cmd(llio, interface, channel, ((LBP_CMD_WRITE | LBP_ARGS_8BIT | LBP_ADDR_AUTO_INC) << 24) | addr);
+    llio->write(llio, HM2_MODULE_SSERIAL_INTERFACE0 + interface*0x40 + channel*4, &(d), sizeof(u32));
+    sslbp_send_local_cmd(llio, interface, SSLBP_CMD_DOIT(channel));
+    sslbp_wait_complete(llio, interface);
+}
+
+void sslbp_write_remote16(llio_t *llio, int interface, int channel, u32 addr, u16 data) {
+    u32 d = data;
+
+    sslbp_send_remote_cmd(llio, interface, channel, ((LBP_CMD_WRITE | LBP_ARGS_16BIT | LBP_ADDR_AUTO_INC) << 24) | addr);
+    llio->write(llio, HM2_MODULE_SSERIAL_INTERFACE0 + interface*0x40 + channel*4, &(d), sizeof(u32));
+    sslbp_send_local_cmd(llio, interface, SSLBP_CMD_DOIT(channel));
+    sslbp_wait_complete(llio, interface);
+}
+
+void sslbp_write_remote32(llio_t *llio, int interface, int channel, u32 addr, u32 data) {
+    u32 d = data;
+
+    sslbp_send_remote_cmd(llio, interface, channel, ((LBP_CMD_WRITE | LBP_ARGS_32BIT | LBP_ADDR_AUTO_INC) << 24) | addr);
+    llio->write(llio, HM2_MODULE_SSERIAL_INTERFACE0 + interface*0x40 + channel*4, &(d), sizeof(u32));
+    sslbp_send_local_cmd(llio, interface, SSLBP_CMD_DOIT(channel));
+    sslbp_wait_complete(llio, interface);
+}
+
+u16 sslbp_read_nv_remote16(llio_t *llio, int interface, int channel, u32 addr) {
+    u16 data;
+    u32 cmd = LBP_CMD_READ_NV << 24;
+
+    llio->write(llio, HM2_MODULE_SSERIAL_CS + interface*0x40 + channel*4, &(cmd), sizeof(u32));
+    cmd = LBP_NVEEPROM_BYTE;
+    llio->write(llio, HM2_MODULE_SSERIAL_INTERFACE0 + interface*0x40 + channel*4, &(cmd), sizeof(u32));
+    sslbp_send_local_cmd(llio, interface, SSLBP_CMD_DOIT(channel));
+    sslbp_wait_complete(llio, interface);
+    data = sslbp_read_remote16(llio, interface, channel, addr);
+
+    cmd = LBP_CMD_READ_NV << 24;
+    llio->write(llio, HM2_MODULE_SSERIAL_CS + interface*0x40 + channel*4, &(cmd), sizeof(u32));
+    cmd = 0;
+    llio->write(llio, HM2_MODULE_SSERIAL_INTERFACE0 + interface*0x40 + channel*4, &(cmd), sizeof(u32));
+    sslbp_send_local_cmd(llio, interface, SSLBP_CMD_DOIT(channel));
+    sslbp_wait_complete(llio, interface);
+    return data;
+}
+
+u32 sslbp_read_nv_remote32(llio_t *llio, int interface, int channel, u32 addr) {
+    u32 data;
+    u32 cmd = LBP_CMD_READ_NV << 24;
+
+    llio->write(llio, HM2_MODULE_SSERIAL_CS + interface*0x40 + channel*4, &(cmd), sizeof(u32));
+    cmd = LBP_NVEEPROM_BYTE;
+    llio->write(llio, HM2_MODULE_SSERIAL_INTERFACE0 + interface*0x40 + channel*4, &(cmd), sizeof(u32));
+    sslbp_send_local_cmd(llio, interface, SSLBP_CMD_DOIT(channel));
+    sslbp_wait_complete(llio, interface);
+    data = sslbp_read_remote32(llio, interface, channel, addr);
+
+    cmd = LBP_CMD_READ_NV << 24;
+    llio->write(llio, HM2_MODULE_SSERIAL_CS + interface*0x40 + channel*4, &(cmd), sizeof(u32));
+    cmd = 0;
+    llio->write(llio, HM2_MODULE_SSERIAL_INTERFACE0 + interface*0x40 + channel*4, &(cmd), sizeof(u32));
+    sslbp_send_local_cmd(llio, interface, SSLBP_CMD_DOIT(channel));
+    sslbp_wait_complete(llio, interface);
+    return data;
 }
 
 void sslbp_read_remote_bytes(llio_t *llio, int interface, int channel, u32 addr, void *buffer, int size) {
@@ -265,6 +333,7 @@ void sserial_module_init(llio_t *llio) {
     hm2_module_desc_t *sserial_mod = hm2_find_module(&(llio->hm2), HM2_GTAG_SSERIAL);
     char *record_types[9] = {"PADDING", "BITFIELD", "UNSIGNED", "SIGNED", "NV UNSIGNED", "NV SIGNED", "STREAM", "BOOLEAN", "ENCODER"};
     char *mode_types[2] = {"HARDWARE", "SOFTWARE"};
+    char *baud_rates[12] = {"9600B", "19200B", "38400B", "57600B", "115200B", "230400B", "460800B", "921600B", "1.25MB", "2.5MB", "5MB", "10MB"};
 
     if (sserial_mod == NULL)
         return;
@@ -346,15 +415,23 @@ void sserial_module_init(llio_t *llio) {
                         sslbp_read_remote_bytes(llio, port, channel, sserial_pdd.param_addr, &(d), sserial_pdd.data_size/8);
                         llio->ss_device[channel].hw_revision = d;
                         printf("    HwRevision = %u\n", d);
+                    } else if (strncmp(name, "NVBaudRate", 10) == 0) {
+                        if (sserial_pdd.data_size == 16) {
+                            d = sslbp_read_nv_remote16(llio, port, channel, sserial_pdd.param_addr);
+                            data = d;
+                        } else if (sserial_pdd.data_size == 32) {
+                            data = sslbp_read_nv_remote32(llio, port, channel, sserial_pdd.param_addr);
+                        }
+                        printf("    NVBaudRate = %s\n", baud_rates[data]);
                     } else if ((strncmp(name, "NV", 2) == 0) || (sserial_pdd.data_type == LBP_UNSIGNED && strncmp(unit, "None", 4) == 0)) {
                         if (llio->verbose == 1) {
                             printf("    %s", name);
                             if (sserial_pdd.data_type == LBP_UNSIGNED || sserial_pdd.data_type == LBP_NONVOL_UNSIGNED) {
                                 if (sserial_pdd.data_size == 16) {
-                                    sslbp_read_remote_bytes(llio, port, channel, sserial_pdd.param_addr, &(d), sserial_pdd.data_size/8);
+                                    d = sslbp_read_nv_remote16(llio, port, channel, sserial_pdd.param_addr);
                                     printf(" = %x", d);
                                 } else if (sserial_pdd.data_size == 32) {
-                                    sslbp_read_remote_bytes(llio, port, channel, sserial_pdd.param_addr, &(data), sserial_pdd.data_size/8);
+                                    data = sslbp_read_nv_remote32(llio, port, channel, sserial_pdd.param_addr);
                                     printf(" = %08X", data);
                                 }
                             }
