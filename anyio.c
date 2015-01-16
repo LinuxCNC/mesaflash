@@ -36,6 +36,7 @@ supported_board_entry_t supported_boards[] = {
     {"4I74", BOARD_PCI},
     {"5I24", BOARD_PCI},
     {"5I25", BOARD_PCI},
+    {"6I24", BOARD_PCI},
     {"6I25", BOARD_PCI},
     {"5I20", BOARD_PCI},
     {"4I65", BOARD_PCI},
