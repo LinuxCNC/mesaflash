@@ -272,8 +272,9 @@ typedef struct {
 #define LBP_ENCODER_H           0x18 // For Fanuc Absolute Encoders with separate
 #define LBP_ENCODER_L           0x28 // part and full count fields
 
-#define SSLBP_REMOTE_7I77_ANALOG 0x11000000
-#define SSLBP_REMOTE_7I77_IO     0x12000000
+#define SSLBP_REMOTE_7I76_IO_SPINDLE 0x10000000
+#define SSLBP_REMOTE_7I77_ANALOG     0x11000000
+#define SSLBP_REMOTE_7I77_IO         0x12000000
 
 struct sserial_pdd_struct {
     u8 record_type;

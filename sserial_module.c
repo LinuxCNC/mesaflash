@@ -333,7 +333,7 @@ void sserial_module_init(llio_t *llio) {
     hm2_module_desc_t *sserial_mod = hm2_find_module(&(llio->hm2), HM2_GTAG_SSERIAL);
     char *record_types[9] = {"PADDING", "BITFIELD", "UNSIGNED", "SIGNED", "NV UNSIGNED", "NV SIGNED", "STREAM", "BOOLEAN", "ENCODER"};
     char *mode_types[2] = {"HARDWARE", "SOFTWARE"};
-    char *baud_rates[12] = {"9600B", "19200B", "38400B", "57600B", "115200B", "230400B", "460800B", "921600B", "1.25MB", "2.5MB", "5MB", "10MB"};
+    char *baud_rates[12] = {"9600b", "19200b", "38400b", "57600b", "115200b", "230400b", "460800b", "921600b", "1.25Mb", "2.5Mb", "5Mb", "10Mb"};
 
     if (sserial_mod == NULL)
         return;
@@ -357,15 +357,17 @@ void sserial_module_init(llio_t *llio) {
         llio->ss_interface[port].clock = sslbp_read_local32(llio, port, SSLBP_CLOCK_LOC);
 
         printf("SSLBP port %d:\n", port);
-        printf("  interface type: %0x\n", llio->ss_interface[port].type);
-        printf("  interface width: %d\n", llio->ss_interface[port].width);
-        printf("  SSLBP Version: %d.%d\n", llio->ss_interface[port].ver_major, llio->ss_interface[port].ver_minor);
-        printf("  SSLBP Channel Start: %d\n", llio->ss_interface[port].gp_inputs);
-        printf("  SSLBP Channel Stride: %d\n", llio->ss_interface[port].gp_outputs);
-        printf("  SSLBP Processor Type: %x\n", llio->ss_interface[port].processor_type);
+		printf("  SSLBP Version: %d.%d\n", llio->ss_interface[port].ver_major, llio->ss_interface[port].ver_minor);
         printf("  SSLBP Channels: %d\n", llio->ss_interface[port].channels_count);
         printf("  SSLBP Baud Rate: %d\n", llio->ss_interface[port].baud_rate);
-        printf("  SSLBP Clock: %u MHz\n", llio->ss_interface[port].clock/1000000);
+        if (llio->verbose == 1) {
+			printf("  interface type: %0x\n", llio->ss_interface[port].type);
+			printf("  interface width: %d\n", llio->ss_interface[port].width);
+			printf("  SSLBP Channel Start: %d\n", llio->ss_interface[port].gp_inputs);
+			printf("  SSLBP Channel Stride: %d\n", llio->ss_interface[port].gp_outputs);
+			printf("  SSLBP Processor Type: %x\n", llio->ss_interface[port].processor_type);
+			printf("  SSLBP Clock: %u MHz\n", llio->ss_interface[port].clock/1000000);
+		}
 
         for (channel = 0; channel < llio->ss_interface[port].width; channel++) {
             cmd = 0;
@@ -387,10 +389,19 @@ void sserial_module_init(llio_t *llio) {
             llio->read(llio, HM2_MODULE_SSERIAL_INTERFACE2 + port*0x40 + channel*4, &(status), sizeof(u32));
 
             printf("  sserial device at channel %d: %.*s", channel, 4, llio->ss_device[channel].name);
-            if ((llio->ss_device[channel].unit & 0xFF000000) == SSLBP_REMOTE_7I77_IO) {
-                printf(" IO");
+            if ((llio->ss_device[channel].unit & 0xFF000000) == SSLBP_REMOTE_7I76_IO_SPINDLE) {
+                printf(" GPIO+SPINDLE");
+            } else if ((llio->ss_device[channel].unit & 0xFF000000) == SSLBP_REMOTE_7I77_IO) {
+                printf(" GPIO");
+            } else if ((llio->ss_device[channel].unit & 0xFF000000) == SSLBP_REMOTE_7I77_ANALOG) {
+                printf(" ANALOG");
             }
-            printf(" (unit 0x%08X)\n", llio->ss_device[channel].unit);
+
+			if (llio->verbose == 0) {
+				printf(" (unit 0x%08X)\n", llio->ss_device[channel].unit);
+			} else {
+				printf("\n");
+			}
 
             addr = (status >> 16) & 0xFFFF;
             while (1) {
@@ -416,13 +427,14 @@ void sserial_module_init(llio_t *llio) {
                         llio->ss_device[channel].hw_revision = d;
                         printf("    HwRevision = %u\n", d);
                     } else if (strncmp(name, "NVBaudRate", 10) == 0) {
-                        if (sserial_pdd.data_size == 16) {
-                            d = sslbp_read_nv_remote16(llio, port, channel, sserial_pdd.param_addr);
-                            data = d;
-                        } else if (sserial_pdd.data_size == 32) {
-                            data = sslbp_read_nv_remote32(llio, port, channel, sserial_pdd.param_addr);
-                        }
-                        printf("    NVBaudRate = %s\n", baud_rates[data]);
+                        d = sslbp_read_nv_remote16(llio, port, channel, sserial_pdd.param_addr);
+                        printf("    NVBaudRate = %s\n", baud_rates[d]);
+                    } else if (strncmp(name, "NVUnitNumber", 12) == 0) {
+                        data = sslbp_read_nv_remote32(llio, port, channel, sserial_pdd.param_addr);
+                        printf("    NVUnitNumber = 0x%08X\n", data);
+                    } else if (strncmp(name, "NVWatchDogTimeout", 17) == 0) {
+                        d = sslbp_read_nv_remote16(llio, port, channel, sserial_pdd.param_addr);
+                        printf("    NVWatchDogTimeout = %ums\n", d);
                     } else if ((strncmp(name, "NV", 2) == 0) || (sserial_pdd.data_type == LBP_UNSIGNED && strncmp(unit, "None", 4) == 0)) {
                         if (llio->verbose == 1) {
                             printf("    %s", name);
@@ -513,9 +525,6 @@ void sserial_module_init(llio_t *llio) {
                     } else if (record_type == LBP_MODE) {
                         sslbp_read_remote_bytes(llio, port, channel, d, &(sserial_md), sizeof(sserial_md_t));
                         sslbp_read_remote_bytes(llio, port, channel, d + sizeof(sserial_md_t), &(name), -1);
-                        if (llio->verbose == 1) {
-                            printf("      MODE %s [index %02X | type: %s]\n", name, sserial_md.mode_index, mode_types[sserial_md.mode_type]);
-                        }
                     }
                 }
 
