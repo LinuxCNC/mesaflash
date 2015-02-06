@@ -288,7 +288,7 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.pins_per_connector = 17;
             board->llio.ioport_connector_name[0] = "P2";
             board->llio.ioport_connector_name[1] = "P1";
-            board->llio.fpga_part_number = "xc6slx9";
+            board->llio.fpga_part_number = "6slx9tq144";
             board->llio.num_leds = 4;
             board->llio.read = &eth_read;
             board->llio.write = &eth_write;
