@@ -787,12 +787,6 @@ static int pci_board_open(board_t *board) {
         } else {
             board->flash_start_address = 0;
         }
-        // fix 5i24 fpga name according to readed flash_id
-        if (strncmp(board->llio.board_name, "5I24", 4) == 0) {
-            if (board->flash_id == ID_EEPROM_25M) {
-                board->llio.fpga_part_number = "6slx25ftg256";
-            }
-        }
     }
     return 0;
 }
@@ -923,11 +917,11 @@ void pci_boards_scan(board_access_t *access) {
                 strncpy((char *) board->llio.board_name, "5I24", 4);
                 board->llio.num_ioport_connectors = 3;
                 board->llio.pins_per_connector = 24;
-                board->llio.ioport_connector_name[0] = "P2";
+                board->llio.ioport_connector_name[0] = "P4";
                 board->llio.ioport_connector_name[1] = "P3";
-                board->llio.ioport_connector_name[2] = "P4";
-                board->llio.fpga_part_number = "6slx16ftg256";
-                board->llio.num_leds = 2;
+                board->llio.ioport_connector_name[2] = "P2";
+                board->llio.fpga_part_number = "6slx16ftg256 | 6slx25ftg256";
+                board->llio.num_leds = 4;
                 board->llio.read = &pci_read;
                 board->llio.write = &pci_write;
                 board->llio.write_flash = &local_write_flash;
@@ -980,11 +974,11 @@ void pci_boards_scan(board_access_t *access) {
                 strncpy((char *) board->llio.board_name, "6I24", 4);
                 board->llio.num_ioport_connectors = 3;
                 board->llio.pins_per_connector = 24;
-                board->llio.ioport_connector_name[0] = "P2";
+                board->llio.ioport_connector_name[0] = "P4";
                 board->llio.ioport_connector_name[1] = "P3";
-                board->llio.ioport_connector_name[2] = "P4";
-                board->llio.fpga_part_number = "6slx16ftg256";
-                board->llio.num_leds = 2;
+                board->llio.ioport_connector_name[2] = "P2";
+                board->llio.fpga_part_number = "6slx16ftg256 | 6slx25ftg256";
+                board->llio.num_leds = 4;
                 board->llio.read = &pci_read;
                 board->llio.write = &pci_write;
                 board->llio.write_flash = &local_write_flash;
