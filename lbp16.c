@@ -80,7 +80,7 @@ int lbp16_board_reset(llio_t *self) {
 }
 
 int lbp16_board_reload(llio_t *self, int fallback_flag) {
-    board_t *board = self->private;
+    board_t *board = self->board;
     int send;
     u32 boot_addr;
     u16 fw_ver;

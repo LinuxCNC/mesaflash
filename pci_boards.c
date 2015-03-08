@@ -434,7 +434,7 @@ static u16 plx9056_read_eeprom_word(board_t *board, u16 reg) {
 }
 
 static int plx9030_program_fpga(llio_t *self, char *bitfile_name) {
-    board_t *board = self->private;
+    board_t *board = self->board;
     int bindex, bytesread;
     u32 status, control;
     char part_name[32];
@@ -513,7 +513,7 @@ fail:
 }
 
 static int plx9030_reset(llio_t *self) {
-    board_t *board = self->private;
+    board_t *board = self->board;
     u32 status;
     u32 control;
 
@@ -565,7 +565,7 @@ static int plx9030_reset(llio_t *self) {
 }
 
 static void plx9030_fixup_LASxBRD_READY(llio_t *self) {
-    board_t *board = self->private;
+    board_t *board = self->board;
     int offsets[] = {PLX9030_LAS0BRD_OFFSET, PLX9030_LAS1BRD_OFFSET, PLX9030_LAS2BRD_OFFSET, PLX9030_LAS3BRD_OFFSET};
     int i;
 
@@ -583,7 +583,7 @@ static void plx9030_fixup_LASxBRD_READY(llio_t *self) {
 }
 
 static int plx905x_program_fpga(llio_t *self, char *bitfile_name) {
-    board_t *board = self->private;
+    board_t *board = self->board;
     int bindex, bytesread, i;
     u32 status;
     char part_name[32];
@@ -643,7 +643,7 @@ static int plx905x_program_fpga(llio_t *self, char *bitfile_name) {
 }
 
 static int plx905x_reset(llio_t *self) {
-    board_t *board = self->private;
+    board_t *board = self->board;
     int i;
     u32 status, control;
 
@@ -678,7 +678,7 @@ static int plx905x_reset(llio_t *self) {
 }
 
 static int pci_board_reload(llio_t *self, int fallback_flag) {
-    board_t *board = self->private;
+    board_t *board = self->board;
     int i;
     u32 boot_addr, bar0_reg, cookie;
     u16 cmd_reg;
@@ -755,7 +755,7 @@ static void pci_fix_bar_lengths(struct pci_dev *dev) {
 }
 
 int pci_read(llio_t *self, u32 addr, void *buffer, int size) {
-    board_t *board = self->private;
+    board_t *board = self->board;
 
     memcpy(buffer, (board->base + addr), size);
 //    printf("READ %X, (%X + %X), %d\n", buffer, board->base, addr, size);
@@ -763,7 +763,7 @@ int pci_read(llio_t *self, u32 addr, void *buffer, int size) {
 }
 
 int pci_write(llio_t *self, u32 addr, void *buffer, int size) {
-    board_t *board = self->private;
+    board_t *board = self->board;
 
     memcpy((board->base + addr), buffer, size);
     return 0;
@@ -851,6 +851,7 @@ void pci_boards_scan(board_access_t *access) {
     if (access->recover == 1) {
         for (dev = pacc->devices; dev != NULL; dev = dev->next) {
             board = &boards[boards_count];
+            board_init_struct(board);
             if ((dev->vendor_id == VENDORID_XIO2001) && (dev->device_id == DEVICEID_XIO2001)) {
                 board->type = BOARD_PCI;
                 strncpy(board->llio.board_name, "6I25 (RECOVER)", 14);
@@ -862,7 +863,6 @@ void pci_boards_scan(board_access_t *access) {
                 board->llio.num_leds = 2;
                 board->llio.write_flash = &local_write_flash;
                 board->llio.verify_flash = &local_verify_flash;
-                board->llio.private = board;
 
                 board->open = &pci_board_open;
                 board->close = &pci_board_close;
@@ -882,6 +882,7 @@ void pci_boards_scan(board_access_t *access) {
 
     for (dev = pacc->devices; dev != NULL; dev = dev->next) {
         board = &boards[boards_count];
+        board_init_struct(board);
 
         if (dev->vendor_id == VENDORID_MESAPCI) {
             if (dev->device_id == DEVICEID_MESA4I74) {
@@ -898,7 +899,6 @@ void pci_boards_scan(board_access_t *access) {
                 board->llio.write = &pci_write;
                 board->llio.write_flash = &local_write_flash;
                 board->llio.verify_flash = &local_verify_flash;
-                board->llio.private = board;
 
                 board->open = &pci_board_open;
                 board->close = &pci_board_close;
@@ -927,7 +927,6 @@ void pci_boards_scan(board_access_t *access) {
                 board->llio.write_flash = &local_write_flash;
                 board->llio.verify_flash = &local_verify_flash;
                 board->llio.reload = &pci_board_reload;
-                board->llio.private = board;
 
                 board->open = &pci_board_open;
                 board->close = &pci_board_close;
@@ -955,7 +954,6 @@ void pci_boards_scan(board_access_t *access) {
                 board->llio.write_flash = &local_write_flash;
                 board->llio.verify_flash = &local_verify_flash;
                 board->llio.reload = &pci_board_reload;
-                board->llio.private = board;
 
                 board->open = &pci_board_open;
                 board->close = &pci_board_close;
@@ -984,7 +982,6 @@ void pci_boards_scan(board_access_t *access) {
                 board->llio.write_flash = &local_write_flash;
                 board->llio.verify_flash = &local_verify_flash;
                 board->llio.reload = &pci_board_reload;
-                board->llio.private = board;
 
                 board->open = &pci_board_open;
                 board->close = &pci_board_close;
@@ -1012,7 +1009,6 @@ void pci_boards_scan(board_access_t *access) {
                 board->llio.write_flash = &local_write_flash;
                 board->llio.verify_flash = &local_verify_flash;
                 board->llio.reload = &pci_board_reload;
-                board->llio.private = board;
 
                 board->open = &pci_board_open;
                 board->close = &pci_board_close;
@@ -1044,7 +1040,6 @@ void pci_boards_scan(board_access_t *access) {
                     board->llio.write = &pci_write;
                     board->llio.program_fpga = &plx9030_program_fpga;
                     board->llio.reset = &plx9030_reset;
-                    board->llio.private = board;
 
                     board->open = &pci_board_open;
                     board->close = &pci_board_close;
@@ -1075,7 +1070,6 @@ void pci_boards_scan(board_access_t *access) {
                     board->llio.write = &pci_write;
                     board->llio.program_fpga = &plx9030_program_fpga;
                     board->llio.reset = &plx9030_reset;
-                    board->llio.private = board;
 
                     board->open = &pci_board_open;
                     board->close = &pci_board_close;
@@ -1109,7 +1103,6 @@ void pci_boards_scan(board_access_t *access) {
                     board->llio.write = &pci_write;
                     board->llio.program_fpga = &plx905x_program_fpga;
                     board->llio.reset = &plx905x_reset;
-                    board->llio.private = board;
 
                     board->open = &pci_board_open;
                     board->close = &pci_board_close;
@@ -1137,7 +1130,6 @@ void pci_boards_scan(board_access_t *access) {
                     board->llio.write = &pci_write;
                     board->llio.program_fpga = &plx905x_program_fpga;
                     board->llio.reset = &plx905x_reset;
-                    board->llio.private = board;
 
                     board->open = &pci_board_open;
                     board->close = &pci_board_close;
@@ -1171,7 +1163,6 @@ void pci_boards_scan(board_access_t *access) {
                     board->llio.write = &pci_write;
                     board->llio.program_fpga = &plx905x_program_fpga;
                     board->llio.reset = &plx905x_reset;
-                    board->llio.private = board;
 
                     board->open = &pci_board_open;
                     board->close = &pci_board_close;
@@ -1200,7 +1191,6 @@ void pci_boards_scan(board_access_t *access) {
                     board->llio.write = &pci_write;
                     board->llio.program_fpga = &plx905x_program_fpga;
                     board->llio.reset = &plx905x_reset;
-                    board->llio.private = board;
 
                     board->open = &pci_board_open;
                     board->close = &pci_board_close;
@@ -1233,7 +1223,6 @@ void pci_boards_scan(board_access_t *access) {
                     board->llio.write = &pci_write;
                     board->llio.program_fpga = &plx905x_program_fpga;
                     board->llio.reset = &plx905x_reset;
-                    board->llio.private = board;
 
                     board->open = &pci_board_open;
                     board->close = &pci_board_close;
@@ -1276,7 +1265,6 @@ void pci_boards_scan(board_access_t *access) {
                     board->llio.reset = &plx905x_reset;
                     board->llio.write_flash = &local_write_flash;
                     board->llio.verify_flash = &local_verify_flash;
-                    board->llio.private = board;
 
                     board->open = &pci_board_open;
                     board->close = &pci_board_close;
@@ -1296,7 +1284,6 @@ void pci_boards_scan(board_access_t *access) {
             } else if (dev->device_id == DEVICEID_PLX8112) {
                     board->type = BOARD_PCI;
                     strncpy(board->llio.board_name, "5I71", 4);
-                    board->llio.private = board;
                     board->open = &pci_board_open;
                     board->close = &pci_board_close;
                     board->print_info = &pci_print_info;

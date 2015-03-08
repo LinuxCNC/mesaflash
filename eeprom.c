@@ -109,7 +109,7 @@ static void write_boot(llio_t *self) {
 }
 
 int start_programming(llio_t *self, u32 start_address, int fsize) {
-    board_t *board = self->private;
+    board_t *board = self->board;
     u32 sec_addr;
     int esectors, sector, max_sectors;
     struct timeval tv1, tv2;
@@ -150,7 +150,7 @@ int start_programming(llio_t *self, u32 start_address, int fsize) {
 }
 
 int eeprom_write(llio_t *self, char *bitfile_name, u32 start_address) {
-    board_t *board = self->private;
+    board_t *board = self->board;
     int bytesread, i;
     u32 eeprom_addr;
     char part_name[32];
@@ -225,7 +225,7 @@ int eeprom_write(llio_t *self, char *bitfile_name, u32 start_address) {
 }
 
 int eeprom_verify(llio_t *self, char *bitfile_name, u32 start_address) {
-    board_t *board = self->private;
+    board_t *board = self->board;
     int bytesread, i, bindex;
     u32 eeprom_addr;
     char part_name[32];
@@ -298,7 +298,7 @@ int eeprom_verify(llio_t *self, char *bitfile_name, u32 start_address) {
 }
 
 void eeprom_init(llio_t *self) {
-    board_t *board = self->private;
+    board_t *board = self->board;
 
     switch (board->flash) {
         case BOARD_FLASH_NONE:
@@ -316,7 +316,7 @@ void eeprom_init(llio_t *self) {
 }
 
 void eeprom_cleanup(llio_t *self) {
-    board_t *board = self->private;
+    board_t *board = self->board;
 
     switch (board->flash) {
         case BOARD_FLASH_NONE:

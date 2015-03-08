@@ -42,6 +42,7 @@ void *unmap_memory(tagPhysStruct_t *phys);
 
 void sleep_ns(u64 nanoseconds);
 void show_formatted_size(u32 size);
+void board_init_struct(board_t *board);
 void show_board_info(board_t *board);
 
 #endif

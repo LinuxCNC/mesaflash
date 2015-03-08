@@ -92,49 +92,49 @@ static u8 recv_byte_hm2(llio_t *self) {
 static u16 GPIO_reg_val;
 
 static void set_cs_high_gpio(llio_t *self) {
-    board_t *board = self->private;
+    board_t *board = self->board;
 
     GPIO_reg_val = GPIO_reg_val | 0x2;
     pci_write_word(board->dev, XIO2001_GPIO_DATA_REG, GPIO_reg_val);
 }
 
 static void set_cs_low_gpio(llio_t *self) {
-    board_t *board = self->private;
+    board_t *board = self->board;
 
     GPIO_reg_val = GPIO_reg_val & (~ 0x2);
     pci_write_word(board->dev, XIO2001_GPIO_DATA_REG, GPIO_reg_val);
 }
 
 static void set_din_high_gpio(llio_t *self) {
-    board_t *board = self->private;
+    board_t *board = self->board;
 
     GPIO_reg_val = GPIO_reg_val | 0x8;
     pci_write_word(board->dev, XIO2001_GPIO_DATA_REG, GPIO_reg_val);
 }
 
 static void set_din_low_gpio(llio_t *self) {
-    board_t *board = self->private;
+    board_t *board = self->board;
 
     GPIO_reg_val = GPIO_reg_val & (~0x8);
     pci_write_word(board->dev, XIO2001_GPIO_DATA_REG, GPIO_reg_val);
 }
 
 static void set_clock_high_gpio(llio_t *self) {
-    board_t *board = self->private;
+    board_t *board = self->board;
 
     GPIO_reg_val = GPIO_reg_val | 0x10;
     pci_write_word(board->dev, XIO2001_GPIO_DATA_REG, GPIO_reg_val);
 }
 
 static void set_clock_low_gpio(llio_t *self) {
-    board_t *board = self->private;
+    board_t *board = self->board;
 
     GPIO_reg_val = GPIO_reg_val & (~ 0x10);
     pci_write_word(board->dev, XIO2001_GPIO_DATA_REG, GPIO_reg_val);
 }
 
 static int get_bit_gpio(llio_t *self) {
-    board_t *board = self->private;
+    board_t *board = self->board;
     u16 data;
 
     data = pci_read_word(board->dev, XIO2001_GPIO_DATA_REG);
@@ -157,7 +157,7 @@ static void suffix_gpio(llio_t *self) {
 }
 
 static void init_gpio(llio_t *self) {
-    board_t *board = self->private;
+    board_t *board = self->board;
 
     pci_write_word(board->dev, XIO2001_GPIO_ADDR_REG, 0x001B);
     pci_write_word(board->dev, XIO2001_SBAD_STAT_REG, 0x0000);
@@ -166,7 +166,7 @@ static void init_gpio(llio_t *self) {
 }
 
 static void restore_gpio(llio_t *self) {
-    board_t *board = self->private;
+    board_t *board = self->board;
 
     GPIO_reg_val = 0x0003;
     pci_write_word(board->dev, XIO2001_GPIO_DATA_REG, GPIO_reg_val);
@@ -206,7 +206,7 @@ static u8 recv_byte_gpio(llio_t *self) {
 // spi access via io ports like on 3x20
 
 static void wait_for_data_io(llio_t *self) {
-    board_t *board = self->private;
+    board_t *board = self->board;
     u32 i = 0;
     u8 data = 0;
 
@@ -219,13 +219,13 @@ static void wait_for_data_io(llio_t *self) {
 }
 
 static void set_cs_high_io(llio_t *self) {
-    board_t *board = self->private;
+    board_t *board = self->board;
 
     outb(1, board->data_base_addr + IO_SPI_CS_OFFSET);
 }
 
 static void set_cs_low_io(llio_t *self) {
-    board_t *board = self->private;
+    board_t *board = self->board;
 
     outb(0, board->data_base_addr + IO_SPI_CS_OFFSET);
 }
@@ -239,13 +239,13 @@ static void suffix_io(llio_t *self) {
 }
 
 static void send_byte_io(llio_t *self, u8 byte) {
-    board_t *board = self->private;
+    board_t *board = self->board;
 
     outb(byte, board->data_base_addr + IO_SPI_SREG_OFFSET);
 }
 
 static u8 recv_byte_io(llio_t *self) {
-    board_t *board = self->private;
+    board_t *board = self->board;
 
     outb(0, board->data_base_addr + IO_SPI_SREG_OFFSET);
     wait_for_data_io(self);
@@ -255,7 +255,7 @@ static u8 recv_byte_io(llio_t *self) {
 // spi access via epp on board 7i43 with EPPIO firmware
 
 void wait_for_data_epp(llio_t *self) {
-    board_t *board = self->private;
+    board_t *board = self->board;
     u32 i = 0;
     u8 data = 0;
 
@@ -269,14 +269,14 @@ void wait_for_data_epp(llio_t *self) {
 }
 
 static void set_cs_high_epp(llio_t *self) {
-    board_t *board = self->private;
+    board_t *board = self->board;
 
     epp_addr8(board, EPP_SPI_CS_REG);
     epp_write8(board, 1);
 }
 
 static void set_cs_low_epp(llio_t *self) {
-    board_t *board = self->private;
+    board_t *board = self->board;
 
     epp_addr8(board, EPP_SPI_CS_REG);
     epp_write8(board, 0);
@@ -291,14 +291,14 @@ static void suffix_epp(llio_t *self) {
 }
 
 static void send_byte_epp(llio_t *self, u8 byte) {
-    board_t *board = self->private;
+    board_t *board = self->board;
 
     epp_addr8(board, EPP_SPI_SREG_REG);
     epp_write8(board, byte);
 }
 
 static u8 recv_byte_epp(llio_t *self) {
-    board_t *board = self->private;
+    board_t *board = self->board;
 
     epp_addr8(board, EPP_SPI_SREG_REG);
     epp_write8(board, 0);
@@ -428,7 +428,7 @@ int local_verify_flash(llio_t *self, char *bitfile_name, u32 start_address) {
 }
 
 void open_spi_access_local(llio_t *self) {
-    board_t *board = self->private;
+    board_t *board = self->board;
 
     switch (board->flash) {
         case BOARD_FLASH_NONE:
@@ -476,7 +476,7 @@ void open_spi_access_local(llio_t *self) {
 };
 
 void close_spi_access_local(llio_t *self) {
-    board_t *board = self->private;
+    board_t *board = self->board;
 
     switch (board->flash) {
         case BOARD_FLASH_NONE:

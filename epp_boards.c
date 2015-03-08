@@ -139,7 +139,7 @@ static inline void epp_write32(board_t *board, u32 data) {
 
 int epp_read(llio_t *self, u32 addr, void *buffer, int size) {
     int bytes_remaining = size;
-    board_t *board = self->private;
+    board_t *board = self->board;
 
     epp_addr16(board, addr | EPP_ADDR_AUTOINCREMENT);
 
@@ -165,7 +165,7 @@ int epp_read(llio_t *self, u32 addr, void *buffer, int size) {
 
 int epp_write(llio_t *self, u32 addr, void *buffer, int size) {
     int bytes_remaining = size;
-    board_t *board = self->private;
+    board_t *board = self->board;
 
     epp_addr16(board, addr | EPP_ADDR_AUTOINCREMENT);
 
@@ -190,7 +190,7 @@ int epp_write(llio_t *self, u32 addr, void *buffer, int size) {
 }
 
 int epp_program_fpga(llio_t *self, char *bitfile_name) {
-    board_t *board = self->private;
+    board_t *board = self->board;
     int bindex, bytesread;
     char part_name[32];
     struct stat file_stat;
@@ -246,7 +246,7 @@ int epp_program_fpga(llio_t *self, char *bitfile_name) {
 
 // return 0 if the board has been reset, -errno if not
 int epp_reset(llio_t *self) {
-    board_t *board = self->private;
+    board_t *board = self->board;
     u8 byte;
 
 
@@ -343,6 +343,8 @@ void epp_boards_scan(board_access_t *access) {
     u16 epp_addr = 0, epp_hi_addr = 0;
     u32 hm2_cookie, eppio_cookie;
 
+    board_init_struct(board);
+
     if (access->address == 0) {
         access->dev_addr = "0x378";
         access->dev_hi_addr = "0x778";
@@ -389,7 +391,6 @@ void epp_boards_scan(board_access_t *access) {
     epp_clear_timeout(board);
 
     board->epp_wide = 1;
-    board->llio.private = board;
     epp_read(&(board->llio), 0, &eppio_cookie, 4);
     epp_read(&(board->llio), HM2_COOKIE_REG, &hm2_cookie, 4);
 
@@ -428,7 +429,6 @@ void epp_boards_scan(board_access_t *access) {
             board->llio.write = &epp_write;
             board->llio.write_flash = &local_write_flash;
             board->llio.verify_flash = &local_verify_flash;
-            board->llio.private = board;
 
             board->open = &epp_board_open;
             board->close = &epp_board_close;
@@ -452,7 +452,6 @@ void epp_boards_scan(board_access_t *access) {
             board->llio.write = &epp_write;
             board->llio.program_fpga = &epp_program_fpga;
             board->llio.reset = &epp_reset;
-            board->llio.private = board;
 
             board->open = &epp_board_open;
             board->close = &epp_board_close;
@@ -477,7 +476,6 @@ void epp_boards_scan(board_access_t *access) {
         board->llio.program_fpga = &epp_program_fpga;
         board->llio.write_flash = &local_write_flash;
         board->llio.verify_flash = &local_verify_flash;
-        board->llio.private = board;
 
         board->open = &epp_board_open;
         board->close = &epp_board_close;
@@ -498,7 +496,6 @@ void epp_boards_scan(board_access_t *access) {
         board->llio.num_leds = 2;
         board->llio.program_fpga = &epp_program_fpga;
         board->llio.reset = &epp_reset;
-        board->llio.private = board;
 
         board->open = &epp_board_open;
         board->close = &epp_board_close;

@@ -42,7 +42,7 @@ typedef struct {
 typedef struct llio_struct llio_t;
 
 typedef struct {
-    llio_t *board;
+    llio_t *llio;
     char config_name[8];
     hm2_idrom_desc_t idrom;
     hm2_module_desc_t modules[HM2_MAX_MODULES];
@@ -63,7 +63,7 @@ struct llio_struct {
     int num_leds;
     const char *fpga_part_number;
     char board_name[16];
-    void *private;
+    void *board;
     hostmot2_t hm2;
     sserial_interface_t ss_interface[HM2_SSERIAL_MAX_INTEFACES];
     sserial_device_t ss_device[HM2_SSERIAL_MAX_CHANNELS];
@@ -81,7 +81,7 @@ typedef struct {
 } mod_name_t;
 
 int hm2_check_cookie(llio_t *llio);
-void hm2_read_idrom(llio_t *llio);
+void hm2_read_idrom(hostmot2_t *hm2);
 hm2_module_desc_t *hm2_find_module(hostmot2_t *hm2, u8 gtag);
 void hm2_print_idrom(hostmot2_t *hm2);
 void hm2_print_modules(hostmot2_t *hm2);

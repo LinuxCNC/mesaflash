@@ -158,7 +158,7 @@ int main(int argc, char *argv[]) {
 
     board->open(board);                 // open board for communication
     board->print_info(board);           // print what card it is 
-    hm2_read_idrom(&(board->llio));     // read hostmot2 idrom
+    hm2_read_idrom(&(board->llio.hm2));     // read hostmot2 idrom
 
     ret = sserial_init(&ssmod, board, 0, 1, SSLBP_REMOTE_7I77_ANALOG);
     out.analog0 = 1 * 0xFFF / 10;

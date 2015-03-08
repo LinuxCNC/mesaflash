@@ -172,6 +172,8 @@ void serial_boards_scan(board_access_t *access) {
     if (strncmp(buff, "7I90HD", 6) == 0) {
         board_t *board = &boards[boards_count];
 
+        board_init_struct(board);
+
         board->type = BOARD_SER;
         strncpy(board->dev_addr, access->dev_addr, 16);
         strncpy(board->llio.board_name, buff, 16);
@@ -188,7 +190,6 @@ void serial_boards_scan(board_access_t *access) {
         board->llio.verify_flash = &remote_verify_flash;
         board->llio.reset = &lbp16_board_reset;
         board->llio.reload = &lbp16_board_reload;
-        board->llio.private = board;
 
         board->open = &serial_board_open;
         board->close = &serial_board_close;

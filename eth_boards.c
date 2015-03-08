@@ -147,6 +147,8 @@ static int eth_scan_one_addr(board_access_t *access) {
         char buff[20];
         board_t *board = &boards[boards_count];
 
+        board_init_struct(board);
+
         eth_socket_blocking();
         LBP16_INIT_PACKET4(packet2, CMD_READ_BOARD_INFO_ADDR16_INCR(8), 0);
         memset(buff, 0, sizeof(buff));
@@ -171,7 +173,6 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.verify_flash = &remote_verify_flash;
             board->llio.reset = &lbp16_board_reset;
             board->llio.reload = &lbp16_board_reload;
-            board->llio.private = board;
 
             board->open = &eth_board_open;
             board->close = &eth_board_close;
@@ -197,7 +198,6 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.verify_flash = &remote_verify_flash;
             board->llio.reset = &lbp16_board_reset;
             board->llio.reload = &lbp16_board_reload;
-            board->llio.private = board;
 
             board->open = &eth_board_open;
             board->close = &eth_board_close;
@@ -222,7 +222,6 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.verify_flash = &remote_verify_flash;
             board->llio.reset = &lbp16_board_reset;
             board->llio.reload = &lbp16_board_reload;
-            board->llio.private = board;
 
             board->open = &eth_board_open;
             board->close = &eth_board_close;
@@ -247,7 +246,6 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.verify_flash = &remote_verify_flash;
             board->llio.reset = &lbp16_board_reset;
             board->llio.reload = &lbp16_board_reload;
-            board->llio.private = board;
 
             board->open = &eth_board_open;
             board->close = &eth_board_close;
@@ -272,7 +270,6 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.verify_flash = &remote_verify_flash;
             board->llio.reset = &lbp16_board_reset;
             board->llio.reload = &lbp16_board_reload;
-            board->llio.private = board;
 
             board->open = &eth_board_open;
             board->close = &eth_board_close;
@@ -296,7 +293,6 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.verify_flash = &remote_verify_flash;
             board->llio.reset = &lbp16_board_reset;
             board->llio.reload = &lbp16_board_reload;
-            board->llio.private = board;
 
             board->open = &eth_board_open;
             board->close = &eth_board_close;

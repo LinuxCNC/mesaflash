@@ -54,7 +54,7 @@ int usb_write(llio_t *self, u32 addr, void *buffer, int size) {
 }
 
 static int usb_program_fpga(llio_t *self, char *bitfile_name) {
-    board_t *board = self->private;
+    board_t *board = self->board;
     int bindex, bytesread;
     u32 status, control;
     char part_name[32];
@@ -126,6 +126,8 @@ void usb_boards_scan(board_access_t *access) {
     char dev_name[4];
     u32 cookie;
 
+    board_init_struct(board);
+
     data = lbp_read_ctrl(LBP_CMD_READ_COOKIE);
     if (data == LBP_COOKIE) {
         dev_name[0] = lbp_read_ctrl(LBP_CMD_READ_DEV_NAME0);
@@ -137,7 +139,6 @@ void usb_boards_scan(board_access_t *access) {
             board->type = BOARD_USB;
             strcpy(board->dev_addr, access->dev_addr);
             strncpy(board->llio.board_name, dev_name, 4);
-            board->llio.private = board;
             board->llio.verbose = access->verbose;
 
             boards_count++;
@@ -153,7 +154,6 @@ void usb_boards_scan(board_access_t *access) {
             board->llio.num_leds = 8;
             board->llio.read = &usb_read;
             board->llio.write = &usb_write;
-            board->llio.private = board;
 
             board->open = &usb_board_open;
             board->close = &usb_board_close;
@@ -201,7 +201,6 @@ void usb_boards_scan(board_access_t *access) {
             board->llio.fpga_part_number = "3s200tq144";
         board->llio.num_leds = 8;
         board->llio.program_fpga = &usb_program_fpga;
-        board->llio.private = board;
         board->llio.verbose = access->verbose;
         board->open = &usb_board_open;
         board->close = &usb_board_close;

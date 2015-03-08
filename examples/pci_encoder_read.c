@@ -156,7 +156,7 @@ int main(int argc, char *argv[]) {
 
     board->open(board);                 // open board for communication
     board->print_info(board);           // print what card it is 
-    hm2_read_idrom(&(board->llio));     // read hostmot2 idrom
+    hm2_read_idrom(&(board->llio.hm2));     // read hostmot2 idrom
 
     ret = encoder_init(&enc, board, instance, delay);   // init encoder 'instance' module on 'board'
     if (ret < 0) {

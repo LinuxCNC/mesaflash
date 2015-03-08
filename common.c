@@ -22,6 +22,7 @@
 #include <windows.h>
 #endif
 #include <stdio.h>
+#include <string.h>
 #include "types.h"
 #include "common.h"
 #include "eeprom.h"
@@ -103,6 +104,12 @@ void show_formatted_size(u32 size) {
     } else {
         printf(" [size=%08X]", size);
     }
+}
+
+void board_init_struct(board_t *board) {
+    memset(board, 0, sizeof(board_t));
+    board->llio.board = board;
+    board->llio.hm2.llio = &(board->llio);
 }
 
 void show_board_info(board_t *board) {

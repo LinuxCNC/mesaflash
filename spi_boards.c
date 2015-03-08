@@ -139,6 +139,8 @@ void spi_boards_scan(board_access_t *access) {
     u32 cookie[] = {0x55aacafe, 0x54534f48, 0x32544f4d};
     board_t *board = &boards[boards_count];
 
+    board_init_struct(board);
+
     if (spi_read(&(board->llio), HM2_COOKIE_REG, &buf, sizeof(buf)) < 0) {
         return;
     }
@@ -162,7 +164,6 @@ void spi_boards_scan(board_access_t *access) {
         board->llio.ioport_connector_name[1] = "P2";
         board->llio.ioport_connector_name[2] = "P3";
         board->llio.num_leds = 2;
-        board->llio.private = board;
         board->llio.verbose = access->verbose;
         board->llio.write = spi_write;
         board->llio.read = spi_read;
@@ -186,4 +187,3 @@ void spi_boards_scan(board_access_t *access) {
 
 void spi_print_info(board_t *board) {
 }
-
