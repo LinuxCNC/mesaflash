@@ -32,6 +32,7 @@ typedef struct {
     double scale;
     int quad_error;
     board_t *board;
+    u16 base_address;
     int instance;
     int instance_stride;
 } encoder_module_t;

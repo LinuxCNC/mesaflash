@@ -41,6 +41,7 @@ typedef struct {
     int instance_stride;
     int interface_num;
     int channel_num;
+    u16 base_address;
     u32 data;
     u32 cs;
     u32 interface0;

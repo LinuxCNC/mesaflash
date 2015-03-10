@@ -61,6 +61,7 @@ int encoder_init(encoder_module_t *enc, board_t *board, int instance, int delay)
     memset(enc, 0, sizeof(encoder_module_t));
     enc->scale = 1.0;
     enc->board = board;
+    enc->base_address = md->base_address;
     enc->instance = instance;
     enc->instance_stride = (md->strides & 0xF0) == 0 ? board->llio.hm2.idrom.instance_stride0 : board->llio.hm2.idrom.instance_stride1;
 
@@ -73,11 +74,11 @@ int encoder_init(encoder_module_t *enc, board_t *board, int instance, int delay)
         clock = (enc->board->llio.hm2.idrom.clock_high / 1e6 * delay) - 2;
         seconds_per_tsdiv_clock = (double)(clock + 2) / (double)enc->board->llio.hm2.idrom.clock_high;
     } 
-    enc->board->llio.write(&(enc->board->llio), HM2_MODULE_MUX_ENCODER_TSSDIV, &clock, sizeof(clock));
-    enc->board->llio.read(&(enc->board->llio), HM2_MODULE_MUX_ENCODER_LATCH_CCR + enc->instance*enc->instance_stride, &control, sizeof(control));
+    enc->board->llio.write(&(enc->board->llio), enc->base_address + HM2_MOD_OFFS_MUX_ENCODER_TSSDIV, &clock, sizeof(clock));
+    enc->board->llio.read(&(enc->board->llio), enc->base_address + HM2_MOD_OFFS_MUX_ENCODER_LATCH_CCR + enc->instance*enc->instance_stride, &control, sizeof(control));
     control |= HM2_ENCODER_FILTER;
     control &= ~(HM2_ENCODER_QUADRATURE_ERROR);
-    enc->board->llio.write(&(enc->board->llio), HM2_MODULE_MUX_ENCODER_LATCH_CCR + enc->instance*enc->instance_stride, &control, sizeof(control));
+    enc->board->llio.write(&(enc->board->llio), enc->base_address + HM2_MOD_OFFS_MUX_ENCODER_LATCH_CCR + enc->instance*enc->instance_stride, &control, sizeof(control));
 }
 
 int encoder_cleanup(encoder_module_t *enc) {
@@ -99,9 +100,9 @@ int encoder_read(encoder_module_t *enc) {
     }
     board = enc->board;
 
-    board->llio.read(&(board->llio), HM2_MODULE_MUX_ENCODER_TS_COUNT, &tsc, sizeof(tsc));
-    board->llio.read(&(board->llio), HM2_MODULE_MUX_ENCODER_COUNTER + enc->instance*enc->instance_stride, &count, sizeof(count));
-    board->llio.read(&(board->llio), HM2_MODULE_MUX_ENCODER_LATCH_CCR + enc->instance*enc->instance_stride, &control, sizeof(control));
+    board->llio.read(&(board->llio), enc->base_address + HM2_MOD_OFFS_MUX_ENCODER_TS_COUNT, &tsc, sizeof(tsc));
+    board->llio.read(&(board->llio), enc->base_address + HM2_MOD_OFFS_MUX_ENCODER_COUNTER + enc->instance*enc->instance_stride, &count, sizeof(count));
+    board->llio.read(&(board->llio), enc->base_address + HM2_MOD_OFFS_MUX_ENCODER_LATCH_CCR + enc->instance*enc->instance_stride, &control, sizeof(control));
 
     if (enc->scale == 0) {
         enc->scale = 1.0;
