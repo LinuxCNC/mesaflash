@@ -871,6 +871,7 @@ void pci_boards_scan(board_access_t *access) {
                 board->dev = dev;
                 board->flash = BOARD_FLASH_GPIO;
                 board->fallback_support = 1;
+                board->recover = 1;
                 board->llio.verbose = access->verbose;
 
                 boards_count++;

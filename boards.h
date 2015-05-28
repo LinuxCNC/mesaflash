@@ -51,6 +51,7 @@ struct board_struct {
     u8 flash_id;
     u32 flash_start_address;
     int fallback_support;
+    int recover;
     char dev_addr[16];
 
     struct pci_dev *dev;
