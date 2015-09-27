@@ -477,6 +477,12 @@ static int plx9030_program_fpga(llio_t *self, char *bitfile_name) {
     }
 
     fclose(fp);
+    printf("\n");
+    if (board->llio.verbose == 1) {
+        gettimeofday(&tv2, NULL);
+        printf("  Programming time: %.2f seconds\n", (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +
+         (double) (tv2.tv_sec - tv1.tv_sec));
+    }
 
     // all bytes transferred, make sure FPGA is all set up now
     status = inl(board->ctrl_base_addr + PLX9030_CTRL_STAT_OFFSET);
@@ -502,7 +508,6 @@ static int plx9030_program_fpga(llio_t *self, char *bitfile_name) {
     printf("\nBoard FPGA programmed successfully.\n");
     return 0;
 
-
 fail:
     // set /PROGRAM low (reset device), /WRITE high and LED off
     status = inl(board->ctrl_base_addr + PLX9030_CTRL_STAT_OFFSET);
@@ -517,6 +522,7 @@ static int plx9030_reset(llio_t *self) {
     u32 status;
     u32 control;
 
+    printf("Resetting FPGA... ");
     status = inl(board->ctrl_base_addr + PLX9030_CTRL_STAT_OFFSET);
 
     // set /PROGRAM bit low to reset the FPGA
@@ -561,6 +567,7 @@ static int plx9030_reset(llio_t *self) {
         }
     }
 
+    printf("OK\n");
     return 0;
 }
 
@@ -621,7 +628,12 @@ static int plx905x_program_fpga(llio_t *self, char *bitfile_name) {
     }
 
     fclose(fp);
-
+    printf("\n");
+    if (board->llio.verbose == 1) {
+        gettimeofday(&tv2, NULL);
+        printf("  Programming time: %.2f seconds\n", (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +
+         (double) (tv2.tv_sec - tv1.tv_sec));
+    }
 
     // all bytes transferred, make sure FPGA is all set up now
     for (i = 0; i < PLX905X_DONE_WAIT; i++) {
@@ -647,6 +659,7 @@ static int plx905x_reset(llio_t *self) {
     int i;
     u32 status, control;
 
+    printf("Resetting FPGA... ");
     // set GPIO bits to GPIO function
     status = inl(board->ctrl_base_addr + PLX905X_CTRL_STAT_OFFSET);
     control = status | PLX905X_DONE_ENABLE | PLX905X_PROG_ENABLE;
@@ -674,6 +687,7 @@ static int plx905x_reset(llio_t *self) {
         status = inl(board->ctrl_base_addr + PLX905X_CTRL_STAT_OFFSET);
     }
 
+    printf("OK\n");
     return 0;
 }
 
@@ -717,13 +731,11 @@ static int pci_board_reload(llio_t *self, int fallback_flag) {
     bar0_reg = pci_read_long(board->dev, PCI_BASE_ADDRESS_0);
     for (i = 0; i < 14; i++) {
         pci_write(&(board->llio), HM2_ICAP_REG, &data[i], sizeof(u32));
-        sleep_ns(1000*1000);
+        usleep(1000);
     }
-    sleep_ns(1000*1000*100);
-    sleep_ns(1000*1000*100);
-    sleep_ns(1000*1000*100);
-    sleep_ns(1000*1000*100);
-    sleep_ns(1000*1000*100);
+    printf("Waiting for FPGA configuration...");
+    sleep(2);
+    printf("OK\n");
     pci_write_word(board->dev, PCI_COMMAND, cmd_reg);
     pci_write_long(board->dev, PCI_BASE_ADDRESS_0, bar0_reg);
 
