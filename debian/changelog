@@ -1,3 +1,7 @@
+mesaflash (3.3.0~pre) UNRELEASED; urgency=low
+
+ -- Michael Geszkiewicz <micges@wp.pl>  27 Sep 2015 19:24:42 -0500
+
 mesaflash (3.2.0) UNRELEASED; urgency=low
 
   * Don't check bitfile destinations while gpio recovering 6i24/6i25 boards
