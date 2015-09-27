@@ -86,9 +86,9 @@ static struct option long_options[] = {
 };
 
 void print_short_usage() {
-    printf("\nMesaflash version 3.2.0~pre (built on %s %s with libpci %s)\n", __DATE__, __TIME__, PCILIB_VERSION);
+    printf("\nMesaflash version 3.2.0 (built on %s %s with libpci %s)\n", __DATE__, __TIME__, PCILIB_VERSION);
     printf("Configuration and diagnostic tool for Mesa Electronics PCI(E)/ETH/EPP/USB boards\n");
-    printf("(C) 2013-2014 Michael Geszkiewicz (contact: micges@wp.pl)\n");
+    printf("(C) 2013-2015 Michael Geszkiewicz (contact: micges@wp.pl)\n");
     printf("(C) Mesa Electronics\n");
     printf("Try 'mesaflash --help' for more information\n");
 }

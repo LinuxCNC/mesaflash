@@ -1,3 +1,17 @@
+mesaflash (3.2.0) UNRELEASED; urgency=low
+
+  * Don't check bitfile destinations while gpio recovering 6i24/6i25 boards
+  * Use modules base address from module descriptor, not from regmap
+  * Don't check bitfile id for 5i24 and 6i24 while --write and --verify
+  * Fix support for 7i92, 5i24 and 6i24
+  * Add support for 6i24 PCIE board
+  * Improve and clean reporting sserial remote data
+  * Show FPGA programming time in verbose mode
+  * Always show full info about bit file while using 'info' command
+  * Add xml output from 'readhmid' command to use with pncconf
+
+ -- Michael Geszkiewicz <micges@wp.pl>  27 Sep 2015 19:24:42 -0500
+
 mesaflash (3.1.0) UNRELEASED; urgency=low
 
   * First stable release.
