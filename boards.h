@@ -24,6 +24,8 @@
 #endif
 #include "hostmot2.h"
 
+#include "eeprom.h"
+
 #define MAX_BOARDS 8
 
 #define BOARD_ANY             (0)

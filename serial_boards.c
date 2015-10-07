@@ -17,6 +17,8 @@
 //
 
 #include <stdio.h>
+#include <unistd.h>
+#include <signal.h>
 #include <fcntl.h>
 #include <termios.h>
 #include <string.h>

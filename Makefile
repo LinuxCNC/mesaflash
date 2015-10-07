@@ -36,6 +36,7 @@ ifeq ($(TARGET),linux)
 	INCLUDE = -I/usr/include
 	BIN = mesaflash
 	LIBS = -lpci $(MATHLIB)
+	CFLAGS += -D_GNU_SOURCE
 endif
 
 ifeq ($(TARGET),windows)
@@ -46,7 +47,7 @@ ifeq ($(TARGET),windows)
 	DEBUG += -mno-ms-bitfields
 endif
 
-CFLAGS = $(OPT) $(DEBUG) $(INCLUDE)
+CFLAGS += $(OPT) $(DEBUG) $(INCLUDE)
 
 objects = common.o lbp.o lbp16.o bitfile.o hostmot2.o eeprom.o anyio.o eth_boards.o epp_boards.o usb_boards.o pci_boards.o
 objects += sserial_module.o encoder_module.o eeprom_local.o eeprom_remote.o spi_boards.o serial_boards.o

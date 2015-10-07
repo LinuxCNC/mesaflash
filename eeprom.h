@@ -20,6 +20,7 @@
 #define __EEPROM_H
 
 #include "hostmot2.h"
+#include "bitfile.h"
 
 #define ID_EEPROM_1M 0x10
 #define ID_EEPROM_2M 0x11
