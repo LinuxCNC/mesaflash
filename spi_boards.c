@@ -86,7 +86,7 @@ int spi_boards_init(board_access_t *access) {
     sd = open(access->dev_addr, O_RDWR);
     if(sd == -1) {
         perror("open");
-        return;
+        return -1;
     }
     spidev_set_lsb_first(sd, false);
     spidev_set_mode(sd, 0);
