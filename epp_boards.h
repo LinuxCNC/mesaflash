@@ -32,9 +32,9 @@
 
 #define EPP_ADDR_AUTOINCREMENT  0x8000
 
-inline void epp_addr8(board_t *board, u8 addr);
-inline u8 epp_read8(board_t *board);
-inline void epp_write8(board_t *board, u8 data);
+void epp_addr8(board_t *board, u8 addr);
+u8 epp_read8(board_t *board);
+void epp_write8(board_t *board, u8 data);
 int epp_boards_init(board_access_t *access);
 void epp_boards_cleanup(board_access_t *access);
 void epp_boards_scan(board_access_t *access);

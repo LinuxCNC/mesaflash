@@ -30,6 +30,8 @@
 #include "libpci/pci.h"
 #endif
 
+extern int usleep(useconds_t usec); // static global access variable conflicts with POSIX function in unistd.h
+
 static int device_flag;
 static int instance_flag;
 static int instance = 0;

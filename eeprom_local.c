@@ -18,6 +18,10 @@
 
 #ifdef __linux__
 #include <sys/io.h>
+#include <pci/pci.h>
+#elif _WIN32
+#include <windows.h>
+#include "libpci/pci.h"
 #endif
 #include <sys/stat.h>
 #include <stdio.h>
