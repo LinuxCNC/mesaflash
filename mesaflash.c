@@ -112,10 +112,10 @@ void print_usage() {
     printf("  --addr <device_address>\n");
     printf("      select <device address> for looking for <device_name> (network C mask for ethernet boards, serial port for USB boards)\n");
     printf("  --addr_hi     set the high register address for the EPP interface\n");
-    printf("  --epp         use EPP interface to connect to board, only for boards with multiply intefaces (7i43, 7i90, 7i64)\n");
-    printf("  --usb         use USB interface to connect to board, only for boards with multiply intefaces (7i43, 7i90, 7i64)\n");
-    printf("  --spi         use SPI interface to connect to board, only for boards with multiply intefaces (7i43, 7i90, 7i64)\n");
-    printf("  --serial      use serial interface to connect to board, only for boards with multiply intefaces (7i43, 7i90, 7i64)\n");
+    printf("  --epp         use EPP interface to connect to board, only for boards with multiple interfaces (7i43, 7i90, 7i64)\n");
+    printf("  --usb         use USB interface to connect to board, only for boards with multiple interfaces (7i43, 7i90, 7i64)\n");
+    printf("  --spi         use SPI interface to connect to board, only for boards with multiple interfaces (7i43, 7i90, 7i64)\n");
+    printf("  --serial      use serial interface to connect to board, only for boards with multiple interfaces (7i43, 7i90, 7i64)\n");
     printf("  --fallback    use the fallback area of the EEPROM while executing commands\n");
     printf("  --recover     access board using PCI bridge GPIO (currently only 6I25)\n");
     printf("  --xml         format output from 'readhmid' command into XML\n");
@@ -161,7 +161,7 @@ int process_cmd_line(int argc, char *argv[]) {
                 int i;
 
                 if (device_flag > 0) {
-                    printf("Error: multiply --device option\n");
+                    printf("Error: multiple --device options\n");
                     exit(-1);
                 }
                 access.device_name = optarg;
@@ -176,7 +176,7 @@ int process_cmd_line(int argc, char *argv[]) {
                 int i;
 
                 if (addr_flag > 0) {
-                    printf("Error: multiply --addr option\n");
+                    printf("Error: multiple --addr options\n");
                     exit(-1);
                 }
                 access.dev_addr = optarg;
@@ -186,7 +186,7 @@ int process_cmd_line(int argc, char *argv[]) {
 
 	        case 'b': {
                 if (addr_hi_flag > 0) {
-                    printf("Error: multiple --addr_hi option\n");
+                    printf("Error: multiple --addr_hi options\n");
                     exit(-1);
                 }
                 access.dev_hi_addr = optarg;
@@ -196,7 +196,7 @@ int process_cmd_line(int argc, char *argv[]) {
 
             case 'w': {
                 if (write_flag > 0) {
-                    printf("Error: multiply --write option\n");
+                    printf("Error: multiple --write options\n");
                     exit(-1);
                 }
                 strncpy(bitfile_name, optarg, 255);
@@ -206,7 +206,7 @@ int process_cmd_line(int argc, char *argv[]) {
 
             case 'p': {
                 if (program_flag > 0) {
-                    printf("Error: multiply --program option\n");
+                    printf("Error: multiple --program options\n");
                     exit(-1);
                 }
                 strncpy(bitfile_name, optarg, 255);
@@ -216,7 +216,7 @@ int process_cmd_line(int argc, char *argv[]) {
 
             case 'r': {
                 if (rpo_flag > 0) {
-                    printf("Error: multiply --rpo option\n");
+                    printf("Error: multiple --rpo options\n");
                     exit(-1);
                 }
                 if (strncmp(optarg, "0x", 2) == 0) {
@@ -234,7 +234,7 @@ int process_cmd_line(int argc, char *argv[]) {
                 char *pch;
 
                 if (wpo_flag > 0) {
-                    printf("Error: multiply --wpo option\n");
+                    printf("Error: multiple --wpo options\n");
                     exit(-1);
                 }
                 pch = strtok(optarg, "=");
@@ -259,7 +259,7 @@ int process_cmd_line(int argc, char *argv[]) {
 
             case 's': {
                 if (set_flag > 0) {
-                    printf("Error: multiply --set option\n");
+                    printf("Error: multiple --set options\n");
                     exit(-1);
                 }
                 if (strncmp(optarg, "ip=", 3) == 0) {
@@ -269,7 +269,7 @@ int process_cmd_line(int argc, char *argv[]) {
                     pch = strtok(NULL, "=");
                     lbp16_set_ip_addr = pch;
                 } else {
-                    printf("Error: unknown set command\n");
+                    printf("Error: Unknown set command syntax, see --help for examples\n");
                     exit(-1);
                 }
                 set_flag++;
@@ -278,7 +278,7 @@ int process_cmd_line(int argc, char *argv[]) {
 
             case 'v': {
                 if (verify_flag > 0) {
-                    printf("Error: multiply --verify option\n");
+                    printf("Error: multiple --verify options\n");
                     exit(-1);
                 }
                 strncpy(bitfile_name, optarg, 255);
@@ -288,7 +288,7 @@ int process_cmd_line(int argc, char *argv[]) {
 
             case 'i': {
                 if (info_flag > 0) {
-                    printf("Error: multiply --info option\n");
+                    printf("Error: multiple --info options\n");
                     exit(-1);
                 }
                 strncpy(bitfile_name, optarg, 255);
@@ -377,10 +377,10 @@ int main(int argc, char *argv[]) {
             if (reload_flag == 1) {
                 ret = anyio_dev_reload(board, fallback_flag);
                 if (ret == -1) {
-                    printf("\nYou must power cycle board to load updated firmware.\n");
+                    printf("\nYou must power cycle the hardware to load a new firmware.\n");
                 }
             } else {
-                printf("\nYou must power cycle board or use --reload command to load updated firmware.\n");
+                printf("\nYou must power cycle the hardware or use the --reload command to load a new firmware.\n");
             }
         } else if (verify_flag == 1) {
             ret = anyio_dev_verify_flash(board, bitfile_name, fallback_flag);
@@ -396,7 +396,7 @@ int main(int argc, char *argv[]) {
         board->close(board);
         anyio_cleanup(&access);
     } else {
-        printf("No action requested (must specify --device or --info)\n");
+        printf("No action requested. Please specify at least --device or --info.\n");
     }
     return ret;
 }
