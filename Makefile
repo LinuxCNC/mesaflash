@@ -66,7 +66,7 @@ $(LIBANYIO) : $(objects)
 mesaflash.o : mesaflash.c $(headers)
 	$(CC) $(CFLAGS) -c mesaflash.c
 
-$(BIN): mesaflash.o anyio.h
+$(BIN): mesaflash.o anyio.h $(LIBANYIO)
 	$(CC) -o $(BIN) mesaflash.o $(LIBANYIO) $(LIBS)
 
 anyio.o : anyio.c $(headers)
