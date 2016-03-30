@@ -1,0 +1,3 @@
+version=3
+opts=filenamemangle=s/.+\/v?(\d\S*)\.tar\.gz/mesaflash-$1\.tar\.gz/ \
+  https://github.com/micges/mesaflash/tags .*/v?(\d\S*)\.tar\.gz
