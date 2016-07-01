@@ -24,6 +24,7 @@
 #include <windows.h>
 #include "libpci/pci.h"
 #endif
+#include <assert.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <unistd.h>
@@ -692,19 +693,27 @@ static int plx905x_reset(llio_t *self) {
     return 0;
 }
 
-int pci_read(llio_t *self, u32 addr, void *buffer, int size) {
-				board_t *board = self->board;
+void memcpy32(void *vdest, void *vsrc, int size) {
+    volatile u32 *dest = (volatile u32*)vdest;
+    volatile u32 *src = (volatile u32*)vsrc;
+    while(size) {
+        *dest = *src;
+        dest++;
+        src++;
+        size --;
+    }
+}
 
-				memcpy(buffer, (board->base + addr), size);
-				//    printf("READ %X, (%X + %X), %d\n", buffer, board->base, addr, size);
-				return 0;
+int pci_read(llio_t *self, u32 addr, void *buffer, int size) {
+    board_t *board = self->board;
+    assert(size % 4 == 0);
+    memcpy32(buffer, board->base + addr, size/4);
 }
 
 int pci_write(llio_t *self, u32 addr, void *buffer, int size) {
-				board_t *board = self->board;
-
-				memcpy((board->base + addr), buffer, size);
-				return 0;
+    board_t *board = self->board;
+    assert(size % 4 == 0);
+    memcpy32(board->base + addr, buffer, size/4);
 }
 
 static int pci_board_reload(llio_t *self, int fallback_flag) {
