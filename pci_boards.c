@@ -724,7 +724,7 @@ static int pci_board_reload(llio_t *self, int fallback_flag) {
 
     pci_read(&(board->llio), HM2_ICAP_REG, &cookie, sizeof(u32));
     if (cookie != HM2_ICAP_COOKIE) {
-        printf("ERROR: FPGA reload not supported\n");
+        printf("ERROR: Active firmware too old to support --reload\n");
         return -1;
     }
 
