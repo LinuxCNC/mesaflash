@@ -91,8 +91,8 @@ static int remote_start_programming(llio_t *self, u32 start_address, int fsize) 
 
 // global functions
 
-int remote_write_flash(llio_t *self, char *bitfile_name, u32 start_address) {
-    return eeprom_write(self, bitfile_name, start_address);
+int remote_write_flash(llio_t *self, char *bitfile_name, u32 start_address, int fix_boot_flag) {
+    return eeprom_write(self, bitfile_name, start_address, fix_boot_flag);
 }
 
 int remote_verify_flash(llio_t *self, char *bitfile_name, u32 start_address) {

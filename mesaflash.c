@@ -33,6 +33,7 @@ static int device_flag;
 static int addr_flag;
 static int addr_hi_flag;
 static int write_flag;
+static int fix_boot_flag;
 static int verify_flag;
 static int fallback_flag;
 static int recover_flag;
@@ -63,6 +64,7 @@ static struct option long_options[] = {
     {"addr", required_argument, 0, 'a'},
     {"addr_hi", required_argument, 0, 'b'},
     {"write", required_argument, 0, 'w'},
+    {"fix-boot-block", no_argument, &fix_boot_flag, 1},
     {"verify", required_argument, 0, 'v'},
     {"fallback", no_argument, &fallback_flag, 1},
     {"recover", no_argument, &recover_flag, 1},
@@ -122,6 +124,7 @@ void print_usage() {
     printf("  --verbose     print detailed information while running commands\n");
     printf("\nCommands:\n");
     printf("  --write       writes a standard bitfile 'filename' configuration to the userarea of the EEPROM (IMPORTANT! 'filename' must be VALID FPGA configuration file)\n");
+    printf("      --fix-boot-block  If a write operation does not detect a valid boot block, write one\n");
     printf("  --verify      verifies the EEPROM configuration against the bitfile 'filename'\n");
     printf("  --program     writes a standard bitfile 'filename' configuration to the FPGA (IMPORTANT! 'filename' must be VALID FPGA configuration file)\n");
     printf("  --readhmid    print hostmot2 configuration in PIN file format\n");
@@ -373,7 +376,7 @@ int main(int argc, char *argv[]) {
         } else if (set_flag == 1) {
             ret = anyio_dev_set_remote_ip(board, lbp16_set_ip_addr);
         } else if (write_flag == 1) {
-            ret = anyio_dev_write_flash(board, bitfile_name, fallback_flag);
+            ret = anyio_dev_write_flash(board, bitfile_name, fallback_flag, fix_boot_flag);
             if (ret == 0)
             {
                 if (reload_flag == 1) {

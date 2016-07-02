@@ -205,7 +205,7 @@ board_t *anyio_get_dev(board_access_t *access, int board_number) {
     return NULL;
 }
 
-int anyio_dev_write_flash(board_t *board, char *bitfile_name, int fallback_flag) {
+int anyio_dev_write_flash(board_t *board, char *bitfile_name, int fallback_flag, int fix_boot_flag) {
     int ret;
 
     if (board == NULL) {
@@ -217,7 +217,7 @@ int anyio_dev_write_flash(board_t *board, char *bitfile_name, int fallback_flag)
         if (fallback_flag == 1) {
             addr = FALLBACK_ADDRESS;
         }
-        ret = board->llio.write_flash(&(board->llio), bitfile_name, addr);
+        ret = board->llio.write_flash(&(board->llio), bitfile_name, addr, fix_boot_flag);
     } else {
         printf("ERROR: Board %s doesn't support flash writing.\n", board->llio.board_name);
         return -EINVAL;
