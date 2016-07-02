@@ -391,8 +391,10 @@ int main(int argc, char *argv[]) {
                     if (ret == -1) {
                         printf("\nYou must power cycle the hardware to load a new firmware.\n");
                     }
-                } else {
+                } else if (board->llio.reload) {
                     printf("\nYou must power cycle the hardware or use the --reload command to load a new firmware.\n");
+                } else {
+                    printf("\nYou must power cycle the hardware\n");
                 }
             }
         } else if (verify_flag == 1) {
