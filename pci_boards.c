@@ -405,36 +405,6 @@ void pci_plx9030_bridge_eeprom_setup_read(board_t *board) {
     printf("\n");
 }
 
-static u32 plx9056_read_eeprom_dword(board_t *board, u16 reg) {
-    u32 ret;
-    u16 data;
-    int i;
-
-    pci_write_word(board->dev, PLX9056_VPD_ADDR, reg & ~PLX9056_VPD_FMASK);
-    for (i = 0; i < 100000; i++) {
-        data = pci_read_word(board->dev, PLX9056_VPD_ADDR);
-        if ((data & PLX9056_VPD_FMASK) != 0)
-            break;
-    }
-    if (i == 100000)
-        return -1;
-    ret = pci_read_word(board->dev, PLX9056_VPD_DATA);
-    ret |= pci_read_word(board->dev, PLX9056_VPD_DATA + 2) << 16;
-    return ret;
-}
-
-static u16 plx9056_read_eeprom_word(board_t *board, u16 reg) {
-    u16 addr = (reg << 1) & 0xFFFC;
-    u16 ret;
-    u32 data = plx9056_read_eeprom_dword(board, addr);
-
-    if ((reg & 0x01) == 0)
-        ret = (data >> 16) & 0xFFFF;
-    else
-        ret = data & 0xFFFF;
-    return ret;
-}
-
 static int plx9030_program_fpga(llio_t *self, char *bitfile_name) {
     board_t *board = self->board;
     int bindex, bytesread;

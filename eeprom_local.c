@@ -354,17 +354,6 @@ static void wait_for_write(llio_t *self) {
     }
 }
 
-static u8 read_byte(llio_t *self, u32 addr) {
-    u8 ret;
-
-    eeprom_access.prefix(self);
-    eeprom_access.send_byte(self, SPI_CMD_READ);
-    send_address(self, addr);
-    ret = eeprom_access.recv_byte(self);
-    eeprom_access.suffix(self);
-    return ret;
-}
-
 // eeprom access functions
 
 static void read_page(llio_t *self, u32 addr, void *buff) {
