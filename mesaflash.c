@@ -179,8 +179,6 @@ int process_cmd_line(int argc, char *argv[]) {
             break;
 
             case 'a': {
-                int i;
-
                 if (addr_flag > 0) {
                     printf("Error: multiple --addr options\n");
                     exit(-1);

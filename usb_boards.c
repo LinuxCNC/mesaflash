@@ -56,7 +56,6 @@ int usb_write(llio_t *self, u32 addr, void *buffer, int size) {
 static int usb_program_fpga(llio_t *self, char *bitfile_name) {
     board_t *board = self->board;
     int bindex, bytesread;
-    u32 status, control;
     char part_name[32];
     struct stat file_stat;
     FILE *fp;
@@ -124,7 +123,6 @@ void usb_boards_scan(board_access_t *access) {
     board_t *board = &boards[boards_count];
     u8 cmd, data;
     char dev_name[4];
-    u32 cookie;
 
     board_init_struct(board);
 

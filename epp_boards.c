@@ -38,7 +38,6 @@
 
 extern board_t boards[MAX_BOARDS];
 extern int boards_count;
-static u8 page_buffer[PAGE_SIZE];
 extern u8 boot_block[BOOT_BLOCK_SIZE];
 static u8 file_buffer[SECTOR_SIZE];
 
@@ -339,7 +338,6 @@ static int epp_board_close(board_t *board) {
 void epp_boards_scan(board_access_t *access) {
 #ifdef __linux__
     board_t *board = &boards[boards_count];
-    int r;
     u16 epp_addr = 0, epp_hi_addr = 0;
     u32 hm2_cookie, eppio_cookie;
 

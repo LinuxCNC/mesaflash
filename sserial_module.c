@@ -56,7 +56,7 @@ static void enable_sserial_pins(llio_t *llio) {
 
 // Return the physical ports to default
 static void disable_sserial_pins(llio_t *llio) {
-    int port_pin, port;
+    int port;
     u32 ddr_reg = 0;
     u32 src_reg = 0;
     hm2_module_desc_t *md = hm2_find_module(&(llio->hm2), HM2_GTAG_IOPORT);
@@ -95,7 +95,6 @@ void sslbp_send_remote_cmd(sserial_module_t *ssmod, int interface, int channel, 
 }
 
 u8 sslbp_read_local8(sserial_module_t *ssmod, int interface, u32 addr) {
-    u8 ret;
 
     sslbp_send_local_cmd(ssmod, interface, SSLBP_CMD_READ(addr));
     sslbp_wait_complete(ssmod, interface);
@@ -222,9 +221,7 @@ void sslbp_read_remote_bytes(sserial_module_t *ssmod, int interface, int channel
 }
 
 int sserial_init(sserial_module_t *ssmod, board_t *board, int interface_num, int channel_num, u32 remote_type) {
-    u32 cmd, status, data, addr;
-    u16 d;
-    int i;
+    u32 cmd, status;
     hm2_module_desc_t *md = hm2_find_module(&(board->llio.hm2), HM2_GTAG_SSERIAL);
 
     if (md == NULL) {
@@ -338,7 +335,6 @@ void sserial_module_init(llio_t *llio) {
     hm2_module_desc_t *md = hm2_find_module(&(llio->hm2), HM2_GTAG_SSERIAL);
     sserial_module_t ssmodule, *ssmod = &ssmodule;
     char *record_types[9] = {"PADDING", "BITFIELD", "UNSIGNED", "SIGNED", "NV UNSIGNED", "NV SIGNED", "STREAM", "BOOLEAN", "ENCODER"};
-    char *mode_types[2] = {"HARDWARE", "SOFTWARE"};
     char *baud_rates[12] = {"9600b", "19200b", "38400b", "57600b", "115200b", "230400b", "460800b", "921600b", "1.25Mb", "2.5Mb", "5Mb", "10Mb"};
 
     if (md == NULL)
@@ -419,7 +415,7 @@ void sserial_module_init(llio_t *llio) {
                 sserial_pdd_t sserial_pdd;
                 sserial_md_t sserial_md;
                 u8 record_type;
-                char name[48], unit[48], buff[32];
+                char name[48], unit[48];
 
                 d = sslbp_read_remote16(ssmod, port, channel, addr);
                 if (d == 0) break;

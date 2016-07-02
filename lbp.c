@@ -85,7 +85,7 @@ int lbp_read(u16 addr, void *buffer) {
 }
 
 int lbp_write(u16 addr, void *buffer) {
-    int send, recv;
+    int send;
     lbp_cmd_addr_data packet;
 
     packet.cmd = LBP_CMD_WRITE | LBP_ARGS_32BIT;

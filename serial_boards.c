@@ -40,7 +40,7 @@ int sd;
 // serial access functions
 
 int serial_send_packet(void *packet, int size) {
-    int send, rc, ret;
+    int rc, ret;
     int r = 0, timeouts = 0;
     struct timespec timeout = {0, 50*1000*1000};
     struct pollfd fds[1];
@@ -66,7 +66,7 @@ int serial_send_packet(void *packet, int size) {
 }
 
 int serial_recv_packet(void *packet, int size) {
-    int recv, rc, ret;
+    int rc, ret;
     int r = 0, timeouts = 0;
     struct timespec timeout = {0, 300*1000*1000};
     struct pollfd fds[1];
@@ -165,7 +165,7 @@ void serial_boards_cleanup(board_access_t *access) {
 
 void serial_boards_scan(board_access_t *access) {
     lbp16_cmd_addr packet;
-    int send = 0, recv = 0, ret = 0;
+    int send = 0, recv = 0;
     char buff[16];
 
     LBP16_INIT_PACKET4(packet, CMD_READ_BOARD_INFO_ADDR16_INCR(8), 0);
@@ -207,12 +207,9 @@ void serial_boards_scan(board_access_t *access) {
 void serial_print_info(board_t *board) {
     lbp16_cmd_addr packet;
     int i, j, recv;
-    u32 flash_id;
     char *mem_types[16] = {NULL, "registers", "memory", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "EEPROM", "flash"};
     char *mem_writeable[2] = {"RO", "RW"};
     char *acc_types[4] = {"8-bit", "16-bit", "32-bit", "64-bit"};
-    char *led_debug_types[2] = {"Hostmot2", "eth debug"};
-    char *boot_jumpers_types[4] = {"fixed "LBP16_HW_IP, "fixed from EEPROM", "from BOOTP", "INVALID"};
     lbp_mem_info_area mem_area;
     lbp_timers_area timers_area;
     lbp_status_area stat_area;

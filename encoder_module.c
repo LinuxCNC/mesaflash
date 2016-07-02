@@ -92,7 +92,7 @@ int encoder_cleanup(encoder_module_t *enc) {
 int encoder_read(encoder_module_t *enc) {
     board_t *board;
     u32 tsc, count, control;
-    u16 reg_count, reg_time_stamp, ctrl;
+    u16 reg_count, reg_time_stamp;
     int prev_raw_counts = enc->raw_counts, reg_count_diff, tsc_rollover = 0;
     int dT_clocks;
     double dT_seconds;
