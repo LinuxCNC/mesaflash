@@ -678,12 +678,14 @@ int pci_read(llio_t *self, u32 addr, void *buffer, int size) {
     board_t *board = self->board;
     assert(size % 4 == 0);
     memcpy32(buffer, board->base + addr, size/4);
+    return 0;
 }
 
 int pci_write(llio_t *self, u32 addr, void *buffer, int size) {
     board_t *board = self->board;
     assert(size % 4 == 0);
     memcpy32(board->base + addr, buffer, size/4);
+    return 0;
 }
 
 static int pci_board_reload(llio_t *self, int fallback_flag) {

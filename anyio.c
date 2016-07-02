@@ -184,6 +184,8 @@ int anyio_find_dev(board_access_t *access) {
             serial_boards_scan(access);
         }
     }
+
+    return 0;
 }
 
 board_t *anyio_get_dev(board_access_t *access, int board_number) {
