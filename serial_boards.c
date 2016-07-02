@@ -266,7 +266,7 @@ void serial_print_info(board_t *board) {
         lbp16_send_packet(&cmds[i], sizeof(cmds[i]));
         lbp16_recv_packet(&mem_area, sizeof (mem_area));
 
-        printf("    %d: %.*s (%s, %s", i, sizeof(mem_area.name), mem_area.name, mem_types[(mem_area.size  >> 8) & 0x7F],
+        printf("    %d: %.*s (%s, %s", i, (int)sizeof(mem_area.name), mem_area.name, mem_types[(mem_area.size  >> 8) & 0x7F],
           mem_writeable[(mem_area.size & 0x8000) >> 15]);
         for (j = 0; j < 4; j++) {
             if ((mem_area.size & 0xFF) & 1 << j)
@@ -300,7 +300,7 @@ void serial_print_info(board_t *board) {
     printf("    scratch: 0x%04X\n", stat_area.Scratch);
 
     printf("  [space 7] LBP16 info:\n");
-    printf("    board name: %.*s\n", sizeof(info_area.name), info_area.name);
+    printf("    board name: %.*s\n", (int)sizeof(info_area.name), info_area.name);
     printf("    LBP16 protocol version %d\n", info_area.LBP16_version);
     printf("    board firmware version %d\n", info_area.firmware_version);
 }

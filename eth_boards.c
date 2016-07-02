@@ -466,7 +466,7 @@ void eth_print_info(board_t *board) {
         lbp16_send_packet(&cmds[i], sizeof(cmds[i]));
         lbp16_recv_packet(&mem_area, sizeof (mem_area));
 
-        printf("    %d: %.*s (%s, %s", i, sizeof(mem_area.name), mem_area.name, mem_types[(mem_area.size  >> 8) & 0x7F],
+        printf("    %d: %.*s (%s, %s", i, (int)sizeof(mem_area.name), mem_area.name, mem_types[(mem_area.size  >> 8) & 0x7F],
           mem_writeable[(mem_area.size & 0x8000) >> 15]);
         for (j = 0; j < 4; j++) {
             if ((mem_area.size & 0xFF) & 1 << j)
@@ -485,7 +485,7 @@ void eth_print_info(board_t *board) {
     printf("    mac address: %02X:%02X:%02X:%02X:%02X:%02X\n", HI_BYTE(eth_area.mac_addr_hi), LO_BYTE(eth_area.mac_addr_hi),
       HI_BYTE(eth_area.mac_addr_mid), LO_BYTE(eth_area.mac_addr_mid), HI_BYTE(eth_area.mac_addr_lo), LO_BYTE(eth_area.mac_addr_lo));
     printf("    ip address: %u.%u.%u.%u\n", HI_BYTE(eth_area.ip_addr_hi), LO_BYTE(eth_area.ip_addr_hi), HI_BYTE(eth_area.ip_addr_lo), LO_BYTE(eth_area.ip_addr_lo));
-    printf("    board name: %.*s\n", sizeof(eth_area.name), eth_area.name);
+    printf("    board name: %.*s\n", (int)sizeof(eth_area.name), eth_area.name);
     printf("    user leds: %s\n", led_debug_types[eth_area.led_debug & 0x1]);
 
     printf("  [space 3] FPGA flash eeprom:\n");
@@ -508,7 +508,7 @@ void eth_print_info(board_t *board) {
     printf("    scratch: 0x%04X\n", stat_area.Scratch);
 
     printf("  [space 7] LBP16 info:\n");
-    printf("    board name: %.*s\n", sizeof(info_area.name), info_area.name);
+    printf("    board name: %.*s\n", (int)sizeof(info_area.name), info_area.name);
     printf("    LBP16 protocol version %d\n", info_area.LBP16_version);
     printf("    board firmware version %d\n", info_area.firmware_version);
     printf("    IP address jumpers at boot: %s\n", boot_jumpers_types[info_area.jumpers]);

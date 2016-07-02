@@ -322,7 +322,7 @@ void hm2_print_idrom(hostmot2_t *hm2) {
     printf("  IDRom Type: 0x%02X\n", hm2->idrom.idrom_type);
     printf("  Offset to Modules: 0x%08X\n", hm2->idrom.offset_to_modules); 
     printf("  Offset to Pin Description: 0x%08X\n", hm2->idrom.offset_to_pins); 
-    printf("  Board Name: %.*s\n", sizeof(hm2->config_name), hm2->idrom.board_name);
+    printf("  Board Name: %.*s\n", (int)sizeof(hm2->config_name), hm2->idrom.board_name);
     printf("  FPGA Size: %u\n", hm2->idrom.fpga_size);
     printf("  FPGA Pins: %u\n", hm2->idrom.fpga_pins);
     printf("  Port Width: %u\n", hm2->idrom.port_width);
@@ -624,7 +624,7 @@ void hm2_print_pin_file(llio_t *llio, int xml_flag) {
     if (xml_flag == 0) {
         printf("Configuration Name: %.*s\n", 8, llio->hm2.config_name);
         printf("\nGeneral configuration information:\n\n");
-        printf("  BoardName : %.*s\n", sizeof(llio->hm2.idrom.board_name), llio->hm2.idrom.board_name);
+        printf("  BoardName : %.*s\n", (int)sizeof(llio->hm2.idrom.board_name), llio->hm2.idrom.board_name);
         printf("  FPGA Size: %u KGates\n", llio->hm2.idrom.fpga_size);
         printf("  FPGA Pins: %u\n", llio->hm2.idrom.fpga_pins);
         printf("  Number of IO Ports: %u\n", llio->hm2.idrom.io_ports);
@@ -712,7 +712,7 @@ void hm2_print_pin_file(llio_t *llio, int xml_flag) {
     } else {
         printf("<?xml version=\"1.0\"?>\n");
         printf("<hostmot2>\n");
-        printf("    <boardname>%.*s</boardname>\n", sizeof(llio->hm2.idrom.board_name), llio->hm2.idrom.board_name);
+        printf("    <boardname>%.*s</boardname>\n", (int)sizeof(llio->hm2.idrom.board_name), llio->hm2.idrom.board_name);
         printf("    <ioports>%d</ioports>\n", llio->hm2.idrom.io_ports);
         printf("    <iowidth>%d</iowidth>\n", llio->hm2.idrom.port_width*llio->hm2.idrom.io_ports);
         printf("    <portwidth>%d</portwidth>\n", llio->hm2.idrom.port_width);
