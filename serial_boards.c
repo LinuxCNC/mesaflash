@@ -166,7 +166,7 @@ void serial_boards_cleanup(board_access_t *access) {
 void serial_boards_scan(board_access_t *access) {
     lbp16_cmd_addr packet;
     int send = 0, recv = 0, ret = 0;
-    u8 buff[16];
+    char buff[16];
 
     LBP16_INIT_PACKET4(packet, CMD_READ_BOARD_INFO_ADDR16_INCR(8), 0);
     send = lbp16_send_packet(&packet, sizeof(packet));
