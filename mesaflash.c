@@ -374,13 +374,16 @@ int main(int argc, char *argv[]) {
             ret = anyio_dev_set_remote_ip(board, lbp16_set_ip_addr);
         } else if (write_flag == 1) {
             ret = anyio_dev_write_flash(board, bitfile_name, fallback_flag);
-            if (reload_flag == 1) {
-                ret = anyio_dev_reload(board, fallback_flag);
-                if (ret == -1) {
-                    printf("\nYou must power cycle the hardware to load a new firmware.\n");
+            if (ret == 0)
+            {
+                if (reload_flag == 1) {
+                    ret = anyio_dev_reload(board, fallback_flag);
+                    if (ret == -1) {
+                        printf("\nYou must power cycle the hardware to load a new firmware.\n");
+                    }
+                } else {
+                    printf("\nYou must power cycle the hardware or use the --reload command to load a new firmware.\n");
                 }
-            } else {
-                printf("\nYou must power cycle the hardware or use the --reload command to load a new firmware.\n");
             }
         } else if (verify_flag == 1) {
             ret = anyio_dev_verify_flash(board, bitfile_name, fallback_flag);
