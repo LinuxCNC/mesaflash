@@ -29,7 +29,9 @@ $(PKG)_$(VER)$(DTYPE).orig.tar.xz:
 	&& $(RM) -r -v \
 	    debian \
 	    winio32 \
-	    WinIo32.*
+	    WinIo32.* \
+	    libpci.dll \
+	    libpci
 	#$(RM) -v $(PKG)_$(VER).orig.tar.*
 	@echo "# Packing..."
 	find -L "$(PKG)-$(VER)" -xdev -type f -print | LC_ALL=C sort \
