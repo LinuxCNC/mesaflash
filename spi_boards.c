@@ -148,7 +148,8 @@ void spi_boards_scan(board_access_t *access) {
     }
 
     if(memcmp(buf, cookie, sizeof(cookie))) {
-        fprintf(stderr, "Unexpected cookie at 0000..000c:\n%08x %08x %08x\n",
+        fprintf(stderr, "Unexpected cookie at %04x..%04x:\n%08x %08x %08x\n",
+            HM2_COOKIE_REG, HM2_COOKIE_REG + sizeof(buf),
             buf[0], buf[1], buf[2]);
         return;
     }
