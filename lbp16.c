@@ -77,6 +77,8 @@ int lbp16_board_reset(llio_t *self) {
 
     LBP16_INIT_PACKET6(packet, CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1C, 0x0001);   // reset if != 0
     send = lbp16_send_packet(&packet, sizeof(packet));
+
+    return 0;
 }
 
 int lbp16_board_reload(llio_t *self, int fallback_flag) {
@@ -121,6 +123,8 @@ int lbp16_board_reload(llio_t *self, int fallback_flag) {
     LBP16_INIT_PACKET6(packet[12], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x2000);  // NOP
     LBP16_INIT_PACKET6(packet[13], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x2000);  // NOP
     send = lbp16_send_packet(&packet, sizeof(packet));
+
+    return 0;
 }
 
 void lbp16_init(int board_type) {

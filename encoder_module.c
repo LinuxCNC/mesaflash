@@ -79,16 +79,20 @@ int encoder_init(encoder_module_t *enc, board_t *board, int instance, int delay)
     control |= HM2_ENCODER_FILTER;
     control &= ~(HM2_ENCODER_QUADRATURE_ERROR);
     enc->board->llio.write(&(enc->board->llio), enc->base_address + HM2_MOD_OFFS_MUX_ENCODER_LATCH_CCR + enc->instance*enc->instance_stride, &control, sizeof(control));
+
+    return 0;
 }
 
 int encoder_cleanup(encoder_module_t *enc) {
     disable_encoder_pins(&(enc->board->llio));
+
+    return 0;
 }
 
 int encoder_read(encoder_module_t *enc) {
     board_t *board;
     u32 tsc, count, control;
-    u16 reg_count, reg_time_stamp, ctrl;
+    u16 reg_count, reg_time_stamp;
     int prev_raw_counts = enc->raw_counts, reg_count_diff, tsc_rollover = 0;
     int dT_clocks;
     double dT_seconds;

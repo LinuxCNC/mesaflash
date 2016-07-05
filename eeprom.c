@@ -149,7 +149,7 @@ int start_programming(llio_t *self, u32 start_address, int fsize) {
     return 0;
 }
 
-int eeprom_write(llio_t *self, char *bitfile_name, u32 start_address) {
+int eeprom_write(llio_t *self, char *bitfile_name, u32 start_address, int fix_boot_flag) {
     board_t *board = self->board;
     int bytesread, i;
     u32 eeprom_addr;
@@ -184,14 +184,20 @@ int eeprom_write(llio_t *self, char *bitfile_name, u32 start_address) {
 // if board doesn't support fallback there is no boot block
     if (board->fallback_support == 1) {
         if (check_boot(self) == -1) {
-            write_boot(self);
+            if (fix_boot_flag) {
+                write_boot(self);
+                if (check_boot(self) == -1) {
+                    printf("Failed to write valid boot sector\n");
+                    fclose(fp);
+                    return -1;
+                }
+            } else {
+                printf("Error: BootSector is invalid\n");
+                fclose(fp);
+                return -1;
+            }
         } else {
             printf("Boot sector OK\n");
-        }
-        if (check_boot(self) == -1) {
-            printf("Failed to write valid boot sector\n");
-            fclose(fp);
-            return -1;
         }
     }
 

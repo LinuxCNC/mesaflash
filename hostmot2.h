@@ -52,7 +52,7 @@ typedef struct {
 struct llio_struct {
     int (*read)(llio_t *self, u32 addr, void *buffer, int size);
     int (*write)(llio_t *self, u32 addr, void *buffer, int size);
-    int (*write_flash)(llio_t *self, char *bitfile_name, u32 start_address);
+    int (*write_flash)(llio_t *self, char *bitfile_name, u32 start_address, int fix_boot_flag);
     int (*verify_flash)(llio_t *self, char *bitfile_name, u32 start_address);
     int (*program_fpga)(llio_t *self, char *bitfile_name);
     int (*reset)(llio_t *self);

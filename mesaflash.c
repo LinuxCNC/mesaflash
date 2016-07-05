@@ -33,7 +33,9 @@ static int device_flag;
 static int addr_flag;
 static int addr_hi_flag;
 static int write_flag;
+static int fix_boot_flag;
 static int verify_flag;
+static int auto_verify_flag = 1;
 static int fallback_flag;
 static int recover_flag;
 static int program_flag;
@@ -63,6 +65,8 @@ static struct option long_options[] = {
     {"addr", required_argument, 0, 'a'},
     {"addr_hi", required_argument, 0, 'b'},
     {"write", required_argument, 0, 'w'},
+    {"no-auto-verify", no_argument, &auto_verify_flag, 0},
+    {"fix-boot-block", no_argument, &fix_boot_flag, 1},
     {"verify", required_argument, 0, 'v'},
     {"fallback", no_argument, &fallback_flag, 1},
     {"recover", no_argument, &recover_flag, 1},
@@ -122,6 +126,8 @@ void print_usage() {
     printf("  --verbose     print detailed information while running commands\n");
     printf("\nCommands:\n");
     printf("  --write       writes a standard bitfile 'filename' configuration to the userarea of the EEPROM (IMPORTANT! 'filename' must be VALID FPGA configuration file)\n");
+    printf("      --fix-boot-block  If a write operation does not detect a valid boot block, write one\n");
+    printf("      --no-auto-verify  Don't automatically verify after writing\n");
     printf("  --verify      verifies the EEPROM configuration against the bitfile 'filename'\n");
     printf("  --program     writes a standard bitfile 'filename' configuration to the FPGA (IMPORTANT! 'filename' must be VALID FPGA configuration file)\n");
     printf("  --readhmid    print hostmot2 configuration in PIN file format\n");
@@ -173,8 +179,6 @@ int process_cmd_line(int argc, char *argv[]) {
             break;
 
             case 'a': {
-                int i;
-
                 if (addr_flag > 0) {
                     printf("Error: multiple --addr options\n");
                     exit(-1);
@@ -373,14 +377,23 @@ int main(int argc, char *argv[]) {
         } else if (set_flag == 1) {
             ret = anyio_dev_set_remote_ip(board, lbp16_set_ip_addr);
         } else if (write_flag == 1) {
-            ret = anyio_dev_write_flash(board, bitfile_name, fallback_flag);
-            if (reload_flag == 1) {
-                ret = anyio_dev_reload(board, fallback_flag);
-                if (ret == -1) {
-                    printf("\nYou must power cycle the hardware to load a new firmware.\n");
+            ret = anyio_dev_write_flash(board, bitfile_name, fallback_flag, fix_boot_flag);
+            if (ret == 0) {
+                if (auto_verify_flag) {
+                    ret = anyio_dev_verify_flash(board, bitfile_name, fallback_flag);
                 }
-            } else {
-                printf("\nYou must power cycle the hardware or use the --reload command to load a new firmware.\n");
+            }
+            if (ret == 0) {
+                if (reload_flag == 1) {
+                    ret = anyio_dev_reload(board, fallback_flag);
+                    if (ret == -1) {
+                        printf("\nYou must power cycle the hardware to load a new firmware.\n");
+                    }
+                } else if (board->llio.reload) {
+                    printf("\nYou must power cycle the hardware or use the --reload command to load a new firmware.\n");
+                } else {
+                    printf("\nYou must power cycle the hardware\n");
+                }
             }
         } else if (verify_flag == 1) {
             ret = anyio_dev_verify_flash(board, bitfile_name, fallback_flag);

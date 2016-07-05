@@ -21,7 +21,7 @@
 
 #include "hostmot2.h"
 
-int remote_write_flash(llio_t *self, char *bitfile_name, u32 start_address);
+int remote_write_flash(llio_t *self, char *bitfile_name, u32 start_address, int fix_boot_flag);
 int remote_verify_flash(llio_t *self, char *bitfile_name, u32 start_address);
 void open_spi_access_remote(llio_t *self);
 void close_spi_access_remote(llio_t *self);
