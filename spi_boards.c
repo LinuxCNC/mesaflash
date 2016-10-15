@@ -36,6 +36,8 @@
 extern board_t boards[MAX_BOARDS];
 extern int boards_count;
 
+bool canDo32 = true;
+
 int sd = -1;
 struct spi_ioc_transfer settings;
 
@@ -92,7 +94,13 @@ int spi_boards_init(board_access_t *access) {
     }
     spidev_set_lsb_first(sd, false);
     spidev_set_mode(sd, 0);
-    spidev_set_bits_per_word(sd, 32);
+    if (spidev_set_bits_per_word(sd, settings.bits_per_word) < 0)
+    {
+        fprintf(stderr,"unable to set bpw32, fallback to bpw8\n");
+        canDo32 = false;
+        settings.bits_per_word = 8;
+        spidev_set_bits_per_word(sd, settings.bits_per_word);        
+    }
     spidev_set_max_speed_hz(sd, settings.speed_hz);
 
     return 0;
@@ -102,19 +110,45 @@ void spi_boards_cleanup(board_access_t *access) {
     if(sd != -1) close(sd);
 }
 
+void reorderBuffer(char *pBuf, int numInts)
+{
+    int lcv;
+    for (lcv = 0; lcv < numInts; lcv++)
+    {
+        pBuf[0] ^= pBuf[3];
+        pBuf[3] ^= pBuf[0];
+        pBuf[0] ^= pBuf[3];
+        pBuf[1] ^= pBuf[2];
+        pBuf[2] ^= pBuf[1];
+        pBuf[1] ^= pBuf[2];
+        pBuf += 4;
+    }
+}
+
 int spi_read(llio_t *self, u32 addr, void *buffer, int size) {
     if(size % 4 != 0) return -1;
-    u32 trxbuf[1+size/4];
+    int numInts = 1+size/4;
+    u32 trxbuf[numInts];
+
     trxbuf[0] = read_command(addr, size/4);
     memset(trxbuf+1, 0, size);
-
     struct spi_ioc_transfer t;
     t = settings;
     t.tx_buf = t.rx_buf = (uint64_t)(intptr_t)trxbuf;
     t.len = sizeof(trxbuf);
+    if (!canDo32)
+    {
+        reorderBuffer((char *) trxbuf, 1);
+    }
 
     int r = ioctl(sd, SPI_IOC_MESSAGE(1), &t);
+
     if(r < 0) return r;
+
+    if (!canDo32)
+    {
+        reorderBuffer((char *) trxbuf, numInts);
+    }
 
     memcpy(buffer, trxbuf+1, size);
     return 0;
@@ -122,7 +156,9 @@ int spi_read(llio_t *self, u32 addr, void *buffer, int size) {
 
 int spi_write(llio_t *self, u32 addr, void *buffer, int size) {
     if(size % 4 != 0) return -1;
-    u32 txbuf[1+size/4];
+    int numInts = 1+size/4;
+    u32 txbuf[numInts];
+
     txbuf[0] = write_command(addr, size/4);
     memcpy(txbuf + 1, buffer, size);
 
@@ -130,6 +166,10 @@ int spi_write(llio_t *self, u32 addr, void *buffer, int size) {
     t = settings;
     t.tx_buf = (uint64_t)(intptr_t)txbuf;
     t.len = sizeof(txbuf);
+    if (!canDo32)
+    {
+        reorderBuffer((char *) txbuf, numInts);
+    }
 
     int r = ioctl(sd, SPI_IOC_MESSAGE(1), &t);
     if(r <= 0) return r;
@@ -142,7 +182,6 @@ void spi_boards_scan(board_access_t *access) {
     board_t *board = &boards[boards_count];
 
     board_init_struct(board);
-
     if (spi_read(&(board->llio), HM2_COOKIE_REG, &buf, sizeof(buf)) < 0) {
         return;
     }
