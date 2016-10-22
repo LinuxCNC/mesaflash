@@ -188,16 +188,16 @@ int anyio_find_dev(board_access_t *access) {
 
 board_t *anyio_get_dev(board_access_t *access, int board_number) {
     int i, j;
-    board_t *board = NULL;
 
     if (access == NULL) {
         return NULL;
     }
     for (i = 0, j = 0; i < boards_count; i++) {
-        if (strncmp(access->device_name, boards[i].llio.board_name, strlen(access->device_name)) == 0) {
+        board_t *board = NULL;
+        board = &boards[i];
+        if (strncmp(access->device_name, board->llio.board_name, strlen(access->device_name)) == 0) {
             j++;
             if (j == board_number) {
-                board = &boards[i];
                 return board;
             }
         }
