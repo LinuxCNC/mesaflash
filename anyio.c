@@ -30,6 +30,7 @@
 #include "serial_boards.h"
 
 supported_board_entry_t supported_boards[] = {
+    {"ETHER", BOARD_ETH | BOARD_WILDCARD},
     {"7I92", BOARD_ETH},
     {"7I80", BOARD_ETH},
     {"7I76E", BOARD_ETH},
@@ -105,6 +106,8 @@ int anyio_find_dev(board_access_t *access) {
     }
 
     access->open_iface = 0;
+    if (supported_board->type & BOARD_WILDCARD)
+        access->open_iface = BOARD_WILDCARD;
     if (access->type == BOARD_ANY) {
         if (supported_board->type & BOARD_MULTI_INTERFACE) {
             printf("ERROR: you must select transport layer for board\n");
@@ -195,7 +198,7 @@ board_t *anyio_get_dev(board_access_t *access, int board_number) {
     for (i = 0, j = 0; i < boards_count; i++) {
         board_t *board = NULL;
         board = &boards[i];
-        if (strncmp(access->device_name, board->llio.board_name, strlen(access->device_name)) == 0) {
+        if (strncmp(access->device_name, board->llio.board_name, strlen(access->device_name)) == 0 || access->open_iface & BOARD_WILDCARD) {
             j++;
             if (j == board_number) {
                 return board;
