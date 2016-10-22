@@ -33,6 +33,7 @@ supported_board_entry_t supported_boards[] = {
     {"ETHER", BOARD_ETH | BOARD_WILDCARD},
     {"7I92", BOARD_ETH},
     {"7I93", BOARD_ETH},
+    {"7I96", BOARD_ETH},
     {"7I80", BOARD_ETH},
     {"7I76E", BOARD_ETH},
 
