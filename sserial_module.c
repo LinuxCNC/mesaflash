@@ -228,8 +228,8 @@ int sserial_init(sserial_module_t *ssmod, board_t *board, int interface_num, int
         printf("No sserial module found.\n");
         return -1;
     }
-    if (interface_num >= HM2_SSERIAL_MAX_INTEFACES) {
-        printf("sserial inteface number too high.\n");
+    if (interface_num >= HM2_SSERIAL_MAX_INTERFACES) {
+        printf("sserial interface number too high.\n");
         return -1;
     }
     if (channel_num >= HM2_SSERIAL_MAX_CHANNELS) {
