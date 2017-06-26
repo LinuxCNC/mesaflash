@@ -54,5 +54,6 @@ typedef struct {
 int sserial_init(sserial_module_t *ssmod, board_t *board, int interface_num, int channel_num, u32 remote_type);
 int sserial_cleanup(sserial_module_t *ssmod);
 void sserial_module_init(llio_t *llio);
+int sserial_write(sserial_module_t *ssmod);
 
 #endif
