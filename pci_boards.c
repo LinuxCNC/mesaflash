@@ -692,6 +692,21 @@ static int plx905x_reset(llio_t *self) {
     return 0;
 }
 
+int pci_read(llio_t *self, u32 addr, void *buffer, int size) {
+    board_t *board = self->board;
+
+    memcpy(buffer, (board->base + addr), size);
+//    printf("READ %X, (%X + %X), %d\n", buffer, board->base, addr, size);
+    return 0;
+}
+
+int pci_write(llio_t *self, u32 addr, void *buffer, int size) {
+    board_t *board = self->board;
+
+    memcpy((board->base + addr), buffer, size);
+    return 0;
+}
+
 static int pci_board_reload(llio_t *self, int fallback_flag) {
     board_t *board = self->board;
     int i;
@@ -765,21 +780,6 @@ static void pci_fix_bar_lengths(struct pci_dev *dev) {
         dev->size[i] = size + 1;
     }
 #endif
-}
-
-int pci_read(llio_t *self, u32 addr, void *buffer, int size) {
-    board_t *board = self->board;
-
-    memcpy(buffer, (board->base + addr), size);
-//    printf("READ %X, (%X + %X), %d\n", buffer, board->base, addr, size);
-    return 0;
-}
-
-int pci_write(llio_t *self, u32 addr, void *buffer, int size) {
-    board_t *board = self->board;
-
-    memcpy((board->base + addr), buffer, size);
-    return 0;
 }
 
 static int pci_board_open(board_t *board) {
