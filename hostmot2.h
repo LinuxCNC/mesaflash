@@ -88,6 +88,8 @@ void hm2_print_modules(hostmot2_t *hm2);
 void hm2_print_pins(hostmot2_t *hm2);
 void hm2_print_pin_file(llio_t *llio, int xml_flag);
 void sserial_module_init(llio_t *llio);
+void hm2_set_pin_source(hostmot2_t *hm2, int pin_number, u8 source);
+void hm2_set_pin_direction(hostmot2_t *hm2, int pin_number, u8 direction);
 
 #endif
 
