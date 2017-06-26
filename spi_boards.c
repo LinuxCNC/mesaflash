@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "types.h"
+#include "eeprom.h"
 #include "eeprom_local.h"
 #include "spi_boards.h"
 #include "common.h"
