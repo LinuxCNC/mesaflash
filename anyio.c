@@ -27,6 +27,7 @@
 #include "epp_boards.h"
 #include "usb_boards.h"
 #include "spi_boards.h"
+#include "serial_boards.h"
 
 supported_board_entry_t supported_boards[] = {
     {"7I92", BOARD_ETH},
