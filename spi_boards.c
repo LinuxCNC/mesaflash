@@ -27,6 +27,7 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include "types.h"
 #include "eeprom.h"
 #include "eeprom_local.h"
