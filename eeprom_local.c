@@ -18,6 +18,7 @@
 
 #ifdef __linux__
 #include <sys/io.h>
+#include <pci/pci.h>
 #endif
 #include <sys/stat.h>
 #include <stdio.h>
