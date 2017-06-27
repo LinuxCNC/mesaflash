@@ -1,8 +1,11 @@
-mesaflash (3.3.0~pre) UNRELEASED; urgency=low
+mesaflash (3.3.0~pre0+dfsg-0) stable; urgency=low
 
-  * New version coming in the future - watch this space.
+  * support Mesa 7i93 ethernet board
+  * support Mesa 7i96 ethernet board
+  * Verify firmware after writing
+  * Many bug fixes
 
- -- Michael Geszkiewicz <micges@wp.pl>  27 Sep 2015 19:24:42 -0500
+ -- Sebastian Kuzminsky <seb@highlab.com>  Tue, 27 Jun 2017 21:52:31 -0600
 
 mesaflash (3.2.1) stable; urgency=low
 

@@ -37,3 +37,8 @@ $(PKG)_$(VER)$(DTYPE).orig.tar.xz:
 	find -L "$(PKG)-$(VER)" -xdev -type f -print | LC_ALL=C sort \
 	| XZ_OPT="-6v" tar -caf "$(PKG)_$(VER)$(DTYPE).orig.tar.xz" -T- --owner=root --group=root --mode=a+rX \
 	&& $(RM) -r "$(PKG)-$(VER)"
+
+.PHONY: clean
+clean:
+	rm -rf winio32 WinIo32.* libpci.dll libpci
+	$(MAKE) clean
