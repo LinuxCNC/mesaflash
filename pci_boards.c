@@ -19,6 +19,7 @@
 #ifdef __linux__
 #include <sys/mman.h>
 #include <sys/io.h>
+#include <sys/time.h>
 #include <pci/pci.h>
 #elif _WIN32
 #include <windows.h>

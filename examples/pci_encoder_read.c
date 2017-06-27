@@ -22,6 +22,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <unistd.h>
 #include "../anyio.h"
 #include "../encoder_module.h"
 #ifdef __linux__
@@ -38,7 +39,7 @@ static int instance = 0;
 static int delay_flag;
 static int delay = 50;
 static int verbose_flag;
-static board_access_t access;
+static board_access_t board_access;
 
 static struct option long_options[] = {
     {"device", required_argument, 0, 'd'},
@@ -87,9 +88,9 @@ int process_cmd_line(int argc, char *argv[]) {
                     printf("Error: multiply --device option\n");
                     exit(-1);
                 }
-                access.device_name = optarg;
+                board_access.device_name = optarg;
                 for (i = 0; optarg[i] != '\0'; i++)
-                    access.device_name[i] = toupper(access.device_name[i]);
+                    board_access.device_name[i] = toupper(board_access.device_name[i]);
 
                 device_flag++;
             }
@@ -141,18 +142,18 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    access.verbose = verbose_flag;
+    board_access.verbose = verbose_flag;
 
-    if (anyio_init(&access) != 0) {     // init library
+    if (anyio_init(&board_access) != 0) {     // init library
         return -1;
     }
-    ret = anyio_find_dev(&access);      // find board
+    ret = anyio_find_dev(&board_access);      // find board
     if (ret < 0) {
         return -1;
     }
-    board = anyio_get_dev(&access, 1);  // if found the get board handle
+    board = anyio_get_dev(&board_access, 1);  // if found the get board handle
     if (board == NULL) {
-        printf("No %s board found\n", access.device_name);
+        printf("No %s board found\n", board_access.device_name);
         return -1;
     }
 
@@ -176,7 +177,7 @@ int main(int argc, char *argv[]) {
 fail0:
     board->close(board);                // close board communication
 
-    anyio_cleanup(&access);             // close library
+    anyio_cleanup(&board_access);             // close library
 
     return 0;
 }
