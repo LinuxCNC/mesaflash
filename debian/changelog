@@ -1,8 +1,8 @@
-mesaflash (3.2.1) UNRELEASED; urgency=low
+mesaflash (3.2.1) stable; urgency=low
 
-  * Fix some compile warnings on Debian Stretch.
+  * Fix some compile warnings and link issues on Debian Stretch.
 
- -- Sebastian Kuzminsky <seb@highlab.com>  25 Jun 2017 21:29:40 -0700
+ -- Sebastian Kuzminsky <seb@highlab.com>  Tue, 27 Jun 2017 10:25:59 -0600
 
 mesaflash (3.2.0) stable; urgency=low
 
