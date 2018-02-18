@@ -116,7 +116,7 @@ void print_usage() {
     printf("  --device <name>   Select active device name. If no command is given it\n");
     printf("                    will detect board with given name and print info\n");
     printf("                    about it.\n");
-    printf("  --addr <dev>      Select <dev> for looking for <name> (network C mask for\n");
+    printf("  --addr <dev>      Select <dev> for looking for <name> (IP address for\n");
     printf("                    Ethernet boards, serial port for USB boards)\n");
     printf("  --addr_hi         Set the high register address for the EPP interface.\n");
     printf("  --epp             Use EPP interface to connect to board, only for boards\n");
