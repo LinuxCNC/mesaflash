@@ -147,15 +147,15 @@ void print_usage() {
     printf("                    the FPGA (IMPORTANT! 'filename' must be VALID FPGA\n");
     printf("                    configuration file).\n");
     printf("  --readhmid        Print hostmot2 configuration in PIN file format.\n");
-    printf("  --reload          Do full FPGA reload from flash (only ethernet and\n");
+    printf("  --reload          Do full FPGA reload from flash (only Ethernet and\n");
     printf("                    pci boards).\n");
-    printf("  --reset           Do full firmware reset (only ethernet boards).\n");
+    printf("  --reset           Do full firmware reset (only Ethernet boards).\n");
     printf("  --sserial         Print full information about all sserial remote boards.\n");
     printf("  --rpo             Read hostmot2 variable directly at 'address'.\n");
     printf("  --wpo             Write hostmot2 variable directly at 'address'\n");
     printf("                    with 'value'.\n");
     printf("  --set             Set board IP address in eeprom to n.n.n.n (only\n");
-    printf("                    ethernet boards).\n");
+    printf("                    Ethernet boards).\n");
     printf("  --info            Print info about configuration in 'file_name'.\n");
     printf("  --help            Print this help message.\n");
 }
