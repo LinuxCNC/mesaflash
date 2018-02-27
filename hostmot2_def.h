@@ -207,7 +207,7 @@ typedef struct {
 
 // SSERIAL MODULE
 
-#define HM2_SSERIAL_MAX_INTEFACES       4
+#define HM2_SSERIAL_MAX_INTERFACES      4
 #define HM2_SSERIAL_MAX_CHANNELS        8
 
 #define HM2_MOD_OFFS_SSERIAL_CMD              0x0000
