@@ -1,5 +1,6 @@
 //
 //    Copyright (C) 2013-2014 Michael Geszkiewicz
+//    Copyright (C) 2018 Sebastian Kuzminsky
 //
 //    This program is free software; you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -95,7 +96,7 @@ const char *hm2_get_general_function_name(int gtag) {
         case HM2_GTAG_RESOLVER:          return "Resolver";
         case HM2_GTAG_SSERIAL:           return "Smart Serial Interface";
         case HM2_GTAG_TWIDDLER:          return "TWIDDLER";
-        case HM2_GTAG_XFORMER:           return "Transformer";
+        case HM2_GTAG_SSR:               return "SSR";
         default: {
             static char unknown[100];
             snprintf(unknown, 100, "(unknown-gtag-%d)", gtag);
@@ -420,7 +421,7 @@ static pin_name_t pin_names[HM2_MAX_TAGS] = {
   {HM2_GTAG_RESOLVER,  {"PwrEn", "PDMP", "PDMM", "ADChan0", "ADChan1", "ADChan2", "SPICS", "SPIClk", "SPIDI0", "SPIDI1"}},
   {HM2_GTAG_SSERIAL,  {"RXData", "TXData", "TXEn", "TestPin", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_TWIDDLER,  {"InBit", "IOBit", "OutBit", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-  {HM2_GTAG_XFORMER,  {"Drive", "Ref", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_SSR,       {"Drive", "Ref", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_SPI,      {"/Frame", "DOut", "SClk", "DIn", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_BSPI,     {"/Frame", "DOut", "SClk", "DIn", "CS0", "CS1", "CS2", "CS3", "Null9", "Null10"}},
   {HM2_GTAG_DBSPI,    {"Null1", "DOut", "SClk", "DIn", "/CS-FRM0", "/CS-FRM1", "/CS-FRM2", "/CS-FRM3", "Null9", "Null10"}},
@@ -452,7 +453,7 @@ static pin_name_t pin_names_xml[HM2_MAX_TAGS] = {
   {HM2_GTAG_RESOLVER,  {"PwrEn", "PDMP", "PDMM", "ADChan0", "ADChan1", "ADChan2", "SPICS", "SPIClk", "SPIDI0", "SPIDI1"}},
   {HM2_GTAG_SSERIAL,  {"RXData", "TXData", "TXEn", "TestPin", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_TWIDDLER,  {"InBit", "IOBit", "OutBit", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-  {HM2_GTAG_XFORMER,  {"Drive", "Ref", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_SSR,       {"Drive", "Ref", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_SPI,      {"/Frame", "DOut", "SClk", "DIn", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_BSPI,     {"/Frame", "DOut", "SClk", "DIn", "CS0", "CS1", "CS2", "CS3", "Null9", "Null10"}},
   {HM2_GTAG_DBSPI,    {"Null1", "DOut", "SClk", "DIn", "/CS-FRM0", "/CS-FRM1", "/CS-FRM2", "/CS-FRM3", "Null9", "Null10"}},
@@ -494,7 +495,7 @@ static mod_name_t mod_names[HM2_MAX_TAGS] = {
     {"ResolverMod", HM2_GTAG_RESOLVER},
     {"SSerial",     HM2_GTAG_SSERIAL},
     {"Twiddler",    HM2_GTAG_TWIDDLER},
-    {"Transformer", HM2_GTAG_XFORMER},
+    {"SSR",         HM2_GTAG_SSR},
 };
 
 static mod_name_t mod_names_xml[HM2_MAX_TAGS] = {
@@ -527,7 +528,7 @@ static mod_name_t mod_names_xml[HM2_MAX_TAGS] = {
     {"ResolverMod", HM2_GTAG_RESOLVER},
     {"SSerial",     HM2_GTAG_SSERIAL},
     {"Twiddler",    HM2_GTAG_TWIDDLER},
-    {"Transformer", HM2_GTAG_XFORMER},
+    {"SSR",         HM2_GTAG_SSR},
 };
 
 static char *pin_find_module_name(int gtag, int xml_flag) {
