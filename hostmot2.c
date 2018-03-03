@@ -568,7 +568,7 @@ static char *pin_get_pin_name(hm2_pin_desc_t *pin, int xml_flag) {
     for (i = 0; i < HM2_MAX_TAGS; i++) {
         if (pin_names_ptr[i].tag == pin->sec_tag) {
             if (pin->sec_tag == HM2_GTAG_SSERIAL) {
-                chan = pin->sec_pin & 0x0F;
+                chan = (pin->sec_pin & 0x0F) - 1;
                 if ((pin->sec_pin & 0xF0) == 0x00) {
                     sprintf(buff, "%s%u", pin_names_ptr[i].name[0], chan);
                     return buff;
