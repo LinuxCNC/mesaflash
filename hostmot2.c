@@ -421,7 +421,7 @@ static pin_name_t pin_names[HM2_MAX_TAGS] = {
   {HM2_GTAG_RESOLVER,  {"PwrEn", "PDMP", "PDMM", "ADChan0", "ADChan1", "ADChan2", "SPICS", "SPIClk", "SPIDI0", "SPIDI1"}},
   {HM2_GTAG_SSERIAL,  {"RXData", "TXData", "TXEn", "TestPin", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_TWIDDLER,  {"InBit", "IOBit", "OutBit", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-  {HM2_GTAG_SSR,       {"Drive", "Ref", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_SSR,       {"Out", "AC Ref", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_SPI,      {"/Frame", "DOut", "SClk", "DIn", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_BSPI,     {"/Frame", "DOut", "SClk", "DIn", "CS0", "CS1", "CS2", "CS3", "Null9", "Null10"}},
   {HM2_GTAG_DBSPI,    {"Null1", "DOut", "SClk", "DIn", "/CS-FRM0", "/CS-FRM1", "/CS-FRM2", "/CS-FRM3", "Null9", "Null10"}},
@@ -453,7 +453,7 @@ static pin_name_t pin_names_xml[HM2_MAX_TAGS] = {
   {HM2_GTAG_RESOLVER,  {"PwrEn", "PDMP", "PDMM", "ADChan0", "ADChan1", "ADChan2", "SPICS", "SPIClk", "SPIDI0", "SPIDI1"}},
   {HM2_GTAG_SSERIAL,  {"RXData", "TXData", "TXEn", "TestPin", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_TWIDDLER,  {"InBit", "IOBit", "OutBit", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-  {HM2_GTAG_SSR,       {"Drive", "Ref", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_SSR,       {"Out", "AC Ref", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_SPI,      {"/Frame", "DOut", "SClk", "DIn", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_BSPI,     {"/Frame", "DOut", "SClk", "DIn", "CS0", "CS1", "CS2", "CS3", "Null9", "Null10"}},
   {HM2_GTAG_DBSPI,    {"Null1", "DOut", "SClk", "DIn", "/CS-FRM0", "/CS-FRM1", "/CS-FRM2", "/CS-FRM3", "Null9", "Null10"}},
@@ -580,6 +580,15 @@ static char *pin_get_pin_name(hm2_pin_desc_t *pin, int xml_flag) {
                     return buff;
                 } else if (pin->sec_pin == 0xA1) {
                     sprintf(buff, "%s%u", pin_names_ptr[i].name[3], chan);
+                    return buff;
+                }
+            } else if (pin->sec_tag == HM2_GTAG_SSR) {
+                if ((pin->sec_pin & 0xF0) == 0x80) {
+                    chan = pin->sec_pin - 0x81;
+                    sprintf(buff, "%s-%02u", pin_names_ptr[i].name[0], chan);
+                    return buff;
+                } else if (pin->sec_pin == 0xA0) {
+                    sprintf(buff, "%s", pin_names_ptr[i].name[1]);
                     return buff;
                 }
             } else if (pin->gtag == HM2_GTAG_DAQ_FIFO) {
