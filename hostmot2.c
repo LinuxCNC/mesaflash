@@ -30,7 +30,7 @@ void hm2_read_idrom(hostmot2_t *hm2) {
         printf("ERROR: no HOSTMOT2 firmware found. %X\n", cookie);
         return;
     }
-    // check if it was already readed
+    // check if it was already read
     if (strncmp(hm2->config_name, "HOSTMOT2", 8) == 0)
         return;
 
