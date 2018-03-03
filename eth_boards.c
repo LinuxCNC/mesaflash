@@ -329,10 +329,9 @@ static int eth_scan_one_addr(board_access_t *access) {
             strncpy(board->llio.board_name, buff, 16);
             board->llio.num_ioport_connectors = 3;
             board->llio.pins_per_connector = 13;
-            board->llio.ioport_connector_name[0] = "P1";
-            board->llio.ioport_connector_name[1] = "TB1";
-            board->llio.ioport_connector_name[2] = "TB2";
-            board->llio.ioport_connector_name[3] = "TB3";
+            board->llio.ioport_connector_name[0] = "TB3";
+            board->llio.ioport_connector_name[1] = "TB1/TB2";
+            board->llio.ioport_connector_name[2] = "P1";
             board->llio.fpga_part_number = "6slx9tqg144";
             board->llio.num_leds = 4;
             board->llio.read = &eth_read;
