@@ -118,7 +118,10 @@ int anyio_find_dev(board_access_t *access) {
         if (supported_board->type & BOARD_ETH) {
             ret = eth_boards_init(access);
             access->open_iface |= BOARD_ETH;
-            eth_boards_scan(access);
+            ret = eth_boards_scan(access);
+            if (ret < 0) {
+                return ret;
+            }
         }
         if (supported_board->type & BOARD_PCI) {
             ret = pci_boards_init(access);

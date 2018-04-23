@@ -23,7 +23,7 @@
 
 int eth_boards_init(board_access_t *access);
 void eth_boards_cleanup(board_access_t *access);
-void eth_boards_scan(board_access_t *access);
+int eth_boards_scan(board_access_t *access);
 void eth_print_info(board_t *board);
 int eth_send_packet(void *packet, int size);
 int eth_recv_packet(void *buffer, int size);
