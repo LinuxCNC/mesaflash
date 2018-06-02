@@ -292,6 +292,7 @@ static pin_name_t pin_names[HM2_MAX_TAGS] = {
   {HM2_GTAG_UART_RX,   {"RXData", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_TRAM,    {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_LED,      {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_INMUX, {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
 };
 
 static pin_name_t pin_names_xml[HM2_MAX_TAGS] = {
@@ -324,6 +325,7 @@ static pin_name_t pin_names_xml[HM2_MAX_TAGS] = {
   {HM2_GTAG_UART_RX,   {"RXData", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_TRAM,    {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_LED,      {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_INMUX, {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
 };
 
 static mod_name_t mod_names[HM2_MAX_TAGS] = {
@@ -357,6 +359,7 @@ static mod_name_t mod_names[HM2_MAX_TAGS] = {
     {"SSerial",     HM2_GTAG_SSERIAL},
     {"Twiddler",    HM2_GTAG_TWIDDLER},
     {"SSR",         HM2_GTAG_SSR},
+    {"InMux",       HM2_GTAG_INMUX},
 };
 
 static mod_name_t mod_names_xml[HM2_MAX_TAGS] = {
@@ -390,6 +393,7 @@ static mod_name_t mod_names_xml[HM2_MAX_TAGS] = {
     {"SSerial",     HM2_GTAG_SSERIAL},
     {"Twiddler",    HM2_GTAG_TWIDDLER},
     {"SSR",         HM2_GTAG_SSR},
+    {"InMux",       HM2_GTAG_INMUX},
 };
 
 static char *find_module_name(int gtag, int xml_flag) {
@@ -486,6 +490,15 @@ static char *pin_get_pin_name(hm2_pin_desc_t *pin, int xml_flag) {
                     sprintf(buff, "%s%u", pin_names_ptr[i].name[0], chan);
                     return buff;
                 }
+            } else if (pin->sec_tag == HM2_GTAG_INMUX) {
+                if ((pin->sec_pin & 0x80) == 0x80) {
+                    // output pins
+                    snprintf(buff, sizeof(buff), "Addr%d", pin->sec_pin - 0x81);
+                } else {
+                    // input pins
+                    snprintf(buff, sizeof(buff), "Data%d", pin->sec_pin - 0x01);
+                }
+                return buff;
             } else {
                 sprintf(buff, "%s", pin_names_ptr[i].name[(pin->sec_pin & 0x0F) - 1]);
                 return buff;
