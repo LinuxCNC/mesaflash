@@ -337,7 +337,7 @@ static int eth_scan_one_addr(board_access_t *access) {
             strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
             strncpy(board->llio.board_name, buff, 16);
             board->llio.num_ioport_connectors = 3;
-            board->llio.pins_per_connector = 13;
+            board->llio.pins_per_connector = 17;
             board->llio.ioport_connector_name[0] = "TB3";
             board->llio.ioport_connector_name[1] = "TB1/TB2";
             board->llio.ioport_connector_name[2] = "P1";
