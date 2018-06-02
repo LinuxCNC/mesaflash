@@ -394,6 +394,7 @@ static mod_name_t mod_names_xml[HM2_MAX_TAGS] = {
 
 static char *pin_find_module_name(int gtag, int xml_flag) {
     int i;
+    static char unknown[100];
     mod_name_t *mod_names_ptr;
 
     if (gtag == HM2_GTAG_NONE) {
@@ -410,7 +411,9 @@ static char *pin_find_module_name(int gtag, int xml_flag) {
         if (mod_names_ptr[i].tag == gtag)
             return mod_names_ptr[i].name;
     }
-    return "(unknown-gtag)";
+
+    snprintf(unknown, 100, "(unknown-gtag-%d)", gtag);
+    return unknown;
 }
 
 
