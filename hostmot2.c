@@ -653,3 +653,35 @@ void hm2_print_pin_file(llio_t *llio, int xml_flag) {
         printf("</hostmot2>\n");
     }
 }
+
+void hm2_print_pin_descriptors(llio_t *llio) {
+    int num_pins;
+
+    num_pins = llio->hm2.idrom.io_ports * llio->hm2.idrom.port_width;
+    printf("%d HM2 Pin Descriptors:\n", num_pins);
+
+    for (int i = 0; i < num_pins; i ++) {
+        hm2_pin_desc_t *pd = &llio->hm2.pins[i];
+
+        printf("    pin %d:\n", i);
+        printf(
+            "        Primary Tag: 0x%02X (%s)\n",
+            pd->gtag,
+            find_module_name(pd->gtag, 0)
+        );
+        if (llio->hm2.pins[i].sec_tag != 0) {
+            printf(
+                "        Secondary Tag: 0x%02X (%s)\n",
+                llio->hm2.pins[i].sec_tag,
+                find_module_name(pd->sec_tag, 0)
+            );
+            printf("        Secondary Unit: 0x%02X\n", pd->sec_chan);
+            printf(
+                "        Secondary Pin: 0x%02X (%s, %s)\n",
+                pd->sec_pin,
+                pin_get_pin_name(pd, 0),
+                (pd->sec_pin & 0x80) ? "Output" : "Input"
+            );
+        }
+    }
+}

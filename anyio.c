@@ -327,6 +327,14 @@ void anyio_dev_print_hm2_info(board_t *board, int xml_flag) {
     hm2_print_pin_file(&(board->llio), xml_flag);
 }
 
+void anyio_dev_print_pin_descriptors(board_t *board) {
+    if (board == NULL) {
+        return;
+    }
+    hm2_read_idrom(&(board->llio.hm2));
+    hm2_print_pin_descriptors(&board->llio);
+}
+
 void anyio_dev_print_sserial_info(board_t *board) {
     if (board == NULL) {
         return;

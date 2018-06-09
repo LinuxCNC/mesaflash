@@ -40,6 +40,7 @@ static int fallback_flag;
 static int recover_flag;
 static int program_flag;
 static int readhmid_flag;
+static int print_pd_flag;
 static int reload_flag;
 static int reset_flag;
 static int sserial_flag;
@@ -72,6 +73,7 @@ static struct option long_options[] = {
     {"recover", no_argument, &recover_flag, 1},
     {"program", required_argument, 0, 'p'},
     {"readhmid", no_argument, &readhmid_flag, 1},
+    {"print-pd", no_argument, &print_pd_flag, 1},
     {"reload", no_argument, &reload_flag, 1},
     {"reset", no_argument, &reset_flag, 1},
     {"sserial", no_argument, &sserial_flag, 1},
@@ -147,6 +149,7 @@ void print_usage() {
     printf("                    the FPGA (IMPORTANT! 'filename' must be VALID FPGA\n");
     printf("                    configuration file).\n");
     printf("  --readhmid        Print hostmot2 configuration in PIN file format.\n");
+    printf("  --print-pd        Print hostmot2 Pin Descriptors.\n");
     printf("  --reload          Do full FPGA reload from flash (only Ethernet and\n");
     printf("                    pci boards).\n");
     printf("  --reset           Do full firmware reset (only Ethernet boards).\n");
@@ -384,6 +387,8 @@ int main(int argc, char *argv[]) {
 
         if (readhmid_flag == 1) {
             anyio_dev_print_hm2_info(board, xml_flag);
+        } else if (print_pd_flag == 1) {
+            anyio_dev_print_pin_descriptors(board);
         } else if (sserial_flag == 1) {
             anyio_dev_print_sserial_info(board);
         } else if (rpo_flag == 1) {
