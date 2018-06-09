@@ -521,16 +521,8 @@ void hm2_print_pin_file(llio_t *llio, int xml_flag) {
             if ((llio->hm2.modules[i].gtag == 0) && (llio->hm2.modules[i].version == 0) &&
             (llio->hm2.modules[i].clock_tag == 0) && (llio->hm2.modules[i].instances == 0)) break;
 
-            {
-                int k;
-                for (k = 0; k < HM2_MAX_TAGS; k++) {
-                    if (mod_names[k].tag == llio->hm2.modules[i].gtag) {
-                        printf("  Module: %s\n", mod_names[k].name);
-                        printf("  There are %u of %s in configuration\n", llio->hm2.modules[i].instances, mod_names[k].name);
-                        break;
-                    }
-                }
-            }
+            printf("  Module: %s\n", find_module_name(llio->hm2.modules[i].gtag, xml_flag));
+            printf("  There are %u of %s in configuration\n", llio->hm2.modules[i].instances, find_module_name(llio->hm2.modules[i].gtag, xml_flag));
 
             printf("  Version: %u\n", llio->hm2.modules[i].version);
             printf("  Registers: %u\n", llio->hm2.modules[i].registers);
@@ -604,17 +596,8 @@ void hm2_print_pin_file(llio_t *llio, int xml_flag) {
             (llio->hm2.modules[i].clock_tag == 0) && (llio->hm2.modules[i].instances == 0)) break;
 
             printf("        <module>\n");
-            {
-                int k;
-                for (k = 0; k < HM2_MAX_TAGS; k++) {
-                    if (mod_names[k].tag == llio->hm2.modules[i].gtag) {
-                        printf("            <tagname>%s</tagname>\n", mod_names[k].name);
-                        printf("            <numinstances>%2d</numinstances>\n", llio->hm2.modules[i].instances);
-                        break;
-                    }
-                }
-            }
-
+            printf("            <tagname>%s</tagname>\n", find_module_name(llio->hm2.modules[i].gtag, xml_flag));
+            printf("            <numinstances>%2d</numinstances>\n", llio->hm2.modules[i].instances);
             printf("        </module>\n");
         }
         printf("    </modules>\n");
