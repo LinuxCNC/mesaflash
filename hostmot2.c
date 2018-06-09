@@ -392,7 +392,7 @@ static mod_name_t mod_names_xml[HM2_MAX_TAGS] = {
     {"SSR",         HM2_GTAG_SSR},
 };
 
-static char *pin_find_module_name(int gtag, int xml_flag) {
+static char *find_module_name(int gtag, int xml_flag) {
     int i;
     static char unknown[100];
     mod_name_t *mod_names_ptr;
@@ -564,11 +564,11 @@ void hm2_print_pin_file(llio_t *llio, int xml_flag) {
                 }
                 printf("%2u", pin_nr);
                 printf("    %3u", i*(llio->hm2.idrom.port_width) + j);
-                printf("   %-8s", pin_find_module_name(pin->gtag, xml_flag));
+                printf("   %-8s", find_module_name(pin->gtag, xml_flag));
                 if (pin->sec_tag == HM2_GTAG_NONE) {
                     printf("     %-15s", "None");
                 } else {
-                    printf("     %-15s", pin_find_module_name(pin->sec_tag, xml_flag));
+                    printf("     %-15s", find_module_name(pin->sec_tag, xml_flag));
 
                     if (pin->sec_chan & HM2_CHAN_GLOBAL) {
                         printf("    Global    ");
@@ -638,7 +638,7 @@ void hm2_print_pin_file(llio_t *llio, int xml_flag) {
                 }
                 printf("        <pin>\n");
                 printf("            <connector>%s</connector>\n", llio->ioport_connector_name[i]);
-                printf("            <secondarymodulename>%s</secondarymodulename>\n", pin_find_module_name(pin->sec_tag, xml_flag));
+                printf("            <secondarymodulename>%s</secondarymodulename>\n", find_module_name(pin->sec_tag, xml_flag));
                 printf("            <secondaryfunctionname>");
                 if (pin->sec_tag != HM2_GTAG_NONE) {
                     printf("%s", pin_get_pin_name(pin, xml_flag));
