@@ -492,7 +492,7 @@ static char *pin_get_pin_name(hm2_pin_desc_t *pin, int xml_flag) {
             }
         };
     };
-    sprintf(buff, "Unknown");
+    snprintf(buff, sizeof(buff), "Unknown-Gtag%d-Chan%d-Pin%d", pin->sec_tag, pin->sec_chan, pin->sec_pin);
     return buff;
 }
 
