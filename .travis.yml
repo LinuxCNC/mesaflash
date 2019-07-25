@@ -1,0 +1,14 @@
+language: c
+
+compiler: gcc
+
+dist: xenial
+
+env:
+  - CFLAGS="-std=c99"
+
+script:
+  - make
+
+before_install:
+  - sudo apt-get install -y libpci-dev
