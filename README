@@ -14,6 +14,7 @@ In the source directory, install dependency and build:
 
   sudo apt-get install libpci-dev
   make
+  make install
 
 to get command line syntax:
   
