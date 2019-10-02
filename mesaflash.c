@@ -123,11 +123,11 @@ void print_usage() {
     printf("                    and serial boards, SPI device name for SPI boards)\n");
     printf("  --addr_hi         Set the high register address for the EPP interface.\n");
     printf("  --epp             Use EPP interface to connect to board, only for boards\n");
-    printf("                    with multiple interfaces (7i43, 7i90, 7i64).\n");
+    printf("                    with multiple interfaces (7c80, 7c81, 7i43, 7i90, 7i64).\n");
     printf("  --usb             Use USB interface to connect to board, only for boards\n");
-    printf("                    with multiple interfaces (7i43, 7i90, 7i64).\n");
+    printf("                    with multiple interfaces (7c80, 7c81, 7i43, 7i90, 7i64).\n");
     printf("  --spi             Use SPI interface to connect to board, only for boards\n");
-    printf("                    with multiple interfaces (7i43, 7i90, 7i64).\n");
+    printf("                    with multiple interfaces (7c80, 7c81, 7i43, 7i90, 7i64).\n");
     printf("  --serial          Use serial interface to connect to board, only for\n");
     printf("                    boards with multiple interfaces (7i43, 7i90, 7i64).\n");
     printf("  --fallback        Use the fallback area of the EEPROM while executing\n");
@@ -151,8 +151,8 @@ void print_usage() {
     printf("                    configuration file).\n");
     printf("  --readhmid        Print hostmot2 configuration in PIN file format.\n");
     printf("  --print-pd        Print hostmot2 Pin Descriptors.\n");
-    printf("  --reload          Do full FPGA reload from flash (only Ethernet and\n");
-    printf("                    pci boards).\n");
+    printf("  --reload          Do full FPGA reload from flash (only Ethernet, SPI and\n");
+    printf("                    PCI boards).\n");
     printf("  --reset           Do full firmware reset (only Ethernet and serial boards).\n");
     printf("  --sserial         Print full information about all sserial remote boards.\n");
     printf("  --rpo             Read hostmot2 variable directly at 'address'.\n");
