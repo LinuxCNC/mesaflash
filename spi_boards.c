@@ -179,6 +179,52 @@ int spi_write(llio_t *self, u32 addr, void *buffer, int size) {
     return 0;
 }
 
+static int spi_board_reload(llio_t *self, int fallback_flag) {
+    board_t *board = self->board;
+    int i;
+    u32 boot_addr, cookie;
+
+    spi_read(&(board->llio), HM2_ICAP_REG, &cookie, sizeof(u32));
+    if (cookie != HM2_ICAP_COOKIE) {
+        printf("ERROR: Active firmware too old to support --reload\n");
+        return -1;
+    }
+
+    if (fallback_flag == 1) {
+        boot_addr = 0x10000;
+    } else {
+        boot_addr = 0x0;
+    }
+    boot_addr |= 0x0B000000; // plus read command in high byte
+
+    u32 data[14] = {
+      0xFFFF,   // dummy
+      0xFFFF,   // dummy
+      0xAA99,   // sync
+      0x5566,   // sync
+      0x3261,   // load low flash start address
+      boot_addr & 0xFFFF,   // start addr
+      0x3281,   // load high start address + read command
+      boot_addr >> 16,   // start addr (plus read command in high byte)
+      0x30A1,   // load command register
+      0x000E,   // IPROG command
+      0x2000,  // NOP
+      0x2000,  // NOP
+      0x2000,  // NOP
+      0x2000  // NOP
+    };
+
+
+    for (i = 0; i < 14; i++) {
+        spi_write(&(board->llio), HM2_ICAP_REG, &data[i], sizeof(u32));
+        usleep(1000);
+    }
+    printf("Waiting for FPGA configuration...");
+    sleep(2);
+    printf("OK\n");
+    return 0;
+}
+
 void spi_boards_scan(board_access_t *access) {
     u32 buf[4];
     u32 cookie[] = {0x55aacafe, 0x54534f48, 0x32544f4d};
@@ -215,6 +261,7 @@ void spi_boards_scan(board_access_t *access) {
         board->llio.read = spi_read;
         board->llio.write_flash = local_write_flash;
         board->llio.verify_flash = local_verify_flash;
+        board->llio.reload = &spi_board_reload;
         board->llio.fpga_part_number = "6slx9tqg144";
         board->open = spi_board_open;
         board->close = spi_board_close;
@@ -237,6 +284,7 @@ void spi_boards_scan(board_access_t *access) {
         board->llio.read = spi_read;
         board->llio.write_flash = local_write_flash;
         board->llio.verify_flash = local_verify_flash;
+        board->llio.reload = &spi_board_reload;
         board->llio.fpga_part_number = "6slx9tqg144";
         board->open = spi_board_open;
         board->close = spi_board_close;
@@ -260,6 +308,7 @@ void spi_boards_scan(board_access_t *access) {
         board->llio.read = spi_read;
         board->llio.write_flash = local_write_flash;
         board->llio.verify_flash = local_verify_flash;
+        board->llio.reload = &spi_board_reload;
         board->llio.fpga_part_number = "6slx9tqg144";
         board->open = spi_board_open;
         board->close = spi_board_close;
