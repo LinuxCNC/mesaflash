@@ -116,6 +116,7 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_desc_t *pin) {
             }
             break;
 
+
         case HM2_GTAG_STEPGEN:
             // FIXME: these depend on the stepgen mode
             switch (sec_pin) {
@@ -162,6 +163,40 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_desc_t *pin) {
                 }
                 break;
             }
+
+        case HM2_GTAG_INMUX:
+            if (pin->sec_pin & 0x80){ // Output pin codes
+                switch (sec_pin) {
+                    case 0x1: return "muxdata";
+                }
+                break;
+            }else{ // INput Pin Codes
+                switch (sec_pin) {
+                    case 0x1: return "addr0";
+                    case 0x2: return "addr1";
+                    case 0x3: return "addr2";
+                    case 0x4: return "addr3";
+                    case 0x5: return "addr4";
+                 }
+                break;
+            }
+
+        case HM2_GTAG_XYMOD:
+            if (pin->sec_pin & 0x80){ // Output pin codes
+                switch (sec_pin) {
+                    case 0x1: return "datax";
+                    case 0x2: return "datay";
+                    case 0x3: return "clk";
+                    case 0x4: return "sync";
+              }
+                break;
+            }else{ // INput Pin Codes
+                switch (sec_pin) {
+                     case 0x5: return "status";
+                }
+                break;
+            }
+
         case HM2_GTAG_BSPI:
             switch (sec_pin) {
                 case 0x1: return "/Frame";
@@ -292,7 +327,8 @@ static pin_name_t pin_names[HM2_MAX_TAGS] = {
   {HM2_GTAG_UART_RX,   {"RXData", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_TRAM,    {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_LED,      {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-  {HM2_GTAG_INMUX, {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_INMUX, {"Addr0", "Addr1", "Addr2", "Addr3", "Addr4", "MuxData", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_XYMOD, {"XData", "YData", "Clk", "Sync", "Status", "Null6", "Null7", "Null8", "Null9", "Null10"}},
 };
 
 static pin_name_t pin_names_xml[HM2_MAX_TAGS] = {
@@ -325,7 +361,8 @@ static pin_name_t pin_names_xml[HM2_MAX_TAGS] = {
   {HM2_GTAG_UART_RX,   {"RXData", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_TRAM,    {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_LED,      {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-  {HM2_GTAG_INMUX, {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_INMUX, {"Addr0", "Addr1", "Addr2", "Addr3", "Addr4", "MuxData", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_XYMOD, {"XData", "YData", "Clk", "Sync", "Status", "Null6", "Null7", "Null8", "Null9", "Null10"}},
 };
 
 static mod_name_t mod_names[HM2_MAX_TAGS] = {
@@ -360,6 +397,7 @@ static mod_name_t mod_names[HM2_MAX_TAGS] = {
     {"Twiddler",    HM2_GTAG_TWIDDLER},
     {"SSR",         HM2_GTAG_SSR},
     {"InMux",       HM2_GTAG_INMUX},
+    {"XYMod",       HM2_GTAG_XYMOD},
 };
 
 static mod_name_t mod_names_xml[HM2_MAX_TAGS] = {
@@ -394,6 +432,7 @@ static mod_name_t mod_names_xml[HM2_MAX_TAGS] = {
     {"Twiddler",    HM2_GTAG_TWIDDLER},
     {"SSR",         HM2_GTAG_SSR},
     {"InMux",       HM2_GTAG_INMUX},
+    {"XYMod",       HM2_GTAG_XYMOD},
 };
 
 static char *find_module_name(int gtag, int xml_flag) {

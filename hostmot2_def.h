@@ -60,6 +60,7 @@
 #define HM2_GTAG_FABS              0x19
 #define HM2_GTAG_HM2DPLL           0x1A
 #define HM2_GTAG_INMUX             0x1E
+#define HM2_GTAG_XYMOD             0x2B
 #define HM2_GTAG_LIOPORT           0x40
 #define HM2_GTAG_LED               0x80
 #define HM2_GTAG_RESOLVER          0xC0

@@ -36,7 +36,7 @@ typedef struct {
     int sw_modes_cnt;
 } sserial_device_t;
 
-#define HM2_MAX_TAGS     31
+#define HM2_MAX_TAGS     255
 #define ANYIO_MAX_IOPORT_CONNECTORS 8
 
 typedef struct llio_struct llio_t;
