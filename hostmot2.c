@@ -180,6 +180,42 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_desc_t *pin) {
                  }
                 break;
             }
+       case HM2_GTAG_INM:
+            switch (sec_pin) {
+                case 0x1: return "input0";
+                case 0x2: return "input1";
+                case 0x3: return "input2";
+                case 0x4: return "input3";
+                case 0x5: return "input4";
+                case 0x6: return "input5";
+                case 0x7: return "input6";
+                case 0x8: return "input7";
+                case 0x9: return "input8";
+                case 0xA: return "input9";
+                case 0xB: return "input10";
+                case 0xC: return "input11";
+                case 0xD: return "input12";
+                case 0xE: return "input13";
+                case 0xF: return "input14";
+                case 0x10: return "input15";
+                case 0x11: return "input16";
+                case 0x12: return "input17";
+                case 0x13: return "input18";
+                case 0x14: return "input19";
+                case 0x15: return "input20";
+                case 0x16: return "input21";
+                case 0x17: return "input22";
+                case 0x18: return "input23";
+                case 0x19: return "input24";
+                case 0x1A: return "input25";
+                case 0x1B: return "input26";
+                case 0x1C: return "input27";
+                case 0x1D: return "input28";
+                case 0x1E: return "input29";
+                case 0x1F: return "input30";
+                case 0x20: return "input31";
+            }
+            break;
 
         case HM2_GTAG_XYMOD:
             if (pin->sec_pin & 0x80){ // Output pin codes
@@ -323,12 +359,14 @@ static pin_name_t pin_names[HM2_MAX_TAGS] = {
   {HM2_GTAG_DBSPI,    {"Null1", "DOut", "SClk", "DIn", "/CS-FRM0", "/CS-FRM1", "/CS-FRM2", "/CS-FRM3", "Null9", "Null10"}},
   {HM2_GTAG_DPLL,     {"Sync", "DDSMSB", "FOut", "PostOut", "SyncToggle", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_SSI,      {"SClk", "SClkEn", "Data", "DAv", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_BISS,      {"Clk", "ClkEn", "Din", "DAv", "TData", "STime", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_UART_TX,   {"TXData", "TXEna", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_UART_RX,   {"RXData", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-  {HM2_GTAG_TRAM,    {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-  {HM2_GTAG_LED,      {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-  {HM2_GTAG_INMUX, {"Addr0", "Addr1", "Addr2", "Addr3", "Addr4", "MuxData", "Null7", "Null8", "Null9", "Null10"}},
-  {HM2_GTAG_XYMOD, {"XData", "YData", "Clk", "Sync", "Status", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_TRAM,      {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_LED,       {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_INMUX,     {"Addr0", "Addr1", "Addr2", "Addr3", "Addr4", "MuxData", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_INM,       {"Input0", "Input1", "Input2", "Input3", "Input4", "Input5", "Input6", "Input7", "Input8"}}, 
+  {HM2_GTAG_XYMOD,     {"XData", "YData", "Clk", "Sync", "Status", "Null6", "Null7", "Null8", "Null9", "Null10"}},
 };
 
 static pin_name_t pin_names_xml[HM2_MAX_TAGS] = {
@@ -357,11 +395,13 @@ static pin_name_t pin_names_xml[HM2_MAX_TAGS] = {
   {HM2_GTAG_DBSPI,    {"Null1", "DOut", "SClk", "DIn", "/CS-FRM0", "/CS-FRM1", "/CS-FRM2", "/CS-FRM3", "Null9", "Null10"}},
   {HM2_GTAG_DPLL,     {"Sync", "DDSMSB", "FOut", "PostOut", "SyncToggle", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_SSI,      {"SClk", "SClkEn", "Din", "DAv", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_BISS,      {"Clk", "ClkEn", "Din", "DAv", "TData", "STime", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_UART_TX,   {"TXData", "TXEna", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_UART_RX,   {"RXData", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_TRAM,    {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_LED,      {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_INMUX, {"Addr0", "Addr1", "Addr2", "Addr3", "Addr4", "MuxData", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_INM,       {"Input0", "Input1", "Input2", "Input3", "Input4", "Input5", "Input6", "Input7", "Input8"}}, 
   {HM2_GTAG_XYMOD, {"XData", "YData", "Clk", "Sync", "Status", "Null6", "Null7", "Null8", "Null9", "Null10"}},
 };
 
@@ -397,6 +437,8 @@ static mod_name_t mod_names[HM2_MAX_TAGS] = {
     {"Twiddler",    HM2_GTAG_TWIDDLER},
     {"SSR",         HM2_GTAG_SSR},
     {"InMux",       HM2_GTAG_INMUX},
+    {"InM",         HM2_GTAG_INM},
+    {"BISS",        HM2_GTAG_BISS},
     {"XYMod",       HM2_GTAG_XYMOD},
 };
 
@@ -432,6 +474,8 @@ static mod_name_t mod_names_xml[HM2_MAX_TAGS] = {
     {"Twiddler",    HM2_GTAG_TWIDDLER},
     {"SSR",         HM2_GTAG_SSR},
     {"InMux",       HM2_GTAG_INMUX},
+    {"InM",         HM2_GTAG_INM},
+    {"BISS",        HM2_GTAG_BISS},
     {"XYMod",       HM2_GTAG_XYMOD},
 };
 
@@ -537,6 +581,9 @@ static char *pin_get_pin_name(hm2_pin_desc_t *pin, int xml_flag) {
                     // input pins
                     snprintf(buff, sizeof(buff), "Data%d", pin->sec_pin - 0x01);
                 }
+                return buff;
+            } else if (pin->sec_tag == HM2_GTAG_INM) {
+                snprintf(buff, sizeof(buff), "Input%d", pin->sec_pin - 0x01);
                 return buff;
             } else {
                 sprintf(buff, "%s", pin_names_ptr[i].name[(pin->sec_pin & 0x0F) - 1]);

@@ -87,7 +87,7 @@ static int spi_board_close(board_t *board) {
 }
 
 int spi_boards_init(board_access_t *access) {
-    settings.speed_hz = 8 * 1000 * 1000;
+    settings.speed_hz = 20 * 1000 * 1000;
     settings.bits_per_word = 32;
 
     sd = open(access->dev_addr, O_RDWR);
