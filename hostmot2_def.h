@@ -62,6 +62,7 @@
 #define HM2_GTAG_INMUX             0x1E
 #define HM2_GTAG_INM               0x23
 #define HM2_GTAG_XYMOD             0x2B
+#define HM2_GTAG_RCPWMGEN          0x2C
 #define HM2_GTAG_LIOPORT           0x40
 #define HM2_GTAG_LED               0x80
 #define HM2_GTAG_RESOLVER          0xC0
