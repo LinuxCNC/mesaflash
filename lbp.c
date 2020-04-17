@@ -42,7 +42,8 @@ int lbp_send(void *packet, int size) {
 #endif
     if (LBP_SENDRECV_DEBUG)
         printf("%d=lbp_send(%d)\n", send, size);
-	return send;
+
+    return send;
 }
 
 int lbp_recv(void *packet, int size) {
@@ -54,7 +55,8 @@ int lbp_recv(void *packet, int size) {
 #endif
     if (LBP_SENDRECV_DEBUG)
         printf("%d=lbp_recv(%d)\n", recv, size);
-	return recv;
+
+    return recv;
 }
 
 u8 lbp_read_ctrl(u8 cmd) {
@@ -65,6 +67,7 @@ u8 lbp_read_ctrl(u8 cmd) {
     recv = lbp_recv(&data, 1);
     if (LBP_SENDRECV_DEBUG)
         printf("%d=send(%X), %d=recv(%X)\n", send, cmd, recv, data);
+
     return data;
 }
 
@@ -81,6 +84,7 @@ int lbp_read(u16 addr, void *buffer) {
     recv = lbp_recv(buffer, 4);
     if (LBP_SENDRECV_DEBUG)
         printf("lbp_read(%02X:%04X): %08X\n", packet.cmd, addr, *ptr);
+
     return 0;
 }
 
@@ -96,6 +100,7 @@ int lbp_write(u16 addr, void *buffer) {
     send = lbp_send(&packet, sizeof(lbp_cmd_addr_data));
     if (LBP_SENDRECV_DEBUG)
         printf("lbp_write(%02X:%04X)\n", packet.cmd, addr);
+
     return 0;
 }
 
@@ -118,7 +123,7 @@ void lbp_init(board_access_t *access) {
     sd = CreateFile(dev_name, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
     if (sd == INVALID_HANDLE_VALUE) { 
         printf("Unable to open the serial port %d\n", errno);
-	}
+    }
 #endif
 }
 
