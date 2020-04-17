@@ -26,16 +26,14 @@ RM = rm -f
 AR = ar
 RANLIB = ranlib
 MATHLIB = -lm
-OPT = -O0
 
-#DEBUG = -g -pedantic -Wall -Wextra
-#DEBUG = -g -Wall -Wextra
-DEBUG = -g
+DEBUG ?= -O0 -g
+OWNERSHIP ?= --owner root --group root
 
 ifeq ($(TARGET),linux)
-	INCLUDE = -I/usr/include
+	INCLUDE = $(shell pkg-config --cflags libpci)
 	BIN = mesaflash
-	LIBS = -lpci $(MATHLIB)
+	LIBS = $(shell pkg-config --libs libpci) $(MATHLIB)
 	CFLAGS += -D_GNU_SOURCE
 endif
 
@@ -47,7 +45,7 @@ ifeq ($(TARGET),windows)
 	DEBUG += -mno-ms-bitfields
 endif
 
-CFLAGS += $(OPT) $(DEBUG) $(INCLUDE)
+CFLAGS += $(DEBUG) $(INCLUDE)
 
 objects = common.o lbp.o lbp16.o bitfile.o hostmot2.o eeprom.o anyio.o eth_boards.o epp_boards.o usb_boards.o pci_boards.o
 objects += sserial_module.o encoder_module.o eeprom_local.o eeprom_remote.o spi_boards.o serial_boards.o
@@ -67,7 +65,7 @@ mesaflash.o : mesaflash.c $(headers)
 	$(CC) $(CFLAGS) -c mesaflash.c
 
 $(BIN): mesaflash.o anyio.h $(LIBANYIO)
-	$(CC) -o $(BIN) mesaflash.o $(LIBANYIO) $(LIBS)
+	$(CC) $(CFLAGS) -o $(BIN) mesaflash.o $(LIBANYIO) $(LIBS)
 
 anyio.o : anyio.c $(headers)
 	$(CC) $(CFLAGS) -c anyio.c
@@ -124,18 +122,17 @@ pci_encoder_read.o : examples/pci_encoder_read.c $(LIBANYIO) $(headers)
 	$(CC) $(CFLAGS) -c examples/pci_encoder_read.c
 
 pci_encoder_read: pci_encoder_read.o anyio.h encoder_module.h
-	$(CC) -o pci_encoder_read pci_encoder_read.o $(LIBANYIO) $(LIBS)
+	$(CC) $(CFLAGS) -o pci_encoder_read pci_encoder_read.o $(LIBANYIO) $(LIBS)
 
 pci_analog_write.o : examples/pci_analog_write.c $(LIBANYIO) $(headers)
 	$(CC) $(CFLAGS) -c examples/pci_analog_write.c
 
 pci_analog_write: pci_analog_write.o anyio.h sserial_module.h
-	$(CC) -o pci_analog_write pci_analog_write.o $(LIBANYIO) $(LIBS)
+	$(CC) $(CFLAGS) -o pci_analog_write pci_analog_write.o $(LIBANYIO) $(LIBS)
 
 clean :
 	$(RM) *.o $(LIBANYIO) $(BIN) pci_encoder_read pci_analog_write
 
 .PHONY: install
 install: $(BIN)
-	install --mode=0755 --owner root --group root --dir $(DESTDIR)/bin
-	install --mode=0755 --owner root --group root $(BIN) $(DESTDIR)/bin
+	install -p -D --mode=0755 $(OWNERSHIP) $(BIN) $(DESTDIR)/bin/$(BIN)
