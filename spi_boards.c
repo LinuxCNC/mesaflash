@@ -36,9 +36,9 @@
 extern board_t boards[MAX_BOARDS];
 extern int boards_count;
 
-bool canDo32 = true;
+static bool canDo32 = true;
 
-int sd = -1;
+static int sd = -1;
 struct spi_ioc_transfer settings;
 
 static int spidev_set_lsb_first(int fd, u8 lsb_first) {
