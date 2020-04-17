@@ -848,7 +848,7 @@ void pci_boards_scan(board_access_t *access) {
             board_init_struct(board);
             if ((dev->vendor_id == VENDORID_XIO2001) && (dev->device_id == DEVICEID_XIO2001)) {
                 board->type = BOARD_PCI;
-                strncpy(board->llio.board_name, "6I25 (RECOVER)", 14);
+                strcpy(board->llio.board_name, "6I25 (RECOVER)");
                 board->llio.num_ioport_connectors = 2;
                 board->llio.pins_per_connector = 17;
                 board->llio.ioport_connector_name[0] = "P3";
@@ -882,7 +882,7 @@ void pci_boards_scan(board_access_t *access) {
         if (dev->vendor_id == VENDORID_MESAPCI) {
             if (dev->device_id == DEVICEID_MESA4I74) {
                 board->type = BOARD_PCI;
-                strncpy((char *) board->llio.board_name, "4I74", 4);
+                strcpy((char *) board->llio.board_name, "4I74");
                 board->llio.num_ioport_connectors = 3;
                 board->llio.pins_per_connector = 24;
                 board->llio.ioport_connector_name[0] = "P1";
@@ -909,7 +909,7 @@ void pci_boards_scan(board_access_t *access) {
                 boards_count++;
             } else if (dev->device_id == DEVICEID_MESA5I24) {
                 board->type = BOARD_PCI;
-                strncpy((char *) board->llio.board_name, "5I24", 4);
+                strcpy(board->llio.board_name, "5I24");
                 board->llio.num_ioport_connectors = 3;
                 board->llio.pins_per_connector = 24;
                 board->llio.ioport_connector_name[0] = "P4";
@@ -937,7 +937,7 @@ void pci_boards_scan(board_access_t *access) {
                 boards_count++;
             } else if (dev->device_id == DEVICEID_MESA5I25) {
                 board->type = BOARD_PCI;
-                strncpy((char *) board->llio.board_name, "5I25", 4);
+                strcpy(board->llio.board_name, "5I25");
                 board->llio.num_ioport_connectors = 2;
                 board->llio.pins_per_connector = 17;
                 board->llio.ioport_connector_name[0] = "P3";
@@ -964,7 +964,7 @@ void pci_boards_scan(board_access_t *access) {
                 boards_count++;
             } else if (dev->device_id == DEVICEID_MESA6I24) {
                 board->type = BOARD_PCI;
-                strncpy((char *) board->llio.board_name, "6I24", 4);
+                strcpy(board->llio.board_name, "6I24");
                 board->llio.num_ioport_connectors = 3;
                 board->llio.pins_per_connector = 24;
                 board->llio.ioport_connector_name[0] = "P4";
@@ -992,7 +992,7 @@ void pci_boards_scan(board_access_t *access) {
                 boards_count++;
             } else if (dev->device_id == DEVICEID_MESA6I25) {
                 board->type = BOARD_PCI;
-                strncpy(board->llio.board_name, "6I25", 4);
+                strcpy(board->llio.board_name, "6I25");
                 board->llio.num_ioport_connectors = 2;
                 board->llio.pins_per_connector = 17;
                 board->llio.ioport_connector_name[0] = "P3";
@@ -1023,7 +1023,7 @@ void pci_boards_scan(board_access_t *access) {
                 u16 ssid = pci_read_word(dev, PCI_SUBSYSTEM_ID);
                 if (ssid == SUBDEVICEID_MESA5I20) {
                     board->type = BOARD_PCI;
-                    strncpy(board->llio.board_name, "5I20", 4);
+                    strcpy(board->llio.board_name, "5I20");
                     board->llio.num_ioport_connectors = 3;
                     board->llio.pins_per_connector = 24;
                     board->llio.ioport_connector_name[0] = "P2";
@@ -1053,7 +1053,7 @@ void pci_boards_scan(board_access_t *access) {
                     plx9030_fixup_LASxBRD_READY(&(board->llio));
                 } else if (ssid == SUBDEVICEID_MESA4I65) {
                     board->type = BOARD_PCI;
-                    strncpy(board->llio.board_name, "4I65", 4);
+                    strcpy(board->llio.board_name, "4I65");
                     board->llio.num_ioport_connectors = 3;
                     board->llio.pins_per_connector = 24;
                     board->llio.ioport_connector_name[0] = "P1";
@@ -1086,7 +1086,7 @@ void pci_boards_scan(board_access_t *access) {
                 u16 ssid = pci_read_word(dev, PCI_SUBSYSTEM_ID);
                 if ((ssid == SUBDEVICEID_MESA4I68_OLD) || (ssid == SUBDEVICEID_MESA4I68)) {
                     board->type = BOARD_PCI;
-                    strncpy(board->llio.board_name, "4I68", 4);
+                    strcpy(board->llio.board_name, "4I68");
                     board->llio.num_ioport_connectors = 3;
                     board->llio.pins_per_connector = 24;
                     board->llio.ioport_connector_name[0] = "P1";
@@ -1114,7 +1114,7 @@ void pci_boards_scan(board_access_t *access) {
                     boards_count++;
                 } else if (ssid == SUBDEVICEID_MESA5I21) {
                     board->type = BOARD_PCI;
-                    strncpy(board->llio.board_name, "5I21", 4);
+                    strcpy(board->llio.board_name, "5I21");
                     board->llio.num_ioport_connectors = 2;
                     board->llio.pins_per_connector = 32;
                     board->llio.ioport_connector_name[0] = "P1";
@@ -1141,7 +1141,7 @@ void pci_boards_scan(board_access_t *access) {
                     boards_count++;
                 } else if ((ssid == SUBDEVICEID_MESA5I22_10) || (ssid == SUBDEVICEID_MESA5I22_15)) {
                     board->type = BOARD_PCI;
-                    strncpy(board->llio.board_name, "5I22", 4);
+                    strcpy(board->llio.board_name, "5I22");
                     board->llio.num_ioport_connectors = 4;
                     board->llio.pins_per_connector = 24;
                     board->llio.ioport_connector_name[0] = "P2";
@@ -1174,7 +1174,7 @@ void pci_boards_scan(board_access_t *access) {
                     boards_count++;
                 } else if (ssid == SUBDEVICEID_MESA5I23) {
                     board->type = BOARD_PCI;
-                    strncpy(board->llio.board_name, "5I23", 4);
+                    strcpy(board->llio.board_name, "5I23");
                     board->llio.num_ioport_connectors = 3;
                     board->llio.pins_per_connector = 24;
                     board->llio.ioport_connector_name[0] = "P2";
@@ -1202,7 +1202,7 @@ void pci_boards_scan(board_access_t *access) {
                     boards_count++;
                 } else if ((ssid == SUBDEVICEID_MESA4I69_16) || (ssid == SUBDEVICEID_MESA4I69_25)) {
                     board->type = BOARD_PCI;
-                    strncpy(board->llio.board_name, "4I69", 4);
+                    strcpy(board->llio.board_name, "4I69");
                     board->llio.num_ioport_connectors = 3;
                     board->llio.pins_per_connector = 24;
                     board->llio.ioport_connector_name[0] = "P1";
@@ -1237,7 +1237,7 @@ void pci_boards_scan(board_access_t *access) {
                 u16 ssid = pci_read_word(dev, PCI_SUBSYSTEM_ID);
                 if ((ssid == SUBDEVICEID_MESA3X20_10) || (ssid == SUBDEVICEID_MESA3X20_15) || (ssid == SUBDEVICEID_MESA3X20_20)) {
                     board->type = BOARD_PCI;
-                    strncpy(board->llio.board_name, "3X20", 4);
+                    strcpy(board->llio.board_name, "3X20");
                     board->llio.num_ioport_connectors = 6;
                     board->llio.pins_per_connector = 24;
                     board->llio.ioport_connector_name[0] = "P4";
@@ -1278,7 +1278,7 @@ void pci_boards_scan(board_access_t *access) {
                 }
             } else if (dev->device_id == DEVICEID_PLX8112) {
                     board->type = BOARD_PCI;
-                    strncpy(board->llio.board_name, "5I71", 4);
+                    strcpy(board->llio.board_name, "5I71");
                     board->open = &pci_board_open;
                     board->close = &pci_board_close;
                     board->print_info = &pci_print_info;
