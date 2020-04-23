@@ -16,6 +16,7 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+#include <ctype.h>
 #include <fcntl.h>
 #include <linux/spi/spidev.h>
 #include <stdbool.h>
@@ -28,7 +29,9 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include "types.h"
+#include "eeprom.h"
 #include "eeprom_local.h"
 #include "spi_boards.h"
 #include "common.h"

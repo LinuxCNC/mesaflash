@@ -64,7 +64,7 @@
 #define HM2_GTAG_RESOLVER          0xC0
 #define HM2_GTAG_SSERIAL           0xC1
 #define HM2_GTAG_TWIDDLER          0xC2
-#define HM2_GTAG_XFORMER           0xC3
+#define HM2_GTAG_SSR               0xC3
 
 // HM2 EEPROM SPI INTERFACE
 

@@ -16,6 +16,8 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+#define _GNU_SOURCE
+
 #include <stdio.h>
 #include <unistd.h>
 #include <signal.h>
@@ -24,6 +26,7 @@
 #include <string.h>
 #include <errno.h>
 #include <math.h>
+#include <unistd.h>
 #include <sys/poll.h>
 #include "types.h"
 #include "anyio.h"

@@ -133,6 +133,8 @@ static int eth_board_close(board_t *board) {
     return 0;
 }
 
+// Look for an Ethernet board.
+// Returns 0 if it finds one, -1 if it doesn't find one.
 static int eth_scan_one_addr(board_access_t *access) {
     lbp16_cmd_addr packet, packet2;
     int send = 0, recv = 0, ret = 0;
@@ -180,6 +182,7 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->flash = BOARD_FLASH_REMOTE;
             board->fallback_support = 1;
             board->llio.verbose = access->verbose;
+            boards_count ++;
         } else if (strncmp(buff, "7I80DB-25", 9) == 0) {
             board->type = BOARD_ETH;
             strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
@@ -205,6 +208,7 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->flash = BOARD_FLASH_REMOTE;
             board->fallback_support = 1;
             board->llio.verbose = access->verbose;
+            boards_count ++;
         } else if (strncmp(buff, "7I80HD-16", 9) == 0) {
             board->type = BOARD_ETH;
             strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
@@ -229,6 +233,7 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->flash = BOARD_FLASH_REMOTE;
             board->fallback_support = 1;
             board->llio.verbose = access->verbose;
+            boards_count ++;
         } else if (strncmp(buff, "7I80HD-25", 9) == 0) {
             board->type = BOARD_ETH;
             strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
@@ -253,6 +258,7 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->flash = BOARD_FLASH_REMOTE;
             board->fallback_support = 1;
             board->llio.verbose = access->verbose;
+            boards_count ++;
         } else if (strncmp(buff, "7I76E-16", 9) == 0) {
             board->type = BOARD_ETH;
             strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
@@ -277,6 +283,7 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->flash = BOARD_FLASH_REMOTE;
             board->fallback_support = 1;
             board->llio.verbose = access->verbose;
+            boards_count ++;
         } else if (strncmp(buff, "7I92", 4) == 0) {
             board->type = BOARD_ETH;
             strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
@@ -300,6 +307,7 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->flash = BOARD_FLASH_REMOTE;
             board->fallback_support = 1;
             board->llio.verbose = access->verbose;
+            boards_count ++;
         } else if (strncmp(buff, "7I93", 4) == 0) {
             board->type = BOARD_ETH;
             strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
@@ -323,16 +331,16 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->flash = BOARD_FLASH_REMOTE;
             board->fallback_support = 1;
             board->llio.verbose = access->verbose;
+            boards_count ++;
         } else if (strncmp(buff, "7I96", 4) == 0) {
             board->type = BOARD_ETH;
             strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
             strncpy(board->llio.board_name, buff, 16);
             board->llio.num_ioport_connectors = 3;
-            board->llio.pins_per_connector = 13;
-            board->llio.ioport_connector_name[0] = "P1";
-            board->llio.ioport_connector_name[1] = "TB1";
-            board->llio.ioport_connector_name[2] = "TB2";
-            board->llio.ioport_connector_name[3] = "TB3";
+            board->llio.pins_per_connector = 17;
+            board->llio.ioport_connector_name[0] = "TB3";
+            board->llio.ioport_connector_name[1] = "TB1/TB2";
+            board->llio.ioport_connector_name[2] = "P1";
             board->llio.fpga_part_number = "6slx9tqg144";
             board->llio.num_leds = 4;
             board->llio.read = &eth_read;
@@ -348,13 +356,15 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->flash = BOARD_FLASH_REMOTE;
             board->fallback_support = 1;
             board->llio.verbose = access->verbose;
+            boards_count ++;
         } else {
             printf("Unsupported ethernet device %s at %s\n", buff, eth_socket_get_src_ip());
             ret = -1;
         }
-        boards_count++;
 
         eth_socket_nonblocking();
+    } else {
+        ret = -1;
     }
     return ret;
 }
@@ -403,10 +413,13 @@ void eth_boards_cleanup(board_access_t *access) {
     close(sd);
 }
 
-void eth_boards_scan(board_access_t *access) {
+// Scan for Ethernet board(s).
+// Returns 0 if it found one, -1 on failure.
+int eth_boards_scan(board_access_t *access) {
     char addr[16];
     int i;
     char *ptr;
+    int r = 0;
 
     if (access->address == 0) {
         access->dev_addr = LBP16_HW_IP;
@@ -419,28 +432,37 @@ void eth_boards_scan(board_access_t *access) {
     int size;
     if (WSAStringToAddress(access->dev_addr, AF_INET, NULL, (struct sockaddr *)&ss, &size) != 0) {
 #endif
-        return;
+        return -1;
     };
 
     eth_socket_nonblocking();
 
     if (access->address == 1) {
         eth_socket_set_dest_ip(access->dev_addr);
-        eth_scan_one_addr(access);
+        r = eth_scan_one_addr(access);
     } else {
         strncpy(addr, access->dev_addr, 16);
         ptr = strrchr(addr, '.');
         *ptr = '\0';
 
+        // We're scanning for boards, return Success (0) if we find at
+        // least one, return Fail (-1) if we don't find any.
+        r = -1;
+
         for (i = 1; i < 255; i++) {
             char addr_name[32];
+            int this_r;
 
             sprintf(addr_name, "%s.%d", addr, i);
             eth_socket_set_dest_ip(addr_name);
-            eth_scan_one_addr(access);
+            this_r = eth_scan_one_addr(access);
+            if (this_r == 0) {
+                r = 0;
+            }
         }
     }
     eth_socket_blocking();
+    return r;
 }
 
 void eth_print_info(board_t *board) {
