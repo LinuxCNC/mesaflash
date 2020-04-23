@@ -292,6 +292,7 @@ static pin_name_t pin_names[HM2_MAX_TAGS] = {
   {HM2_GTAG_UART_RX,   {"RXData", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_TRAM,    {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_LED,      {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_INMUX, {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
 };
 
 static pin_name_t pin_names_xml[HM2_MAX_TAGS] = {
@@ -324,6 +325,7 @@ static pin_name_t pin_names_xml[HM2_MAX_TAGS] = {
   {HM2_GTAG_UART_RX,   {"RXData", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_TRAM,    {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_LED,      {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_INMUX, {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
 };
 
 static mod_name_t mod_names[HM2_MAX_TAGS] = {
@@ -357,6 +359,7 @@ static mod_name_t mod_names[HM2_MAX_TAGS] = {
     {"SSerial",     HM2_GTAG_SSERIAL},
     {"Twiddler",    HM2_GTAG_TWIDDLER},
     {"SSR",         HM2_GTAG_SSR},
+    {"InMux",       HM2_GTAG_INMUX},
 };
 
 static mod_name_t mod_names_xml[HM2_MAX_TAGS] = {
@@ -390,6 +393,7 @@ static mod_name_t mod_names_xml[HM2_MAX_TAGS] = {
     {"SSerial",     HM2_GTAG_SSERIAL},
     {"Twiddler",    HM2_GTAG_TWIDDLER},
     {"SSR",         HM2_GTAG_SSR},
+    {"InMux",       HM2_GTAG_INMUX},
 };
 
 static char *find_module_name(int gtag, int xml_flag) {
@@ -486,6 +490,15 @@ static char *pin_get_pin_name(hm2_pin_desc_t *pin, int xml_flag) {
                     sprintf(buff, "%s%u", pin_names_ptr[i].name[0], chan);
                     return buff;
                 }
+            } else if (pin->sec_tag == HM2_GTAG_INMUX) {
+                if ((pin->sec_pin & 0x80) == 0x80) {
+                    // output pins
+                    snprintf(buff, sizeof(buff), "Addr%d", pin->sec_pin - 0x81);
+                } else {
+                    // input pins
+                    snprintf(buff, sizeof(buff), "Data%d", pin->sec_pin - 0x01);
+                }
+                return buff;
             } else {
                 sprintf(buff, "%s", pin_names_ptr[i].name[(pin->sec_pin & 0x0F) - 1]);
                 return buff;
@@ -553,6 +566,9 @@ void hm2_print_pin_file(llio_t *llio, int xml_flag) {
                     case 32:
                         pin_nr = i*(llio->hm2.idrom.port_width) + j;
                         break;
+                    default:
+			pin_nr = 0;
+			break;
                 }
                 printf("%2u", pin_nr);
                 printf("    %3u", i*(llio->hm2.idrom.port_width) + j);
@@ -618,6 +634,9 @@ void hm2_print_pin_file(llio_t *llio, int xml_flag) {
                     case 32:
                         pin_nr = i*(llio->hm2.idrom.port_width) + j;
                         break;
+                    default:
+			pin_nr = 0;
+                        break;
                 }
                 printf("        <pin>\n");
                 printf("            <connector>%s</connector>\n", llio->ioport_connector_name[i]);
@@ -638,5 +657,37 @@ void hm2_print_pin_file(llio_t *llio, int xml_flag) {
         }
         printf("    </pins>\n");
         printf("</hostmot2>\n");
+    }
+}
+
+void hm2_print_pin_descriptors(llio_t *llio) {
+    int num_pins;
+
+    num_pins = llio->hm2.idrom.io_ports * llio->hm2.idrom.port_width;
+    printf("%d HM2 Pin Descriptors:\n", num_pins);
+
+    for (int i = 0; i < num_pins; i ++) {
+        hm2_pin_desc_t *pd = &llio->hm2.pins[i];
+
+        printf("    pin %d:\n", i);
+        printf(
+            "        Primary Tag: 0x%02X (%s)\n",
+            pd->gtag,
+            find_module_name(pd->gtag, 0)
+        );
+        if (llio->hm2.pins[i].sec_tag != 0) {
+            printf(
+                "        Secondary Tag: 0x%02X (%s)\n",
+                llio->hm2.pins[i].sec_tag,
+                find_module_name(pd->sec_tag, 0)
+            );
+            printf("        Secondary Unit: 0x%02X\n", pd->sec_chan);
+            printf(
+                "        Secondary Pin: 0x%02X (%s, %s)\n",
+                pd->sec_pin,
+                pin_get_pin_name(pd, 0),
+                (pd->sec_pin & 0x80) ? "Output" : "Input"
+            );
+        }
     }
 }

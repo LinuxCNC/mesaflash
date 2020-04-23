@@ -40,6 +40,7 @@ static int fallback_flag;
 static int recover_flag;
 static int program_flag;
 static int readhmid_flag;
+static int print_pd_flag;
 static int reload_flag;
 static int reset_flag;
 static int sserial_flag;
@@ -72,6 +73,7 @@ static struct option long_options[] = {
     {"recover", no_argument, &recover_flag, 1},
     {"program", required_argument, 0, 'p'},
     {"readhmid", no_argument, &readhmid_flag, 1},
+    {"print-pd", no_argument, &print_pd_flag, 1},
     {"reload", no_argument, &reload_flag, 1},
     {"reset", no_argument, &reset_flag, 1},
     {"sserial", no_argument, &sserial_flag, 1},
@@ -117,7 +119,8 @@ void print_usage() {
     printf("                    will detect board with given name and print info\n");
     printf("                    about it.\n");
     printf("  --addr <dev>      Select <dev> for looking for <name> (IP address for\n");
-    printf("                    Ethernet boards, serial port for USB boards)\n");
+    printf("                    Ethernet boards, serial device name for USB boards\n");
+    printf("                    and serial boards, SPI device name for SPI boards)\n");
     printf("  --addr_hi         Set the high register address for the EPP interface.\n");
     printf("  --epp             Use EPP interface to connect to board, only for boards\n");
     printf("                    with multiple interfaces (7i43, 7i90, 7i64).\n");
@@ -130,7 +133,7 @@ void print_usage() {
     printf("  --fallback        Use the fallback area of the EEPROM while executing\n");
     printf("                    commands.\n");
     printf("  --recover         Access board using PCI bridge GPIO (currently\n");
-    printf("                    only 6I25).\n");
+    printf("                    only 6I24/6I25).\n");
     printf("  --xml             Format output from 'readhmid' command into XML.\n");
     printf("  --verbose         Print detailed information while running commands.\n");
     printf("\n");
@@ -147,9 +150,10 @@ void print_usage() {
     printf("                    the FPGA (IMPORTANT! 'filename' must be VALID FPGA\n");
     printf("                    configuration file).\n");
     printf("  --readhmid        Print hostmot2 configuration in PIN file format.\n");
+    printf("  --print-pd        Print hostmot2 Pin Descriptors.\n");
     printf("  --reload          Do full FPGA reload from flash (only Ethernet and\n");
     printf("                    pci boards).\n");
-    printf("  --reset           Do full firmware reset (only Ethernet boards).\n");
+    printf("  --reset           Do full firmware reset (only Ethernet and serial boards).\n");
     printf("  --sserial         Print full information about all sserial remote boards.\n");
     printf("  --rpo             Read hostmot2 variable directly at 'address'.\n");
     printf("  --wpo             Write hostmot2 variable directly at 'address'\n");
@@ -372,6 +376,7 @@ int main(int argc, char *argv[]) {
             exit(1);
         ret = anyio_find_dev(&access);
         if (ret < 0) {
+            printf("No %s board found\n", access.device_name);
             return -1;
         }
         board = anyio_get_dev(&access, 1);
@@ -384,6 +389,8 @@ int main(int argc, char *argv[]) {
 
         if (readhmid_flag == 1) {
             anyio_dev_print_hm2_info(board, xml_flag);
+        } else if (print_pd_flag == 1) {
+            anyio_dev_print_pin_descriptors(board);
         } else if (sserial_flag == 1) {
             anyio_dev_print_sserial_info(board);
         } else if (rpo_flag == 1) {
