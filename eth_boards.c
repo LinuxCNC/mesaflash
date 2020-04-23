@@ -144,7 +144,7 @@ static int eth_scan_one_addr(board_access_t *access) {
     recv = lbp16_recv_packet(&cookie, sizeof(cookie));
 
     if ((recv > 0) && (cookie == HM2_COOKIE)) {
-        char buff[20];
+        char buff[16];
         board_t *board = &boards[boards_count];
 
         board_init_struct(board);

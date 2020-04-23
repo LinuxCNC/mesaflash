@@ -144,7 +144,7 @@ void usb_boards_scan(board_access_t *access) {
             board->type = BOARD_USB;
             board->mode = BOARD_MODE_FPGA;
             strcpy(board->dev_addr, access->dev_addr);
-            strncpy(board->llio.board_name, "7I43", 4);
+            strcpy(board->llio.board_name, "7I43");
             board->llio.num_ioport_connectors = 2;
             board->llio.pins_per_connector = 24;
             board->llio.ioport_connector_name[0] = "P3";
@@ -185,7 +185,7 @@ void usb_boards_scan(board_access_t *access) {
         board->type = BOARD_USB;
         board->mode = BOARD_MODE_CPLD;
         strcpy(board->dev_addr, access->dev_addr);
-        strncpy(board->llio.board_name, "7I43", 4);
+        strcpy(board->llio.board_name, "7I43");
         board->llio.num_ioport_connectors = 2;
         board->llio.pins_per_connector = 24;
         board->llio.ioport_connector_name[0] = "P3";
