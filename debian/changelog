@@ -1,3 +1,9 @@
+mesaflash (3.4.0~pre0-1) UNRELEASED; urgency=medium
+
+  * mesaflash is now maintained by the LinuxCNC organization.
+
+ -- LinuxCNC Developers <emc-developers@lists.sourceforge.net>  Thu, 23 Apr 2020 10:34:49 -0600
+
 mesaflash (3.3.0~pre0+dfsg-0) stable; urgency=low
 
   * support Mesa 7i93 ethernet board
