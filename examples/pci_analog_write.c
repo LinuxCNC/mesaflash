@@ -26,11 +26,10 @@
 #include "../sserial_module.h"
 #ifdef __linux__
 #include <pci/pci.h>
+#include <unistd.h>
 #elif _WIN32
 #include "libpci/pci.h"
 #endif
-
-extern int usleep(useconds_t usec); // static global access variable conflicts with POSIX function in unistd.h
 
 static int device_flag;
 static int instance_flag;
@@ -38,7 +37,7 @@ static int instance = 0;
 static int delay_flag;
 static int delay = 50;
 static int verbose_flag;
-static board_access_t access;
+static board_access_t baccess;
 
 static struct option long_options[] = {
     {"device", required_argument, 0, 'd'},
@@ -87,9 +86,9 @@ int process_cmd_line(int argc, char *argv[]) {
                     printf("Error: multiply --device option\n");
                     exit(-1);
                 }
-                access.device_name = optarg;
+                baccess.device_name = optarg;
                 for (i = 0; optarg[i] != '\0'; i++)
-                    access.device_name[i] = toupper(access.device_name[i]);
+                    baccess.device_name[i] = toupper(baccess.device_name[i]);
 
                 device_flag++;
             }
@@ -143,18 +142,18 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    access.verbose = verbose_flag;
+    baccess.verbose = verbose_flag;
 
-    if (anyio_init(&access) != 0) {     // init library
+    if (anyio_init(&baccess) != 0) {     // init library
         return -1;
     }
-    ret = anyio_find_dev(&access);      // find board
+    ret = anyio_find_dev(&baccess);      // find board
     if (ret < 0) {
         return -1;
     }
-    board = anyio_get_dev(&access, 1);  // if found the get board handle
+    board = anyio_get_dev(&baccess, 1);  // if found the get board handle
     if (board == NULL) {
-        printf("No %s board found\n", access.device_name);
+        printf("No %s board found\n", baccess.device_name);
         return -1;
     }
 
@@ -184,7 +183,7 @@ int main(int argc, char *argv[]) {
 
     board->close(board);                // close board communication
 
-    anyio_cleanup(&access);             // close library
+    anyio_cleanup(&baccess);             // close library
 
     return 0;
 }
