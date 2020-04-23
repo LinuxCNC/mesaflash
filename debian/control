@@ -1,5 +1,5 @@
 Source: mesaflash
-Maintainer: Michael Geszkiewicz <micges@wp.pl>
+Maintainer: LinuxCNC Developers <emc-developers@lists.sourceforge.net>
 Section: misc
 Priority: optional
 Standards-Version: 3.9.4
