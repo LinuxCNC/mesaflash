@@ -28,7 +28,7 @@
 #include "lbp.h"
 
 #ifdef __linux__
-int sd;
+static int sd = -1;
 #elif _WIN32
 HANDLE sd;
 #endif

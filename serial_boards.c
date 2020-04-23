@@ -35,7 +35,7 @@
 extern board_t boards[MAX_BOARDS];
 extern int boards_count;
 
-int sd;
+static int sd = -1;
 
 // serial access functions
 
