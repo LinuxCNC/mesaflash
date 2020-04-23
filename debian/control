@@ -10,4 +10,4 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Mesa Electronics utility tool
 	Configuration and diagnostic tool for
-	Mesa Electronics PCI(E)/ETH/EPP/USB boards
+	Mesa Electronics PCI(E)/ETH/EPP/USB/SPI boards
