@@ -37,7 +37,7 @@ mesaflash (3.1.0) stable; urgency=low
   * Use default device address (0x378 for epp and 192.168.1.121 for eth)
     if --addr option is missing in command line
   * Reduce overhead of verify operation (thanks jepler)
-  * Don't write and verify flash if bitfile destination part name is not 
+  * Don't write and verify flash if bitfile destination part name is not
     equal to current board fpga name
   * Add support for 7i92 ethernet board
   * Update windows port
@@ -47,7 +47,7 @@ mesaflash (3.1.0) stable; urgency=low
   * Add support for write/verify eeprom on 7i43 board via EPPIO bitfile
   * Add command to set remote ip address in ethernet eeprom
   * Remove obsolete command line options
-  * Add example programs how to use libanyio to communicate with 7i77 
+  * Add example programs how to use libanyio to communicate with 7i77
     (encoder in and analog out)
 
  -- Michael Geszkiewicz <micges@wp.pl>  Sat, 24 Nov 2014 01:07:22 -0500
