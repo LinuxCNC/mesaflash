@@ -37,6 +37,10 @@ ifeq ($(TARGET),linux)
 	CFLAGS += -D_GNU_SOURCE
 endif
 
+ifeq ($(USE_STUBS),1)
+	INCLUDE += -Istubs
+endif
+
 ifeq ($(TARGET),windows)
 	MINGW = c:/MinGW
 	INCLUDE = -I$(MINGW)/include
@@ -49,6 +53,10 @@ CFLAGS += $(DEBUG) $(INCLUDE)
 
 objects = common.o lbp.o lbp16.o bitfile.o hostmot2.o eeprom.o anyio.o eth_boards.o epp_boards.o usb_boards.o pci_boards.o
 objects += sserial_module.o encoder_module.o eeprom_local.o eeprom_remote.o spi_boards.o serial_boards.o
+
+ifeq ($(USE_STUBS),1)
+objects += io.o
+endif
 
 headers = eth_boards.h pci_boards.h epp_boards.h usb_boards.h spi_boards.h serial_boards.h anyio.h hostmot2.h lbp16.h types.h
 headers +=  common.h eeprom.h lbp.h eeprom_local.h eeprom_remote.h bitfile.h sserial_module.h hostmot2_def.h boards.h
@@ -117,6 +125,9 @@ bitfile.o : bitfile.c $(headers)
 
 common.o : common.c $(headers)
 	$(CC) $(CFLAGS) -c common.c
+
+io.o : stubs/sys/io.c stubs/sys/io.h
+	$(CC) $(CFLAGS) -c stubs/sys/io.c
 
 pci_encoder_read.o : examples/pci_encoder_read.c $(LIBANYIO) $(headers)
 	$(CC) $(CFLAGS) -c examples/pci_encoder_read.c
