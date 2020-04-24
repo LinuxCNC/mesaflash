@@ -30,6 +30,16 @@ DEBUG ?= -O0 -g
 OWNERSHIP ?= --owner root --group root
 
 ifeq ($(TARGET),linux)
+    $(shell which pkg-config > /dev/null)
+    ifeq ($(.SHELLSTATUS), 1)
+        $(error "can't find pkg-config")
+    endif
+
+    $(shell pkg-config --exists libpci > /dev/null)
+    ifeq ($(.SHELLSTATUS), 1)
+        $(error "pkg-config can't find libpci")
+    endif
+
     INCLUDE = $(shell pkg-config --cflags libpci)
     BIN = mesaflash
     LDFLAGS = -lm $(shell pkg-config --libs libpci)
