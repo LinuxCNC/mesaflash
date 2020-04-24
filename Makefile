@@ -26,8 +26,10 @@ RM = rm -f
 AR = ar
 RANLIB = ranlib
 
-DEBUG ?= -O0 -g
 OWNERSHIP ?= --owner root --group root
+
+# default CFLAGS
+CFLAGS ?= -O0 -g
 
 ifeq ($(TARGET),linux)
     $(shell which pkg-config > /dev/null)
@@ -52,14 +54,12 @@ ifeq ($(TARGET),windows)
     CFLAGS += -I$(MINGW)/include
     BIN = mesaflash.exe
     LDFLAGS = -lwsock32 -lws2_32 libpci.dll winio32.dll
-    DEBUG += -mno-ms-bitfields
+    CFLAGS += -mno-ms-bitfields
 endif
 
 ifeq ($(USE_STUBS),1)
     CFLAGS += -Istubs
 endif
-
-CFLAGS += $(DEBUG)
 
 objects = common.o lbp.o lbp16.o bitfile.o hostmot2.o eeprom.o anyio.o eth_boards.o epp_boards.o usb_boards.o pci_boards.o
 objects += sserial_module.o encoder_module.o eeprom_local.o eeprom_remote.o spi_boards.o serial_boards.o
