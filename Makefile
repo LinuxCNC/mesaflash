@@ -25,7 +25,6 @@ CC = gcc
 RM = rm -f
 AR = ar
 RANLIB = ranlib
-MATHLIB = -lm
 
 DEBUG ?= -O0 -g
 OWNERSHIP ?= --owner root --group root
@@ -33,7 +32,7 @@ OWNERSHIP ?= --owner root --group root
 ifeq ($(TARGET),linux)
     INCLUDE = $(shell pkg-config --cflags libpci)
     BIN = mesaflash
-    LIBS = $(shell pkg-config --libs libpci) $(MATHLIB)
+    LDFLAGS = -lm $(shell pkg-config --libs libpci)
     CFLAGS += -D_GNU_SOURCE
 endif
 
@@ -41,7 +40,7 @@ ifeq ($(TARGET),windows)
     MINGW = c:/MinGW
     INCLUDE = -I$(MINGW)/include
     BIN = mesaflash.exe
-    LIBS = -lwsock32 -lws2_32 libpci.dll winio32.dll
+    LDFLAGS = -lwsock32 -lws2_32 libpci.dll winio32.dll
     DEBUG += -mno-ms-bitfields
 endif
 
@@ -73,7 +72,7 @@ mesaflash.o : mesaflash.c $(headers)
 	$(CC) $(CFLAGS) -c mesaflash.c
 
 $(BIN): mesaflash.o anyio.h $(LIBANYIO)
-	$(CC) $(CFLAGS) -o $(BIN) mesaflash.o $(LIBANYIO) $(LIBS)
+	$(CC) $(CFLAGS) -o $(BIN) mesaflash.o $(LIBANYIO) $(LDFLAGS)
 
 anyio.o : anyio.c $(headers)
 	$(CC) $(CFLAGS) -c anyio.c
@@ -133,13 +132,13 @@ pci_encoder_read.o : examples/pci_encoder_read.c $(LIBANYIO) $(headers)
 	$(CC) $(CFLAGS) -c examples/pci_encoder_read.c
 
 pci_encoder_read: pci_encoder_read.o anyio.h encoder_module.h
-	$(CC) $(CFLAGS) -o pci_encoder_read pci_encoder_read.o $(LIBANYIO) $(LIBS)
+	$(CC) $(CFLAGS) -o pci_encoder_read pci_encoder_read.o $(LIBANYIO) $(LDFLAGS)
 
 pci_analog_write.o : examples/pci_analog_write.c $(LIBANYIO) $(headers)
 	$(CC) $(CFLAGS) -c examples/pci_analog_write.c
 
 pci_analog_write: pci_analog_write.o anyio.h sserial_module.h
-	$(CC) $(CFLAGS) -o pci_analog_write pci_analog_write.o $(LIBANYIO) $(LIBS)
+	$(CC) $(CFLAGS) -o pci_analog_write pci_analog_write.o $(LIBANYIO) $(LDFLAGS)
 
 clean :
 	$(RM) *.o $(LIBANYIO) $(BIN) pci_encoder_read pci_analog_write
