@@ -5,9 +5,10 @@ Configuration and diagnostic tool for Mesa Electronics PCI(E)/ETH/EPP/USB/SPI bo
 Quickstart:
 ===========
 
-MesaFlash depends on libpci-dev, to install it:
+MesaFlash depends on a couple of packages to build, so install those
+first:
 
-  sudo apt install libpci-dev
+  sudo apt install libpci-dev pkg-config
 
 You may need to install git first:
 
