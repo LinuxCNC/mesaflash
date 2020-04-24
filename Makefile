@@ -40,10 +40,11 @@ ifeq ($(TARGET),linux)
         $(error "pkg-config can't find libpci")
     endif
 
-    INCLUDE = $(shell pkg-config --cflags libpci)
+    LIBPCI_CFLAGS := $(shell pkg-config --cflags libpci)
+    LIBPCI_LDFLAGS := $(shell pkg-config --libs libpci)
     BIN = mesaflash
-    LDFLAGS = -lm $(shell pkg-config --libs libpci)
-    CFLAGS += -D_GNU_SOURCE
+    LDFLAGS = -lm $(LIBPCI_LDFLAGS)
+    CFLAGS += -D_GNU_SOURCE $(LIBPCI_CFLAGS)
 endif
 
 ifeq ($(TARGET),windows)
