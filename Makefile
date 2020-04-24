@@ -31,22 +31,22 @@ DEBUG ?= -O0 -g
 OWNERSHIP ?= --owner root --group root
 
 ifeq ($(TARGET),linux)
-	INCLUDE = $(shell pkg-config --cflags libpci)
-	BIN = mesaflash
-	LIBS = $(shell pkg-config --libs libpci) $(MATHLIB)
-	CFLAGS += -D_GNU_SOURCE
+    INCLUDE = $(shell pkg-config --cflags libpci)
+    BIN = mesaflash
+    LIBS = $(shell pkg-config --libs libpci) $(MATHLIB)
+    CFLAGS += -D_GNU_SOURCE
 endif
 
 ifeq ($(USE_STUBS),1)
-	INCLUDE += -Istubs
+    INCLUDE += -Istubs
 endif
 
 ifeq ($(TARGET),windows)
-	MINGW = c:/MinGW
-	INCLUDE = -I$(MINGW)/include
-	BIN = mesaflash.exe
-	LIBS = -lwsock32 -lws2_32 libpci.dll winio32.dll
-	DEBUG += -mno-ms-bitfields
+    MINGW = c:/MinGW
+    INCLUDE = -I$(MINGW)/include
+    BIN = mesaflash.exe
+    LIBS = -lwsock32 -lws2_32 libpci.dll winio32.dll
+    DEBUG += -mno-ms-bitfields
 endif
 
 CFLAGS += $(DEBUG) $(INCLUDE)
@@ -55,7 +55,7 @@ objects = common.o lbp.o lbp16.o bitfile.o hostmot2.o eeprom.o anyio.o eth_board
 objects += sserial_module.o encoder_module.o eeprom_local.o eeprom_remote.o spi_boards.o serial_boards.o
 
 ifeq ($(USE_STUBS),1)
-objects += io.o
+    objects += io.o
 endif
 
 headers = eth_boards.h pci_boards.h epp_boards.h usb_boards.h spi_boards.h serial_boards.h anyio.h hostmot2.h lbp16.h types.h
