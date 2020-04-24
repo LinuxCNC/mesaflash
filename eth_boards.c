@@ -201,7 +201,6 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.verify_flash = &remote_verify_flash;
             board->llio.reset = &lbp16_board_reset;
             board->llio.reload = &lbp16_board_reload;
-
             board->open = &eth_board_open;
             board->close = &eth_board_close;
             board->print_info = &eth_print_info;
@@ -226,7 +225,6 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.verify_flash = &remote_verify_flash;
             board->llio.reset = &lbp16_board_reset;
             board->llio.reload = &lbp16_board_reload;
-
             board->open = &eth_board_open;
             board->close = &eth_board_close;
             board->print_info = &eth_print_info;
@@ -251,7 +249,6 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.verify_flash = &remote_verify_flash;
             board->llio.reset = &lbp16_board_reset;
             board->llio.reload = &lbp16_board_reload;
-
             board->open = &eth_board_open;
             board->close = &eth_board_close;
             board->print_info = &eth_print_info;
@@ -276,7 +273,6 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.verify_flash = &remote_verify_flash;
             board->llio.reset = &lbp16_board_reset;
             board->llio.reload = &lbp16_board_reload;
-
             board->open = &eth_board_open;
             board->close = &eth_board_close;
             board->print_info = &eth_print_info;
@@ -300,7 +296,6 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.verify_flash = &remote_verify_flash;
             board->llio.reset = &lbp16_board_reset;
             board->llio.reload = &lbp16_board_reload;
-
             board->open = &eth_board_open;
             board->close = &eth_board_close;
             board->print_info = &eth_print_info;
@@ -324,7 +319,52 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.verify_flash = &remote_verify_flash;
             board->llio.reset = &lbp16_board_reset;
             board->llio.reload = &lbp16_board_reload;
-
+            board->open = &eth_board_open;
+            board->close = &eth_board_close;
+            board->print_info = &eth_print_info;
+            board->flash = BOARD_FLASH_REMOTE;
+            board->fallback_support = 1;
+            board->llio.verbose = access->verbose;
+            boards_count ++;
+        } else if (strncmp(buff, "7I94", 4) == 0) {
+            board->type = BOARD_ETH;
+            strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
+            strncpy(board->llio.board_name, buff, 16);
+            board->llio.num_ioport_connectors = 2;
+            board->llio.pins_per_connector = 21;
+            board->llio.ioport_connector_name[0] = "Expansion+Serial 0..1";
+            board->llio.ioport_connector_name[1] = "Serial 1..7";
+            board->llio.fpga_part_number = "6slx9tqg144";
+            board->llio.num_leds = 4;
+            board->llio.read = &eth_read;
+            board->llio.write = &eth_write;
+            board->llio.write_flash = &remote_write_flash;
+            board->llio.verify_flash = &remote_verify_flash;
+            board->llio.reset = &lbp16_board_reset;
+            board->llio.reload = &lbp16_board_reload;
+            board->open = &eth_board_open;
+            board->close = &eth_board_close;
+            board->print_info = &eth_print_info;
+            board->flash = BOARD_FLASH_REMOTE;
+            board->fallback_support = 1;
+            board->llio.verbose = access->verbose;
+            boards_count ++;
+        } else if (strncmp(buff, "7I95", 4) == 0) {
+            board->type = BOARD_ETH;
+            strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
+            strncpy(board->llio.board_name, buff, 16);
+            board->llio.num_ioport_connectors = 2;
+            board->llio.pins_per_connector = 29;
+            board->llio.ioport_connector_name[0] = "Step/DIR+Serial+Encoders";
+            board->llio.ioport_connector_name[1] = "I/O+Expansion";
+            board->llio.fpga_part_number = "6slx9tqg144";
+            board->llio.num_leds = 4;
+            board->llio.read = &eth_read;
+            board->llio.write = &eth_write;
+            board->llio.write_flash = &remote_write_flash;
+            board->llio.verify_flash = &remote_verify_flash;
+            board->llio.reset = &lbp16_board_reset;
+            board->llio.reload = &lbp16_board_reload;
             board->open = &eth_board_open;
             board->close = &eth_board_close;
             board->print_info = &eth_print_info;
@@ -349,7 +389,6 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.verify_flash = &remote_verify_flash;
             board->llio.reset = &lbp16_board_reset;
             board->llio.reload = &lbp16_board_reload;
-
             board->open = &eth_board_open;
             board->close = &eth_board_close;
             board->print_info = &eth_print_info;
@@ -357,7 +396,55 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->fallback_support = 1;
             board->llio.verbose = access->verbose;
             boards_count ++;
-        } else {
+        } else if (strncmp(buff, "7I97", 4) == 0) {
+            board->type = BOARD_ETH;
+            strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
+            strncpy(board->llio.board_name, buff, 16);
+            board->llio.num_ioport_connectors = 3;
+            board->llio.pins_per_connector = 17;
+            board->llio.ioport_connector_name[0] = "TB1/TB2/TB3";
+            board->llio.ioport_connector_name[1] = "TB4/TB5";
+            board->llio.ioport_connector_name[2] = "P1";
+            board->llio.fpga_part_number = "6slx9tqg144";
+            board->llio.num_leds = 4;
+            board->llio.read = &eth_read;
+            board->llio.write = &eth_write;
+            board->llio.write_flash = &remote_write_flash;
+            board->llio.verify_flash = &remote_verify_flash;
+            board->llio.reset = &lbp16_board_reset;
+            board->llio.reload = &lbp16_board_reload;
+            board->open = &eth_board_open;
+            board->close = &eth_board_close;
+            board->print_info = &eth_print_info;
+            board->flash = BOARD_FLASH_REMOTE;
+            board->fallback_support = 1;
+            board->llio.verbose = access->verbose;
+            boards_count ++;
+        } else if (strncmp(buff, "7I98", 4) == 0) {
+            board->type = BOARD_ETH;
+            strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
+            strncpy(board->llio.board_name, buff, 16);
+            board->llio.num_ioport_connectors = 3;
+            board->llio.pins_per_connector = 17;
+            board->llio.ioport_connector_name[0] = "P1";
+            board->llio.ioport_connector_name[1] = "P2";
+            board->llio.ioport_connector_name[2] = "P3";
+            board->llio.fpga_part_number = "6slx9tqg144";
+            board->llio.num_leds = 4;
+            board->llio.read = &eth_read;
+            board->llio.write = &eth_write;
+            board->llio.write_flash = &remote_write_flash;
+            board->llio.verify_flash = &remote_verify_flash;
+            board->llio.reset = &lbp16_board_reset;
+            board->llio.reload = &lbp16_board_reload;
+            board->open = &eth_board_open;
+            board->close = &eth_board_close;
+            board->print_info = &eth_print_info;
+            board->flash = BOARD_FLASH_REMOTE;
+            board->fallback_support = 1;
+            board->llio.verbose = access->verbose;
+            boards_count ++;
+         } else {
             printf("Unsupported ethernet device %s at %s\n", buff, eth_socket_get_src_ip());
             ret = -1;
         }
@@ -571,7 +658,7 @@ void eth_print_info(board_t *board) {
 
     printf("  [space 6] LBP16 control/status:\n");
     printf("    packets received: all %d, UDP %d, bad %d\n", stat_area.RXPacketCount, stat_area.RXGoodCount, stat_area.RXBadCount);
-    printf("    packets sended: all %d, UDP %d, bad %d\n", stat_area.TXPacketCount, stat_area.TXGoodCount, stat_area.TXBadCount);
+    printf("    packets sent: all %d, UDP %d, bad %d\n", stat_area.TXPacketCount, stat_area.TXGoodCount, stat_area.TXBadCount);
     printf("    parse errors: %d, mem errors %d, write errors %d\n", stat_area.LBPParseErrors, stat_area.LBPMemErrors, stat_area.LBPWriteErrors);
     printf("    error flags: 0x%04X\n", stat_area.ErrorReg);
     printf("    debug LED ptr: 0x%04X\n", stat_area.DebugLEDPtr);

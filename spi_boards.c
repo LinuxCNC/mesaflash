@@ -87,7 +87,7 @@ static int spi_board_close(board_t *board) {
 }
 
 int spi_boards_init(board_access_t *access) {
-    settings.speed_hz = 8 * 1000 * 1000;
+    settings.speed_hz = 20 * 1000 * 1000;
     settings.bits_per_word = 32;
 
     sd = open(access->dev_addr, O_RDWR);
@@ -179,6 +179,52 @@ int spi_write(llio_t *self, u32 addr, void *buffer, int size) {
     return 0;
 }
 
+static int spi_board_reload(llio_t *self, int fallback_flag) {
+    board_t *board = self->board;
+    int i;
+    u32 boot_addr, cookie;
+
+    spi_read(&(board->llio), HM2_ICAP_REG, &cookie, sizeof(u32));
+    if (cookie != HM2_ICAP_COOKIE) {
+        printf("ERROR: Active firmware too old to support --reload\n");
+        return -1;
+    }
+
+    if (fallback_flag == 1) {
+        boot_addr = 0x10000;
+    } else {
+        boot_addr = 0x0;
+    }
+    boot_addr |= 0x0B000000; // plus read command in high byte
+
+    u32 data[14] = {
+      0xFFFF,   // dummy
+      0xFFFF,   // dummy
+      0xAA99,   // sync
+      0x5566,   // sync
+      0x3261,   // load low flash start address
+      boot_addr & 0xFFFF,   // start addr
+      0x3281,   // load high start address + read command
+      boot_addr >> 16,   // start addr (plus read command in high byte)
+      0x30A1,   // load command register
+      0x000E,   // IPROG command
+      0x2000,  // NOP
+      0x2000,  // NOP
+      0x2000,  // NOP
+      0x2000  // NOP
+    };
+
+
+    for (i = 0; i < 14; i++) {
+        spi_write(&(board->llio), HM2_ICAP_REG, &data[i], sizeof(u32));
+        usleep(1000);
+    }
+    printf("Waiting for FPGA configuration...");
+    sleep(2);
+    printf("OK\n");
+    return 0;
+}
+
 void spi_boards_scan(board_access_t *access) {
     u32 buf[4];
     u32 cookie[] = {0x55aacafe, 0x54534f48, 0x32544f4d};
@@ -204,7 +250,8 @@ void spi_boards_scan(board_access_t *access) {
         board->type = BOARD_SPI;
         strcpy(board->dev_addr, access->dev_addr);
         strcpy(board->llio.board_name, "7I90");
-        board->llio.num_ioport_connectors = 24;
+        board->llio.num_ioport_connectors = 3;
+        board->llio.pins_per_connector = 24;
         board->llio.ioport_connector_name[0] = "P1";
         board->llio.ioport_connector_name[1] = "P2";
         board->llio.ioport_connector_name[2] = "P3";
@@ -214,6 +261,7 @@ void spi_boards_scan(board_access_t *access) {
         board->llio.read = spi_read;
         board->llio.write_flash = local_write_flash;
         board->llio.verify_flash = local_verify_flash;
+        board->llio.reload = &spi_board_reload;
         board->llio.fpga_part_number = "6slx9tqg144";
         board->open = spi_board_open;
         board->close = spi_board_close;
@@ -221,7 +269,54 @@ void spi_boards_scan(board_access_t *access) {
         board->flash = BOARD_FLASH_HM2;
         board->fallback_support = 1;
         boards_count ++;
-    } else {
+    } else if(!memcmp(ident, "MESA7C80", 8)) {
+        board_t *board = &boards[boards_count];
+        board->type = BOARD_SPI;
+        strcpy(board->dev_addr, access->dev_addr);
+        strcpy(board->llio.board_name, "7C80");
+        board->llio.num_ioport_connectors = 2;
+        board->llio.pins_per_connector = 27;
+        board->llio.ioport_connector_name[0] = "StepGens+Misc";
+        board->llio.ioport_connector_name[1] = "Outputs+P1";
+        board->llio.num_leds = 4;
+        board->llio.verbose = access->verbose;
+        board->llio.write = spi_write;
+        board->llio.read = spi_read;
+        board->llio.write_flash = local_write_flash;
+        board->llio.verify_flash = local_verify_flash;
+        board->llio.reload = &spi_board_reload;
+        board->llio.fpga_part_number = "6slx9tqg144";
+        board->open = spi_board_open;
+        board->close = spi_board_close;
+        board->print_info = spi_print_info;
+        board->flash = BOARD_FLASH_HM2;
+        board->fallback_support = 1;
+        boards_count ++; 
+     } else if(!memcmp(ident, "MESA7C81", 8)) {
+        board_t *board = &boards[boards_count];
+        board->type = BOARD_SPI;
+        strcpy(board->dev_addr, access->dev_addr);
+        strcpy(board->llio.board_name, "7C81");
+        board->llio.num_ioport_connectors = 3;
+        board->llio.pins_per_connector = 19;
+        board->llio.ioport_connector_name[0] = "P1+Serial";
+        board->llio.ioport_connector_name[1] = "P2+Serial";
+        board->llio.ioport_connector_name[2] = "P7+Serial";
+        board->llio.num_leds = 4;
+        board->llio.verbose = access->verbose;
+        board->llio.write = spi_write;
+        board->llio.read = spi_read;
+        board->llio.write_flash = local_write_flash;
+        board->llio.verify_flash = local_verify_flash;
+        board->llio.reload = &spi_board_reload;
+        board->llio.fpga_part_number = "6slx9tqg144";
+        board->open = spi_board_open;
+        board->close = spi_board_close;
+        board->print_info = spi_print_info;
+        board->flash = BOARD_FLASH_HM2;
+        board->fallback_support = 1;
+        boards_count ++; 
+     } else {
         int i=0;
         for(i=0; i<sizeof(ident); i++)
             if(!isprint(ident[i])) ident[i] = '?';

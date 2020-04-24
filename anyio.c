@@ -33,7 +33,11 @@ supported_board_entry_t supported_boards[] = {
     {"ETHER", BOARD_ETH | BOARD_WILDCARD},
     {"7I92", BOARD_ETH},
     {"7I93", BOARD_ETH},
+    {"7I94", BOARD_ETH},
+    {"7I95", BOARD_ETH},
     {"7I96", BOARD_ETH},
+    {"7I97", BOARD_ETH},
+    {"7I98", BOARD_ETH},
     {"7I80", BOARD_ETH},
     {"7I76E", BOARD_ETH},
 
@@ -51,6 +55,8 @@ supported_board_entry_t supported_boards[] = {
     {"4I69", BOARD_PCI},
     {"3X20", BOARD_PCI},
 
+    {"7C80", BOARD_MULTI_INTERFACE | BOARD_EPP | BOARD_SPI},
+    {"7C81", BOARD_MULTI_INTERFACE | BOARD_EPP | BOARD_SPI},
     {"7I43", BOARD_MULTI_INTERFACE | BOARD_EPP | BOARD_USB},
     {"7I90", BOARD_MULTI_INTERFACE | BOARD_EPP | BOARD_SPI | BOARD_SER},
     {"7I64", BOARD_MULTI_INTERFACE | BOARD_USB | BOARD_SPI},
@@ -324,6 +330,14 @@ void anyio_dev_print_hm2_info(board_t *board, int xml_flag) {
     }
     hm2_read_idrom(&(board->llio.hm2));
     hm2_print_pin_file(&(board->llio), xml_flag);
+}
+
+void anyio_dev_print_pin_descriptors(board_t *board) {
+    if (board == NULL) {
+        return;
+    }
+    hm2_read_idrom(&(board->llio.hm2));
+    hm2_print_pin_descriptors(&board->llio);
 }
 
 void anyio_dev_print_sserial_info(board_t *board) {
