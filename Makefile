@@ -37,16 +37,16 @@ ifeq ($(TARGET),linux)
     CFLAGS += -D_GNU_SOURCE
 endif
 
-ifeq ($(USE_STUBS),1)
-    INCLUDE += -Istubs
-endif
-
 ifeq ($(TARGET),windows)
     MINGW = c:/MinGW
     INCLUDE = -I$(MINGW)/include
     BIN = mesaflash.exe
     LIBS = -lwsock32 -lws2_32 libpci.dll winio32.dll
     DEBUG += -mno-ms-bitfields
+endif
+
+ifeq ($(USE_STUBS),1)
+    INCLUDE += -Istubs
 endif
 
 CFLAGS += $(DEBUG) $(INCLUDE)
