@@ -57,14 +57,11 @@ ifeq ($(TARGET),windows)
     CFLAGS += -mno-ms-bitfields
 endif
 
-ifeq ($(USE_STUBS),1)
-    CFLAGS += -Istubs
-endif
-
 objects = common.o lbp.o lbp16.o bitfile.o hostmot2.o eeprom.o anyio.o eth_boards.o epp_boards.o usb_boards.o pci_boards.o
 objects += sserial_module.o encoder_module.o eeprom_local.o eeprom_remote.o spi_boards.o serial_boards.o
 
 ifeq ($(USE_STUBS),1)
+    CFLAGS += -Istubs
     objects += io.o
 endif
 
