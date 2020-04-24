@@ -49,17 +49,17 @@ endif
 
 ifeq ($(TARGET),windows)
     MINGW = c:/MinGW
-    INCLUDE = -I$(MINGW)/include
+    CFLAGS += -I$(MINGW)/include
     BIN = mesaflash.exe
     LDFLAGS = -lwsock32 -lws2_32 libpci.dll winio32.dll
     DEBUG += -mno-ms-bitfields
 endif
 
 ifeq ($(USE_STUBS),1)
-    INCLUDE += -Istubs
+    CFLAGS += -Istubs
 endif
 
-CFLAGS += $(DEBUG) $(INCLUDE)
+CFLAGS += $(DEBUG)
 
 objects = common.o lbp.o lbp16.o bitfile.o hostmot2.o eeprom.o anyio.o eth_boards.o epp_boards.o usb_boards.o pci_boards.o
 objects += sserial_module.o encoder_module.o eeprom_local.o eeprom_remote.o spi_boards.o serial_boards.o
