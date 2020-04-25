@@ -79,7 +79,14 @@ int serial_recv_packet(void *packet, int size) {
         rc = ppoll(fds, 1, &timeout, NULL);
         if (rc > 0) {
             ret = read(sd, buffer + r, 1);
-            r += 1;
+            if (ret < 0) {
+                printf("serial read error: %s\n", strerror(errno));
+                return -1;
+            } else if (ret == 0) {
+                printf("serial read EOF\n");
+                return -1;
+            }
+            r += ret;
         } else if (rc == 0) {
             timeouts ++;
             if (timeouts == 5) {
