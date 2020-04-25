@@ -78,8 +78,8 @@ int serial_recv_packet(void *packet, int size) {
     while (r < size) {
         rc = ppoll(fds, 1, &timeout, NULL);
         if (rc > 0) {
-            ret = read(sd, buffer + r, rc);
-            r += rc;
+            ret = read(sd, buffer + r, 1);
+            r += 1;
         } else if (rc == 0) {
             timeouts ++;
             if (timeouts == 5) {
