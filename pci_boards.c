@@ -812,7 +812,10 @@ int pci_boards_init(board_access_t *access) {
 
     memfd = open("/dev/mem", O_RDWR);
     eno = errno;
-    seteuid(getuid());
+    if (seteuid(getuid()) != 0) {
+        printf("Failed to restore euid: %s\n", strerror(errno));
+        return -1;
+    }
     if (memfd < 0) {
         printf("%s can't open /dev/mem: %s", __func__, strerror(eno));
         return -1;
