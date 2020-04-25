@@ -475,8 +475,9 @@ void sserial_module_init(llio_t *llio) {
                     sslbp_read_remote_bytes(ssmod, port, channel, d, &(sserial_md), sizeof(sserial_md_t));
                     sslbp_read_remote_bytes(ssmod, port, channel, d + sizeof(sserial_md_t), &(name), -1);
                     if (sserial_md.mode_type == 0x01) {
-                        llio->ss_device[channel].sw_modes[llio->ss_device[channel].sw_modes_cnt].index = sserial_md.mode_index;
-                        strncpy(llio->ss_device[channel].sw_modes[llio->ss_device[channel].sw_modes_cnt].name, name, strlen(name));
+                        sw_mode_t *sw_mode = &llio->ss_device[channel].sw_modes[llio->ss_device[channel].sw_modes_cnt];
+                        sw_mode->index = sserial_md.mode_index;
+                        strncpy(sw_mode->name, name, strlen(name));
                         llio->ss_device[channel].sw_modes_cnt++;
                     }
                 }
