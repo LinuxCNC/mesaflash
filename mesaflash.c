@@ -226,7 +226,12 @@ int process_cmd_line(int argc, char *argv[]) {
                     printf("Error: multiple --write options\n");
                     exit(-1);
                 }
-                strncpy(bitfile_name, optarg, 255);
+                size_t len = strlen(optarg);
+                if (len+1 > sizeof(bitfile_name)) {
+                    printf("--write argument too long (max %lu)\n", sizeof(bitfile_name)-1);
+                    return 1;
+                }
+                strcpy(bitfile_name, optarg);
                 write_flag++;
             }
             break;
@@ -236,7 +241,12 @@ int process_cmd_line(int argc, char *argv[]) {
                     printf("Error: multiple --program options\n");
                     exit(-1);
                 }
-                strncpy(bitfile_name, optarg, 255);
+                size_t len = strlen(optarg);
+                if (len+1 > sizeof(bitfile_name)) {
+                    printf("--program argument too long (max %lu)\n", sizeof(bitfile_name)-1);
+                    return 1;
+                }
+                strcpy(bitfile_name, optarg);
                 program_flag++;
             }
             break;
@@ -308,7 +318,12 @@ int process_cmd_line(int argc, char *argv[]) {
                     printf("Error: multiple --verify options\n");
                     exit(-1);
                 }
-                strncpy(bitfile_name, optarg, 255);
+                size_t len = strlen(optarg);
+                if (len+1 > sizeof(bitfile_name)) {
+                    printf("--verify argument too long (max %lu)\n", sizeof(bitfile_name)-1);
+                    return 1;
+                }
+                strcpy(bitfile_name, optarg);
                 verify_flag++;
             }
             break;
@@ -318,7 +333,12 @@ int process_cmd_line(int argc, char *argv[]) {
                     printf("Error: multiple --info options\n");
                     exit(-1);
                 }
-                strncpy(bitfile_name, optarg, 255);
+                size_t len = strlen(optarg);
+                if (len+1 > sizeof(bitfile_name)) {
+                    printf("--info argument too long (max %lu)\n", sizeof(bitfile_name)-1);
+                    return 1;
+                }
+                strcpy(bitfile_name, optarg);
                 info_flag++;
             }
             break;
