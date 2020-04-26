@@ -4,6 +4,8 @@ Section: misc
 Priority: optional
 Standards-Version: 3.9.4
 Build-Depends: libpci-dev, debhelper (>= 9), pkg-config
+Vcs-Browser: https://github.com/linuxcnc/mesaflash
+Vcs-git: https://github.com/LinuxCNC/mesaflash.git -b master
 
 Package: mesaflash
 Architecture: any
