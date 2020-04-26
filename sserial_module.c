@@ -286,7 +286,7 @@ int sserial_init(sserial_module_t *ssmod, board_t *board, int interface_num, int
     board->llio.read(&(ssmod->board->llio), ssmod->base_address + HM2_MOD_OFFS_SSERIAL_CS + interface_num*ssmod->instance_stride + channel_num*4, &(status), sizeof(u32));
     board->llio.read(&(ssmod->board->llio), ssmod->base_address + HM2_MOD_OFFS_SSERIAL_INTERFACE0 + interface_num*ssmod->instance_stride + channel_num*4, &(status), sizeof(u32));
     if ((status & 0xFF000000) != remote_type) {
-        printf("Found wrong remote at %d:%d, reqeust %x but found %x\n", interface_num, channel_num, remote_type, status);
+        printf("Found wrong remote at %d:%d, request %x but found %x\n", interface_num, channel_num, remote_type, status);
         return -1;
     }
     ssmod->device.unit = status;
