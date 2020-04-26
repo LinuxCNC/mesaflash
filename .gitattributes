@@ -1,0 +1,8 @@
+WinIo32.*   export-ignore
+libpci.dll  export-ignore
+
+libpci/**   export-ignore
+libpci      export-ignore
+
+winio32/**  export-ignore
+winio32     export-ignore
