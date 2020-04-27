@@ -31,6 +31,11 @@ OWNERSHIP ?= --owner root --group root
 # default CFLAGS
 CFLAGS ?= -O0 -g
 
+# mesaflash needs at least C99 to compile.
+# Debian Wheezy has gcc 4.7.2, which defaults to C90 but supports C11,
+# so we explicitly select the more modern standard here.
+CFLAGS += -std=c11
+
 ifeq ($(TARGET),linux)
     $(shell which pkg-config > /dev/null)
     ifeq ($(.SHELLSTATUS), 1)
