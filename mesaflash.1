@@ -1,0 +1,109 @@
+.TH MESAFLASH 1 "August 13 2019" "version 3.4.0~pre" 
+.SH NAME
+MesaFlash \- utility to flash Mesa Electronics FPGA Cards
+.SH SYNOPSIS
+.B mesaflash [options] [commands]
+.SH DESCRIPTION
+.B mesaflash
+read, write, configure Mesa Electronics FPGA cards for LinuxCNC use.
+.SH OPTIONS
+.TP
+.BI --device " name"
+Select active device name. If no command is given it will detect board
+with given name and print info about it.
+.TP
+.BI --addr " [ip]|[device]"
+Use ip or device name to look for <name> (IP address for Ethernet boards,
+serial device name for USB boards and serial boards, SPI device name for
+SPI boards)
+.TP
+.B --addr_hi
+Set the high register address for the EPP interface.
+.TP
+.B --epp
+Use EPP interface to connect to board, only for boards with multiple
+interfaces (7i43, 7i90, 7i64).
+.TP
+.B --usb
+Use USB interface to connect to board, only for boards with multiple
+interfaces (7i43, 7i90, 7i64).
+.TP
+.B --spi
+Use SPI interface to connect to board, only for boards with multiple
+interfaces (7i43, 7i90, 7i64).
+.TP
+.B --serial
+Use serial interface to connect to board, only for boards with multiple
+interfaces (7i43, 7i90, 7i64).
+.TP
+.B --fallback
+Use the fallback area of the EEPROM while executing commands.
+.TP
+.B --recover
+Access board using PCI bridge GPIO (currently only 6I24/6I25).
+.TP
+.B --xml
+Format output from 'readhmid' command into XML.
+.TP
+.B --verbose
+Print detailed information while running commands.
+.SH COMMANDS
+.TP
+.BI --write " filename"
+Writes a standard bitfile 'filename' configuration to the userarea of
+the EEPROM (IMPORTANT! 'filename' must be VALID FPGA configuration file).
+.TP
+.B --fix-boot-block
+If a write operation does not detect a valid boot block, write one.
+.TP
+.B --no-auto-verify
+Don't automatically verify after writing.
+.TP
+.BI --verify " filename"
+Verifies the EEPROM configuration against the bitfile 'filename'.
+.TP
+.BI --program " filename"
+Writes a standard bitfile 'filename' configuration to the FPGA
+(IMPORTANT! 'filename' must be VALID FPGA configuration file).
+.TP
+.B --readhmid
+Print hostmot2 configuration in PIN file format.
+.TP
+.B --print-pd
+Print hostmot2 Pin Descriptors.
+.TP
+.B --reload
+Do full FPGA reload from flash (only Ethernet and pci boards).
+.TP
+.B --reset
+Do full firmware reset (only Ethernet and serial boards).
+.TP
+.B --sserial
+Print full information about all sserial remote boards.
+.TP
+.BI --rpo " address"
+Read hostmot2 variable directly at 'address'.
+.TP
+.BI --wpo " address value"
+Write hostmot2 variable directly at 'address' with 'value'.
+.TP
+.BI --set " ip address"
+Set board IP address in eeprom to n.n.n.n (only Ethernet boards).
+.TP
+.BI --info " filename"
+Print info about configuration in 'file_name'.
+.TP
+.B --help
+Print the help message
+.SH BUGS
+No known bugs.
+.SH AUTHOR
+Michael Geszkiewicz (micges@wp.pl)
+.PP
+Peter Wallace (tech@mesanet.com)
+.SH COPYRIGHT
+MIT License
+.PP
+Copyright (c) 2013-2015 Michael Geszkiewicz
+.PP
+Copyright (c) 2019 Peter Wallace
