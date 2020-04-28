@@ -168,3 +168,4 @@ clean :
 .PHONY: install
 install: $(BIN)
 	install -p -D --mode=0755 $(OWNERSHIP) $(BIN) $(DESTDIR)/bin/$(BIN)
+	install -p -D --mode=0644 $(OWNERSHIP) mesaflash.1 $(DESTDIR)/share/man/man1/mesaflash.1
