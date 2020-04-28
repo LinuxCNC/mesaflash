@@ -1,5 +1,7 @@
 //
-//    Copyright (C) 2013-2014 Michael Geszkiewicz
+//    Copyright (C) 2020 Sebastian Kuzminsky <seb@highlab.com>
+//    Copyright (C) 2013-2015 Michael Geszkiewicz
+//    Copyright (C) Mesa Electronics
 //
 //    This program is free software; you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -28,6 +30,8 @@
 #elif _WIN32
 #include "libpci/pci.h"
 #endif
+
+#define VERSION "3.4.0~pre0"
 
 static int device_flag;
 static int addr_flag;
@@ -92,10 +96,8 @@ static struct option long_options[] = {
 };
 
 void print_short_usage() {
-    printf("Mesaflash version 3.4.0~pre0 (built on %s %s with libpci %s)\n", __DATE__, __TIME__, PCILIB_VERSION);
+    printf("Mesaflash version %s\n", VERSION);
     printf("Configuration and diagnostic tool for Mesa Electronics PCI(E)/ETH/EPP/USB/SPI boards\n");
-    printf("(C) 2013-2015 Michael Geszkiewicz (contact: micges@wp.pl)\n");
-    printf("(C) Mesa Electronics\n");
     printf("Try 'mesaflash --help' for more information\n");
 }
 
