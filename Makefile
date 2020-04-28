@@ -32,9 +32,18 @@ OWNERSHIP ?= --owner root --group root
 CFLAGS ?= -O0 -g
 
 # mesaflash needs at least C99 to compile.
-# Debian Wheezy has gcc 4.7.2, which defaults to C90 but supports C11,
-# so we explicitly select the more modern standard here.
-CFLAGS += -std=c11
+#
+# The oldest distros we support are Debian Wheezy (EOL 2018-05-31)
+# and Ubuntu Precise (EOL 2017-04-28):
+#
+#     Debian Wheezy has gcc 4.7.2, which defaults to C90 but supports C11.
+#
+#     Ubuntu Precise has gcc 4.6.3, which defaults to C90 but supports
+#     C99 (but does not support C11).
+#
+# So we explicitly select the newest ancient C standard that we have to
+# support here.
+CFLAGS += -std=c99
 
 ifeq ($(TARGET),linux)
     $(shell which pkg-config > /dev/null)
