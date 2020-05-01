@@ -31,7 +31,9 @@
 #include "libpci/pci.h"
 #endif
 
+#ifndef VERSION
 #define VERSION "3.4.0~pre0"
+#endif
 
 static int device_flag;
 static int addr_flag;
