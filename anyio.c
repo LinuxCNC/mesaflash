@@ -31,6 +31,7 @@
 
 supported_board_entry_t supported_boards[] = {
     {"ETHER", BOARD_ETH | BOARD_WILDCARD},
+    {"SPI", BOARD_SPI | BOARD_WILDCARD},
     {"7I92", BOARD_ETH},
     {"7I93", BOARD_ETH},
     {"7I94", BOARD_ETH},
@@ -61,6 +62,7 @@ supported_board_entry_t supported_boards[] = {
     {"7I90", BOARD_MULTI_INTERFACE | BOARD_EPP | BOARD_SPI | BOARD_SER},
     {"7I64", BOARD_MULTI_INTERFACE | BOARD_USB | BOARD_SPI},
 
+    {"AUTO", BOARD_MULTI_INTERFACE | BOARD_WILDCARD | BOARD_USB | BOARD_EPP | BOARD_SPI | BOARD_SER | BOARD_PCI},
     {NULL, 0},
 };
 
