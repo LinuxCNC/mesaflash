@@ -11,6 +11,10 @@ Read, write, configure Mesa Electronics FPGA cards.
 .BI --device " name"
 Select active device name. If no command is given it will detect board
 with given name and print info about it.
+
+The special values "ETHER", "SPI" and "AUTO" will attempt to detect a device
+on ethernet, SPI, or any interface; --addr still needs to be specified for
+non-PCI devices.
 .TP
 .BI --addr " [ip]|[device]"
 Use ip or device name to look for <name> (IP address for Ethernet boards,
