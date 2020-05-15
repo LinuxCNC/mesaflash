@@ -477,7 +477,7 @@ void sserial_module_init(llio_t *llio) {
                     if (sserial_md.mode_type == 0x01) {
                         sw_mode_t *sw_mode = &llio->ss_device[channel].sw_modes[llio->ss_device[channel].sw_modes_cnt];
                         if (strlen(name)+1 > sizeof(sw_mode->name)) {
-                            printf("name too long while reading LBP_MODE (max %lu)\n", sizeof(sw_mode->name)-1);
+                            printf("name too long while reading LBP_MODE (max %zu)\n", sizeof(sw_mode->name)-1);
                             abort();
                         }
                         sw_mode->index = sserial_md.mode_index;

@@ -232,7 +232,7 @@ int process_cmd_line(int argc, char *argv[]) {
                 }
                 size_t len = strlen(optarg);
                 if (len+1 > sizeof(bitfile_name)) {
-                    printf("--write argument too long (max %lu)\n", sizeof(bitfile_name)-1);
+                    printf("--write argument too long (max %zu)\n", sizeof(bitfile_name)-1);
                     return 1;
                 }
                 strcpy(bitfile_name, optarg);
@@ -247,7 +247,7 @@ int process_cmd_line(int argc, char *argv[]) {
                 }
                 size_t len = strlen(optarg);
                 if (len+1 > sizeof(bitfile_name)) {
-                    printf("--program argument too long (max %lu)\n", sizeof(bitfile_name)-1);
+                    printf("--program argument too long (max %zu)\n", sizeof(bitfile_name)-1);
                     return 1;
                 }
                 strcpy(bitfile_name, optarg);
@@ -324,7 +324,7 @@ int process_cmd_line(int argc, char *argv[]) {
                 }
                 size_t len = strlen(optarg);
                 if (len+1 > sizeof(bitfile_name)) {
-                    printf("--verify argument too long (max %lu)\n", sizeof(bitfile_name)-1);
+                    printf("--verify argument too long (max %zu)\n", sizeof(bitfile_name)-1);
                     return 1;
                 }
                 strcpy(bitfile_name, optarg);
@@ -339,7 +339,7 @@ int process_cmd_line(int argc, char *argv[]) {
                 }
                 size_t len = strlen(optarg);
                 if (len+1 > sizeof(bitfile_name)) {
-                    printf("--info argument too long (max %lu)\n", sizeof(bitfile_name)-1);
+                    printf("--info argument too long (max %zu)\n", sizeof(bitfile_name)-1);
                     return 1;
                 }
                 strcpy(bitfile_name, optarg);
