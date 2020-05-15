@@ -1,0 +1,28 @@
+on:
+  push:
+  pull_request:
+  release:
+    types: [published]
+  check_suite:
+    types: [rerequested]
+
+jobs:
+  test:
+    runs-on: ubuntu-18.04
+    steps:
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: echo "$GITHUB_CONTEXT"
+    - uses: actions/checkout@v2
+
+    - name: Install deps
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y eatmydata
+        sudo eatmydata apt-get install -y --no-install-suggests --no-install-recommends build-essential devscripts equivs
+        mk-build-deps -irs sudo -t "apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y"
+    - name: Build
+      run: |
+        make -j$(nproc)
+
