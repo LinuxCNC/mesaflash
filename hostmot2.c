@@ -17,9 +17,11 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+
 #include <stdio.h>
 #include <string.h>
 #include "hostmot2.h"
+
 
 void hm2_read_idrom(hostmot2_t *hm2) {
     u32 idrom_addr, cookie;
@@ -112,6 +114,49 @@ void hm2_set_pin_direction(hostmot2_t *hm2, int pin_number, u8 direction) {
 }
 
 // PIN FILE GENERATING SUPPORT
+
+static bob_pin_name_t bob_pin_names[MAX_BOB_NAMES] = {
+   {BOB_7I76, {"TB2 4,5","TB2 2,3","TB2 10,11","TB2 8,9","TB2 16,17","TB2 14,15","TB2 22,23","TB2 20,21",
+    "TB3 4,5","TB3 2,3","Internal","Internal","TB3 18,19","TB3 16,17","TB3 13,14","TB3 10,11","TB3 7,8"}},
+
+   {BOB_7I77, {"Internal","TB6 5,6","TB6 3,4","Internal","Internal","Internal","Internal","Internal","TB3 1,2,9,10","TB3 4,5,12,13",
+    "TB3 7,8,15,16","TB3 17,18 TB4 1,2","TB3 20,21 TB4 4,5","TB3 23,24 TB4 7,8","TB4 9,10,17,18","TB4 12,13,20,21","TB4 15,16,23,24"}},
+
+   {BOB_7I94_0, {"P2 1","P2 14","P2 2","P2 15","P2 3","P2 16","P2 4","P2 17","P2 5","P2 6","P2 7",
+    "P2 8","P2 9","P2 10","P2 11","P2 12","P2 13","J6 1,2","J6 3,6","J6 TXEN","J7 1,2"}},
+   {BOB_7I94_1, {"J7 3,6","J7 TXEN","J8 1,2","J8 3,6","J8 TXEN","J9 1,2","J9 3,6","J9 TXEN","J4 1,2","J4 3,6",
+    "J4 TXEN","J3 1,2","J3 3,6","J3 TXEN","J2 1,2","J2 3,6","J2 TXEN","J1 1,2","J1 3,6","J1 TXEN","P2 /ENA"}},
+   
+   {BOB_7I95_0, {"TB3 2,3","TB3 4,5","TB3 8,9","TB3 10,11","TB3 14,15","TB3 16,17","TB3 20,21","TB3 22,23",
+    "TB4 2,3","TB4 4,5","TB4 8,9","TB4 10,11","TB2 14,15","TB4 16,17","Internal","TB4 20,21","TB4 22,23","Internal"
+    "TB1 1,2,9,10","TB1 4,5,12,13","TB1 7,8,15,16","TB1 17,18 TB2 1,2","TB1 20,21 TB2 4,5","TB1 23,24 TB2 7,8",
+    "TB2 9,10,17,18","TB2 11,12,20,21","TB2 15,16,23,24","Internal","Internal"}},
+   {BOB_7I95_1, {"Internal","Internal","Internal","Internal","Internal","TB3 13,14","TB3 15,16","TB3 17,18",
+    "TB3 19,20","TB3 21,22","TB3 23,24","Internal","P1 1","P1 14","P1 2","P1 15","P1 3","P1 16","P1 4",
+    "P1 17","P1 5","P1 6","P1 7","P1 8","P1 9","P1 10","P1 11","P1 12","P1 13"}},
+
+   {BOB_7I96_0, {"TB3 1","TB3 2","TB3 3","TB3 4","TB3 5","TB3 6","TB3 7","TB3 8","TB3 9","TB3 10","Internal",
+    "TB3 13,14","TB3 15,16","TB3 17,18","TB3 19,20","TB3 21,22","TB3 23,24"}},
+   {BOB_7I96_1, {"TB1 2,3","TB1 4,5","TB1 8,9","TB1 10,11","TB1 14,15","TB1 16,17","TB1 20,21","TB1 22,23",
+    "TB2 2,3","TB2 4,5","TB2 7,8","TB2 10,11","TB2 13,14","TB2 16,17","TB2 18,19","Internal","Internal"}},
+
+   {BOB_7I97_0, {"TB3 4","TB3 8","TB3 12","TB3 16","TB3 20","TB3 20","TB3 24","TB3 24","TB3 4,8,12,16",
+    "TB1 1,2,9,10","TB1 4,5,12,13","TB1 7,8,15,16","TB1 17,18 TB2 1,2","TB1 20,21 TB2 4,5","TB1 23,24 TB2 7,8",
+    "TB2 9,10,17,18","TB2 12,13,20,21"}},
+   {BOB_7I97_1, {"TB2 15,16,23,24","Internal","TB5 13,14","TB5 15,16","TB5 17,18","TB5 19,20","TB5 21,22",
+    "TB5 23,24","Internal","Internal","Internal","Internal","Internal","Internal","TB4 15,16","TB4 17,18","Internal"}},
+
+   {BOB_7C80_0, {"TB7 2,3","TB7 4,5","TB8 2,3","TB8 4,5","TB9 2,3","TB9 4,5","TB10 2,3","TB10 4,5","TB11 2,3","TB11 4,5",
+    "TB12 2,3","TB13 4,5","TB3 3,4","TB3 5,6","Internal","TB4 1,2","TB4 4,5","TB4 7,8","TB5 2","TB5 2","TB5 5,6","TB5 7,8"
+    "Internal","Internal","Internal","Internal","Internal"}},
+   {BOB_7C80_1, {"Internal","TB13 1,2","TB13 3,4","TB13 5,6","TB13 7,8","TB14 1,2","TB14 3,4","TB14 5,6","TB14 7,8",
+     "Internal", "P1 1","P1 14","P1 2","P1 15","P1 3","P1 16","P1 4","P1 17","P1 5","P1 6","P1 7","P1 8","P1 9","P1 10",
+     "P1 11","P1 12","P1 13"}},
+
+   {BOB_7C81_0, {"P1 1","P1 14","P1 2","P1 15","P1 3","P1 16","P1 4","P1 17","P1 5","P1 6","P1 7","P1 8","P1 9","P1 10","P1 11","P1 12","P1 13","P5 3,6","P6 3,6"}},
+   {BOB_7C81_1, {"P2 1","P2 14","P2 2","P2 15","P2 3","P2 16","P2 4","P2 17","P2 5","P2 6","P2 7","P2 8","P2 9","P2 10","P2 11","P2 12","P2 13","P5 TXEN","P6 TXEN"}},
+   {BOB_7C81_2, {"P7 1","P7 14","P7 2","P7 15","P7 3","P7 16","P7 4","P7 17","P7 5","P7 6","P7 7","P7 8","P7 9","P7 10","P7 11","P7 12","P7 13","P5 1,2","P6 1,2"}}
+};
 
 static pin_name_t pin_names[HM2_MAX_TAGS] = {
   {HM2_GTAG_NONE,  {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
@@ -421,7 +466,7 @@ void hm2_print_pin_file(llio_t *llio, int xml_flag) {
         printf("Configuration pin-out:\n");
         for (i = 0; i < llio->hm2.idrom.io_ports; i++) {
             printf("\nIO Connections for %s\n", llio->ioport_connector_name[i]);
-            printf("Pin#  I/O   Pri. func    Sec. func       Chan      Pin func        Pin Dir\n\n");
+            printf("Pin#                  I/O   Pri. func    Sec. func       Chan      Pin func        Pin Dir\n\n");
             for (j = 0; j < llio->hm2.idrom.port_width; j++) {
                 hm2_pin_desc_t *pin = &(llio->hm2.pins[i*(llio->hm2.idrom.port_width) + j]);
                 int pin_nr;
@@ -440,7 +485,11 @@ void hm2_print_pin_file(llio_t *llio, int xml_flag) {
 			pin_nr = 0;
 			break;
                 }
-                printf("%2u", pin_nr);
+                if (llio->bob_hint[i] != 0) {
+                    printf("%-18s",bob_pin_names[llio->bob_hint[i]-1].name[j]); 
+		} else {
+                    printf("%2u                ", pin_nr);
+                }
                 printf("    %3u", i*(llio->hm2.idrom.port_width) + j);
                 printf("   %-8s", find_module_name(pin->gtag, xml_flag));
                 if (pin->sec_tag == HM2_GTAG_NONE) {
@@ -520,8 +569,12 @@ void hm2_print_pin_file(llio_t *llio, int xml_flag) {
                         printf(" (In)");
                     }
                 }
-                printf("</secondaryfunctionname>\n");
-                printf("            <secondaryinstance>%2d</secondaryinstance>\n", pin_nr);
+                printf("</secondaryfunctionname>\n");               
+                if (llio->bob_hint[i] != 0) {
+                    printf("            <secondaryinstance>%-18s</secondaryinstance>\n",bob_pin_names[llio->bob_hint[i]-1].name[j]); 
+                } else {
+                    printf("            <secondaryinstance>%2d</secondaryinstance>\n", pin_nr);
+                }
                 printf("        </pin>\n");
             }
         }

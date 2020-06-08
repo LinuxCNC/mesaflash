@@ -278,6 +278,8 @@ void spi_boards_scan(board_access_t *access) {
         board->llio.pins_per_connector = 27;
         board->llio.ioport_connector_name[0] = "StepGens+Misc";
         board->llio.ioport_connector_name[1] = "Outputs+P1";
+        board->llio.bob_hint[0] = BOB_7C80_0;
+        board->llio.bob_hint[1] = BOB_7C80_1;
         board->llio.num_leds = 4;
         board->llio.verbose = access->verbose;
         board->llio.write = spi_write;
@@ -302,6 +304,9 @@ void spi_boards_scan(board_access_t *access) {
         board->llio.ioport_connector_name[0] = "P1+Serial";
         board->llio.ioport_connector_name[1] = "P2+Serial";
         board->llio.ioport_connector_name[2] = "P7+Serial";
+        board->llio.bob_hint[0] = BOB_7C81_0;
+        board->llio.bob_hint[1] = BOB_7C81_1;
+        board->llio.bob_hint[2] = BOB_7C81_2;
         board->llio.num_leds = 4;
         board->llio.verbose = access->verbose;
         board->llio.write = spi_write;

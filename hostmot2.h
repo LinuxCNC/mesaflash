@@ -37,6 +37,7 @@ typedef struct {
 } sserial_device_t;
 
 #define HM2_MAX_TAGS     255
+#define MAX_BOB_NAMES 15 
 #define ANYIO_MAX_IOPORT_CONNECTORS 8
 
 typedef struct llio_struct llio_t;
@@ -60,6 +61,7 @@ struct llio_struct {
     int num_ioport_connectors;
     int pins_per_connector;
     const char *ioport_connector_name[ANYIO_MAX_IOPORT_CONNECTORS];
+    u16 bob_hint[ANYIO_MAX_IOPORT_CONNECTORS];
     int num_leds;
     const char *fpga_part_number;
     char board_name[16];
@@ -74,6 +76,11 @@ typedef struct {
     u8 tag;
     char *name[10];
 } pin_name_t;
+
+typedef struct {
+    u16   bobname;
+    char *name[32];
+} bob_pin_name_t;
 
 typedef struct {
     char *name;

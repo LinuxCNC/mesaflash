@@ -265,6 +265,7 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.ioport_connector_name[0] = "on-card";
             board->llio.ioport_connector_name[1] = "P1";
             board->llio.ioport_connector_name[2] = "P2";
+            board->llio.bob_hint[0] = BOB_7I76;
             board->llio.fpga_part_number = "6slx16ftg256";
             board->llio.num_leds = 4;
             board->llio.read = &eth_read;
@@ -334,6 +335,8 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.pins_per_connector = 21;
             board->llio.ioport_connector_name[0] = "Expansion+Serial 0..1";
             board->llio.ioport_connector_name[1] = "Serial 1..7";
+            board->llio.bob_hint[0] = BOB_7I94_0;
+            board->llio.bob_hint[1] = BOB_7I94_1;
             board->llio.fpga_part_number = "6slx9tqg144";
             board->llio.num_leds = 4;
             board->llio.read = &eth_read;
@@ -357,6 +360,8 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.pins_per_connector = 29;
             board->llio.ioport_connector_name[0] = "Step/DIR+Serial+Encoders";
             board->llio.ioport_connector_name[1] = "I/O+Expansion";
+            board->llio.bob_hint[0] = BOB_7I95_0;
+            board->llio.bob_hint[1] = BOB_7I95_1;
             board->llio.fpga_part_number = "6slx9tqg144";
             board->llio.num_leds = 4;
             board->llio.read = &eth_read;
@@ -381,6 +386,8 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.ioport_connector_name[0] = "TB3";
             board->llio.ioport_connector_name[1] = "TB1/TB2";
             board->llio.ioport_connector_name[2] = "P1";
+            board->llio.bob_hint[0] = BOB_7I96_0;
+            board->llio.bob_hint[1] = BOB_7I96_1;
             board->llio.fpga_part_number = "6slx9tqg144";
             board->llio.num_leds = 4;
             board->llio.read = &eth_read;
@@ -405,7 +412,8 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.ioport_connector_name[0] = "TB1/TB2/TB3";
             board->llio.ioport_connector_name[1] = "TB4/TB5";
             board->llio.ioport_connector_name[2] = "P1";
-            board->llio.fpga_part_number = "6slx9tqg144";
+            board->llio.bob_hint[0] = BOB_7I97_0;
+            board->llio.bob_hint[1] = BOB_7I97_1;
             board->llio.num_leds = 4;
             board->llio.read = &eth_read;
             board->llio.write = &eth_write;

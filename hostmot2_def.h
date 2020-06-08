@@ -272,6 +272,23 @@ typedef struct {
 #define SSLBP_REMOTE_7I77_ANALOG     0x11000000
 #define SSLBP_REMOTE_7I77_IO         0x12000000
 
+// must match BOB name order
+# define BOB_7I76 1
+# define BOB_7I77 2
+# define BOB_7I94_0 3
+# define BOB_7I94_1 4
+# define BOB_7I95_0 5
+# define BOB_7I95_1 6
+# define BOB_7I96_0 7
+# define BOB_7I96_1 8
+# define BOB_7I97_0 9
+# define BOB_7I97_1 10
+# define BOB_7C80_0 11
+# define BOB_7C80_1 12
+# define BOB_7C81_0 13
+# define BOB_7C81_1 14
+# define BOB_7C81_2 15
+
 struct sserial_pdd_struct {
     u8 record_type;
     u8 data_size;
