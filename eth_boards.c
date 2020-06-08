@@ -414,6 +414,7 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.ioport_connector_name[2] = "P1";
             board->llio.bob_hint[0] = BOB_7I97_0;
             board->llio.bob_hint[1] = BOB_7I97_1;
+            board->llio.fpga_part_number = "6slx9tqg144";
             board->llio.num_leds = 4;
             board->llio.read = &eth_read;
             board->llio.write = &eth_write;
