@@ -38,4 +38,10 @@ To run an installed MesaFlash:
 
   mesaflash --help
 
-
+Distributions
+===============
+**mesaflash** package is available on [Fedora](https://src.fedoraproject.org/rpms/mesaflash) _(version 31 or newer)_ and can be simply installed by using:
+```
+# dnf install mesaflash
+```
+Availability of **mesaflash** for other Linux distributions can be checked on [release-monitoring](https://release-monitoring.org/project/105522/) project page.
