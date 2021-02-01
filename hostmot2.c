@@ -498,7 +498,7 @@ void hm2_print_pin_file(llio_t *llio, int xml_flag) {
                     printf("     %-15s", find_module_name(pin->sec_tag, xml_flag));
 
                     if (pin->sec_chan & HM2_CHAN_GLOBAL) {
-                        printf("    Global    ");
+                        printf(" Global    ");
                     } else {
                         printf(" %2u        ", pin->sec_chan);
                     }
