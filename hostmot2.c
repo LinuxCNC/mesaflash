@@ -122,8 +122,9 @@ static bob_pin_name_t bob_pin_names[MAX_BOB_NAMES] = {
    {BOB_7I77, {"Internal","TB6 5,6","TB6 3,4","Internal","Internal","Internal","Internal","Internal","TB3 1,2,9,10","TB3 4,5,12,13",
     "TB3 7,8,15,16","TB3 17,18 TB4 1,2","TB3 20,21 TB4 4,5","TB3 23,24 TB4 7,8","TB4 9,10,17,18","TB4 12,13,20,21","TB4 15,16,23,24"}},
 
-   {BOB_7I94_0, {"P2 1","P2 14","P2 2","P2 15","P2 3","P2 16","P2 4","P2 17","P2 5","P2 6","P2 7",
-    "P2 8","P2 9","P2 10","P2 11","P2 12","P2 13","J6 1,2","J6 3,6","J6 TXEN","J7 1,2"}},
+   {BOB_7I94_0, {"P1-01/DB25-01","P1-02/DB25-14","P1-03/DB25-02","P1-04/DB25-15",
+    "P1-05/DB25-03","P1-06/DB25-16","P1-07/DB25-04","P1-08/DB25-17","P1-09/DB25-05","P1-11/DB25-06","P1-13/DB25-07",
+    "P1-15/DB25-08","P1-17/DB25-09","P1-19/DB25-10","P1-21/DB25-11","P1-23/DB25-12","P1-25/DB25-13","J6 1,2","J6 3,6","J6 TXEN","J7 1,2"}},
    {BOB_7I94_1, {"J7 3,6","J7 TXEN","J8 1,2","J8 3,6","J8 TXEN","J9 1,2","J9 3,6","J9 TXEN","J4 1,2","J4 3,6",
     "J4 TXEN","J3 1,2","J3 3,6","J3 TXEN","J2 1,2","J2 3,6","J2 TXEN","J1 1,2","J1 3,6","J1 TXEN","P2 /ENA"}},
    
@@ -132,30 +133,44 @@ static bob_pin_name_t bob_pin_names[MAX_BOB_NAMES] = {
     "TB1 1,2,9,10","TB1 4,5,12,13","TB1 7,8,15,16","TB1 17,18 TB2 1,2","TB1 20,21 TB2 4,5","TB1 23,24 TB2 7,8",
     "TB2 9,10,17,18","TB2 11,12,20,21","TB2 15,16,23,24","Internal","Internal"}},
    {BOB_7I95_1, {"Internal","Internal","Internal","Internal","Internal","TB3 13,14","TB3 15,16","TB3 17,18",
-    "TB3 19,20","TB3 21,22","TB3 23,24","Internal","P1 1","P1 14","P1 2","P1 15","P1 3","P1 16","P1 4",
-    "P1 17","P1 5","P1 6","P1 7","P1 8","P1 9","P1 10","P1 11","P1 12","P1 13"}},
+    "TB3 19,20","TB3 21,22","TB3 23,24","Internal","P1-01/DB25-01","P1-02/DB25-14","P1-03/DB25-02","P1-04/DB25-15",
+    "P1-05/DB25-03","P1-06/DB25-16","P1-07/DB25-04","P1-08/DB25-17","P1-09/DB25-05","P1-11/DB25-06","P1-13/DB25-07",
+    "P1-15/DB25-08","P1-17/DB25-09","P1-19/DB25-10","P1-21/DB25-11","P1-23/DB25-12","P1-25/DB25-13"}},
 
    {BOB_7I96_0, {"TB3 1","TB3 2","TB3 3","TB3 4","TB3 5","TB3 6","TB3 7","TB3 8","TB3 9","TB3 10","TB3 11",
     "TB3 13,14","TB3 15,16","TB3 17,18","TB3 19,20","TB3 21,22","TB3 23,24"}},
    {BOB_7I96_1, {"TB1 2,3","TB1 4,5","TB1 8,9","TB1 10,11","TB1 14,15","TB1 16,17","TB1 20,21","TB1 22,23",
     "TB2 2,3","TB2 4,5","TB2 7,8","TB2 10,11","TB2 13,14","TB2 16,17","TB2 18,19","Internal","Internal"}},
+   {BOB_7I96_2, {"P1-01/DB25-01","P1-02/DB25-14","P1-03/DB25-02","P1-04/DB25-15",
+    "P1-05/DB25-03","P1-06/DB25-16","P1-07/DB25-04","P1-08/DB25-17","P1-09/DB25-05","P1-11/DB25-06","P1-13/DB25-07",
+    "P1-15/DB25-08","P1-17/DB25-09","P1-19/DB25-10","P1-21/DB25-11","P1-23/DB25-12","P1-25/DB25-13"}},
 
    {BOB_7I97_0, {"TB3 4","TB3 8","TB3 12","TB3 16","TB3 20","TB3 20","TB3 24","TB3 24","TB3 4,8,12,16",
     "TB1 1,2,9,10","TB1 4,5,12,13","TB1 7,8,15,16","TB1 17,18 TB2 1,2","TB1 20,21 TB2 4,5","TB1 23,24 TB2 7,8",
     "TB2 9,10,17,18","TB2 12,13,20,21"}},
    {BOB_7I97_1, {"TB2 15,16,23,24","Internal","TB5 13,14","TB5 15,16","TB5 17,18","TB5 19,20","TB5 21,22",
     "TB5 23,24","Internal","Internal","Internal","Internal","Internal","Internal","TB4 15,16","TB4 17,18","Internal"}},
+   {BOB_7I97_2, {"P1-01/DB25-01","P1-02/DB25-14","P1-03/DB25-02","P1-04/DB25-15",
+    "P1-05/DB25-03","P1-06/DB25-16","P1-07/DB25-04","P1-08/DB25-17","P1-09/DB25-05","P1-11/DB25-06","P1-13/DB25-07",
+    "P1-15/DB25-08","P1-17/DB25-09","P1-19/DB25-10","P1-21/DB25-11","P1-23/DB25-12","P1-25/DB25-13"}},
 
    {BOB_7C80_0, {"TB7 2,3","TB7 4,5","TB8 2,3","TB8 4,5","TB9 2,3","TB9 4,5","TB10 2,3","TB10 4,5","TB11 2,3","TB11 4,5",
     "TB12 2,3","TB13 4,5","TB3 3,4","TB3 5,6","Internal","TB4 1,2","TB4 4,5","TB4 7,8","TB5 2","TB5 2","TB5 5,6","TB5 7,8"
     "Internal","Internal","Internal","Internal","Internal"}},
    {BOB_7C80_1, {"Internal","TB13 1,2","TB13 3,4","TB13 5,6","TB13 7,8","TB14 1,2","TB14 3,4","TB14 5,6","TB14 7,8",
-     "Internal", "P1 1","P1 14","P1 2","P1 15","P1 3","P1 16","P1 4","P1 17","P1 5","P1 6","P1 7","P1 8","P1 9","P1 10",
-     "P1 11","P1 12","P1 13"}},
+     "Internal", "P1-01/DB25-01","P1-02/DB25-14","P1-03/DB25-02","P1-04/DB25-15",
+    "P1-05/DB25-03","P1-06/DB25-16","P1-07/DB25-04","P1-08/DB25-17","P1-09/DB25-05","P1-11/DB25-06","P1-13/DB25-07",
+    "P1-15/DB25-08","P1-17/DB25-09","P1-19/DB25-10","P1-21/DB25-11","P1-23/DB25-12","P1-25/DB25-13"}},
 
-   {BOB_7C81_0, {"P1 1","P1 14","P1 2","P1 15","P1 3","P1 16","P1 4","P1 17","P1 5","P1 6","P1 7","P1 8","P1 9","P1 10","P1 11","P1 12","P1 13","P5 3,6","P6 3,6"}},
-   {BOB_7C81_1, {"P2 1","P2 14","P2 2","P2 15","P2 3","P2 16","P2 4","P2 17","P2 5","P2 6","P2 7","P2 8","P2 9","P2 10","P2 11","P2 12","P2 13","P5 TXEN","P6 TXEN"}},
-   {BOB_7C81_2, {"P7 1","P7 14","P7 2","P7 15","P7 3","P7 16","P7 4","P7 17","P7 5","P7 6","P7 7","P7 8","P7 9","P7 10","P7 11","P7 12","P7 13","P5 1,2","P6 1,2"}}
+   {BOB_7C81_0, {"P1-01/DB25-01","P1-02/DB25-14","P1-03/DB25-02","P1-04/DB25-15",
+    "P1-05/DB25-03","P1-06/DB25-16","P1-07/DB25-04","P1-08/DB25-17","P1-09/DB25-05","P1-11/DB25-06","P1-13/DB25-07",
+    "P1-15/DB25-08","P1-17/DB25-09","P1-19/DB25-10","P1-21/DB25-11","P1-23/DB25-12","P1-25/DB25-13","P5 3,6","P6 3,6"}},
+   {BOB_7C81_1, {"P2-01/DB25-01","P2-02/DB25-14","P2-03/DB25-02","P2-04/DB25-15",
+    "P2-05/DB25-03","P2-06/DB25-16","P2-07/DB25-04","P2-08/DB25-17","P2-09/DB25-05","P2-11/DB25-06","P2-13/DB25-07",
+    "P2-15/DB25-08","P2-17/DB25-09","P2-19/DB25-10","P2-21/DB25-11","P2-23/DB25-12","P2-25/DB25-13","P5 TXEN","P6 TXEN"}},
+   {BOB_7C81_2, {"P7-01/DB25-01","P7-02/DB25-14","P7-03/DB25-02","P7-04/DB25-15",
+    "P7-05/DB25-03","P7-06/DB25-16","P7-07/DB25-04","P7-08/DB25-17","P7-09/DB25-05","P7-11/DB25-06","P7-13/DB25-07",
+    "P7-15/DB25-08","P7-17/DB25-09","P7-19/DB25-10","P7-21/DB25-11","P7-23/DB25-12","P7-25/DB25-13","P5 1,2","P6 1,2"}}
 };
 
 static pin_name_t pin_names[HM2_MAX_TAGS] = {
@@ -178,6 +193,7 @@ static pin_name_t pin_names[HM2_MAX_TAGS] = {
   {HM2_GTAG_BIN_DMDMA,  {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_RESOLVER,  {"PwrEn", "PDMP", "PDMM", "ADChan0", "ADChan1", "ADChan2", "SPICS", "SPIClk", "SPIDI0", "SPIDI1"}},
   {HM2_GTAG_SSERIAL,  {"RXData", "TXData", "TXEn", "TestPin", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_SSERIALB,  {"RXData", "TXData", "TXEn", "TestPin", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_TWIDDLER,  {"InBit", "IOBit", "OutBit", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_SSR,       {"Out", "AC Ref", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_SPI,      {"/Frame", "DOut", "SClk", "DIn", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
@@ -193,6 +209,7 @@ static pin_name_t pin_names[HM2_MAX_TAGS] = {
   {HM2_GTAG_INMUX,     {"Addr0", "Addr1", "Addr2", "Addr3", "Addr4", "MuxData", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_INM,       {"Input0", "Input1", "Input2", "Input3", "Input4", "Input5", "Input6", "Input7", "Input8"}}, 
   {HM2_GTAG_XYMOD,     {"XData", "YData", "Clk", "Sync", "Status", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_DPAINTER,  {"VidData", "VidClk", "Null3", "Null4", "Null5","Null6", "Null7", "Null8", "Null9", "Null10"}},
 };
 
 static pin_name_t pin_names_xml[HM2_MAX_TAGS] = {
@@ -215,6 +232,7 @@ static pin_name_t pin_names_xml[HM2_MAX_TAGS] = {
   {HM2_GTAG_BIN_DMDMA,  {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_RESOLVER,  {"PwrEn", "PDMP", "PDMM", "ADChan0", "ADChan1", "ADChan2", "SPICS", "SPIClk", "SPIDI0", "SPIDI1"}},
   {HM2_GTAG_SSERIAL,  {"RXData", "TXData", "TXEn", "TestPin", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_SSERIALB,  {"RXData", "TXData", "TXEn", "TestPin", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_TWIDDLER,  {"InBit", "IOBit", "OutBit", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_SSR,       {"Out", "AC Ref", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_SPI,      {"/Frame", "DOut", "SClk", "DIn", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
@@ -230,6 +248,7 @@ static pin_name_t pin_names_xml[HM2_MAX_TAGS] = {
   {HM2_GTAG_INMUX, {"Addr0", "Addr1", "Addr2", "Addr3", "Addr4", "MuxData", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_INM,       {"Input0", "Input1", "Input2", "Input3", "Input4", "Input5", "Input6", "Input7", "Input8"}}, 
   {HM2_GTAG_XYMOD, {"XData", "YData", "Clk", "Sync", "Status", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_DPAINTER, {"VidData", "VidClk", "Null3", "Null4", "Null5","Null6", "Null7", "Null8", "Null9", "Null10"}},
 };
 
 static mod_name_t mod_names[HM2_MAX_TAGS] = {
@@ -262,12 +281,14 @@ static mod_name_t mod_names[HM2_MAX_TAGS] = {
     {"LED",         HM2_GTAG_LED},
     {"ResolverMod", HM2_GTAG_RESOLVER},
     {"SSerial",     HM2_GTAG_SSERIAL},
+    {"SSerialB",    HM2_GTAG_SSERIALB},
     {"Twiddler",    HM2_GTAG_TWIDDLER},
     {"SSR",         HM2_GTAG_SSR},
     {"InMux",       HM2_GTAG_INMUX},
     {"InM",         HM2_GTAG_INM},
     {"BISS",        HM2_GTAG_BISS},
     {"XYMod",       HM2_GTAG_XYMOD},
+    {"DataPainter",HM2_GTAG_DPAINTER},
 };
 
 static mod_name_t mod_names_xml[HM2_MAX_TAGS] = {
@@ -300,12 +321,14 @@ static mod_name_t mod_names_xml[HM2_MAX_TAGS] = {
     {"LED",         HM2_GTAG_LED},
     {"ResolverMod", HM2_GTAG_RESOLVER},
     {"SSerial",     HM2_GTAG_SSERIAL},
+    {"SSerialB",    HM2_GTAG_SSERIALB},
     {"Twiddler",    HM2_GTAG_TWIDDLER},
     {"SSR",         HM2_GTAG_SSR},
     {"InMux",       HM2_GTAG_INMUX},
     {"InM",         HM2_GTAG_INM},
     {"BISS",        HM2_GTAG_BISS},
     {"XYMod",       HM2_GTAG_XYMOD},
+    {"DataPainter",HM2_GTAG_DPAINTER},
 };
 
 static char *find_module_name(int gtag, int xml_flag) {
@@ -347,7 +370,7 @@ static char *pin_get_pin_name(hm2_pin_desc_t *pin, int xml_flag) {
 
     for (i = 0; i < HM2_MAX_TAGS; i++) {
         if (pin_names_ptr[i].tag == pin->sec_tag) {
-            if (pin->sec_tag == HM2_GTAG_SSERIAL) {
+            if ((pin->sec_tag == HM2_GTAG_SSERIAL) || (pin->sec_tag == HM2_GTAG_SSERIALB)) {
                 chan = (pin->sec_pin & 0x0F) - 1;
                 if ((pin->sec_pin & 0xF0) == 0x00) {
                     sprintf(buff, "%s%u", pin_names_ptr[i].name[0], chan);

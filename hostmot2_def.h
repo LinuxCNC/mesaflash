@@ -61,6 +61,7 @@
 #define HM2_GTAG_HM2DPLL           0x1A
 #define HM2_GTAG_INMUX             0x1E
 #define HM2_GTAG_INM               0x23
+#define HM2_GTAG_DPAINTER          0x2A
 #define HM2_GTAG_XYMOD             0x2B
 #define HM2_GTAG_RCPWMGEN          0x2C
 #define HM2_GTAG_LIOPORT           0x40
@@ -69,6 +70,10 @@
 #define HM2_GTAG_SSERIAL           0xC1
 #define HM2_GTAG_TWIDDLER          0xC2
 #define HM2_GTAG_SSR               0xC3
+#define HM2_GTAG_CPDRIVE           0xC4
+#define HM2_GTAG_DSAD              0xC5
+#define HM2_GTAG_SSERIALB          0xC6
+
 
 // HM2 EEPROM SPI INTERFACE
 
@@ -281,13 +286,15 @@ typedef struct {
 # define BOB_7I95_1 6
 # define BOB_7I96_0 7
 # define BOB_7I96_1 8
-# define BOB_7I97_0 9
-# define BOB_7I97_1 10
-# define BOB_7C80_0 11
-# define BOB_7C80_1 12
-# define BOB_7C81_0 13
-# define BOB_7C81_1 14
-# define BOB_7C81_2 15
+# define BOB_7I96_2 9
+# define BOB_7I97_0 10
+# define BOB_7I97_1 11
+# define BOB_7I97_2 12
+# define BOB_7C80_0 13
+# define BOB_7C80_1 14
+# define BOB_7C81_0 15
+# define BOB_7C81_1 16
+# define BOB_7C81_2 17
 
 struct sserial_pdd_struct {
     u8 record_type;
