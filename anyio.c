@@ -82,10 +82,12 @@ void anyio_cleanup(board_access_t *access) {
     }
     if (access->open_iface & BOARD_ETH)
         eth_boards_cleanup(access);
+#if MESAFLASH_IO
     if (access->open_iface & BOARD_PCI)
         pci_boards_cleanup(access);
     if (access->open_iface & BOARD_EPP)
         epp_boards_cleanup(access);
+#endif
     if (access->open_iface & BOARD_USB)
         usb_boards_cleanup(access);
     if (access->open_iface & BOARD_SPI)
@@ -131,6 +133,7 @@ int anyio_find_dev(board_access_t *access) {
                 return ret;
             }
         }
+#if MESAFLASH_IO
         if (supported_board->type & BOARD_PCI) {
             ret = pci_boards_init(access);
             if (ret < 0) {
@@ -147,6 +150,7 @@ int anyio_find_dev(board_access_t *access) {
             access->open_iface |= BOARD_EPP;
             epp_boards_scan(access);
         }
+#endif
         if (supported_board->type & BOARD_USB) {
             ret = usb_boards_init(access);
             access->open_iface |= BOARD_USB;
@@ -168,6 +172,7 @@ int anyio_find_dev(board_access_t *access) {
             access->open_iface |= BOARD_ETH;
             eth_boards_scan(access);
         }
+#if MESAFLASH_IO
         if (access->type & BOARD_PCI) {
             ret = pci_boards_init(access);
             if (ret < 0) {
@@ -184,6 +189,7 @@ int anyio_find_dev(board_access_t *access) {
             access->open_iface |= BOARD_EPP;
             epp_boards_scan(access);
         }
+#endif
         if (access->type & BOARD_USB) {
             ret = usb_boards_init(access);
             access->open_iface |= BOARD_USB;

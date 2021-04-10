@@ -16,6 +16,7 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+#if MESAFLASH_IO
 #ifdef __linux__
 #include <linux/parport.h>
 #include <sys/ioctl.h>
@@ -519,3 +520,4 @@ void epp_print_info(board_t *board) {
         
     show_board_info(board);
 }
+#endif

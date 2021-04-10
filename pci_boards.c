@@ -16,6 +16,7 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+#if MESAFLASH_IO
 #ifdef __linux__
 #include <sys/mman.h>
 #include <sys/io.h>
@@ -1331,3 +1332,4 @@ void pci_print_info(board_t *board) {
 
     show_board_info(board);
 }
+#endif
