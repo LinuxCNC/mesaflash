@@ -17,7 +17,9 @@
 //
 
 #ifdef __linux__
+#if MESAFLASH_IO
 #include <sys/io.h>
+#endif
 #include <pci/pci.h>
 #elif _WIN32
 #include <windows.h>
@@ -209,6 +211,7 @@ static u8 recv_byte_gpio(llio_t *self) {
 
 // spi access via io ports like on 3x20
 
+#if MESAFLASH_IO
 static void wait_for_data_io(llio_t *self) {
     board_t *board = self->board;
     u32 i = 0;
@@ -310,6 +313,7 @@ static u8 recv_byte_epp(llio_t *self) {
     epp_addr8(board, EPP_SPI_SREG_REG);
     return epp_read8(board);
 }
+#endif
 
 // pci flash
 
@@ -435,12 +439,14 @@ void open_spi_access_local(llio_t *self) {
             eeprom_access.recv_byte = &recv_byte_hm2;
             break;
         case BOARD_FLASH_IO:
+#if MESAFLASH_IO
             eeprom_access.set_cs_low = &set_cs_low_io;
             eeprom_access.set_cs_high = &set_cs_high_io;
             eeprom_access.prefix = &prefix_io;
             eeprom_access.suffix = &suffix_io;
             eeprom_access.send_byte = &send_byte_io;
             eeprom_access.recv_byte = &recv_byte_io;
+#endif
             break;
         case BOARD_FLASH_GPIO:
             eeprom_access.set_cs_low = &set_cs_low_gpio;
@@ -452,12 +458,14 @@ void open_spi_access_local(llio_t *self) {
             init_gpio(self);
             break;
         case BOARD_FLASH_EPP:
+#if MESAFLASH_IO
             eeprom_access.set_cs_low = &set_cs_low_epp;
             eeprom_access.set_cs_high = &set_cs_high_epp;
             eeprom_access.prefix = &prefix_epp;
             eeprom_access.suffix = &suffix_epp;
             eeprom_access.send_byte = &send_byte_epp;
             eeprom_access.recv_byte = &recv_byte_epp;
+#endif
             break;
         case BOARD_FLASH_REMOTE:
             break;
