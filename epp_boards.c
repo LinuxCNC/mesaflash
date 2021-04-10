@@ -294,7 +294,10 @@ int epp_boards_init(board_access_t *access) {
         printf("You need root privileges (or setuid root) to access EPP hardware\n");
         return -1;
     }
-    iopl(3);
+    if (iopl(3) < 0) {
+	perror("iopl");
+        return -1;
+    }
 #endif
 
     return 0;

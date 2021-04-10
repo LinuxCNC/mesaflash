@@ -820,7 +820,10 @@ int pci_boards_init(board_access_t *access) {
         printf("%s can't open /dev/mem: %s", __func__, strerror(eno));
         return -1;
     }
-    iopl(3);
+    if (iopl(3) < 0) {
+	perror("iopl");
+        return -1;
+    }
 #elif _WIN32
     init_io_library();
 #endif
