@@ -17,7 +17,9 @@
 //
 
 #ifdef __linux__
+#if MESAFLASH_IO
 #include <sys/io.h>
+#endif
 #include <pci/pci.h>
 #elif _WIN32
 #include <windows.h>

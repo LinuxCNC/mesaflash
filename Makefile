@@ -150,9 +150,6 @@ bitfile.o : bitfile.c $(headers)
 common.o : common.c $(headers)
 	$(CC) $(CFLAGS) -c common.c
 
-io.o : stubs/sys/io.c stubs/sys/io.h
-	$(CC) $(CFLAGS) -c stubs/sys/io.c
-
 pci_encoder_read.o : examples/pci_encoder_read.c $(LIBANYIO) $(headers)
 	$(CC) $(CFLAGS) -c examples/pci_encoder_read.c
 
