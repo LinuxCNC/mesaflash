@@ -60,7 +60,7 @@ struct board_struct {
     struct pci_dev *dev;
     void *base;
     int len;
-    u32 mem_base;
+    int64_t mem_base;
 #ifdef _WIN32
     tagPhysStruct_t mem_handle;
 #endif
