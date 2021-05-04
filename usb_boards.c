@@ -79,10 +79,10 @@ static int usb_program_fpga(llio_t *self, char *bitfile_name) {
     printf("  |");
     fflush(stdout);
     
-    lbp_send(&cmd, 1);
-    lbp_send(&cmd, 1);
-    lbp_send(&cmd, 1);
-    lbp_send(&cmd, 1);
+    lbp_send_checked(&cmd, 1);
+    lbp_send_checked(&cmd, 1);
+    lbp_send_checked(&cmd, 1);
+    lbp_send_checked(&cmd, 1);
     // program the FPGA
     while (!feof(fp)) {
         bytesread = fread(&file_buffer, 1, 8192, fp);
@@ -91,7 +91,7 @@ static int usb_program_fpga(llio_t *self, char *bitfile_name) {
             file_buffer[bindex] = bitfile_reverse_bits(file_buffer[bindex]);
             bindex++;
         }
-        lbp_send(&file_buffer, bytesread);
+        lbp_send_checked(&file_buffer, bytesread);
         printf("W");
         fflush(stdout);
     }
@@ -179,8 +179,8 @@ void usb_boards_scan(board_access_t *access) {
     }
 
     cmd = '1';
-    lbp_send(&cmd, 1);
-    lbp_recv(&data, 1);
+    lbp_send_checked(&cmd, 1);
+    lbp_recv_checked(&data, 1);
     if ((data & 0x01) == 0) {  // found 7i43 without flashed FPGA
         board->type = BOARD_USB;
         board->mode = BOARD_MODE_CPLD;
@@ -191,8 +191,8 @@ void usb_boards_scan(board_access_t *access) {
         board->llio.ioport_connector_name[0] = "P3";
         board->llio.ioport_connector_name[1] = "P4";
         cmd = '0';
-        lbp_send(&cmd, 1);
-        lbp_recv(&data, 1);
+        lbp_send_checked(&cmd, 1);
+        lbp_recv_checked(&data, 1);
         if (data & 0x01)
             board->llio.fpga_part_number = "3s400tq144";
         else

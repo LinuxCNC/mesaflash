@@ -80,8 +80,8 @@ struct lbp_cmd_addr_data_struct {
 } __attribute__ ((__packed__));
 typedef struct lbp_cmd_addr_data_struct lbp_cmd_addr_data;
 
-int lbp_send(void *packet, int size);
-int lbp_recv(void *packet, int size);
+void lbp_send_checked(void *packet, int size);
+void lbp_recv_checked(void *packet, int size);
 u8 lbp_read_ctrl(u8 cmd);
 int lbp_read(u16 addr, void *buffer);
 int lbp_write(u16 addr, void *buffer);
