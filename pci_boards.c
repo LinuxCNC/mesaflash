@@ -1320,7 +1320,7 @@ void pci_print_info(board_t *board) {
                 show_formatted_size(board->dev->size[i]);
                 printf("\n");
             }  else {
-                printf("  Region %d: Memory at %08X", i, (unsigned int) board->dev->base_addr[i]);
+                printf("  Region %d: Memory at %016" PRIx64, i, board->dev->base_addr[i]);
                 show_formatted_size(board->dev->size[i]);
                 printf("\n");
             }
@@ -1332,7 +1332,7 @@ void pci_print_info(board_t *board) {
     if (board->data_base_addr > 0)
         printf("  Data I/O addr: %04X\n", board->data_base_addr);
     if (board->mem_base > 0)
-        printf("  Memory: %08" PRIx64 "\n", board->mem_base);
+        printf("  Memory: %016" PRIx64 "\n", board->mem_base);
 
     show_board_info(board);
 }
