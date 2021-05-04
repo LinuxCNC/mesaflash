@@ -42,6 +42,27 @@
 #include "bitfile.h"
 #include "pci_boards.h"
 
+#ifdef __linux__
+static int open_as_root(const char *path, int flags) {
+    if (seteuid(0) != 0) {
+        printf("You need root privileges (or setuid root) to access PCI hardware\n");
+        return -1;
+    }
+    int fd = open(path, flags);
+    int eno = errno;
+    if (seteuid(getuid()) != 0) {
+        printf("Failed to restore euid: %s\n", strerror(errno));
+        return -1;
+    }
+    if (fd < 0) {
+        errno = eno;
+        printf("%s can't open /dev/mem: %s", __func__, strerror(errno));
+    }
+    return fd;
+}
+#endif
+
+
 extern board_t boards[MAX_BOARDS];
 extern int boards_count;
 static int memfd = -1;
@@ -768,6 +789,16 @@ static void pci_fix_bar_lengths(struct pci_dev *dev) {
 static int pci_board_open(board_t *board) {
     if (board->mem_base != 0) {
 #ifdef __linux__
+        char path[256];
+        struct pci_dev *dev = board->dev;
+        snprintf(path, sizeof(path), "/sys/bus/pci/devices/%04x:%02x:%02x.%x/enable", dev->domain, dev->bus, dev->dev, dev->func);
+        int enable_fd = open_as_root(path, O_RDWR);
+        if (enable_fd < 0) {
+            perror("open_as_root(enable)");
+            abort();
+        }
+        write(enable_fd, "1\n", 2);
+        close(enable_fd);
         board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, board->mem_base);
 	if (board->base == NULL || board->base == MAP_FAILED) {
 	    perror("mmap pci");
@@ -795,6 +826,16 @@ static int pci_board_close(board_t *board) {
     if (board->base) {
 #ifdef __linux__
         munmap(board->base, board->len);
+        char path[256];
+        struct pci_dev *dev = board->dev;
+        snprintf(path, sizeof(path), "/sys/bus/pci/devices/%04x:%02x:%02x.%x/enable", dev->domain, dev->bus, dev->dev, dev->func);
+        int enable_fd = open_as_root(path, O_RDWR);
+        if (enable_fd < 0) {
+            perror("open_as_root(enable)");
+            abort();
+        }
+        write(enable_fd, "0\n", 2);
+        close(enable_fd);
 #elif _WIN32
         unmap_memory(&(board->mem_handle));
 #endif
