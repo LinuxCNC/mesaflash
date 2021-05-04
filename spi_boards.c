@@ -326,8 +326,7 @@ void spi_boards_scan(board_access_t *access) {
         board->fallback_support = 1;
         boards_count ++; 
      } else {
-        int i=0;
-        for(i=0; i<sizeof(ident); i++)
+        for(size_t i=0; i<sizeof(ident); i++)
             if(!isprint(ident[i])) ident[i] = '?';
 
         fprintf(stderr, "Unknown board: %.8s\n", ident);

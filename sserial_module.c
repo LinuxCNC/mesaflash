@@ -26,9 +26,9 @@
 
 // Temporarily enable the pins that are not masked by sserial_mode
 static void enable_sserial_pins(llio_t *llio) {
-    int port_pin, port;
-    int pin = -1;
-    int chan_counts[] = {0,0,0,0,0,0,0,0};
+    u32 port_pin, port;
+    u32 pin = -1;
+    u16 chan_counts[] = {0,0,0,0,0,0,0,0};
     hm2_module_desc_t *md = hm2_find_module(&(llio->hm2), HM2_GTAG_IOPORT);
     u16 addr = md->base_address;
 
