@@ -60,7 +60,7 @@ ifeq ($(TARGET),linux)
     LIBPCI_LDFLAGS := $(shell pkg-config --libs libpci)
     BIN = mesaflash
     LDFLAGS = -lm $(LIBPCI_LDFLAGS)
-    CFLAGS += -D_GNU_SOURCE $(LIBPCI_CFLAGS)
+    CFLAGS += -D_GNU_SOURCE $(LIBPCI_CFLAGS) -D_FILE_OFFSET_BITS=64
 
     UNAME_M := $(shell uname -m)
     ifeq ($(UNAME_M),aarch64)

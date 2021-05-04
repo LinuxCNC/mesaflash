@@ -31,8 +31,8 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <inttypes.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include "types.h"
@@ -769,6 +769,10 @@ static int pci_board_open(board_t *board) {
     if (board->mem_base != 0) {
 #ifdef __linux__
         board->base = mmap(0, board->len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, board->mem_base);
+	if (board->base == NULL || board->base == MAP_FAILED) {
+	    perror("mmap pci");
+	    abort();
+	}
 #elif _WIN32
         board->base = map_memory(board->mem_base, board->len, &(board->mem_handle));
 #endif
@@ -1316,7 +1320,7 @@ void pci_print_info(board_t *board) {
                 show_formatted_size(board->dev->size[i]);
                 printf("\n");
             }  else {
-                printf("  Region %d: Memory at %08X", i, (unsigned int) board->dev->base_addr[i]);
+                printf("  Region %d: Memory at %016" PRIx64, i, board->dev->base_addr[i]);
                 show_formatted_size(board->dev->size[i]);
                 printf("\n");
             }
@@ -1328,7 +1332,7 @@ void pci_print_info(board_t *board) {
     if (board->data_base_addr > 0)
         printf("  Data I/O addr: %04X\n", board->data_base_addr);
     if (board->mem_base > 0)
-        printf("  Memory: %08X\n", board->mem_base);
+        printf("  Memory: %016" PRIx64 "\n", board->mem_base);
 
     show_board_info(board);
 }
