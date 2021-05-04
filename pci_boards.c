@@ -762,6 +762,8 @@ static void pci_fix_bar_lengths(struct pci_dev *dev) {
 
         dev->size[i] = size + 1;
     }
+#else
+    (void)dev;
 #endif
 }
 
@@ -805,6 +807,7 @@ static int pci_board_close(board_t *board) {
 }
 
 int pci_boards_init(board_access_t *access) {
+    (void)access;
     int eno;
 
 #ifdef __linux__
@@ -833,6 +836,7 @@ int pci_boards_init(board_access_t *access) {
 }
 
 void pci_boards_cleanup(board_access_t *access) {
+    (void)access;
 #ifdef __linux__
     close(memfd);
 #elif _WIN32

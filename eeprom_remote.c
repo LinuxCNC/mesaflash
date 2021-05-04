@@ -36,6 +36,7 @@ extern spi_eeprom_dev_t eeprom_access;
 // eeprom access functions
 
 static void read_page(llio_t *self, u32 addr, void *buff) {
+    (void)self;
     lbp16_cmd_addr_data32 write_addr_pck;
     lbp16_cmd_addr read_page_pck;
 
@@ -48,6 +49,7 @@ static void read_page(llio_t *self, u32 addr, void *buff) {
 }
 
 static void write_page(llio_t *self, u32 addr, void *buff) {
+    (void)self;
     lbp16_cmd_addr_data32 write_addr_pck;
     lbp16_write_flash_page_packets write_page_pck;
     u32 ignored;
@@ -64,6 +66,7 @@ static void write_page(llio_t *self, u32 addr, void *buff) {
 }
 
 static void erase_sector(llio_t *self, u32 addr) {
+    (void)self;
     lbp16_erase_flash_sector_packets sector_erase_pck;
     lbp16_cmd_addr_data32 write_addr_pck;
     u32 ignored;
@@ -93,6 +96,7 @@ int remote_verify_flash(llio_t *self, char *bitfile_name, u32 start_address) {
 }
 
 void open_spi_access_remote(llio_t *self) {
+    (void)self;
     eeprom_access.read_page = &read_page;
     eeprom_access.write_page = &write_page;
     eeprom_access.erase_sector = &erase_sector;
@@ -100,4 +104,5 @@ void open_spi_access_remote(llio_t *self) {
 };
 
 void close_spi_access_remote(llio_t *self) {
+    (void)self;
 };

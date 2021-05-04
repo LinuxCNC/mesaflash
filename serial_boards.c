@@ -102,10 +102,12 @@ int serial_recv_packet(void *packet, int size) {
 }
 
 static int serial_read(llio_t *self, u32 addr, void *buffer, int size) {
+    (void)self;
     return lbp16_read(CMD_READ_HOSTMOT2_ADDR32_INCR(size/4), addr, buffer, size);
 }
 
 static int serial_write(llio_t *self, u32 addr, void *buffer, int size) {
+    (void)self;
     return lbp16_write(CMD_WRITE_HOSTMOT2_ADDR32_INCR(size/4), addr, buffer, size);
 }
 
@@ -122,6 +124,7 @@ static int serial_board_open(board_t *board) {
 }
 
 static int serial_board_close(board_t *board) {
+    (void)board;
     return 0;
 }
 
@@ -168,6 +171,7 @@ int serial_boards_init(board_access_t *access) {
 }
 
 void serial_boards_cleanup(board_access_t *access) {
+    (void)access;
     close(sd);
 }
 

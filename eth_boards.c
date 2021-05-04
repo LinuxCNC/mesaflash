@@ -99,6 +99,7 @@ static char *eth_socket_get_src_ip() {
 }
 
 static int eth_read(llio_t *self, u32 addr, void *buffer, int size) {
+    (void)self;
     if ((size/4) > LBP16_MAX_PACKET_DATA_SIZE) {
         printf("ERROR: LBP16: Requested %d units to read, but protocol supports up to %d units to be read per packet\n", size/4, LBP16_MAX_PACKET_DATA_SIZE);
         return -1;
@@ -108,6 +109,7 @@ static int eth_read(llio_t *self, u32 addr, void *buffer, int size) {
 }
 
 static int eth_write(llio_t *self, u32 addr, void *buffer, int size) {
+    (void)self;
     if ((size/4) > LBP16_MAX_PACKET_DATA_SIZE) {
         printf("ERROR: LBP16: Requested %d units to write, but protocol supports up to %d units to be write per packet\n", size/4, LBP16_MAX_PACKET_DATA_SIZE);
         return -1;
@@ -130,6 +132,7 @@ static int eth_board_open(board_t *board) {
 }
 
 static int eth_board_close(board_t *board) {
+    (void)board;
     return 0;
 }
 
@@ -470,6 +473,7 @@ static int eth_scan_one_addr(board_access_t *access) {
 // public functions
 
 int eth_boards_init(board_access_t *access) {
+    (void)access;
 // open socket
 #ifdef __linux__
     sd = socket (PF_INET, SOCK_DGRAM, 0);
@@ -500,6 +504,7 @@ int eth_boards_init(board_access_t *access) {
 }
 
 void eth_boards_cleanup(board_access_t *access) {
+    (void)access;
     int i;
 
     for (i = 0; i < boards_count; i++) {

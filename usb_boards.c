@@ -34,6 +34,7 @@ extern int boards_count;
 static u8 file_buffer[SECTOR_SIZE];
 
 int usb_read(llio_t *self, u32 addr, void *buffer, int size) {
+    (void)self;
     while (size > 0) {
         lbp_read(addr & 0xFFFF, buffer);
         addr += 4;
@@ -44,6 +45,7 @@ int usb_read(llio_t *self, u32 addr, void *buffer, int size) {
 }
 
 int usb_write(llio_t *self, u32 addr, void *buffer, int size) {
+    (void)self;
     while (size > 0) {
         lbp_write(addr & 0xFFFF, buffer);
         addr += 4;
@@ -103,10 +105,12 @@ static int usb_program_fpga(llio_t *self, char *bitfile_name) {
 }
 
 static int usb_board_open(board_t *board) {
+    (void)board;
     return 0;
 }
 
 static int usb_board_close(board_t *board) {
+    (void)board;
     return 0;
 }
 
@@ -116,6 +120,7 @@ int usb_boards_init(board_access_t *access) {
 }
 
 void usb_boards_cleanup(board_access_t *access) {
+    (void)access;
     lbp_release();
 }
 
@@ -210,6 +215,7 @@ void usb_boards_scan(board_access_t *access) {
 }
 
 void usb_boards_release(board_access_t *access) {
+    (void)access;
     lbp_release();
 }
 

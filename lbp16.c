@@ -83,6 +83,7 @@ int lbp16_write(u16 cmd, u32 addr, void *buffer, int size) {
 }
 
 int lbp16_board_reset(llio_t *self) {
+    (void)self;
     lbp16_cmd_addr_data16 packet;
 
     LBP16_INIT_PACKET6(packet, CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1C, 0x0001);   // reset if != 0
@@ -152,4 +153,5 @@ void lbp16_init(int board_type) {
 }
 
 void lbp_cleanup(int board_type) {
+    (void)board_type;
 }
