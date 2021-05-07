@@ -296,6 +296,11 @@ typedef struct {
 # define BOB_7C81_0 15
 # define BOB_7C81_1 16
 # define BOB_7C81_2 17
+# define BOB_7I78 18
+# define BOB_7I85 19
+# define BOB_7I88 20
+# define BOB_7I89 21
+
 
 struct sserial_pdd_struct {
     u8 record_type;
