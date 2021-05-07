@@ -7,36 +7,37 @@ Quickstart:
 
 MesaFlash depends on a couple of packages to build, so install those
 first:
-
-  sudo apt install libpci-dev pkg-config build-essential
-
-You may need to install git first:
-
-  sudo apt install git
-
+```
+sudo apt install libpci-dev pkg-config build-essential git
+```
 Clone MesaFlash:
-
-  git clone https://github.com/LinuxCNC/mesaflash.git
+```
+git clone https://github.com/LinuxCNC/mesaflash.git
+```
 
 From the top level directory, switch to the source directory:
-
-  cd mesaflash
-
+```
+cd mesaflash
+```
 In the source directory to build MesaFlash:
-
-  make
-
+```
+make
+```
 To get command line syntax from a local make:
+```
+./mesaflash --help
+```
 
-  ./mesaflash --help
-
-To build and install MesaFlash:
-
-  sudo make install
-
+To build and install MesaFlash, bypassing the operating system packaging system:
+```
+sudo make install
+```
 To run an installed MesaFlash:
+```
+mesaflash --help
+```
 
-  mesaflash --help
+Depending on permissions and the types of devices you wish to access, you may need to run mesaflash as root, `sudo ./mesaflash` or `sudo mesaflash`.
 
 Distributions
 ===============
