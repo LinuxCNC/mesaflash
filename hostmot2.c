@@ -173,6 +173,30 @@ static bob_pin_name_t bob_pin_names[MAX_BOB_NAMES] = {
     "P7-15/DB25-08","P7-17/DB25-09","P7-19/DB25-10","P7-21/DB25-11","P7-23/DB25-12","P7-25/DB25-13","P5 1,2","P6 1,2"}}
 };
 
+static struct {
+    int value;
+    const char *name;
+} bob_names[] = {
+    { BOB_7I76, "7I76" },
+    { BOB_7I77, "7I77" },
+    { BOB_7I94_0, "7I94_0" },
+    { BOB_7I94_1, "7I94_1" },
+    { BOB_7I95_0, "7I95_0" },
+    { BOB_7I95_1, "7I95_1" },
+    { BOB_7I96_0, "7I96_0" },
+    { BOB_7I96_1, "7I96_1" },
+    { BOB_7I96_2, "7I96_2" },
+    { BOB_7I97_0, "7I97_0" },
+    { BOB_7I97_1, "7I97_1" },
+    { BOB_7I97_2, "7I97_2" },
+    { BOB_7C80_0, "7C80_0" },
+    { BOB_7C80_1, "7C80_1" },
+    { BOB_7C81_0, "7C81_0" },
+    { BOB_7C81_1, "7C81_1" },
+    { BOB_7C81_2, "7C81_2" },
+    { -1, NULL },
+};
+
 static pin_name_t pin_names[HM2_MAX_TAGS] = {
   {HM2_GTAG_NONE,  {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_IRQ_LOGIC,  {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
@@ -641,3 +665,13 @@ void hm2_print_pin_descriptors(llio_t *llio) {
         }
     }
 }
+
+int hm2_find_bob_hint_by_name(const char *name) {
+    for (size_t i=0; bob_names[i].name; i++) {
+        if(strcasecmp(bob_names[i].name, name) == 0) {
+            return bob_names[i].value;
+        }
+    }
+    return 0;
+}
+

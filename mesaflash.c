@@ -66,6 +66,9 @@ static int info_flag;
 static int verbose_flag;
 static char bitfile_name[255];
 static board_access_t access;
+static int bob_hints[6];
+
+#define array_size(x)  ((sizeof(x) / sizeof(x[0])))
 
 static struct option long_options[] = {
     {"device", required_argument, 0, 'd'},
@@ -91,6 +94,12 @@ static struct option long_options[] = {
     {"wpo", required_argument, 0, 'o'},
     {"set", required_argument, 0, 's'},
     {"xml", no_argument, &xml_flag, 1},
+    {"dbname1", required_argument, NULL, '1'},
+    {"dbname2", required_argument, NULL, '2'},
+    {"dbname3", required_argument, NULL, '3'},
+    {"dbname4", required_argument, NULL, '4'},
+    {"dbname5", required_argument, NULL, '5'},
+    {"dbname6", required_argument, NULL, '6'},
     {"info", required_argument, 0, 'i'},
     {"help", no_argument, 0, 'h'},
     {"verbose", no_argument, &verbose_flag, 1},
@@ -139,6 +148,10 @@ void print_usage() {
     printf("  --recover         Access board using PCI bridge GPIO (currently\n");
     printf("                    only 6I24/6I25).\n");
     printf("  --xml             Format output from 'readhmid' command into XML.\n");
+    printf("  --dbname# <name>  Set daughter board name to <name> for FPGA connector <N> \n");
+    printf("                    Allows readhmid to include daughterboard terminal names\n");
+    printf("                    where # can be in the range 1 to 6.\n");
+    printf("                    (1 means first FPGA connector)\n");
     printf("  --verbose         Print detailed information while running commands.\n");
     printf("\n");
     printf("Commands:\n");
@@ -353,6 +366,21 @@ int process_cmd_line(int argc, char *argv[]) {
             }
             break;
 
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            {
+                int bob_idx = c - '1';
+                int hint = hm2_find_bob_hint_by_name(optarg);
+                if (hint == 0) {
+                    printf("--dbname%c %s not recognized\n", c, optarg);
+                }
+                bob_hints[bob_idx] = hint;
+            }
+            break;
             case '?':
                 /* getopt_long already printed an error message. */
                 return -1;
@@ -410,6 +438,11 @@ int main(int argc, char *argv[]) {
         }
 
         board->open(board);
+        for(size_t i=0; i<array_size(bob_hints); i++) {
+            if(bob_hints[i]) {
+                board->llio.bob_hint[i] = bob_hints[i];
+            }
+        }
 
         if (readhmid_flag == 1) {
             anyio_dev_print_hm2_info(board, xml_flag);
