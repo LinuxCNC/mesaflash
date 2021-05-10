@@ -296,10 +296,17 @@ typedef struct {
 # define BOB_7C81_0 15
 # define BOB_7C81_1 16
 # define BOB_7C81_2 17
-# define BOB_7I78 18
-# define BOB_7I85 19
-# define BOB_7I88 20
-# define BOB_7I89 21
+# define BOB_7I74 18
+# define BOB_7I78 19
+# define BOB_7I85 20
+# define BOB_7I88 21
+# define BOB_7I89 22
+# define BOB_DMM4250 23
+# define BOB_5ABOB 24
+# define BOB_G540 25
+# define BOB_C11 26
+# define BOB_C11G 27
+
 
 
 struct sserial_pdd_struct {

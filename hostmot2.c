@@ -172,6 +172,9 @@ static bob_pin_name_t bob_pin_names[MAX_BOB_NAMES] = {
     "P7-05/DB25-03","P7-06/DB25-16","P7-07/DB25-04","P7-08/DB25-17","P7-09/DB25-05","P7-11/DB25-06","P7-13/DB25-07",
     "P7-15/DB25-08","P7-17/DB25-09","P7-19/DB25-10","P7-21/DB25-11","P7-23/DB25-12","P7-25/DB25-13","P5 1,2","P6 1,2"}},
 
+   {BOB_7I74, {"CHAN0-RX","CHAN1-RX","CHAN2-RX","CHAN3-RX","CHAN0-TX","CHAN1-TX","CHAN2-TX","CHAN3-TX",
+    "CHAN4-RX","CHAN5-RX","CHAN6-RX","CHAN7-RX","CHAN4-TX","CHAN5-TX","CHAN6-TX","CHAN7-TX","CHAN7-TXEn"}},
+
    {BOB_7I78, {"TB1-4,5","TB1-2,3","TB1-10,11","TB1-8,9","TB1-16,17","TB1-14,15","TB1-22,23","TB1-20,21","TB2-18","TB2-21,22",
     "TB2-23,24","TB2-12,13","Internal-TXEn","TB2-10,11","TB2-7,8","TB2-4,5","TB2-1,2"}},
 
@@ -184,6 +187,20 @@ static bob_pin_name_t bob_pin_names[MAX_BOB_NAMES] = {
    {BOB_7I89, {"TB3-1,2,9,10","TB3-4,5,12,13","TB2-7,8,15,16","TB3-17,18,TB2-1,2","TB3-20,21,TB2-4,5","TB3-23,24,TB2-7,8","TB2-9,10,17,18",
     "TB2-12,13,20,21","TB2-15,16,23,24","TB1-1,2,9,10","TB1-4,5,12,13","TB1-7,8,15,16","Internal-EncMux","Internal-EncPower","TB1-19,20","TB1-21,22","Internal-TXEn"}},
 
+   {BOB_DMM4250, {"Spindle-PWM","Drive-Enable","X-Dir","EStop-In","X-Step","Output-16","Y-Dir",
+    "Output-17","Y-Step","Z-Dir","Z-Step","A-Dir","A-Step,Charge-Pump","X-Limit","Y-Limit","Z-Limit","A-Limit"}},
+
+   {BOB_5ABOB, {"Spindle-PWM","Drive-Enable","X-Step","Input-P15","X-Dir","B-Step","Y-Step",
+    "B-Dir,Relay","Y-Dir","Z-Step","Z-Dir","A-Step","A-Dir","Input-P10","Input-P11","Input-P12","Input-P13"}},
+
+   {BOB_G540, {"Output-2","Spindle-PWM","X-Step","Fault","X-Dir","Charge-Pump","Y-Step",
+    "Output-1","Y-Dir","Z-Step","Z-Dir","A-Step","A-Dir","Input-1","Input-2","Input-3","Input-4"}},
+
+   {BOB_C11, {"Relay-2","Spindle-Rate","Out-2","Input-P15","Out-3","Relay-1","Out-4",
+    "Charge-Pump","Out-5","Out-6","Out-7","Out-8","Out-9","Input-P10","Input-P11","Input-P12","Input-P13"}},
+
+   {BOB_C11G, {"Relay-3","Spindle-PWM","Out-2","Input-P15","Out-3","Spindle-Dir","Out-4",
+    "Charge-Pump,Relay-3","Out-5","Out-6","Out-7","Out-8","Out-9","Input-P10","Input-P11","Input-P12","Input-P13"}}
 
 };
 
@@ -213,11 +230,14 @@ static struct {
     { BOB_7C81_0, "7C81_0" },
     { BOB_7C81_1, "7C81_1" },
     { BOB_7C81_2, "7C81_2" },
+    { BOB_7I78, "7I74" },
     { BOB_7I78, "7I78" },
     { BOB_7I85, "7I85" },
     { BOB_7I85, "7I85S"},
     { BOB_7I88, "7I88"},
     { BOB_7I89, "7I89"},
+    { BOB_DMM4250, "DMM4250"},
+    { BOB_5ABOB, "5ABOB"},
     { -1, NULL },
 };
 
