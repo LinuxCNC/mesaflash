@@ -22,6 +22,7 @@
 #include <sys/fcntl.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "types.h"
 #include "boards.h"
@@ -33,46 +34,48 @@ static int sd = -1;
 HANDLE sd;
 #endif
 
-int lbp_send(void *packet, int size) {
+void lbp_send_checked(void *packet, int size) {
 #ifdef __linux__
-	int send = write(sd, packet, size);
+    int result = write(sd, packet, size);
+    if (result != size) {
+        perror("write(lbp_send_checked)");
+        abort();
+    }
 #elif _WIN32
-    DWORD send = 0;
-	WriteFile(sd, packet, size, &send, NULL);
+    BOOL result = WriteFile(sd, packet, size, &send, NULL);
+    if (!result) {
+        printf("WriteFile(lbp_send_checked): %d\n", GetLastError());
+    }
 #endif
-    if (LBP_SENDRECV_DEBUG)
-        printf("%d=lbp_send(%d)\n", send, size);
-
-    return send;
 }
 
-int lbp_recv(void *packet, int size) {
+void lbp_recv_checked(void *packet, int size) {
 #ifdef __linux__
-    int recv = read(sd, packet, size);
+    int result = read(sd, packet, size);
+    if (result != size) {
+        perror("read(lbp_recv_checked)");
+        abort();
+    }
 #elif _WIN32
-    DWORD recv = 0;
-	ReadFile(sd, packet, size, &recv, NULL);
+    BOOL result = ReadFile(sd, packet, size, &recv, NULL);
+    if (!result) {
+        printf("ReadFile(lbp_recv_checked): %d\n", GetLastError());
+    }
 #endif
-    if (LBP_SENDRECV_DEBUG)
-        printf("%d=lbp_recv(%d)\n", recv, size);
-
-    return recv;
 }
 
 u8 lbp_read_ctrl(u8 cmd) {
     u8 data;
-    int send, recv;
 
-    send = lbp_send(&cmd, 1);
-    recv = lbp_recv(&data, 1);
+    lbp_send_checked(&cmd, 1);
+    lbp_recv_checked(&data, 1);
     if (LBP_SENDRECV_DEBUG)
-        printf("%d=send(%X), %d=recv(%X)\n", send, cmd, recv, data);
+        printf("send(%X), recv(%X)\n", cmd, data);
 
     return data;
 }
 
 int lbp_read(u16 addr, void *buffer) {
-    int send, recv;
     lbp_cmd_addr packet;
     u32 *ptr = buffer;
 
@@ -80,8 +83,8 @@ int lbp_read(u16 addr, void *buffer) {
     packet.addr_hi = LO_BYTE(addr);
     packet.addr_lo = HI_BYTE(addr);
 
-    send = lbp_send(&packet, sizeof(lbp_cmd_addr));
-    recv = lbp_recv(buffer, 4);
+    lbp_send_checked(&packet, sizeof(lbp_cmd_addr));
+    lbp_recv_checked(buffer, 4);
     if (LBP_SENDRECV_DEBUG)
         printf("lbp_read(%02X:%04X): %08X\n", packet.cmd, addr, *ptr);
 
@@ -89,7 +92,6 @@ int lbp_read(u16 addr, void *buffer) {
 }
 
 int lbp_write(u16 addr, void *buffer) {
-    int send;
     lbp_cmd_addr_data packet;
 
     packet.cmd = LBP_CMD_WRITE | LBP_ARGS_32BIT;
@@ -97,7 +99,7 @@ int lbp_write(u16 addr, void *buffer) {
     packet.addr_lo = HI_BYTE(addr);
     memcpy(&packet.data, buffer, 4);
 
-    send = lbp_send(&packet, sizeof(lbp_cmd_addr_data));
+    lbp_send_checked(&packet, sizeof(lbp_cmd_addr_data));
     if (LBP_SENDRECV_DEBUG)
         printf("lbp_write(%02X:%04X)\n", packet.cmd, addr);
 

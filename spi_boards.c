@@ -83,6 +83,7 @@ static int spi_board_open(board_t *board) {
 }
 
 static int spi_board_close(board_t *board) {
+    (void)board;
     return 0;
 }
 
@@ -110,6 +111,7 @@ int spi_boards_init(board_access_t *access) {
 }
 
 void spi_boards_cleanup(board_access_t *access) {
+    (void)access;
     if(sd != -1) close(sd);
 }
 
@@ -129,6 +131,7 @@ void reorderBuffer(char *pBuf, int numInts)
 }
 
 int spi_read(llio_t *self, u32 addr, void *buffer, int size) {
+    (void)self;
     if(size % 4 != 0) return -1;
     int numInts = 1+size/4;
     u32 trxbuf[numInts];
@@ -158,6 +161,7 @@ int spi_read(llio_t *self, u32 addr, void *buffer, int size) {
 }
 
 int spi_write(llio_t *self, u32 addr, void *buffer, int size) {
+    (void)self;
     if(size % 4 != 0) return -1;
     int numInts = 1+size/4;
     u32 txbuf[numInts];
@@ -322,8 +326,7 @@ void spi_boards_scan(board_access_t *access) {
         board->fallback_support = 1;
         boards_count ++; 
      } else {
-        int i=0;
-        for(i=0; i<sizeof(ident); i++)
+        for(size_t i=0; i<sizeof(ident); i++)
             if(!isprint(ident[i])) ident[i] = '?';
 
         fprintf(stderr, "Unknown board: %.8s\n", ident);
@@ -331,4 +334,5 @@ void spi_boards_scan(board_access_t *access) {
 }
 
 void spi_print_info(board_t *board) {
+    (void)board;
 }

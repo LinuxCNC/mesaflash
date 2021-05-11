@@ -36,53 +36,49 @@ extern spi_eeprom_dev_t eeprom_access;
 // eeprom access functions
 
 static void read_page(llio_t *self, u32 addr, void *buff) {
+    (void)self;
     lbp16_cmd_addr_data32 write_addr_pck;
     lbp16_cmd_addr read_page_pck;
-    int send, recv;
 
     LBP16_INIT_PACKET8(write_addr_pck, CMD_WRITE_FPGA_FLASH_ADDR32(1), FLASH_ADDR_REG, addr);
     LBP16_INIT_PACKET4(read_page_pck, CMD_READ_FPGA_FLASH_ADDR32(64), FLASH_DATA_REG);
 
-    send = lbp16_send_packet(&write_addr_pck, sizeof(write_addr_pck));
-    send = lbp16_send_packet(&read_page_pck, sizeof(read_page_pck));
-    recv = lbp16_recv_packet(buff, PAGE_SIZE);
+    lbp16_send_packet_checked(&write_addr_pck, sizeof(write_addr_pck));
+    lbp16_send_packet_checked(&read_page_pck, sizeof(read_page_pck));
+    lbp16_recv_packet_checked(buff, PAGE_SIZE);
 }
 
 static void write_page(llio_t *self, u32 addr, void *buff) {
+    (void)self;
     lbp16_cmd_addr_data32 write_addr_pck;
     lbp16_write_flash_page_packets write_page_pck;
-    int send, recv;
     u32 ignored;
 
     LBP16_INIT_PACKET8(write_addr_pck, CMD_WRITE_FPGA_FLASH_ADDR32(1), FLASH_ADDR_REG, addr);
-    send = lbp16_send_packet(&write_addr_pck, sizeof(write_addr_pck));
+    lbp16_send_packet_checked(&write_addr_pck, sizeof(write_addr_pck));
 
     LBP16_INIT_PACKET6(write_page_pck.write_ena_pck, CMD_WRITE_COMM_CTRL_ADDR16(1), COMM_CTRL_WRITE_ENA_REG, 0x5A03);
     LBP16_INIT_PACKET4(write_page_pck.fl_write_page_pck, CMD_WRITE_FPGA_FLASH_ADDR32(64), FLASH_DATA_REG);
     memcpy(&write_page_pck.fl_write_page_pck.page, buff, 256);
-    send = lbp16_send_packet(&write_page_pck, sizeof(write_page_pck));
+    lbp16_send_packet_checked(&write_page_pck, sizeof(write_page_pck));
     // packet read for board syncing
-    recv = lbp16_read(CMD_READ_FPGA_FLASH_ADDR32(1), FLASH_ADDR_REG, &ignored, 4);
+    lbp16_read(CMD_READ_FPGA_FLASH_ADDR32(1), FLASH_ADDR_REG, &ignored, 4);
 }
 
 static void erase_sector(llio_t *self, u32 addr) {
+    (void)self;
     lbp16_erase_flash_sector_packets sector_erase_pck;
     lbp16_cmd_addr_data32 write_addr_pck;
-    int send, recv;
     u32 ignored;
 
     LBP16_INIT_PACKET8(write_addr_pck, CMD_WRITE_FPGA_FLASH_ADDR32(1), FLASH_ADDR_REG, addr);
-    send = lbp16_send_packet(&write_addr_pck, sizeof(write_addr_pck));
-    if (send < 0)
-        printf("ERROR: %s(): %s\n", __func__, strerror(errno));
+    lbp16_send_packet_checked(&write_addr_pck, sizeof(write_addr_pck));
 
     LBP16_INIT_PACKET6(sector_erase_pck.write_ena_pck, CMD_WRITE_COMM_CTRL_ADDR16(1), COMM_CTRL_WRITE_ENA_REG, 0x5A03);
     LBP16_INIT_PACKET8(sector_erase_pck.fl_erase_pck, CMD_WRITE_FPGA_FLASH_ADDR32(1), FLASH_SEC_ERASE_REG, 0);
-    send = lbp16_send_packet(&sector_erase_pck, sizeof(sector_erase_pck));
-    if (send < 0)
-        printf("ERROR: %s(): %s\n", __func__, strerror(errno));
+    lbp16_send_packet_checked(&sector_erase_pck, sizeof(sector_erase_pck));
     // packet read for board syncing
-    recv = lbp16_read(CMD_READ_FPGA_FLASH_ADDR32(1), FLASH_ADDR_REG, &ignored, 4);
+    lbp16_read(CMD_READ_FPGA_FLASH_ADDR32(1), FLASH_ADDR_REG, &ignored, 4);
 }
 
 static int remote_start_programming(llio_t *self, u32 start_address, int fsize) {
@@ -100,6 +96,7 @@ int remote_verify_flash(llio_t *self, char *bitfile_name, u32 start_address) {
 }
 
 void open_spi_access_remote(llio_t *self) {
+    (void)self;
     eeprom_access.read_page = &read_page;
     eeprom_access.write_page = &write_page;
     eeprom_access.erase_sector = &erase_sector;
@@ -107,4 +104,5 @@ void open_spi_access_remote(llio_t *self) {
 };
 
 void close_spi_access_remote(llio_t *self) {
+    (void)self;
 };

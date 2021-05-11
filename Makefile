@@ -29,7 +29,7 @@ RANLIB = ranlib
 OWNERSHIP ?= --owner root --group root
 
 # default CFLAGS
-CFLAGS ?= -O0 -g -Wall -Werror=format -Werror=format-security
+CFLAGS ?= -O0 -g -Wall -Wextra -Werror
 
 # mesaflash needs at least C99 to compile.
 #

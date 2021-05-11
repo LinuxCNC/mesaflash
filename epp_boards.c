@@ -290,6 +290,7 @@ int epp_reset(llio_t *self) {
 ////////////////////////////////////////////////////////////////////////
 
 int epp_boards_init(board_access_t *access) {
+    (void)access;
 #ifdef __linux__
     if (seteuid(0) != 0) {
         printf("You need root privileges (or setuid root) to access EPP hardware\n");
@@ -302,6 +303,7 @@ int epp_boards_init(board_access_t *access) {
 }
 
 void epp_boards_cleanup(board_access_t *access) {
+    (void)access;
 }
 
 static int epp_board_open(board_t *board) {

@@ -102,10 +102,12 @@ int serial_recv_packet(void *packet, int size) {
 }
 
 static int serial_read(llio_t *self, u32 addr, void *buffer, int size) {
+    (void)self;
     return lbp16_read(CMD_READ_HOSTMOT2_ADDR32_INCR(size/4), addr, buffer, size);
 }
 
 static int serial_write(llio_t *self, u32 addr, void *buffer, int size) {
+    (void)self;
     return lbp16_write(CMD_WRITE_HOSTMOT2_ADDR32_INCR(size/4), addr, buffer, size);
 }
 
@@ -122,6 +124,7 @@ static int serial_board_open(board_t *board) {
 }
 
 static int serial_board_close(board_t *board) {
+    (void)board;
     return 0;
 }
 
@@ -168,17 +171,17 @@ int serial_boards_init(board_access_t *access) {
 }
 
 void serial_boards_cleanup(board_access_t *access) {
+    (void)access;
     close(sd);
 }
 
 void serial_boards_scan(board_access_t *access) {
     lbp16_cmd_addr packet;
-    int send = 0, recv = 0;
     char buff[16];
 
     LBP16_INIT_PACKET4(packet, CMD_READ_BOARD_INFO_ADDR16_INCR(8), 0);
-    send = lbp16_send_packet(&packet, sizeof(packet));
-    recv = lbp16_recv_packet(buff, 16);
+    lbp16_send_packet_checked(&packet, sizeof(packet));
+    lbp16_recv_packet_checked(buff, 16);
     if (strncmp(buff, "7I90HD", 6) == 0) {
         board_t *board = &boards[boards_count];
 
@@ -214,7 +217,7 @@ void serial_boards_scan(board_access_t *access) {
 
 void serial_print_info(board_t *board) {
     lbp16_cmd_addr packet;
-    int i, j, recv;
+    int i, j;
     char *mem_types[16] = {NULL, "registers", "memory", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "EEPROM", "flash"};
     char *mem_writeable[2] = {"RO", "RW"};
     char *acc_types[4] = {"8-bit", "16-bit", "32-bit", "64-bit"};
@@ -239,20 +242,20 @@ void serial_print_info(board_t *board) {
 
     LBP16_INIT_PACKET4(packet, CMD_READ_COMM_CTRL_ADDR16_INCR(sizeof(stat_area)/2), 0);
     memset(&stat_area, 0, sizeof(stat_area));
-    lbp16_send_packet(&packet, sizeof(packet));
-    recv = lbp16_recv_packet(&stat_area, sizeof(stat_area));
+    lbp16_send_packet_checked(&packet, sizeof(packet));
+    lbp16_recv_packet_checked(&stat_area, sizeof(stat_area));
 
     LBP16_INIT_PACKET4(packet, CMD_READ_BOARD_INFO_ADDR16_INCR(sizeof(info_area)/2), 0);
     memset(&info_area, 0, sizeof(info_area));
-    lbp16_send_packet(&packet, sizeof(packet));
-    recv = lbp16_recv_packet(&info_area, sizeof(info_area));
+    lbp16_send_packet_checked(&packet, sizeof(packet));
+    lbp16_recv_packet_checked(&info_area, sizeof(info_area));
 
     if (info_area.LBP16_version >= 3) {
         LBP16_INIT_PACKET4(cmds[4], CMD_READ_AREA_INFO_ADDR16_INCR(LBP16_SPACE_TIMER, sizeof(mem_area)/2), 0);
         LBP16_INIT_PACKET4(packet, CMD_READ_TIMER_ADDR16_INCR(sizeof(timers_area)/2), 0);
         memset(&timers_area, 0, sizeof(timers_area));
-        lbp16_send_packet(&packet, sizeof(packet));
-        recv = lbp16_recv_packet(&timers_area, sizeof(timers_area));
+        lbp16_send_packet_checked(&packet, sizeof(packet));
+        lbp16_recv_packet_checked(&timers_area, sizeof(timers_area));
     }
 
     printf("Communication:\n");
@@ -268,8 +271,8 @@ void serial_print_info(board_t *board) {
 
         if ((cmds[i].cmd_lo == 0) && (cmds[i].cmd_hi == 0)) continue;
         memset(&mem_area, 0, sizeof(mem_area));
-        lbp16_send_packet(&cmds[i], sizeof(cmds[i]));
-        lbp16_recv_packet(&mem_area, sizeof (mem_area));
+        lbp16_send_packet_checked(&cmds[i], sizeof(cmds[i]));
+        lbp16_recv_packet_checked(&mem_area, sizeof (mem_area));
 
         printf("    %d: %.*s (%s, %s", i, (int)sizeof(mem_area.name), mem_area.name, mem_types[(mem_area.size  >> 8) & 0x7F],
           mem_writeable[(mem_area.size & 0x8000) >> 15]);

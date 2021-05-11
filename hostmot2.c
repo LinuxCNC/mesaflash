@@ -59,7 +59,7 @@ hm2_module_desc_t *hm2_find_module(hostmot2_t *hm2, u8 gtag) {
     return NULL;
 }
 
-void hm2_set_pin_source(hostmot2_t *hm2, int pin_number, u8 source) {
+void hm2_set_pin_source(hostmot2_t *hm2, u32 pin_number, u8 source) {
     u32 data;
     u16 addr;
     hm2_module_desc_t *md = hm2_find_module(hm2, HM2_GTAG_IOPORT);
@@ -68,7 +68,7 @@ void hm2_set_pin_source(hostmot2_t *hm2, int pin_number, u8 source) {
         printf("hm2_set_pin_source(): no IOPORT module found\n");
         return;
     }
-    if ((pin_number < 0) || (pin_number >= (hm2->idrom.io_ports*hm2->idrom.io_width))) {
+    if (pin_number >= (hm2->idrom.io_ports*hm2->idrom.io_width)) {
         printf("hm2_set_pin_source(): invalid pin number %d\n", pin_number);
         return;
     }
@@ -86,7 +86,7 @@ void hm2_set_pin_source(hostmot2_t *hm2, int pin_number, u8 source) {
     hm2->llio->write(hm2->llio, addr + HM2_MOD_OFFS_GPIO_ALT_SOURCE + (pin_number / 24)*4, &data, sizeof(data));
 }
 
-void hm2_set_pin_direction(hostmot2_t *hm2, int pin_number, u8 direction) {
+void hm2_set_pin_direction(hostmot2_t *hm2, u32 pin_number, u8 direction) {
     u32 data;
     u16 addr;
     hm2_module_desc_t *md = hm2_find_module(hm2, HM2_GTAG_IOPORT);
@@ -95,7 +95,7 @@ void hm2_set_pin_direction(hostmot2_t *hm2, int pin_number, u8 direction) {
         printf("hm2_set_pin_direction(): no IOPORT module found\n");
         return;
     }
-    if ((pin_number < 0) || (pin_number >= (hm2->idrom.io_ports*hm2->idrom.io_width))) {
+    if (pin_number >= (hm2->idrom.io_ports*hm2->idrom.io_width)) {
         printf("hm2_set_pin_direction(): invalid pin number %d\n", pin_number);
         return;
     }

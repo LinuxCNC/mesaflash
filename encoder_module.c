@@ -43,6 +43,7 @@ static void enable_encoder_pins(hostmot2_t *hm2) {
 
 // Return the physical ports to default
 static void disable_encoder_pins(llio_t *llio) {
+    (void)llio;
 }
 
 int encoder_init(encoder_module_t *enc, board_t *board, int instance, int delay) {

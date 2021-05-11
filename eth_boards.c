@@ -99,6 +99,7 @@ static char *eth_socket_get_src_ip() {
 }
 
 static int eth_read(llio_t *self, u32 addr, void *buffer, int size) {
+    (void)self;
     if ((size/4) > LBP16_MAX_PACKET_DATA_SIZE) {
         printf("ERROR: LBP16: Requested %d units to read, but protocol supports up to %d units to be read per packet\n", size/4, LBP16_MAX_PACKET_DATA_SIZE);
         return -1;
@@ -108,6 +109,7 @@ static int eth_read(llio_t *self, u32 addr, void *buffer, int size) {
 }
 
 static int eth_write(llio_t *self, u32 addr, void *buffer, int size) {
+    (void)self;
     if ((size/4) > LBP16_MAX_PACKET_DATA_SIZE) {
         printf("ERROR: LBP16: Requested %d units to write, but protocol supports up to %d units to be write per packet\n", size/4, LBP16_MAX_PACKET_DATA_SIZE);
         return -1;
@@ -130,6 +132,7 @@ static int eth_board_open(board_t *board) {
 }
 
 static int eth_board_close(board_t *board) {
+    (void)board;
     return 0;
 }
 
@@ -137,13 +140,13 @@ static int eth_board_close(board_t *board) {
 // Returns 0 if it finds one, -1 if it doesn't find one.
 static int eth_scan_one_addr(board_access_t *access) {
     lbp16_cmd_addr packet, packet2;
-    int send = 0, recv = 0, ret = 0;
+    int ret = 0;
     u32 cookie;
 
     LBP16_INIT_PACKET4(packet, CMD_READ_HM2_COOKIE, HM2_COOKIE_REG);
-    send = lbp16_send_packet(&packet, sizeof(packet));
+    lbp16_send_packet_checked(&packet, sizeof(packet));
     sleep_ns(2*1000*1000);
-    recv = lbp16_recv_packet(&cookie, sizeof(cookie));
+    size_t recv = lbp16_recv_packet(&cookie, sizeof(cookie));
 
     if ((recv > 0) && (cookie == HM2_COOKIE)) {
         char buff[16];
@@ -154,8 +157,8 @@ static int eth_scan_one_addr(board_access_t *access) {
         eth_socket_blocking();
         LBP16_INIT_PACKET4(packet2, CMD_READ_BOARD_INFO_ADDR16_INCR(8), 0);
         memset(buff, 0, sizeof(buff));
-        send = lbp16_send_packet(&packet2, sizeof(packet2));
-        recv = lbp16_recv_packet(&buff, sizeof(buff));
+        lbp16_send_packet_checked(&packet2, sizeof(packet2));
+        lbp16_recv_packet_checked(&buff, sizeof(buff));
 
         if (strncmp(buff, "7I80DB-16", 9) == 0) {
             board->type = BOARD_ETH;
@@ -470,6 +473,7 @@ static int eth_scan_one_addr(board_access_t *access) {
 // public functions
 
 int eth_boards_init(board_access_t *access) {
+    (void)access;
 // open socket
 #ifdef __linux__
     sd = socket (PF_INET, SOCK_DGRAM, 0);
@@ -500,6 +504,7 @@ int eth_boards_init(board_access_t *access) {
 }
 
 void eth_boards_cleanup(board_access_t *access) {
+    (void)access;
     int i;
 
     for (i = 0; i < boards_count; i++) {
@@ -594,25 +599,25 @@ void eth_print_info(board_t *board) {
 
     LBP16_INIT_PACKET4(packet, CMD_READ_ETH_EEPROM_ADDR16_INCR(sizeof(eth_area)/2), 0);
     memset(&eth_area, 0, sizeof(eth_area));
-    lbp16_send_packet(&packet, sizeof(packet));
-    lbp16_recv_packet(&eth_area, sizeof(eth_area));
+    lbp16_send_packet_checked(&packet, sizeof(packet));
+    lbp16_recv_packet_checked(&eth_area, sizeof(eth_area));
 
     LBP16_INIT_PACKET4(packet, CMD_READ_COMM_CTRL_ADDR16_INCR(sizeof(stat_area)/2), 0);
     memset(&stat_area, 0, sizeof(stat_area));
-    lbp16_send_packet(&packet, sizeof(packet));
-    lbp16_recv_packet(&stat_area, sizeof(stat_area));
+    lbp16_send_packet_checked(&packet, sizeof(packet));
+    lbp16_recv_packet_checked(&stat_area, sizeof(stat_area));
 
     LBP16_INIT_PACKET4(packet, CMD_READ_BOARD_INFO_ADDR16_INCR(sizeof(info_area)/2), 0);
     memset(&info_area, 0, sizeof(info_area));
-    lbp16_send_packet(&packet, sizeof(packet));
-    lbp16_recv_packet(&info_area, sizeof(info_area));
+    lbp16_send_packet_checked(&packet, sizeof(packet));
+    lbp16_recv_packet_checked(&info_area, sizeof(info_area));
 
     if (info_area.LBP16_version >= 3) {
         LBP16_INIT_PACKET4(cmds[4], CMD_READ_AREA_INFO_ADDR16_INCR(LBP16_SPACE_TIMER, sizeof(mem_area)/2), 0);
         LBP16_INIT_PACKET4(packet, CMD_READ_TIMER_ADDR16_INCR(sizeof(timers_area)/2), 0);
         memset(&timers_area, 0, sizeof(timers_area));
-        lbp16_send_packet(&packet, sizeof(packet));
-        lbp16_recv_packet(&timers_area, sizeof(timers_area));
+        lbp16_send_packet_checked(&packet, sizeof(packet));
+        lbp16_recv_packet_checked(&timers_area, sizeof(timers_area));
     }
 
     printf("Communication:\n");
@@ -631,8 +636,8 @@ void eth_print_info(board_t *board) {
 
         if ((cmds[i].cmd_lo == 0) && (cmds[i].cmd_hi == 0)) continue;
         memset(&mem_area, 0, sizeof(mem_area));
-        lbp16_send_packet(&cmds[i], sizeof(cmds[i]));
-        lbp16_recv_packet(&mem_area, sizeof (mem_area));
+        lbp16_send_packet_checked(&cmds[i], sizeof(cmds[i]));
+        lbp16_recv_packet_checked(&mem_area, sizeof (mem_area));
 
         printf("    %d: %.*s (%s, %s", i, (int)sizeof(mem_area.name), mem_area.name, mem_types[(mem_area.size  >> 8) & 0x7F],
           mem_writeable[(mem_area.size & 0x8000) >> 15]);

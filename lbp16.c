@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include "types.h"
 #include "lbp16.h"
 #include "eth_boards.h"
@@ -26,27 +27,38 @@
 
 static lbp16_access_t lbp16_access;
 
-int lbp16_send_packet(void *packet, int size) {
-    return lbp16_access.send_packet(packet, size);
+void lbp16_send_packet_checked(void *packet, int size) {
+    int result = lbp16_access.send_packet(packet, size);
+    if (size != result) {
+        perror("lbp16_access.send_packet");
+        abort();
+    }
 }
 
 int lbp16_recv_packet(void *packet, int size) {
     return lbp16_access.recv_packet(packet, size);
 }
 
+void lbp16_recv_packet_checked(void *packet, int size) {
+    int result = lbp16_access.recv_packet(packet, size);
+    if (size != result) {
+        perror("lbp16_access.recv_packet");
+        abort();
+    }
+}
+
 int lbp16_read(u16 cmd, u32 addr, void *buffer, int size) {
     lbp16_cmd_addr packet;
-    int send, recv;
     u8 local_buff[size];
 
     LBP16_INIT_PACKET4(packet, cmd, addr);
     if (LBP16_SENDRECV_DEBUG) {
         printf("SEND: %02X %02X %02X %02X | REQUEST %d bytes\n", packet.cmd_hi, packet.cmd_lo, packet.addr_hi, packet.addr_lo, size);
     }
-    send = lbp16_access.send_packet(&packet, sizeof(packet));
-    recv = lbp16_access.recv_packet(&local_buff, sizeof(local_buff));
+    lbp16_access.send_packet(&packet, sizeof(packet));
+    lbp16_access.recv_packet(&local_buff, sizeof(local_buff));
     if (LBP16_SENDRECV_DEBUG) {
-        printf("RECV: %d bytes\n", recv);
+        printf("RECV: %zd bytes\n", sizeof(local_buff));
     }
     memcpy(buffer, local_buff, size);
 
@@ -58,7 +70,6 @@ int lbp16_write(u16 cmd, u32 addr, void *buffer, int size) {
         lbp16_cmd_addr wr_packet;
         u8 tmp_buffer[LBP16_MAX_PACKET_DATA_SIZE*8];
     } packet;
-    int send;
 
     LBP16_INIT_PACKET4(packet.wr_packet, cmd, addr);
     memcpy(&packet.tmp_buffer, buffer, size);
@@ -66,32 +77,31 @@ int lbp16_write(u16 cmd, u32 addr, void *buffer, int size) {
         printf("SEND: %02X %02X %02X %02X | WRITE %d bytes\n", packet.wr_packet.cmd_hi, packet.wr_packet.cmd_lo,
           packet.wr_packet.addr_hi, packet.wr_packet.addr_lo, size);
     }
-    send = lbp16_access.send_packet(&packet, sizeof(lbp16_cmd_addr) + size);
+    lbp16_access.send_packet(&packet, sizeof(lbp16_cmd_addr) + size);
 
     return 0;
 }
 
 int lbp16_board_reset(llio_t *self) {
-    int send;
+    (void)self;
     lbp16_cmd_addr_data16 packet;
 
     LBP16_INIT_PACKET6(packet, CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1C, 0x0001);   // reset if != 0
-    send = lbp16_send_packet(&packet, sizeof(packet));
+    lbp16_send_packet_checked(&packet, sizeof(packet));
 
     return 0;
 }
 
 int lbp16_board_reload(llio_t *self, int fallback_flag) {
     board_t *board = self->board;
-    int send;
     u32 boot_addr;
     u16 fw_ver;
     lbp16_cmd_addr_data16 packet[14];
     lbp16_cmd_addr fw_packet;
 
     LBP16_INIT_PACKET4(fw_packet, CMD_READ_BOARD_INFO_ADDR16(1), offsetof(lbp_info_area, firmware_version));
-    lbp16_send_packet(&fw_packet, sizeof(fw_packet));
-    lbp16_recv_packet(&fw_ver, sizeof(fw_ver));
+    lbp16_send_packet_checked(&fw_packet, sizeof(fw_packet));
+    lbp16_recv_packet_checked(&fw_ver, sizeof(fw_ver));
 
     if ((board->type & BOARD_ETH) && (fw_ver < 15)) {
         printf("ERROR: FPGA reload only supported by ethernet card firmware > 14.\n");
@@ -122,7 +132,7 @@ int lbp16_board_reload(llio_t *self, int fallback_flag) {
     LBP16_INIT_PACKET6(packet[11], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x2000);  // NOP
     LBP16_INIT_PACKET6(packet[12], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x2000);  // NOP
     LBP16_INIT_PACKET6(packet[13], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x2000);  // NOP
-    send = lbp16_send_packet(&packet, sizeof(packet));
+    lbp16_send_packet_checked(&packet, sizeof(packet));
 
     return 0;
 }
@@ -143,4 +153,5 @@ void lbp16_init(int board_type) {
 }
 
 void lbp_cleanup(int board_type) {
+    (void)board_type;
 }
