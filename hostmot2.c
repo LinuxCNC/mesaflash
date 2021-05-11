@@ -210,11 +210,6 @@ static struct {
 } bob_names[] = {
     { BOB_7I76, "7I76" },
     { BOB_7I77, "7I77" },
-    { BOB_7I78, "7I78" },
-    { BOB_7I85, "7I85" },
-    { BOB_7I85, "7I85S"},
-    { BOB_7I88, "7I88"},
-    { BOB_7I89, "7I89"},
     { BOB_7I94_0, "7I94_0" },
     { BOB_7I94_1, "7I94_1" },
     { BOB_7I95_0, "7I95_0" },
@@ -230,7 +225,7 @@ static struct {
     { BOB_7C81_0, "7C81_0" },
     { BOB_7C81_1, "7C81_1" },
     { BOB_7C81_2, "7C81_2" },
-    { BOB_7I78, "7I74" },
+    { BOB_7I74, "7I74" },
     { BOB_7I78, "7I78" },
     { BOB_7I85, "7I85" },
     { BOB_7I85, "7I85S"},
@@ -238,6 +233,9 @@ static struct {
     { BOB_7I89, "7I89"},
     { BOB_DMM4250, "DMM4250"},
     { BOB_5ABOB, "5ABOB"},
+    { BOB_G540, "G540"},
+    { BOB_C11, "C11"},
+    { BOB_C11G, "C11G"},
     { -1, NULL },
 };
 
