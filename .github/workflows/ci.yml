@@ -25,4 +25,11 @@ jobs:
     - name: Build
       run: |
         make -j$(nproc)
+    - name: Clean
+      run: |
+        make clean
+    - name: Build (package)
+      run: |
+        dch -l+`git rev-parse --short HEAD` "actions package build"
+        debuild -b
 
