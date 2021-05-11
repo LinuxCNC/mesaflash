@@ -32,7 +32,7 @@ struct opd_mode_1_7i77_struct {
     unsigned int analogena : 1;
     unsigned int spinena   : 1;
     unsigned int ignore1   : 16;
-} __attribute__ ((__packed__));
+} __attribute__ ((__packed__, aligned(4)));
 
 typedef struct opd_mode_1_7i77_struct opd_mode_1_7i77_t;
 
