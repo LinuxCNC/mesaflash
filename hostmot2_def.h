@@ -307,6 +307,13 @@ typedef struct {
 # define BOB_G540 26
 # define BOB_C11 27
 # define BOB_C11G 28
+# define BOB_7I33TA 29
+# define BOB_7I37TA 30
+# define BOB_7I44 31
+# define BOB_7I47 32
+# define BOB_7I47S 33
+# define BOB_7I48 34
+# define BOB_7I52 35
 
 
 

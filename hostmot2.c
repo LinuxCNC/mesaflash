@@ -200,7 +200,29 @@ static bob_pin_name_t bob_pin_names[MAX_BOB_NAMES] = {
     "Charge-Pump","Out-5","Out-6","Out-7","Out-8","Out-9","Input-P10","Input-P11","Input-P12","Input-P13"}},
 
    {BOB_C11G, {"Relay-3","Spindle-PWM","Out-2","Input-P15","Out-3","Spindle-Dir","Out-4",
-    "Charge-Pump,Relay-3","Out-5","Out-6","Out-7","Out-8","Out-9","Input-P10","Input-P11","Input-P12","Input-P13"}}
+    "Charge-Pump,Relay-3","Out-5","Out-6","Out-7","Out-8","Out-9","Input-P10","Input-P11","Input-P12","Input-P13"}},
+
+   {BOB_7I33TA, {"TB2-4,5","TB2-1,2","TB1-4,5","TB1-1,2","TB2-7,8","TB1-7,8","TB2-10:PWM","TB1-10:PWM","TB2-10:Dir","TB1-10:Dir","TB2-12:Ena","TB1-12:Ena",
+    "TB2-16,17","TB2-13,14","TB1-16,17","TB1-13,14","TB2-19,20","TB1-19,20","TB2-22:PWM","TB1-22:PWM","TB2-22:Dir","TB1-22:Dir","TB2-24:Ena","TB1-24:Ena"}},
+
+   {BOB_7I37TA, {"TB1-1,2","TB2-1,2","TB1-3,4","TB2-3,4","TB1-5,6","TB2-5,6","TB1-7,8","TB2-7,8","TB1-9,10","TB2-9,10","TB1-11,12","TB2-11,12",
+     "TB1-13,14","TB2-13,14","TB1-15,16","TB2-15,16","TB1-17,18","TB2-17,18","TB1-19,20","TB2-19,20","TB1-21,22","TB2-21,22","TB1-23,24","TB2-23,24"}},
+
+   {BOB_7I44, {"CHAN0-RX","CHAN1-RX","CHAN2-RX","CHAN3-RX","CHAN0-TX","CHAN0-TXEn","CHAN1-TX","CHAN1-TXEn","CHAN2-TX","CHAN2-TXEn","CHAN3-TX","CHAN3-TXEn",
+    "CHAN4-RX","CHAN5-RX","CHAN6-RX","CHAN7-RX","CHAN4-TX","CHAN4-TXEn","CHAN5-TX","CHAN5-TXEn","CHAN6-TX","CHAN6-TXEn","CHAN7-TX","CHAN7-TXEn"}},
+
+   {BOB_7I47, {"P2-1,2","P2-4,5","P2-7,8","P2-10,11","P4-1,2","P3-1,2","P4-4,5","P3-4,5","P4-7,8","P3-7,8","P4-9,10","P3-9,10",
+    "P4-12,13","P3-12,13","P4-15,16","P3-15,16","P2-13,14","P2-16,17","P2-19,20","P2-22,23","P4-19,20","P4-22,23","P3-19,20","P3-22,23"}},
+
+   {BOB_7I47S, {"P2-1,2","P2-4,5","P2-7,8","P2-10,11","P4-1,2","P3-1,2","P4-4,5","P3-4,5","P4-7,8","P3-7,8","P4-9,10","P3-9,10",
+    "P4-12,13","P3-12,13","P4-15,16","P3-15,16","P2-15,16:Aux","P2-17,18:Dir","P2-19,20:/Ena","P2-23:PWM","P4-19,20","P4-22,23","P3-19,20","P3-22,23"}},
+
+   {BOB_7I48, {"/Ena0","P4-1,2,9,10","P4-4,5,12,13","P4-7,8,15,16","P3-1,2,9,10","P3-4,5,12,13","P3-7,8,15,16","P2-1,2,9,10","P2-4,5,12,13","P2-7,8,15,16",
+    "Internal-EncMux","P4-20:PWM-Up","P4-20:PWM-Dwn","P4-24:PWM-Up","P4-24:PWM-Dwn","P3-20:PWM-Up","P3-20:PWM-Dwn","P3-24:PWM-Up","P3-24:PWM-Dwn",
+    "P2-20:PWM-Up","P2-20:PWM-Dwn","P2-24:PWM-Up","P2-24:PWM-Dwn","/Ena1"}},
+
+   {BOB_7I52, {"P2-5,6:/Ena","P5-1,2,9,10","P5-4,5,12,13","P5-7,8,15,16","P5-17,18,P4-1,2","P5-20,21,P4-4,5","P5-23,24,P4-7,8","P3-9,10,17,18","P3-12,13,20,21",
+    "P3-15,16,23,24","Internal-EncMux","P2-21,22","P2-19,20","P2-13,14","P2-11,12","P2-5,6","P2-3,4","P3-21,22","P3-19,20","P3-13,14","P3-11,12","P3-5,6","P3-3,4","P3-5,6:/Ena"}}
 
 };
 
@@ -236,6 +258,14 @@ static struct {
     { BOB_G540, "G540"},
     { BOB_C11, "C11"},
     { BOB_C11G, "C11G"},
+    { BOB_7I33TA, "7I33TA"},
+    { BOB_7I37TA, "7I37TA"},
+    { BOB_7I47, "7I44"},
+    { BOB_7I47, "7I47"},
+    { BOB_7I47S, "7I47S"},
+    { BOB_7I48, "7I48"},
+    { BOB_7I52, "7I52"},
+    { BOB_7I52, "7I52S"},
     { -1, NULL },
 };
 
