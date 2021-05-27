@@ -51,6 +51,7 @@ char *eeprom_get_flash_type(u8 flash_id) {
         case ID_EEPROM_4M:  return "4Mb";
         case ID_EEPROM_8M:  return "8Mb";
         case ID_EEPROM_16M: return "16Mb";
+        case ID_EEPROM_32M: return "32Mb";
         default:            return "unknown";
     }
 }
@@ -62,6 +63,7 @@ static u32 eeprom_get_flash_size(u8 flash_id) {
         case ID_EEPROM_4M:  return 0x400000 / 8;
         case ID_EEPROM_8M:  return 0x800000 / 8;
         case ID_EEPROM_16M: return 0x1000000 / 8;
+        case ID_EEPROM_32M: return 0x2000000 / 8;
     }
     return 0;
 }
@@ -74,6 +76,7 @@ void eeprom_prepare_boot_block(u8 flash_id) {
         case ID_EEPROM_4M:  boot_block[25] = 0x04; break;
         case ID_EEPROM_8M:  boot_block[25] = 0x08; break;
         case ID_EEPROM_16M: boot_block[25] = 0x10; break;
+        case ID_EEPROM_32M: boot_block[25] = 0x20; break;
     }
 }
 
@@ -84,6 +87,7 @@ u32 eeprom_calc_user_space(u8 flash_id) {
         case ID_EEPROM_4M:  return 0x40000; break;
         case ID_EEPROM_8M:  return 0x80000; break;
         case ID_EEPROM_16M: return 0x100000; break;
+        case ID_EEPROM_32M: return 0x200000; break;
         default: return 0x80000; break;
     }
 }
