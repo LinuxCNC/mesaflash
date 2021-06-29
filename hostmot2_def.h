@@ -59,6 +59,8 @@
 #define HM2_GTAG_BISS              0x18
 #define HM2_GTAG_FABS              0x19
 #define HM2_GTAG_HM2DPLL           0x1A
+#define HM2_GTAG_PKTUART_TX        0x1B
+#define HM2_GTAG_PKTUART_RX        0x1C
 #define HM2_GTAG_INMUX             0x1E
 #define HM2_GTAG_SIGMA5            0x1F
 #define HM2_GTAG_INM               0x23
@@ -299,21 +301,21 @@ typedef struct {
 # define BOB_7I74 18
 # define BOB_7I78 19
 # define BOB_7I85 20
-# define BOB_7I85S 21
-# define BOB_7I88 22
-# define BOB_7I89 23
-# define BOB_DMM4250 24
-# define BOB_5ABOB 25
-# define BOB_G540 26
-# define BOB_C11 27
-# define BOB_C11G 28
-# define BOB_7I33TA 29
-# define BOB_7I37TA 30
-# define BOB_7I44 31
-# define BOB_7I47 32
-# define BOB_7I47S 33
-# define BOB_7I48 34
-# define BOB_7I52 35
+# define BOB_7I85S 20
+# define BOB_7I88 21
+# define BOB_7I89 22
+# define BOB_DMM4250 23
+# define BOB_5ABOB 24
+# define BOB_G540 25
+# define BOB_C11 26
+# define BOB_C11G 27
+# define BOB_7I33TA 28
+# define BOB_7I37TA 29
+# define BOB_7I44 30
+# define BOB_7I47 31
+# define BOB_7I47S 32
+# define BOB_7I48 33
+# define BOB_7I52 34
 
 
 
