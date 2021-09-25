@@ -1,4 +1,3 @@
 version=3
-opts=\
-uversionmangle=s/-pre/~pre/,\
-filenamemangle=s/.+\/v?(\d\S*)\.tar\.gz/mesaflash-$1\.tar\.gz/ https://github.com/LinuxCNC/mesaflash/tags .*/v?(\d\S*)\.tar\.gz
+opts=uversionmangle=s/-pre/~pre/,filenamemangle=s/.+\/v?(\d\S*)\.tar\.gz/mesaflash-$1\.tar\.gz/ \
+     https://github.com/LinuxCNC/mesaflash/tags .*/v?(\d\S*)\.tar\.gz
