@@ -5,7 +5,7 @@ Source: https://github.com/micges/mesaflash
 
 Files: *
 Copyright: 2013-2014 Michael Geszkiewicz
-License: GPL-2+
+License: GPL-2.0+
 
 Files: debian/*
 Copyright: #YEAR# #USERNAME# <#EMAIL#>
