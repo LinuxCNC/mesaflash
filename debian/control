@@ -1,5 +1,6 @@
 Source: mesaflash
 Maintainer: LinuxCNC Developers <emc-developers@lists.sourceforge.net>
+Uploaders: Sebastian Kuzminsky <seb@highlab.com>, Jeff Epler <jepler@gmail.com>
 Section: misc
 Priority: optional
 Standards-Version: 4.6.0
