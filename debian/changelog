@@ -1,8 +1,13 @@
-mesaflash (3.4.0~pre1-2) UNRELEASED; urgency=medium
+mesaflash (3.4.0-1) stable; urgency=medium
 
   * Cosmetics in preparation of upload to Debian.
+  * Several bug fixes.
+  * Fixes for PCI on Raspberry Pi Compute Module 4.
+  * Better daughter-board reporting.
+  * No longer support building on Windows.
+  * Better IO error detection and handling.
 
- -- LinuxCNC Developers <emc-developers@lists.sourceforge.net>  Sat, 25 Sep 2021 18:27:58 +0200
+ -- LinuxCNC Developers <emc-developers@lists.sourceforge.net>  Mon, 27 Sep 2021 16:36:14 -0600
 
 mesaflash (3.4.0~pre1-1) stable; urgency=medium
 
