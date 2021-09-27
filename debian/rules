@@ -12,7 +12,3 @@ get-orig-source: $(DEB_SOURCE)_$(DEB_VERSION_UPSTREAM).orig.tar.xz
 
 $(DEB_SOURCE)_$(DEB_VERSION_UPSTREAM).orig.tar.xz:
 	git archive HEAD | xz --compress > $@
-
-override_dh_clean:
-	rm -rf winio32 WinIo32.* libpci.dll libpci
-	dh_clean
