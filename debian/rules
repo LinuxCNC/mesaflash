@@ -11,4 +11,4 @@ override_dh_auto_install:
 get-orig-source: $(DEB_SOURCE)_$(DEB_VERSION_UPSTREAM).orig.tar.xz
 
 $(DEB_SOURCE)_$(DEB_VERSION_UPSTREAM).orig.tar.xz:
-	git archive HEAD | xz --compress > $@
+	git archive --prefix="mesaflash/" HEAD | xz --compress > $@
