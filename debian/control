@@ -3,8 +3,8 @@ Maintainer: LinuxCNC Developers <emc-developers@lists.sourceforge.net>
 Uploaders: Sebastian Kuzminsky <seb@highlab.com>, Jeff Epler <jepler@gmail.com>
 Section: misc
 Priority: optional
-Standards-Version: 4.6.0
-Build-Depends: debhelper (>= 10),
+Standards-Version: 3.9.4
+Build-Depends: debhelper (>= 9),
                libpci-dev,
                pkg-config
 Vcs-Browser: https://github.com/linuxcnc/mesaflash
