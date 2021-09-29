@@ -1,0 +1,4 @@
+---
+Registry:
+ - Name: fedora
+   Entry: mesaflash
