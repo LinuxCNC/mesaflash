@@ -1,0 +1,58 @@
+Debian packaging of LinuxCNC/Mesaflash
+======================================
+
+The following steps were performed to transform Upstream's git repository
+into a source tarball and a debian subdirectory that shines for the main
+distribution. The major obstacle is that Mesaflash is used across a wide
+span of distributions, from Wheezy  (Jessie anyon?) up to the latest
+Ubuntu releases. Not too many changes are required for Debian unstable,
+the most prominent one likely is that there is already a debiah directory
+in the source tree.
+
+Steps
+-----
+
+1. Generate the source tarball
+
+   debian/rules get-orig-source
+
+2. Prepare shell to work in temp directory
+
+   export WORKDIR=$(mktemp -d)
+   mv mesaflash_*.orig.tar.xz ${WORKDIR}/
+   bash
+   cd $WORKDIR
+
+2. Unpack
+
+   tar xJvf mesaflash_*.orig.tar.xz
+
+3. Slightly adapt for unstable
+
+   bash
+   cd $WORKDIR/mesaflash
+   rm debian/compat
+   sed -i 's/debhelper .*,/debhelper-compat (= 13),/' debian/control
+   sed -i '/^Standards-Version: /s/ [0-9.]*/ 4.6.0/' debian/control
+   sed -i '1s/ stable;/ unstable;/' debian/changelog
+
+4. build Debian package
+
+   dpkg-buildpackage
+
+5. get all the files just created
+
+   exit
+   mv ${WORKDIR}/mesaflash_* ..
+
+
+Above sketched differences are not impeding routine workflows of Debian
+packaging. For instance we found that the rool routine-update (from the
+Debian Science team) deals with these adaptations just fine.
+
+
+How to contribute
+-----------------
+
+LinuxCNC does not have a representation on salsa.debian.org. 
+Please join us on https://github.com/LinuxCNC/mesaflash/ .
