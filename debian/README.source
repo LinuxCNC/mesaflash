@@ -30,7 +30,8 @@ Steps
    bash
    cd $WORKDIR/mesaflash
    rm debian/compat
-   sed -i 's/debhelper .*,/debhelper-compat (= 13)/' debian/control 
+   sed -i 's/debhelper .*,/debhelper-compat (= 13),/' debian/control
+   sed -i '/^Standards-Version: /s/ [0-9.]*/ 4.6.0/' debian/control
    sed -i '1s/ stable;/ unstable;/' debian/changelog
 
 4. build Debian package
