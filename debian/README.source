@@ -2,12 +2,11 @@ Debian packaging of LinuxCNC/Mesaflash
 ======================================
 
 The following steps were performed to transform Upstream's git repository
-into a source tarball and a debian subdirectory that shines for the main
-distribution. The major obstacle is that Mesaflash is used across a wide
-span of distributions, from Wheezy  (Jessie anyon?) up to the latest
-Ubuntu releases. Not too many changes are required for Debian unstable,
-the most prominent one likely is that there is already a debiah directory
-in the source tree.
+into a source tarball and to provide a debian subdirectory that shines
+for the main distribution. The major obstacle is that Mesaflash is
+already used across a wide span of distributions, from Wheezy  (Jessie
+anyone?) up to the latest Ubuntu releases. Not too many changes are
+required for Debian unstable.
 
 Steps
 -----
@@ -47,7 +46,7 @@ Steps
 
 
 Above sketched differences are not impeding routine workflows of Debian
-packaging. For instance we found that the rool routine-update (from the
+packaging. For instance we found that the routine-update script (from the
 Debian Science team) deals with these adaptations just fine.
 
 
