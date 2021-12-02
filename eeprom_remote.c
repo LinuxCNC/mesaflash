@@ -99,6 +99,10 @@ int remote_backup_flash(llio_t *self, char *bitfile_name) {
     return flash_backup(self, bitfile_name);
 }
 
+int remote_restore_flash(llio_t *self, char *bitfile_name) {
+    return flash_restore(self, bitfile_name);
+}
+
 void open_spi_access_remote(llio_t *self) {
     (void)self;
     eeprom_access.read_page = &read_page;

@@ -32,6 +32,7 @@ board_t *anyio_get_dev(board_access_t *access, int board_number);
 int anyio_dev_write_flash(board_t *board, char *bitfile_name, int fallback_flag, int fix_boot_flag);
 int anyio_dev_verify_flash(board_t *board, char *bitfile_name, int fallback_flag);
 int anyio_dev_backup_flash(board_t *board, char *bitfile_name);
+int anyio_dev_restore_flash(board_t *board, char *bitfile_name);
 int anyio_dev_program_fpga(board_t *board, char *bitfile_name);
 int anyio_dev_set_remote_ip(board_t *board, char *lbp16_set_ip_addr);
 int anyio_dev_reload(board_t *board, int fallback_flag);

@@ -58,6 +58,8 @@ int start_programming(llio_t *self, u32 start_address, int fsize);
 int eeprom_write(llio_t *self, char *bitfile_name, u32 start_address, int fix_boot_flag);
 int eeprom_verify(llio_t *self, char *bitfile_name, u32 start_address);
 int flash_backup(llio_t *self, char *bitfile_name);
+int flash_erase(llio_t *self);
+int flash_restore(llio_t *self, char *bitfile_name);
 void eeprom_init(llio_t *self);
 void eeprom_cleanup(llio_t *self);
 

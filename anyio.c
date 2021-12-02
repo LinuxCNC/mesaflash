@@ -284,6 +284,21 @@ int anyio_dev_backup_flash(board_t *board, char *bitfile_name) {
     return ret;
 }
 
+int anyio_dev_restore_flash(board_t *board, char *bitfile_name) {
+    int ret;
+
+    if (board == NULL) {
+        return -EINVAL;
+    }
+    if (board->llio.restore_flash != NULL) {
+        ret = board->llio.restore_flash(&(board->llio), bitfile_name);
+    } else {
+        printf("ERROR: Board %s doesn't support restore flash.\n", board->llio.board_name);
+        return -EINVAL;
+    }
+    return ret;
+}
+
 int anyio_dev_program_fpga(board_t *board, char *bitfile_name) {
     int ret;
 
