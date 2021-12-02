@@ -56,11 +56,18 @@ ifeq ($(TARGET),linux)
         $(error "pkg-config can't find libpci")
     endif
 
+    $(shell pkg-config --exists libcrypto > /dev/null)
+    ifeq ($(.SHELLSTATUS), 1)
+        $(error "pkg-config can't find libcrypto")
+    endif
+
     LIBPCI_CFLAGS := $(shell pkg-config --cflags libpci)
     LIBPCI_LDFLAGS := $(shell pkg-config --libs libpci)
+    LIBCRYPTO_CFLAGS := $(shell pkg-config --cflags libcrypto)
+    LIBCRYPTO_LDFLAGS := $(shell pkg-config --libs libcrypto)
     BIN = mesaflash
-    LDFLAGS = -lm $(LIBPCI_LDFLAGS)
-    CFLAGS += -D_GNU_SOURCE $(LIBPCI_CFLAGS) -D_FILE_OFFSET_BITS=64
+    LDFLAGS = -lm $(LIBPCI_LDFLAGS) $(LIBCRYPTO_LDFLAGS)
+    CFLAGS += -D_GNU_SOURCE $(LIBPCI_CFLAGS) $(LIBCRYPTO_CFLAGS) -D_FILE_OFFSET_BITS=64
 
     UNAME_M := $(shell uname -m)
     ifeq ($(UNAME_M),aarch64)

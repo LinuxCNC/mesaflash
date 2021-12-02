@@ -21,6 +21,9 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <time.h>
+#include <strings.h>
+#include <openssl/md5.h>
 #include "types.h"
 #include "eeprom.h"
 #include "eeprom_local.h"
@@ -309,6 +312,95 @@ int eeprom_verify(llio_t *self, char *bitfile_name, u32 start_address) {
          (double) (tv2.tv_sec - tv1.tv_sec));
     }
     printf("Board configuration verified successfully.\n");
+    return 0;
+}
+
+int flash_backup(llio_t *self, char *bitfile_name) {
+    board_t *board = self->board;
+    uint i, page_num;
+    u32 eeprom_addr, eeprom_pages;
+    //char part_name[32];
+    //struct stat file_stat;
+    FILE *fp;
+    struct timeval tv1, tv2;
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+    char tmp_name[50];
+    MD5_CTX md5ctx;
+    unsigned char md5out[16];
+    char md5str[33];
+    char md5file_name[255];
+
+    if (eeprom_get_flash_size(board->flash_id) == 0) {
+        printf("Unknown type FLASH memory on the %s board\n", board->llio.board_name);
+        return -1;
+    }
+
+    printf("Creating backup %s FLASH memory on the %s board\n", eeprom_get_flash_type(board->flash_id), board->llio.board_name);
+
+    if (strcasecmp(bitfile_name,"auto") == 0) {
+        strcpy(bitfile_name, board->llio.board_name);
+        strftime(tmp_name, sizeof(tmp_name)-1, "_flash_backup_%d%m%y_%H%M%S.bin", t);
+        strcat(bitfile_name, tmp_name);
+        printf("Used auto naming backup file: '%s'\n", bitfile_name);
+    }
+
+    fp = fopen(bitfile_name, "wb");
+    if (fp == NULL) {
+        printf("Can't open file %s: %s\n", bitfile_name, strerror(errno));
+        return -1;
+    }
+
+    printf("Starting from 0x0...\n");
+    printf("  |");
+    fflush(stdout);
+    gettimeofday(&tv1, NULL);
+    eeprom_addr = 0;
+    eeprom_pages = eeprom_get_flash_size(board->flash_id) / PAGE_SIZE;
+    page_num = 0;
+
+    MD5_Init(&md5ctx);
+
+    for (i = 0; i < eeprom_pages; i++) {
+        eeprom_access.read_page(self, eeprom_addr, &page_buffer);
+
+        fwrite(&page_buffer, 1, PAGE_SIZE, fp);
+        MD5_Update(&md5ctx, &page_buffer, PAGE_SIZE);
+
+        eeprom_addr += PAGE_SIZE;
+        page_num++;
+        if(page_num == 32){
+            page_num = 0;
+            printf("B");
+            fflush(stdout);
+        }
+    }
+
+    fclose(fp);
+
+    MD5_Final(md5out, &md5ctx);
+    for (i = 0; i < 16; i++) {
+        sprintf(md5str + i * 2, i < 15 ? "%02x" : "%02x%c", md5out[i],'\0');
+    }
+    printf("\n");
+    if (board->llio.verbose == 1) {
+        gettimeofday(&tv2, NULL);
+        printf("  Backup time: %.2f seconds\n", (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +
+         (double) (tv2.tv_sec - tv1.tv_sec));
+    }
+    printf("FLASH memory backup file '%s' created successfully.\n", bitfile_name);
+
+    strcpy(md5file_name, bitfile_name);
+    strcat(md5file_name, ".md5");
+    fp = fopen(md5file_name, "wb");
+    if (fp == NULL) {
+        printf("Can't open file '%s': %s\n", md5file_name, strerror(errno));
+        return -1;
+    }
+    fprintf(fp, "%s *%s", md5str, bitfile_name);
+    fclose(fp);
+    printf("Checksum file '%s' created successfully.\n", md5file_name);
+    printf("md5: '%s'\n", md5str);
     return 0;
 }
 

@@ -95,6 +95,10 @@ int remote_verify_flash(llio_t *self, char *bitfile_name, u32 start_address) {
     return eeprom_verify(self, bitfile_name, start_address);
 }
 
+int remote_backup_flash(llio_t *self, char *bitfile_name) {
+    return flash_backup(self, bitfile_name);
+}
+
 void open_spi_access_remote(llio_t *self) {
     (void)self;
     eeprom_access.read_page = &read_page;
