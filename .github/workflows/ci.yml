@@ -45,7 +45,7 @@ jobs:
       uses: dawidd6/action-debian-package@v1
       with:
         source_directory: .
-        artifacts_directory: output
+        artifacts_directory: output/${{matrix.os}}/${{matrix.cpu}}
         os_distribution: ${{ matrix.os }}
         cpu_architecture: ${{ matrix.cpu }}
     - name: Upload artifact
