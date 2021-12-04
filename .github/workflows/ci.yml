@@ -33,3 +33,22 @@ jobs:
         dch -l+`git rev-parse --short HEAD` "actions package build"
         debuild -b
 
+  test-package:
+    strategy:
+      matrix:
+        os: ["buster", "bullseye"]
+        cpu: ["i386", "amd64", "armhf", "aarch64"]
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build Debian package
+      uses: dawidd6/action-debian-package@v1
+      with:
+        source_directory: .
+        artifacts_directory: output
+        os_distribution: ${{ matrix.os }}
+        cpu_architecture: ${{ matrix.cpu }}
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        path: output
