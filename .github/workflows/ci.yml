@@ -52,6 +52,7 @@ jobs:
         OS_RELEASE: ${{ matrix.os }}
       run: |
         git checkout HEAD -- debian/changelog
+        git fetch --tags https://github.com/LinuxCNC/mesaflash
         ref=`git describe --tags --always | sed -e 's/^release\///;s/^v//;s/-/+/g'`
         DEBEMAIL=noreply@github.com dch -v "${ref}+${OS_RELEASE}-1" "Build from github actions"
         head debian/changelog
