@@ -33,3 +33,36 @@ jobs:
         dch -l+`git rev-parse --short HEAD` "actions package build"
         debuild -b
 
+  test-package:
+    strategy:
+      matrix:
+        os: ["buster", "bullseye"]
+        cpu: ["i386", "amd64", "armhf", "aarch64"]
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Install deps
+      run: |
+        sudo apt-get update
+        sudo apt install -y --no-install-suggests --no-install-recommends devscripts
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Update debian changelog
+      env:
+        OS_RELEASE: ${{ matrix.os }}
+      run: |
+        git checkout HEAD -- debian/changelog
+        ref=`git describe --tags --always | sed -e 's/^release\///;s/^v//;s/-/+/g'`
+        DEBEMAIL=noreply@github.com dch -v "${ref}+${OS_RELEASE}-1" "Build from github actions"
+        head debian/changelog
+    - name: Build Debian package
+      uses: dawidd6/action-debian-package@v1
+      with:
+        source_directory: .
+        artifacts_directory: output
+        os_distribution: ${{ matrix.os }}
+        cpu_architecture: ${{ matrix.cpu }}
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        path: output
