@@ -66,6 +66,11 @@ ifeq ($(TARGET),linux)
     ifeq ($(UNAME_M),aarch64)
         MESAFLASH_IO ?= 0
     endif
+    ifeq ($(UNAME_M),armv7l)
+	ifeq ($(wildcard /usr/include/arm-linux-gnueabihf/asm/io.h),)
+        MESAFLASH_IO ?= 0
+	endif
+    endif
 endif
 
 ifeq ($(TARGET),windows)
