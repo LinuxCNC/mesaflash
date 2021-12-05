@@ -23,7 +23,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <strings.h>
-#include <openssl/md5.h>
+#include <openssl/sha.h>
 #include "types.h"
 #include "eeprom.h"
 #include "eeprom_local.h"
@@ -336,10 +336,10 @@ int flash_backup(llio_t *self, char *bitfile_name) {
     time_t now = time(NULL);
     struct tm *t = localtime(&now);
     char tmp_name[50];
-    MD5_CTX md5ctx;
-    unsigned char md5out[16];
-    char md5str[33];
-    char md5file_name[255];
+    SHA256_CTX sha256ctx;
+    unsigned char sha256out[32];
+    char sha256str[65];
+    char sha256file_name[255];
 
     if (eeprom_get_flash_size(board->flash_id) == 0) {
         printf("Unknown size FLASH memory on the %s board\n", board->llio.board_name);
@@ -369,13 +369,13 @@ int flash_backup(llio_t *self, char *bitfile_name) {
     eeprom_pages = eeprom_get_flash_size(board->flash_id) / PAGE_SIZE;
     page_num = 0;
 
-    MD5_Init(&md5ctx);
+    SHA256_Init(&sha256ctx);
 
     for (i = 0; i < eeprom_pages; i++) {
         eeprom_access.read_page(self, eeprom_addr, &page_buffer);
 
         fwrite(&page_buffer, 1, PAGE_SIZE, fp);
-        MD5_Update(&md5ctx, &page_buffer, PAGE_SIZE);
+        SHA256_Update(&sha256ctx, &page_buffer, PAGE_SIZE);
 
         eeprom_addr += PAGE_SIZE;
         page_num++;
@@ -388,9 +388,9 @@ int flash_backup(llio_t *self, char *bitfile_name) {
 
     fclose(fp);
 
-    MD5_Final(md5out, &md5ctx);
-    for (i = 0; i < 16; i++) {
-        sprintf(md5str + i * 2, i < 15 ? "%02x" : "%02x%c", md5out[i],'\0');
+    SHA256_Final(sha256out, &sha256ctx);
+    for (i = 0; i < 32; i++) {
+        sprintf(sha256str + i * 2, "%02x", sha256out[i]);
     }
     printf("\n");
     if (board->llio.verbose == 1) {
@@ -400,17 +400,17 @@ int flash_backup(llio_t *self, char *bitfile_name) {
     }
     printf("FLASH memory backup file '%s' created successfully.\n", bitfile_name);
 
-    strcpy(md5file_name, bitfile_name);
-    strcat(md5file_name, ".md5");
-    fp = fopen(md5file_name, "wb");
+    strcpy(sha256file_name, bitfile_name);
+    strcat(sha256file_name, ".sha256");
+    fp = fopen(sha256file_name, "wb");
     if (fp == NULL) {
-        printf("Can't open file '%s': %s\n", md5file_name, strerror(errno));
+        printf("Can't open file '%s': %s\n", sha256file_name, strerror(errno));
         return -1;
     }
-    fprintf(fp, "%s *%s", md5str, bitfile_name);
+    fprintf(fp, "%s %8d %s", sha256str, eeprom_get_flash_size(board->flash_id), bitfile_name);
     fclose(fp);
-    printf("Checksum file '%s' created successfully,\n", md5file_name);
-    printf("md5: '%s'\n", md5str);
+    printf("Checksum file '%s' created successfully,\n", sha256file_name);
+    printf("sha256: '%s'\n", sha256str);
     return 0;
 }
 
@@ -449,14 +449,14 @@ int flash_restore(llio_t *self, char *bitfile_name) {
     struct stat file_stat;
     FILE *fp;
     struct timeval tv1, tv2;
-    char md5str[33];
-    char md5file_name[255];
-    unsigned char md5in[16];
-    unsigned char md5bitfile[16];
-    MD5_CTX md5ctx;
+    char sha256str[65];
+    char sha256file_name[255];
+    unsigned char sha256in[32];
+    unsigned char sha256bitfile[32];
+    SHA256_CTX sha256ctx;
 
-    strcpy(md5file_name, bitfile_name);
-    strcat(md5file_name, ".md5");
+    strcpy(sha256file_name, bitfile_name);
+    strcat(sha256file_name, ".sha256");
 
     if (eeprom_get_flash_size(board->flash_id) == 0) {
         printf("Unknown size FLASH memory on the %s board\n", board->llio.board_name);
@@ -465,12 +465,12 @@ int flash_restore(llio_t *self, char *bitfile_name) {
 
     printf("\nRestoring backup %s FLASH memory on the %s board:\n", eeprom_get_flash_type(board->flash_id), board->llio.board_name);
 
-    if (stat(md5file_name, &file_stat) != 0) {
+    if (stat(sha256file_name, &file_stat) != 0) {
         printf("Can't find checksum file '%s'\n", bitfile_name);
         return -1;
     }
 
-    if (file_stat.st_size < 32) {
+    if (file_stat.st_size < 64) {
         printf("Checksum file size too small\n");
         return -1;
     }
@@ -492,24 +492,24 @@ int flash_restore(llio_t *self, char *bitfile_name) {
         return -1;
     }
 
-    fp = fopen(md5file_name, "rb");
+    fp = fopen(sha256file_name, "rb");
     if (fp == NULL) {
-        printf("Can't open checksum file '%s': %s\n", md5file_name, strerror(errno));
+        printf("Can't open checksum file '%s': %s\n", sha256file_name, strerror(errno));
         return -1;
     }
-    fread(&md5str, 1, 32, fp);
+    fread(&sha256str, 1, 64, fp);
     fclose(fp);
 
-    printf("Read checksum string from file '%s' ", md5file_name);
-    for (i = 0, j = 0; i < 32; i+=2, j++) {
-         if (sscanf(&md5str[i], "%2hhx", &md5in[j]) != 1) {
-             printf("Error: not correct md5 string");
+    printf("Read checksum string from file '%s' ", sha256file_name);
+    for (i = 0, j = 0; i < 64; i+=2, j++) {
+         if (sscanf(&sha256str[i], "%2hhx", &sha256in[j]) != 1) {
+             printf("Error: not correct sha256 string");
              return -1;
          }
     }
 
-    printf("OK,\nmd5: '");
-    for (i = 0; i < 16; i++) printf("%02x", md5in[i]);
+    printf("OK,\nsha256: '");
+    for (i = 0; i < 32; i++) printf("%02x", sha256in[i]);
     printf("'\n");
 
     fp = fopen(bitfile_name, "rb");
@@ -518,21 +518,21 @@ int flash_restore(llio_t *self, char *bitfile_name) {
         return -1;
     }
 
-    MD5_Init(&md5ctx);
+    SHA256_Init(&sha256ctx);
     while (!feof(fp)) {
         bytesread = fread(&file_buffer, 1, 8192, fp);
-        MD5_Update(&md5ctx, &file_buffer, (unsigned long)bytesread);
+        SHA256_Update(&sha256ctx, &file_buffer, (unsigned long)bytesread);
     }
-    MD5_Final(md5bitfile, &md5ctx);
+    SHA256_Final(sha256bitfile, &sha256ctx);
 
     printf("Calculate checksum for backup file '%s' ", bitfile_name);
-    printf("OK,\nmd5: '");
-    for (i = 0; i < 16; i++) printf("%02x", md5bitfile[i]);
+    printf("OK,\nsha256: '");
+    for (i = 0; i < 32; i++) printf("%02x", sha256bitfile[i]);
     printf("'\n");
 
     printf("Backup file integrity verification ");
-    for (i = 0; i < 16; i++) {
-         if (md5in[i] != md5bitfile[i]) {
+    for (i = 0; i < 32; i++) {
+         if (sha256in[i] != sha256bitfile[i]) {
              printf("not passed");
              return -1;
          }

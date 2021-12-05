@@ -173,7 +173,7 @@ void print_usage() {
     printf("                    the FPGA (IMPORTANT! 'filename' must be VALID FPGA\n");
     printf("                    configuration file).\n");
     printf("  --backup-flash    Backup all content the FLASH memory to the file 'filename'.\n");
-    printf("  --restore-flash   Restore all content the FLASH memory from a file 'filename'\n");
+    printf("  --restore-flash   Restore all content the FLASH memory from a file 'filename'.\n");
     printf("  --readhmid        Print hostmot2 configuration in PIN file format.\n");
     printf("  --print-pd        Print hostmot2 Pin Descriptors.\n");
     printf("  --reload          Do full FPGA reload from flash (only Ethernet, SPI and\n");
