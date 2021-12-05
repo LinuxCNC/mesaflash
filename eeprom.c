@@ -244,7 +244,7 @@ int eeprom_write(llio_t *self, char *bitfile_name, u32 start_address, int fix_bo
 int eeprom_verify(llio_t *self, char *bitfile_name, u32 start_address) {
     board_t *board = self->board;
     int bytesread, i, bindex, all_flash;
-    u32 eeprom_addr;//, eeprom_size;
+    u32 eeprom_addr;
     char part_name[32];
     struct stat file_stat;
     FILE *fp;
@@ -261,7 +261,6 @@ int eeprom_verify(llio_t *self, char *bitfile_name, u32 start_address) {
         return -1;
     }
 
-    //eeprom_size = eeprom_get_flash_size(board->flash_id);
     if (file_stat.st_size != eeprom_get_flash_size(board->flash_id)) {
         if (print_bitfile_header(fp, (char*) &part_name, board->llio.verbose) == -1) {
             fclose(fp);
@@ -285,7 +284,6 @@ int eeprom_verify(llio_t *self, char *bitfile_name, u32 start_address) {
             }
         }
     } else {
-        //printf("Verify all FLASH memory:\n");
         start_address = 0;
         all_flash = 1;
     }
@@ -339,7 +337,7 @@ int flash_backup(llio_t *self, char *bitfile_name) {
     SHA256_CTX sha256ctx;
     unsigned char sha256out[32];
     char sha256str[65];
-    char sha256file_name[255];
+    char sha256file_name[262];
 
     if (eeprom_get_flash_size(board->flash_id) == 0) {
         printf("Unknown size FLASH memory on the %s board\n", board->llio.board_name);
@@ -357,7 +355,7 @@ int flash_backup(llio_t *self, char *bitfile_name) {
 
     fp = fopen(bitfile_name, "wb");
     if (fp == NULL) {
-        printf("Can't open file %s: %s\n", bitfile_name, strerror(errno));
+        printf("Can't create file '%s': %s\n", bitfile_name, strerror(errno));
         return -1;
     }
 
@@ -404,7 +402,7 @@ int flash_backup(llio_t *self, char *bitfile_name) {
     strcat(sha256file_name, ".sha256");
     fp = fopen(sha256file_name, "wb");
     if (fp == NULL) {
-        printf("Can't open file '%s': %s\n", sha256file_name, strerror(errno));
+        printf("Can't create file '%s': %s\n", sha256file_name, strerror(errno));
         return -1;
     }
     fprintf(fp, "%s %8d %s", sha256str, eeprom_get_flash_size(board->flash_id), bitfile_name);
@@ -450,7 +448,7 @@ int flash_restore(llio_t *self, char *bitfile_name) {
     FILE *fp;
     struct timeval tv1, tv2;
     char sha256str[65];
-    char sha256file_name[255];
+    char sha256file_name[262];
     unsigned char sha256in[32];
     unsigned char sha256bitfile[32];
     SHA256_CTX sha256ctx;
@@ -572,7 +570,7 @@ int flash_restore(llio_t *self, char *bitfile_name) {
         printf("  Programming time: %.2f seconds\n", (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +
          (double) (tv2.tv_sec - tv1.tv_sec));
     }
-    printf("Board FLASH memory restored successfully.\n");
+    printf("Board FLASH memory writed successfully.\n");
     return 0;
 }
 
