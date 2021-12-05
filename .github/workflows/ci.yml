@@ -36,7 +36,7 @@ jobs:
   test-package:
     strategy:
       matrix:
-        os: ["buster", "bullseye"]
+        os: ["buster", "bullseye", "testing", "unstable"]
         cpu: ["i386", "amd64", "armhf", "aarch64"]
     runs-on: ubuntu-20.04
     steps:
@@ -52,6 +52,7 @@ jobs:
         OS_RELEASE: ${{ matrix.os }}
       run: |
         git checkout HEAD -- debian/changelog
+        git fetch --tags https://github.com/LinuxCNC/mesaflash
         ref=`git describe --tags --always | sed -e 's/^release\///;s/^v//;s/-/+/g'`
         DEBEMAIL=noreply@github.com dch -v "${ref}+${OS_RELEASE}-1" "Build from github actions"
         head debian/changelog
@@ -66,3 +67,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         path: output
+        name: debs-${{ matrix.os }}-${{ matrix.cpu }}
