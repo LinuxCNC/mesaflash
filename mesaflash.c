@@ -122,7 +122,7 @@ void print_usage() {
     printf("  mesaflash --device device_name [options] --write filename\n");
     printf("  mesaflash --device device_name [options] --verify filename\n");
     printf("  mesaflash --device device_name [options] --program filename\n");
-    printf("  mesaflash --device device_name [options] --backup-flash filename | auto\n");
+    printf("  mesaflash --device device_name [options] --backup-flash filename | dirname\n");
     printf("  mesaflash --device device_name [options] --restore-flash filename\n");
     printf("  mesaflash --device device_name [options] --readhmid\n");
     printf("  mesaflash --device device_name [options] --reload | --reset\n");

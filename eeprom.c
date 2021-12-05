@@ -333,11 +333,12 @@ int flash_backup(llio_t *self, char *bitfile_name) {
     struct timeval tv1, tv2;
     time_t now = time(NULL);
     struct tm *t = localtime(&now);
-    char tmp_name[50];
+    char auto_name[33];
+    char bitfile_path[300];
     SHA256_CTX sha256ctx;
     unsigned char sha256out[32];
     char sha256str[65];
-    char sha256file_name[262];
+    char sha256file_path[307];
 
     if (eeprom_get_flash_size(board->flash_id) == 0) {
         printf("Unknown size FLASH memory on the %s board\n", board->llio.board_name);
@@ -346,16 +347,17 @@ int flash_backup(llio_t *self, char *bitfile_name) {
 
     printf("\nCreating backup %s FLASH memory on the %s board:\n", eeprom_get_flash_type(board->flash_id), board->llio.board_name);
 
-    if (strcasecmp(bitfile_name,"auto") == 0) {
-        strcpy(bitfile_name, board->llio.board_name);
-        strftime(tmp_name, sizeof(tmp_name)-1, "_flash_backup_%d%m%y_%H%M%S.bin", t);
-        strcat(bitfile_name, tmp_name);
-        printf("Used auto naming backup file: '%s'\n", bitfile_name);
+    strcpy(bitfile_path, bitfile_name);
+    if (bitfile_name[strlen(bitfile_name)-1] == '/') {
+        strcat(bitfile_path, board->llio.board_name);
+        strftime(auto_name, sizeof(auto_name)-1, "_flash_backup_%d%m%y_%H%M%S.bin", t);
+        strcat(bitfile_path, auto_name);
+        printf("Used auto naming backup file: '%s%s'\n", board->llio.board_name, auto_name);
     }
 
-    fp = fopen(bitfile_name, "wb");
+    fp = fopen(bitfile_path, "wb");
     if (fp == NULL) {
-        printf("Can't create file '%s': %s\n", bitfile_name, strerror(errno));
+        printf("Can't create file '%s': %s\n", bitfile_path, strerror(errno));
         return -1;
     }
 
@@ -396,18 +398,18 @@ int flash_backup(llio_t *self, char *bitfile_name) {
         printf("  Backup time: %.2f seconds\n", (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +
          (double) (tv2.tv_sec - tv1.tv_sec));
     }
-    printf("FLASH memory backup file '%s' created successfully.\n", bitfile_name);
+    printf("FLASH memory backup file '%s' created successfully.\n", bitfile_path);
 
-    strcpy(sha256file_name, bitfile_name);
-    strcat(sha256file_name, ".sha256");
-    fp = fopen(sha256file_name, "wb");
+    strcpy(sha256file_path, bitfile_path);
+    strcat(sha256file_path, ".sha256");
+    fp = fopen(sha256file_path, "wb");
     if (fp == NULL) {
-        printf("Can't create file '%s': %s\n", sha256file_name, strerror(errno));
+        printf("Can't create file '%s': %s\n", sha256file_path, strerror(errno));
         return -1;
     }
-    fprintf(fp, "%s %8d %s", sha256str, eeprom_get_flash_size(board->flash_id), bitfile_name);
+    fprintf(fp, "%s %8d %s", sha256str, eeprom_get_flash_size(board->flash_id), bitfile_path);
     fclose(fp);
-    printf("Checksum file '%s' created successfully,\n", sha256file_name);
+    printf("Checksum file '%s' created successfully,\n", sha256file_path);
     printf("sha256: '%s'\n", sha256str);
     return 0;
 }
