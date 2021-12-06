@@ -55,6 +55,8 @@ struct llio_struct {
     int (*write)(llio_t *self, u32 addr, void *buffer, int size);
     int (*write_flash)(llio_t *self, char *bitfile_name, u32 start_address, int fix_boot_flag);
     int (*verify_flash)(llio_t *self, char *bitfile_name, u32 start_address);
+    int (*backup_flash)(llio_t *self, char *bitfile_name);
+    int (*restore_flash)(llio_t *self, char *bitfile_name);
     int (*program_fpga)(llio_t *self, char *bitfile_name);
     int (*reset)(llio_t *self);
     int (*reload)(llio_t *self, int fallback_flag);

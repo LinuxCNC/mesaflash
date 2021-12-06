@@ -424,6 +424,14 @@ int local_verify_flash(llio_t *self, char *bitfile_name, u32 start_address) {
     return eeprom_verify(self, bitfile_name, start_address);
 }
 
+int local_backup_flash(llio_t *self, char *bitfile_name) {
+    return flash_backup(self, bitfile_name);
+}
+
+int local_restore_flash(llio_t *self, char *bitfile_name) {
+    return flash_restore(self, bitfile_name);
+}
+
 void open_spi_access_local(llio_t *self) {
     board_t *board = self->board;
 

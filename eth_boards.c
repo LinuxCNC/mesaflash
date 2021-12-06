@@ -176,9 +176,10 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.write = &eth_write;
             board->llio.write_flash = &remote_write_flash;
             board->llio.verify_flash = &remote_verify_flash;
+            board->llio.backup_flash = &remote_backup_flash;
+            board->llio.restore_flash = &remote_restore_flash;
             board->llio.reset = &lbp16_board_reset;
             board->llio.reload = &lbp16_board_reload;
-
             board->open = &eth_board_open;
             board->close = &eth_board_close;
             board->print_info = &eth_print_info;
@@ -202,6 +203,8 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.write = &eth_write;
             board->llio.write_flash = &remote_write_flash;
             board->llio.verify_flash = &remote_verify_flash;
+            board->llio.backup_flash = &remote_backup_flash;
+            board->llio.restore_flash = &remote_restore_flash;
             board->llio.reset = &lbp16_board_reset;
             board->llio.reload = &lbp16_board_reload;
             board->open = &eth_board_open;
@@ -226,6 +229,8 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.write = &eth_write;
             board->llio.write_flash = &remote_write_flash;
             board->llio.verify_flash = &remote_verify_flash;
+            board->llio.backup_flash = &remote_backup_flash;
+            board->llio.restore_flash = &remote_restore_flash;
             board->llio.reset = &lbp16_board_reset;
             board->llio.reload = &lbp16_board_reload;
             board->open = &eth_board_open;
@@ -250,6 +255,8 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.write = &eth_write;
             board->llio.write_flash = &remote_write_flash;
             board->llio.verify_flash = &remote_verify_flash;
+            board->llio.backup_flash = &remote_backup_flash;
+            board->llio.restore_flash = &remote_restore_flash;
             board->llio.reset = &lbp16_board_reset;
             board->llio.reload = &lbp16_board_reload;
             board->open = &eth_board_open;
@@ -275,6 +282,8 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.write = &eth_write;
             board->llio.write_flash = &remote_write_flash;
             board->llio.verify_flash = &remote_verify_flash;
+            board->llio.backup_flash = &remote_backup_flash;
+            board->llio.restore_flash = &remote_restore_flash;
             board->llio.reset = &lbp16_board_reset;
             board->llio.reload = &lbp16_board_reload;
             board->open = &eth_board_open;
@@ -298,6 +307,8 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.write = &eth_write;
             board->llio.write_flash = &remote_write_flash;
             board->llio.verify_flash = &remote_verify_flash;
+            board->llio.backup_flash = &remote_backup_flash;
+            board->llio.restore_flash = &remote_restore_flash;
             board->llio.reset = &lbp16_board_reset;
             board->llio.reload = &lbp16_board_reload;
             board->open = &eth_board_open;
@@ -321,6 +332,8 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.write = &eth_write;
             board->llio.write_flash = &remote_write_flash;
             board->llio.verify_flash = &remote_verify_flash;
+            board->llio.backup_flash = &remote_backup_flash;
+            board->llio.restore_flash = &remote_restore_flash;
             board->llio.reset = &lbp16_board_reset;
             board->llio.reload = &lbp16_board_reload;
             board->open = &eth_board_open;
@@ -346,6 +359,8 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.write = &eth_write;
             board->llio.write_flash = &remote_write_flash;
             board->llio.verify_flash = &remote_verify_flash;
+            board->llio.backup_flash = &remote_backup_flash;
+            board->llio.restore_flash = &remote_restore_flash;
             board->llio.reset = &lbp16_board_reset;
             board->llio.reload = &lbp16_board_reload;
             board->open = &eth_board_open;
@@ -371,6 +386,8 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.write = &eth_write;
             board->llio.write_flash = &remote_write_flash;
             board->llio.verify_flash = &remote_verify_flash;
+            board->llio.backup_flash = &remote_backup_flash;
+            board->llio.restore_flash = &remote_restore_flash;
             board->llio.reset = &lbp16_board_reset;
             board->llio.reload = &lbp16_board_reload;
             board->open = &eth_board_open;
@@ -398,6 +415,8 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.write = &eth_write;
             board->llio.write_flash = &remote_write_flash;
             board->llio.verify_flash = &remote_verify_flash;
+            board->llio.backup_flash = &remote_backup_flash;
+            board->llio.restore_flash = &remote_restore_flash;
             board->llio.reset = &lbp16_board_reset;
             board->llio.reload = &lbp16_board_reload;
             board->open = &eth_board_open;
@@ -425,6 +444,8 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.write = &eth_write;
             board->llio.write_flash = &remote_write_flash;
             board->llio.verify_flash = &remote_verify_flash;
+            board->llio.backup_flash = &remote_backup_flash;
+            board->llio.restore_flash = &remote_restore_flash;
             board->llio.reset = &lbp16_board_reset;
             board->llio.reload = &lbp16_board_reload;
             board->open = &eth_board_open;
@@ -449,6 +470,8 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.write = &eth_write;
             board->llio.write_flash = &remote_write_flash;
             board->llio.verify_flash = &remote_verify_flash;
+            board->llio.backup_flash = &remote_backup_flash;
+            board->llio.restore_flash = &remote_restore_flash;
             board->llio.reset = &lbp16_board_reset;
             board->llio.reload = &lbp16_board_reload;
             board->open = &eth_board_open;

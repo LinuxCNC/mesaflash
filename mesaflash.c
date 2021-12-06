@@ -41,6 +41,8 @@ static int addr_hi_flag;
 static int write_flag;
 static int fix_boot_flag;
 static int verify_flag;
+static int backup_flash_flag;
+static int restore_flash_flag;
 static int auto_verify_flag = 1;
 static int fallback_flag;
 static int recover_flag;
@@ -78,6 +80,8 @@ static struct option long_options[] = {
     {"no-auto-verify", no_argument, &auto_verify_flag, 0},
     {"fix-boot-block", no_argument, &fix_boot_flag, 1},
     {"verify", required_argument, 0, 'v'},
+    {"backup-flash", required_argument, 0, 'f'},
+    {"restore-flash", required_argument, 0, 'n'},
     {"fallback", no_argument, &fallback_flag, 1},
     {"recover", no_argument, &recover_flag, 1},
     {"program", required_argument, 0, 'p'},
@@ -118,6 +122,8 @@ void print_usage() {
     printf("  mesaflash --device device_name [options] --write filename\n");
     printf("  mesaflash --device device_name [options] --verify filename\n");
     printf("  mesaflash --device device_name [options] --program filename\n");
+    printf("  mesaflash --device device_name [options] --backup-flash filename | dirname\n");
+    printf("  mesaflash --device device_name [options] --restore-flash filename\n");
     printf("  mesaflash --device device_name [options] --readhmid\n");
     printf("  mesaflash --device device_name [options] --reload | --reset\n");
     printf("  mesaflash --device device_name [options] --sserial\n");
@@ -156,16 +162,18 @@ void print_usage() {
     printf("\n");
     printf("Commands:\n");
     printf("  --write           Writes a standard bitfile 'filename' configuration to\n");
-    printf("                    the userarea of the EEPROM (IMPORTANT! 'filename' must\n");
+    printf("                    the userarea of the FLASH (IMPORTANT! 'filename' must\n");
     printf("                    be VALID FPGA configuration file).\n");
     printf("  --fix-boot-block  If a write operation does not detect a valid boot\n");
     printf("                    block, write one.\n");
     printf("  --no-auto-verify  Don't automatically verify after writing.\n");
-    printf("  --verify          Verifies the EEPROM configuration against the\n");
+    printf("  --verify          Verifies the FLASH configuration against the\n");
     printf("                    bitfile 'filename'.\n");
     printf("  --program         Writes a standard bitfile 'filename' configuration to\n");
     printf("                    the FPGA (IMPORTANT! 'filename' must be VALID FPGA\n");
     printf("                    configuration file).\n");
+    printf("  --backup-flash    Backup all content the FLASH memory to the file 'filename'.\n");
+    printf("  --restore-flash   Restore all content the FLASH memory from a file 'filename'.\n");
     printf("  --readhmid        Print hostmot2 configuration in PIN file format.\n");
     printf("  --print-pd        Print hostmot2 Pin Descriptors.\n");
     printf("  --reload          Do full FPGA reload from flash (only Ethernet, SPI and\n");
@@ -345,6 +353,36 @@ int process_cmd_line(int argc, char *argv[]) {
             }
             break;
 
+            case 'f': {
+                if (backup_flash_flag > 0) {
+                    printf("Error: multiple --backup-flash options\n");
+                    exit(-1);
+                }
+                size_t len = strlen(optarg);
+                if (len+1 > sizeof(bitfile_name)) {
+                    printf("--backup-flash argument too long (max %zu)\n", sizeof(bitfile_name)-1);
+                    return 1;
+                }
+                strncpy(bitfile_name, optarg, 255);
+                backup_flash_flag++;
+            }
+            break;
+
+            case 'n': {
+                if (restore_flash_flag > 0) {
+                    printf("Error: multiple --restore-flash options\n");
+                    exit(-1);
+                }
+                size_t len = strlen(optarg);
+                if (len+1 > sizeof(bitfile_name)) {
+                    printf("--restore-flash argument too long (max %zu)\n", sizeof(bitfile_name)-1);
+                    return 1;
+                }
+                strncpy(bitfile_name, optarg, 255);
+                restore_flash_flag++;
+            }
+            break;
+
             case 'i': {
                 if (info_flag > 0) {
                     printf("Error: multiple --info options\n");
@@ -480,6 +518,15 @@ int main(int argc, char *argv[]) {
             }
         } else if (verify_flag == 1) {
             ret = anyio_dev_verify_flash(board, bitfile_name, fallback_flag);
+        } else if (backup_flash_flag == 1) {
+            ret = anyio_dev_backup_flash(board, bitfile_name);
+        } else if (restore_flash_flag == 1) {
+            ret = anyio_dev_restore_flash(board, bitfile_name);
+            if (ret == 0) {
+                if (auto_verify_flag) {
+                    ret = anyio_dev_verify_flash(board, bitfile_name, fallback_flag);
+                }
+            }
         } else if (program_flag == 1) {
             ret = anyio_dev_program_fpga(board, bitfile_name);
         } else if (reload_flag == 1) {
