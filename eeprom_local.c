@@ -412,10 +412,10 @@ static void done_programming(llio_t *self) {
 
 // global functions
 
-int local_write_flash(llio_t *self, char *bitfile_name, u32 start_address, int fix_boot_flag) {
+int local_write_flash(llio_t *self, char *bitfile_name, u32 start_address, int fix_boot_flag, int sha256_check_flag) {
     int ret;
 
-    ret = eeprom_write(self, bitfile_name, start_address, fix_boot_flag);
+    ret = eeprom_write(self, bitfile_name, start_address, fix_boot_flag, sha256_check_flag);
     done_programming(self);
     return ret;
 }
