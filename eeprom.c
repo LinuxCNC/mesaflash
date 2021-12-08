@@ -186,7 +186,7 @@ int eeprom_write(llio_t *self, char *bitfile_name, u32 start_address, int fix_bo
             return -1;
         }
 
-        fp = fopen(sha256file_name, "rb");
+        fp = fopen(sha256file_name, "rt");
         if (fp == NULL) {
             printf("Can't open checksum file '%s': %s\n", sha256file_name, strerror(errno));
             return -1;
@@ -478,7 +478,7 @@ int flash_backup(llio_t *self, char *bitfile_name) {
 
     strcpy(sha256file_path, bitfile_path);
     strcat(sha256file_path, ".sha256");
-    fp = fopen(sha256file_path, "wb");
+    fp = fopen(sha256file_path, "wt");
     if (fp == NULL) {
         printf("Can't create file '%s': %s\n", sha256file_path, strerror(errno));
         return -1;
@@ -568,7 +568,7 @@ int flash_restore(llio_t *self, char *bitfile_name) {
         return -1;
     }
 
-    fp = fopen(sha256file_name, "rb");
+    fp = fopen(sha256file_name, "rt");
     if (fp == NULL) {
         printf("Can't open checksum file '%s': %s\n", sha256file_name, strerror(errno));
         return -1;
