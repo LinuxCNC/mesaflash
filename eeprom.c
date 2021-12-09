@@ -483,7 +483,7 @@ int flash_backup(llio_t *self, char *bitfile_name) {
         printf("Can't create file '%s': %s\n", sha256file_path, strerror(errno));
         return -1;
     }
-    fprintf(fp, "%s %8d %s", sha256str, eeprom_get_flash_size(board->flash_id), bitfile_path);
+    fprintf(fp, "%s *%s\n", sha256str, bitfile_path);
     fclose(fp);
     printf("Checksum file '%s' created successfully,\n", sha256file_path);
     printf("sha256: '%s'\n", sha256str);
