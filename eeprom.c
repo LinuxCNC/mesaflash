@@ -405,6 +405,7 @@ int flash_backup(llio_t *self, char *bitfile_name) {
     board_t *board = self->board;
     uint i, page_num;
     u32 eeprom_addr, eeprom_pages;
+    struct stat file_stat;
     FILE *fp;
     struct timeval tv1, tv2;
     time_t now = time(NULL);
@@ -424,11 +425,19 @@ int flash_backup(llio_t *self, char *bitfile_name) {
     printf("\nCreating backup %s FLASH memory on the %s board:\n", eeprom_get_flash_type(board->flash_id), board->llio.board_name);
 
     strcpy(bitfile_path, bitfile_name);
-    if (bitfile_name[strlen(bitfile_name)-1] == '/') {
-        strcat(bitfile_path, board->llio.board_name);
-        strftime(auto_name, sizeof(auto_name)-1, "_flash_backup_%d%m%y_%H%M%S.bin", t);
-        strcat(bitfile_path, auto_name);
-        printf("Used auto naming backup file: '%s%s'\n", board->llio.board_name, auto_name);
+    if (stat(bitfile_path, &file_stat) == 0) {
+        if (S_ISDIR(file_stat.st_mode)) {
+            if (bitfile_name[strlen(bitfile_name)-1] != '/') {
+                strcat(bitfile_path, "/");
+            }
+            strcat(bitfile_path, board->llio.board_name);
+            strftime(auto_name, sizeof(auto_name)-1, "_flash_backup_%d%m%y_%H%M%S.bin", t);
+            strcat(bitfile_path, auto_name);
+            printf("Used auto naming backup file: '%s%s'\n", board->llio.board_name, auto_name);
+        } else {
+            printf("File '%s' already exist.\n", bitfile_path);
+            return -1;
+        }
     }
 
     fp = fopen(bitfile_path, "wb");
@@ -483,7 +492,7 @@ int flash_backup(llio_t *self, char *bitfile_name) {
         printf("Can't create file '%s': %s\n", sha256file_path, strerror(errno));
         return -1;
     }
-    fprintf(fp, "%s *%s\n", sha256str, bitfile_path);
+    fprintf(fp, "%s *./%s\n", sha256str, basename(bitfile_path));
     fclose(fp);
     printf("Checksum file '%s' created successfully,\n", sha256file_path);
     printf("sha256: '%s'\n", sha256str);
