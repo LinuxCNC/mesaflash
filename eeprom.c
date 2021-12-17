@@ -165,10 +165,10 @@ int eeprom_write(llio_t *self, char *bitfile_name, u32 start_address, int fix_bo
     struct stat file_stat;
     FILE *fp;
     struct timeval tv1, tv2;
-    char sha256str[65];
+    char sha256str[SHA256_DIGEST_LENGTH*2+1];
     char sha256file_name[262];
-    unsigned char sha256in[32];
-    unsigned char sha256bitfile[32];
+    unsigned char sha256in[SHA256_DIGEST_LENGTH];
+    unsigned char sha256bitfile[SHA256_DIGEST_LENGTH];
     SHA256_CTX sha256ctx;
 
     if (sha256_check_flag) {
@@ -181,7 +181,7 @@ int eeprom_write(llio_t *self, char *bitfile_name, u32 start_address, int fix_bo
             return -1;
         }
 
-        if (file_stat.st_size < 64) {
+        if (file_stat.st_size < SHA256_DIGEST_LENGTH*2) {
             printf("Checksum file size too small\n");
             return -1;
         }
@@ -191,11 +191,11 @@ int eeprom_write(llio_t *self, char *bitfile_name, u32 start_address, int fix_bo
             printf("Can't open checksum file '%s': %s\n", sha256file_name, strerror(errno));
             return -1;
         }
-        fread(&sha256str, 1, 64, fp);
+        fread(&sha256str, 1, SHA256_DIGEST_LENGTH*2, fp);
         fclose(fp);
 
         printf("Read checksum string from file '%s' ", sha256file_name);
-        for (i = 0, j = 0; i < 64; i+=2, j++) {
+        for (i = 0, j = 0; i < SHA256_DIGEST_LENGTH*2; i+=2, j++) {
             if (sscanf(&sha256str[i], "%2hhx", &sha256in[j]) != 1) {
                 printf("Error: not correct sha256 string\n");
                 return -1;
@@ -203,7 +203,7 @@ int eeprom_write(llio_t *self, char *bitfile_name, u32 start_address, int fix_bo
         }
 
         printf("OK,\nsha256: '");
-        for (i = 0; i < 32; i++) printf("%02x", sha256in[i]);
+        for (i = 0; i < SHA256_DIGEST_LENGTH; i++) printf("%02x", sha256in[i]);
         printf("'\n");
 
         if (stat(bitfile_name, &file_stat) != 0) {
@@ -227,11 +227,11 @@ int eeprom_write(llio_t *self, char *bitfile_name, u32 start_address, int fix_bo
 
         printf("Calculate checksum for bitfile '%s' ", bitfile_name);
         printf("OK,\nsha256: '");
-        for (i = 0; i < 32; i++) printf("%02x", sha256bitfile[i]);
+        for (i = 0; i < SHA256_DIGEST_LENGTH; i++) printf("%02x", sha256bitfile[i]);
         printf("'\n");
 
         printf("Bitfile integrity verification ");
-        for (i = 0; i < 32; i++) {
+        for (i = 0; i < SHA256_DIGEST_LENGTH; i++) {
             if (sha256in[i] != sha256bitfile[i]) {
                 printf("not passed\n");
                 return -1;
@@ -413,8 +413,8 @@ int flash_backup(llio_t *self, char *bitfile_name) {
     char auto_name[33];
     char bitfile_path[300];
     SHA256_CTX sha256ctx;
-    unsigned char sha256out[32];
-    char sha256str[65];
+    unsigned char sha256out[SHA256_DIGEST_LENGTH];
+    char sha256str[SHA256_DIGEST_LENGTH*2+1];
     char sha256file_path[307];
 
     if (eeprom_get_flash_size(board->flash_id) == 0) {
@@ -474,7 +474,7 @@ int flash_backup(llio_t *self, char *bitfile_name) {
     fclose(fp);
 
     SHA256_Final(sha256out, &sha256ctx);
-    for (i = 0; i < 32; i++) {
+    for (i = 0; i < SHA256_DIGEST_LENGTH; i++) {
         sprintf(sha256str + i * 2, "%02x", sha256out[i]);
     }
     printf("\n");
@@ -534,10 +534,10 @@ int flash_restore(llio_t *self, char *bitfile_name) {
     struct stat file_stat;
     FILE *fp;
     struct timeval tv1, tv2;
-    char sha256str[65];
+    char sha256str[SHA256_DIGEST_LENGTH*2+1];
     char sha256file_name[262];
-    unsigned char sha256in[32];
-    unsigned char sha256bitfile[32];
+    unsigned char sha256in[SHA256_DIGEST_LENGTH];
+    unsigned char sha256bitfile[SHA256_DIGEST_LENGTH];
     SHA256_CTX sha256ctx;
 
     strcpy(sha256file_name, bitfile_name);
@@ -555,7 +555,7 @@ int flash_restore(llio_t *self, char *bitfile_name) {
         return -1;
     }
 
-    if (file_stat.st_size < 64) {
+    if (file_stat.st_size < SHA256_DIGEST_LENGTH*2) {
         printf("Checksum file size too small\n");
         return -1;
     }
@@ -582,11 +582,11 @@ int flash_restore(llio_t *self, char *bitfile_name) {
         printf("Can't open checksum file '%s': %s\n", sha256file_name, strerror(errno));
         return -1;
     }
-    fread(&sha256str, 1, 64, fp);
+    fread(&sha256str, 1, SHA256_DIGEST_LENGTH*2, fp);
     fclose(fp);
 
     printf("Read checksum string from file '%s' ", sha256file_name);
-    for (i = 0, j = 0; i < 64; i+=2, j++) {
+    for (i = 0, j = 0; i < SHA256_DIGEST_LENGTH*2; i+=2, j++) {
          if (sscanf(&sha256str[i], "%2hhx", &sha256in[j]) != 1) {
              printf("Error: not correct sha256 string\n");
              return -1;
@@ -594,7 +594,7 @@ int flash_restore(llio_t *self, char *bitfile_name) {
     }
 
     printf("OK,\nsha256: '");
-    for (i = 0; i < 32; i++) printf("%02x", sha256in[i]);
+    for (i = 0; i < SHA256_DIGEST_LENGTH; i++) printf("%02x", sha256in[i]);
     printf("'\n");
 
     fp = fopen(bitfile_name, "rb");
@@ -612,11 +612,11 @@ int flash_restore(llio_t *self, char *bitfile_name) {
 
     printf("Calculate checksum for backup file '%s' ", bitfile_name);
     printf("OK,\nsha256: '");
-    for (i = 0; i < 32; i++) printf("%02x", sha256bitfile[i]);
+    for (i = 0; i < SHA256_DIGEST_LENGTH; i++) printf("%02x", sha256bitfile[i]);
     printf("'\n");
 
     printf("Backup file integrity verification ");
-    for (i = 0; i < 32; i++) {
+    for (i = 0; i < SHA256_DIGEST_LENGTH; i++) {
          if (sha256in[i] != sha256bitfile[i]) {
              printf("not passed\n");
              return -1;
