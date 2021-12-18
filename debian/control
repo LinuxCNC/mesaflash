@@ -8,6 +8,7 @@ Build-Depends: debhelper (>= 9),
                libpci-dev,
                libssl-dev,
                pkg-config
+Homepage: https://github.com/LinuxCNC/mesaflash
 Vcs-Browser: https://github.com/linuxcnc/mesaflash
 Vcs-git: https://github.com/LinuxCNC/mesaflash.git -b master
 

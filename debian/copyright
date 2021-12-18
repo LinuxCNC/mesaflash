@@ -1,7 +1,7 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: mesaflash
 Upstream-Contact: LinuxCNC Developers <emc-developers@lists.sourceforge.net>
-Source: https://github.com/micges/mesaflash
+Source: https://github.com/LinuxCNC/mesaflash
 
 Files: *
 Copyright: 2013-2015 Michael Geszkiewicz
