@@ -431,8 +431,7 @@ int flash_backup(llio_t *self, char *bitfile_name) {
     time_t now = time(NULL);
     struct tm *t = localtime(&now);
     char auto_name[33];
-    char bitfile_path[PATH_MAX];
-    char tmp_path[PATH_MAX];
+    char bitfile_path[PATH_MAX-8];
     SHA256_CTX sha256ctx;
     unsigned char sha256out[SHA256_DIGEST_LENGTH];
     char sha256str[SHA256_DIGEST_LENGTH*2+1];
@@ -446,13 +445,12 @@ int flash_backup(llio_t *self, char *bitfile_name) {
     printf("Creating backup %s FLASH memory on the %s board:\n", eeprom_get_flash_type(board->flash_id), board->llio.board_name);
 
     if (stat(bitfile_name, &file_stat) == 0) {
-        snprintf(tmp_path, sizeof(tmp_path), "%s", bitfile_name);
         if (S_ISDIR(file_stat.st_mode)) {
             strftime(auto_name, sizeof(auto_name), "_flash_backup_%d%m%y_%H%M%S.bin", t);
-            snprintf(bitfile_path, sizeof(bitfile_path), (tmp_path[strlen(tmp_path)-1] != '/') ? "%s/%s%s" : "%s%s%s", tmp_path, board->llio.board_name, auto_name);
+            snprintf(bitfile_path, sizeof(bitfile_path), (bitfile_name[strlen(bitfile_name)-1] != '/') ? "%s/%s%s" : "%s%s%s", bitfile_name, board->llio.board_name, auto_name);
             printf("Used auto naming backup file: '%s%s'\n", board->llio.board_name, auto_name);
         } else {
-            printf("File '%s' already exist.\n", tmp_path);
+            printf("File '%s' already exist.\n", bitfile_name);
             return -1;
         }
     } else {
