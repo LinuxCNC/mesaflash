@@ -4,20 +4,20 @@ Upstream-Contact: LinuxCNC Developers <emc-developers@lists.sourceforge.net>
 Source: https://github.com/LinuxCNC/mesaflash
 
 Files: *
-Copyright: 2013-2015 Michael Geszkiewicz
-           2014, 2016, 2020-2021 Jeff Epler
-           2015 Joe Calderon
-           2017, 2020 Sebastian Kuzminsky
-           2019-2021 Peter Wallace
-           2020 Damian Wrobel
-           2020 Curtis Dutton
+Copyright: 2013-2015           Michael Geszkiewicz
+           2014,2016,2020-2021 Jeff Epler
+           2015                Joe Calderon
+           2017,2020           Sebastian Kuzminsky
+           2019-2021           Peter Wallace
+           2020                Damian Wrobel
+           2020                Curtis Dutton
 License: GPL-2.0+
 
 Files: debian/*
-Copyright: 2015 Chris Radek
-           2016, 2021 Jeff Epler
-           2014-2021 Sebastian Kuzminsky
-           2021 Steffen Moeller
+Copyright: 2015                Chris Radek
+           2016,2021           Jeff Epler
+           2014-2021           Sebastian Kuzminsky
+           2021                Steffen Moeller
 License: GPL-2.0+
 
 License: GPL-2.0+
