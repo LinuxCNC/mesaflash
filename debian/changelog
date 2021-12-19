@@ -1,3 +1,9 @@
+mesaflash (3.4.0-2) unstable; urgency=medium
+
+  * Revised d/copyright
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sat, 20 Nov 2021 17:52:00 +0100
+
 mesaflash (3.4.0-1) UNRELEASED; urgency=medium
 
   * Cosmetics in preparation of upload to Debian.
