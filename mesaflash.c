@@ -43,6 +43,7 @@ static int fix_boot_flag;
 static int verify_flag;
 static int backup_flash_flag;
 static int restore_flash_flag;
+static int sha256_check_flag;
 static int auto_verify_flag = 1;
 static int fallback_flag;
 static int recover_flag;
@@ -82,6 +83,7 @@ static struct option long_options[] = {
     {"verify", required_argument, 0, 'v'},
     {"backup-flash", required_argument, 0, 'f'},
     {"restore-flash", required_argument, 0, 'n'},
+    {"sha256-check", no_argument, &sha256_check_flag, 1},
     {"fallback", no_argument, &fallback_flag, 1},
     {"recover", no_argument, &recover_flag, 1},
     {"program", required_argument, 0, 'p'},
@@ -172,8 +174,16 @@ void print_usage() {
     printf("  --program         Writes a standard bitfile 'filename' configuration to\n");
     printf("                    the FPGA (IMPORTANT! 'filename' must be VALID FPGA\n");
     printf("                    configuration file).\n");
-    printf("  --backup-flash    Backup all content the FLASH memory to the file 'filename'.\n");
-    printf("  --restore-flash   Restore all content the FLASH memory from a file 'filename'.\n");
+    printf("  --backup-flash    Backup all content the FLASH memory to the file 'filename'\n");
+    printf("                    or to the directory 'dirname' with auto naming dump file.\n");
+    printf("  --restore-flash   Restore all content the FLASH memory from a file 'filename'\n");
+    printf("                    (IMPORTANT! Can't use a dump file from different types\n");
+    printf("                    of boards. Unacceptable interrupt the restoring process.\n");
+    printf("                    If the restoring process was interrupted, do not turn off\n");
+    printf("                    the board power and do not reload board, and run restore\n");
+    printf("                    process again).\n");
+    printf("  --sha256-check    Integrity check FPGA configuration bitfile before writing.\n");
+    printf("                    Required SHA256 checksum file 'filename.sha256'.\n");
     printf("  --readhmid        Print hostmot2 configuration in PIN file format.\n");
     printf("  --print-pd        Print hostmot2 Pin Descriptors.\n");
     printf("  --reload          Do full FPGA reload from flash (only Ethernet, SPI and\n");
@@ -183,7 +193,7 @@ void print_usage() {
     printf("  --rpo             Read hostmot2 variable directly at 'address'.\n");
     printf("  --wpo             Write hostmot2 variable directly at 'address'\n");
     printf("                    with 'value'.\n");
-    printf("  --set             Set board IP address in eeprom to n.n.n.n (only\n");
+    printf("  --set             Set board IP address in EEPROM to n.n.n.n (only\n");
     printf("                    Ethernet boards).\n");
     printf("  --info            Print info about configuration in 'file_name'.\n");
     printf("  --help            Print this help message.\n");
@@ -498,7 +508,7 @@ int main(int argc, char *argv[]) {
         } else if (set_flag == 1) {
             ret = anyio_dev_set_remote_ip(board, lbp16_set_ip_addr);
         } else if (write_flag == 1) {
-            ret = anyio_dev_write_flash(board, bitfile_name, fallback_flag, fix_boot_flag);
+            ret = anyio_dev_write_flash(board, bitfile_name, fallback_flag, fix_boot_flag, sha256_check_flag);
             if (ret == 0) {
                 if (auto_verify_flag) {
                     ret = anyio_dev_verify_flash(board, bitfile_name, fallback_flag);

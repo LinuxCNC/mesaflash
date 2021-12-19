@@ -8,7 +8,7 @@ Quickstart:
 MesaFlash depends on a couple of packages to build, so install those
 first:
 ```
-sudo apt install libpci-dev pkg-config build-essential git
+sudo apt install libpci-dev libssl-dev pkg-config build-essential git
 ```
 Clone MesaFlash:
 ```

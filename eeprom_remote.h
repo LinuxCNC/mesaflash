@@ -21,7 +21,7 @@
 
 #include "hostmot2.h"
 
-int remote_write_flash(llio_t *self, char *bitfile_name, u32 start_address, int fix_boot_flag);
+int remote_write_flash(llio_t *self, char *bitfile_name, u32 start_address, int fix_boot_flag, int sha256_check_flag);
 int remote_verify_flash(llio_t *self, char *bitfile_name, u32 start_address);
 int remote_backup_flash(llio_t *self, char *bitfile_name);
 int remote_restore_flash(llio_t *self, char *bitfile_name);

@@ -55,7 +55,7 @@ char *eeprom_get_flash_type(u8 flash_id);
 u32 eeprom_calc_user_space(u8 flash_id);
 void eeprom_prepare_boot_block(u8 flash_id);
 int start_programming(llio_t *self, u32 start_address, int fsize);
-int eeprom_write(llio_t *self, char *bitfile_name, u32 start_address, int fix_boot_flag);
+int eeprom_write(llio_t *self, char *bitfile_name, u32 start_address, int fix_boot_flag, int sha256_check_flag);
 int eeprom_verify(llio_t *self, char *bitfile_name, u32 start_address);
 int flash_backup(llio_t *self, char *bitfile_name);
 int flash_erase(llio_t *self);
