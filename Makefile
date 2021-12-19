@@ -70,14 +70,54 @@ ifeq ($(TARGET),linux)
     CFLAGS += -D_GNU_SOURCE $(LIBPCI_CFLAGS) $(LIBCRYPTO_CFLAGS) -D_FILE_OFFSET_BITS=64
 
     UNAME_M := $(shell uname -m)
+
+    #
+    # A bunch of platforms lack `sys/io.h`, which means mesaflash builds
+    # without support for EPP or PCI cards.
+    #
+
     ifeq ($(UNAME_M),aarch64)
         MESAFLASH_IO ?= 0
     endif
-    ifeq ($(UNAME_M),armv7l)
-	ifeq ($(wildcard /usr/include/arm-linux-gnueabihf/asm/io.h),)
-        MESAFLASH_IO ?= 0
-	endif
+
+    ifeq ($(patsubst arm%,arm,$(UNAME_M)),arm)
+        ifeq ($(wildcard /usr/include/arm-linux-gnueabihf/asm/io.h),)
+            MESAFLASH_IO ?= 0
+        endif
     endif
+
+    ifeq ($(UNAME_M),parisc)
+        MESAFLASH_IO ?= 0
+    endif
+
+    ifeq ($(UNAME_M),m68k)
+        MESAFLASH_IO ?= 0
+    endif
+
+    ifeq ($(patsubst mips%,mips,$(UNAME_M)),mips)
+        MESAFLASH_IO ?= 0
+    endif
+
+    ifeq ($(patsubst ppc%,ppc,$(UNAME_M)),ppc)
+        MESAFLASH_IO ?= 0
+    endif
+
+    ifeq ($(UNAME_M),riscv64)
+        MESAFLASH_IO ?= 0
+    endif
+
+    ifeq ($(patsubst s390%,s390,$(UNAME_M)),s390)
+        MESAFLASH_IO ?= 0
+    endif
+
+    ifeq ($(UNAME_M),sh)
+        MESAFLASH_IO ?= 0
+    endif
+
+    ifeq ($(UNAME_M),sparc64)
+        MESAFLASH_IO ?= 0
+    endif
+
 endif
 
 ifeq ($(TARGET),windows)
