@@ -1,4 +1,4 @@
-mesaflash (3.4.0-1) stable; urgency=medium
+mesaflash (3.4.0-1) UNRELEASED; urgency=medium
 
   * Cosmetics in preparation of upload to Debian.
   * Several bug fixes.
@@ -9,7 +9,7 @@ mesaflash (3.4.0-1) stable; urgency=medium
 
  -- LinuxCNC Developers <emc-developers@lists.sourceforge.net>  Mon, 27 Sep 2021 16:36:14 -0600
 
-mesaflash (3.4.0~pre1-1) stable; urgency=medium
+mesaflash (3.4.0~pre1-1) UNRELEASED; urgency=medium
 
   * Add a manpage.
   * Fix several compile warnings.
@@ -17,13 +17,13 @@ mesaflash (3.4.0~pre1-1) stable; urgency=medium
 
  -- LinuxCNC Developers <emc-developers@lists.sourceforge.net>  Fri, 22 May 2020 10:30:23 -0600
 
-mesaflash (3.4.0~pre0-1) stable; urgency=medium
+mesaflash (3.4.0~pre0-1) UNRELEASED; urgency=medium
 
   * mesaflash is now maintained by the LinuxCNC organization.
 
  -- LinuxCNC Developers <emc-developers@lists.sourceforge.net>  Thu, 23 Apr 2020 10:34:49 -0600
 
-mesaflash (3.3.0~pre0+dfsg-0) stable; urgency=low
+mesaflash (3.3.0~pre0+dfsg-0) UNRELEASED; urgency=low
 
   * support Mesa 7i93 ethernet board
   * support Mesa 7i96 ethernet board
@@ -32,13 +32,13 @@ mesaflash (3.3.0~pre0+dfsg-0) stable; urgency=low
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Tue, 27 Jun 2017 21:52:31 -0600
 
-mesaflash (3.2.1) stable; urgency=low
+mesaflash (3.2.1) UNRELEASED; urgency=low
 
   * Fix some compile warnings and link issues on Debian Stretch.
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Tue, 27 Jun 2017 10:25:59 -0600
 
-mesaflash (3.2.0) stable; urgency=low
+mesaflash (3.2.0) UNRELEASED; urgency=low
 
   * Don't check bitfile destinations while gpio recovering 6i24/6i25 boards
   * Use modules base address from module descriptor, not from regmap
@@ -52,7 +52,7 @@ mesaflash (3.2.0) stable; urgency=low
 
  -- Michael Geszkiewicz <micges@wp.pl>  27 Sep 2015 19:24:42 -0500
 
-mesaflash (3.1.0) stable; urgency=low
+mesaflash (3.1.0) UNRELEASED; urgency=low
 
   * First stable release.
   * Support 7i90HD under linux in SPI and rs422 mode
@@ -77,7 +77,7 @@ mesaflash (3.1.0) stable; urgency=low
 
  -- Michael Geszkiewicz <micges@wp.pl>  Sat, 24 Nov 2014 01:07:22 -0500
 
-mesaflash (3.0.0) stable; urgency=low
+mesaflash (3.0.0) UNRELEASED; urgency=low
 
   * Initial release.
 
