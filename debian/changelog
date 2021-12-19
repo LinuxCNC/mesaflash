@@ -1,3 +1,12 @@
+mesaflash (3.4.1-1) unstable; urgency=medium
+
+  * Add --backup-flash and --restore-flash command-line options.
+  * Add --sha256-check command-line option.
+  * Fix building on more platforms that lack sys/io.h.
+  * Add Homepage link, fix Source link.  Closes: #1001880
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sat, 15 Jan 2022 12:38:11 -0700
+
 mesaflash (3.4.0-2) unstable; urgency=medium
 
   * Revised d/copyright
