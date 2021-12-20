@@ -26,22 +26,22 @@ Set the high register address for the EPP interface.
 .TP
 .B --epp
 Use EPP interface to connect to board, only for boards with multiple
-interfaces (7i43, 7i90, 7i64).
+interfaces (7c80, 7c81, 7i43, 7i90, 7i64).
 .TP
 .B --usb
 Use USB interface to connect to board, only for boards with multiple
-interfaces (7i43, 7i90, 7i64).
+interfaces (7c80, 7c81, 7i43, 7i90, 7i64).
 .TP
 .B --spi
 Use SPI interface to connect to board, only for boards with multiple
-interfaces (7i43, 7i90, 7i64).
+interfaces (7c80, 7c81, 7i43, 7i90, 7i64).
 .TP
 .B --serial
 Use serial interface to connect to board, only for boards with multiple
 interfaces (7i43, 7i90, 7i64).
 .TP
 .B --fallback
-Use the fallback area of the EEPROM while executing commands.
+Use the fallback area of the FLASH memory while executing commands.
 .TP
 .B --recover
 Access board using PCI bridge GPIO (currently only 6I24/6I25).
@@ -49,13 +49,18 @@ Access board using PCI bridge GPIO (currently only 6I24/6I25).
 .B --xml
 Format output from 'readhmid' command into XML.
 .TP
+.BI --dbname# " name"
+Set daughter board name to 'name' for FPGA connector 'N'.
+Allows readhmid to include daughterboard terminal names,
+where # can be in the range 1 to 6 (1 means first FPGA connector).
+.TP
 .B --verbose
 Print detailed information while running commands.
 .SH COMMANDS
 .TP
 .BI --write " filename"
 Writes a standard bitfile 'filename' configuration to the userarea of
-the EEPROM (IMPORTANT! 'filename' must be VALID FPGA configuration file).
+the FLASH memory (IMPORTANT! 'filename' must be VALID FPGA configuration file).
 .TP
 .B --fix-boot-block
 If a write operation does not detect a valid boot block, write one.
@@ -64,11 +69,27 @@ If a write operation does not detect a valid boot block, write one.
 Don't automatically verify after writing.
 .TP
 .BI --verify " filename"
-Verifies the EEPROM configuration against the bitfile 'filename'.
+Verifies the FLASH memory configuration against the bitfile 'filename'.
 .TP
 .BI --program " filename"
 Writes a standard bitfile 'filename' configuration to the FPGA
 (IMPORTANT! 'filename' must be VALID FPGA configuration file).
+.TP
+.BI --backup-flash " filename|dirname"
+Backup all content the FLASH memory to the file 'filename'
+or to the directory 'dirname' with auto naming dump file.
+.TP
+.BI --restore-flash " filename"
+Restore all content the FLASH memory from a file 'filename'
+(IMPORTANT! Can't use a dump file from different types
+of boards. Unacceptable interrupt the restoring process.
+If the restoring process was interrupted, do not turn off
+the board power and do not reload board, and run restore
+process again). Required SHA256 checksum file 'filename.sha256'.
+.TP
+.B --sha256-check
+Integrity check FPGA configuration bitfile before writing.
+Required SHA256 checksum file 'filename.sha256'.
 .TP
 .B --readhmid
 Print hostmot2 configuration in PIN file format.
@@ -77,7 +98,7 @@ Print hostmot2 configuration in PIN file format.
 Print hostmot2 Pin Descriptors.
 .TP
 .B --reload
-Do full FPGA reload from flash (only Ethernet and pci boards).
+Do full FPGA reload from FLASH memory (only Ethernet, SPI and PCI boards).
 .TP
 .B --reset
 Do full firmware reset (only Ethernet and serial boards).
@@ -92,10 +113,10 @@ Read hostmot2 variable directly at 'address'.
 Write hostmot2 variable directly at 'address' with 'value'.
 .TP
 .BI --set " ip address"
-Set board IP address in eeprom to n.n.n.n (only Ethernet boards).
+Set board IP address in EEPROM memory to n.n.n.n (only Ethernet boards).
 .TP
 .BI --info " filename"
-Print info about configuration in 'file_name'.
+Print info about configuration in 'filename'.
 .TP
 .B --help
 Print the help message

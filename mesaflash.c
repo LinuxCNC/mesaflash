@@ -151,15 +151,15 @@ void print_usage() {
     printf("                    with multiple interfaces (7c80, 7c81, 7i43, 7i90, 7i64).\n");
     printf("  --serial          Use serial interface to connect to board, only for\n");
     printf("                    boards with multiple interfaces (7i43, 7i90, 7i64).\n");
-    printf("  --fallback        Use the fallback area of the EEPROM while executing\n");
+    printf("  --fallback        Use the fallback area of the FLASH memory while executing\n");
     printf("                    commands.\n");
     printf("  --recover         Access board using PCI bridge GPIO (currently\n");
     printf("                    only 6I24/6I25).\n");
     printf("  --xml             Format output from 'readhmid' command into XML.\n");
     printf("  --dbname# <name>  Set daughter board name to <name> for FPGA connector <N> \n");
-    printf("                    Allows readhmid to include daughterboard terminal names\n");
-    printf("                    where # can be in the range 1 to 6.\n");
-    printf("                    (1 means first FPGA connector)\n");
+    printf("                    Allows readhmid to include daughterboard terminal names,\n");
+    printf("                    where # can be in the range 1 to 6\n");
+    printf("                    (1 means first FPGA connector).\n");
     printf("  --verbose         Print detailed information while running commands.\n");
     printf("\n");
     printf("Commands:\n");
@@ -182,6 +182,7 @@ void print_usage() {
     printf("                    If the restoring process was interrupted, do not turn off\n");
     printf("                    the board power and do not reload board, and run restore\n");
     printf("                    process again).\n");
+    printf("                    Required SHA256 checksum file 'filename.sha256'.\n");
     printf("  --sha256-check    Integrity check FPGA configuration bitfile before writing.\n");
     printf("                    Required SHA256 checksum file 'filename.sha256'.\n");
     printf("  --readhmid        Print hostmot2 configuration in PIN file format.\n");
@@ -193,9 +194,9 @@ void print_usage() {
     printf("  --rpo             Read hostmot2 variable directly at 'address'.\n");
     printf("  --wpo             Write hostmot2 variable directly at 'address'\n");
     printf("                    with 'value'.\n");
-    printf("  --set             Set board IP address in EEPROM to n.n.n.n (only\n");
+    printf("  --set             Set board IP address in EEPROM memory to n.n.n.n (only\n");
     printf("                    Ethernet boards).\n");
-    printf("  --info            Print info about configuration in 'file_name'.\n");
+    printf("  --info            Print info about configuration in 'filename'.\n");
     printf("  --help            Print this help message.\n");
 }
 
