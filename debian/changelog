@@ -1,3 +1,11 @@
+mesaflash (3.4.0-3) UNRELEASED; urgency=medium
+
+  * Added ref to homepage (Closes: #1001880).
+    The URL suggested in the bug report is forwarded to the
+    LinuxCNC/mesaflash repository that is now pointed to also in d/control.
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sat, 25 Dec 2021 02:36:41 +0100
+
 mesaflash (3.4.0-2) unstable; urgency=medium
 
   * Revised d/copyright
