@@ -10,7 +10,7 @@ Build-Depends: debhelper (>= 9),
                pkg-config
 Homepage: https://github.com/LinuxCNC/mesaflash
 Vcs-Browser: https://github.com/linuxcnc/mesaflash
-Vcs-git: https://github.com/LinuxCNC/mesaflash.git -b master
+Vcs-Git: https://github.com/LinuxCNC/mesaflash.git -b master
 
 Package: mesaflash
 Architecture: any
