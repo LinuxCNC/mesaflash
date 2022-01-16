@@ -23,7 +23,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <strings.h>
-#include <openssl/sha.h>
+#include <sha256.h>
 #include <stdbool.h>
 #include <linux/limits.h>
 #include "types.h"
@@ -221,7 +221,7 @@ bool sha256_verify(const char *bitfile_name, bool verbose) {
     SHA256_Init(&sha256ctx);
     while (!feof(fp)) {
         bytesread = fread(&file_buffer, 1, 8192, fp);
-        SHA256_Update(&sha256ctx, &file_buffer, (unsigned long)bytesread);
+        SHA256_Update(&sha256ctx, file_buffer, (unsigned long)bytesread);
     }
     fclose(fp);
     SHA256_Final(sha256bitfile, &sha256ctx);
@@ -477,7 +477,7 @@ int flash_backup(llio_t *self, char *bitfile_name) {
         eeprom_access.read_page(self, eeprom_addr, &page_buffer);
 
         fwrite(&page_buffer, 1, PAGE_SIZE, fp);
-        SHA256_Update(&sha256ctx, &page_buffer, PAGE_SIZE);
+        SHA256_Update(&sha256ctx, page_buffer, PAGE_SIZE);
 
         eeprom_addr += PAGE_SIZE;
         page_num++;
