@@ -461,6 +461,36 @@ void epp_boards_scan(board_access_t *access) {
             board->llio.verbose = access->verbose;
 
             boards_count++;
+        } else if(strncmp(board_name, "MESA7C81", 8) == 0) {
+            board->type = BOARD_EPP;
+            board->mode = BOARD_MODE_FPGA;
+            strcpy(board->dev_addr, access->dev_addr);
+            strcpy(board->llio.board_name, "7C81");
+            board->llio.num_ioport_connectors = 3;
+            board->llio.pins_per_connector = 19;
+            board->llio.ioport_connector_name[0] = "P1+Serial";
+            board->llio.ioport_connector_name[1] = "P2+Serial";
+            board->llio.ioport_connector_name[2] = "P7+Serial";
+            board->llio.bob_hint[0] = BOB_7C81_0;
+            board->llio.bob_hint[1] = BOB_7C81_1;
+            board->llio.bob_hint[2] = BOB_7C81_2;
+            board->llio.num_leds = 4;
+            board->llio.verbose = access->verbose;
+            board->llio.read = &epp_read;
+            board->llio.write = &epp_write;
+            board->llio.write_flash = &local_write_flash;
+            board->llio.verify_flash = &local_verify_flash;
+            board->llio.reset = &epp_reset;
+            board->llio.fpga_part_number = "6slx9tqg144";
+
+            board->open = &epp_board_open;
+            board->close = &epp_board_close;
+            board->print_info = &epp_print_info;
+            board->flash = BOARD_FLASH_HM2;
+            board->llio.verbose = access->verbose;
+            board->fallback_support = 1;
+
+            boards_count++;
         }
     } else if (eppio_cookie == HM2_COOKIE) {
         board->type = BOARD_EPP;
