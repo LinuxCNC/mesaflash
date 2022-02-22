@@ -76,7 +76,7 @@ struct llio_struct {
 
 typedef struct {
     u8 tag;
-    char *name[10];
+    char *name[32];
 } pin_name_t;
 
 typedef struct {

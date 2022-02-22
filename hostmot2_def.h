@@ -67,6 +67,7 @@
 #define HM2_GTAG_DPAINTER          0x2A
 #define HM2_GTAG_XYMOD             0x2B
 #define HM2_GTAG_RCPWMGEN          0x2C
+#define HM2_GTAG_OUTM              0x2D
 #define HM2_GTAG_LIOPORT           0x40
 #define HM2_GTAG_LED               0x80
 #define HM2_GTAG_RESOLVER          0xC0
