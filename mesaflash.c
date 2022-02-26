@@ -191,9 +191,9 @@ void print_usage() {
     printf("                    PCI boards).\n");
     printf("  --reset           Do full firmware reset (only Ethernet and serial boards).\n");
     printf("  --sserial         Print full information about all sserial remote boards.\n");
-    printf("  --rpo             Read hostmot2 variable directly at 'address'.\n");
-    printf("  --wpo             Write hostmot2 variable directly at 'address'\n");
-    printf("                    with 'value'.\n");
+    printf("  --rpo addrs       Read hostmot2 register directly at 'addrs'.\n");
+    printf("  --wpo addrs=data  Write hostmot2 register directly at 'addrs'\n");
+    printf("                    with 'data'.\n");
     printf("  --set ip=n.n.n.n  Set board IP address in EEPROM memory to n.n.n.n (only\n");
     printf("                    Ethernet boards).\n");
     printf("  --info            Print info about configuration in 'filename'.\n");
