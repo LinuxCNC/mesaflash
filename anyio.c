@@ -219,7 +219,8 @@ board_t *anyio_get_dev(board_access_t *access, int board_number) {
     for (i = 0, j = 0; i < boards_count; i++) {
         board_t *board = NULL;
         board = &boards[i];
-        if (strncmp(access->device_name, board->llio.board_name, strlen(access->device_name)) == 0 || access->open_iface & BOARD_WILDCARD) {
+        if (((strncmp(access->device_name, board->llio.board_name, strlen(access->device_name)) == 0) &&
+        (strlen(access->device_name) == strlen(board->llio.board_name))) || access->open_iface & BOARD_WILDCARD) {
             j++;
             if (j == board_number) {
                 return board;

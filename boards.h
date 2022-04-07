@@ -39,6 +39,7 @@
 #define BOARD_WILDCARD        (1<<30)
 typedef enum {BOARD_MODE_CPLD, BOARD_MODE_FPGA} board_mode;
 typedef enum {BOARD_FLASH_NONE = 0, BOARD_FLASH_HM2, BOARD_FLASH_IO, BOARD_FLASH_GPIO, BOARD_FLASH_REMOTE, BOARD_FLASH_EPP} board_flash;
+typedef enum {FPGA_TYPE_XILINX, FPGA_TYPE_EFINIX} fpga_type;
 
 typedef struct {
     char *name;
@@ -50,6 +51,7 @@ typedef struct board_struct board_t;
 struct board_struct {
     u32 type;
     board_mode mode;
+    fpga_type fpga_type;
     board_flash flash;
     u8 flash_id;
     u32 flash_start_address;

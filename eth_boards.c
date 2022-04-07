@@ -159,8 +159,9 @@ static int eth_scan_one_addr(board_access_t *access) {
         memset(buff, 0, sizeof(buff));
         lbp16_send_packet_checked(&packet2, sizeof(packet2));
         lbp16_recv_packet_checked(&buff, sizeof(buff));
-
-        if (strncmp(buff, "7I80DB-16", 9) == 0) {
+// Default fpga type is Xilinx
+        board->fpga_type = FPGA_TYPE_XILINX;   
+        if (strncmp(buff, "7I80DB-16", 9) == 16) {
             board->type = BOARD_ETH;
             strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
             strncpy(board->llio.board_name, buff, 16);
@@ -187,7 +188,7 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->fallback_support = 1;
             board->llio.verbose = access->verbose;
             boards_count ++;
-        } else if (strncmp(buff, "7I80DB-25", 9) == 0) {
+        } else if (strncmp(buff, "7I80DB-25", 16) == 0) {
             board->type = BOARD_ETH;
             strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
             strncpy(board->llio.board_name, buff, 16);
@@ -214,7 +215,7 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->fallback_support = 1;
             board->llio.verbose = access->verbose;
             boards_count ++;
-        } else if (strncmp(buff, "7I80HD-16", 9) == 0) {
+        } else if (strncmp(buff, "7I80HD-16", 16) == 0) {
             board->type = BOARD_ETH;
             strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
             strncpy(board->llio.board_name, buff, 16);
@@ -240,7 +241,7 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->fallback_support = 1;
             board->llio.verbose = access->verbose;
             boards_count ++;
-        } else if (strncmp(buff, "7I80HD-25", 9) == 0) {
+        } else if (strncmp(buff, "7I80HD-25", 16) == 0) {
             board->type = BOARD_ETH;
             strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
             strncpy(board->llio.board_name, buff, 16);
@@ -266,7 +267,7 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->fallback_support = 1;
             board->llio.verbose = access->verbose;
             boards_count ++;
-        } else if (strncmp(buff, "7I76E-16", 9) == 0) {
+        } else if (strncmp(buff, "7I76E-16", 16) == 0) {
             board->type = BOARD_ETH;
             strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
             strncpy(board->llio.board_name, buff, 16);
@@ -293,7 +294,7 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->fallback_support = 1;
             board->llio.verbose = access->verbose;
             boards_count ++;
-        } else if (strncmp(buff, "7I92", 4) == 0) {
+        } else if (strncmp(buff, "7I92", 16) == 0) {
             board->type = BOARD_ETH;
             strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
             strncpy(board->llio.board_name, buff, 16);
@@ -318,7 +319,7 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->fallback_support = 1;
             board->llio.verbose = access->verbose;
             boards_count ++;
-        } else if (strncmp(buff, "7I93", 4) == 0) {
+        } else if (strncmp(buff, "7I93", 16) == 0) {
             board->type = BOARD_ETH;
             strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
             strncpy(board->llio.board_name, buff, 16);
@@ -343,7 +344,7 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->fallback_support = 1;
             board->llio.verbose = access->verbose;
             boards_count ++;
-        } else if (strncmp(buff, "7I94", 4) == 0) {
+        } else if (strncmp(buff, "7I94", 16) == 0) {
             board->type = BOARD_ETH;
             strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
             strncpy(board->llio.board_name, buff, 16);
@@ -370,7 +371,7 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->fallback_support = 1;
             board->llio.verbose = access->verbose;
             boards_count ++;
-        } else if (strncmp(buff, "7I95", 4) == 0) {
+        } else if (strncmp(buff, "7I95", 16) == 0) {
             board->type = BOARD_ETH;
             strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
             strncpy(board->llio.board_name, buff, 16);
@@ -397,7 +398,7 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->fallback_support = 1;
             board->llio.verbose = access->verbose;
             boards_count ++;
-        } else if (strncmp(buff, "7I96", 4) == 0) {
+        } else if (strncmp(buff, "7I96", 16) == 0) {
             board->type = BOARD_ETH;
             strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
             strncpy(board->llio.board_name, buff, 16);
@@ -426,7 +427,37 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->fallback_support = 1;
             board->llio.verbose = access->verbose;
             boards_count ++;
-        } else if (strncmp(buff, "7I97", 4) == 0) {
+        } else if (strncmp(buff, "7I96S", 16) == 0)  {
+            board->type = BOARD_ETH;
+            board->fpga_type = FPGA_TYPE_EFINIX;   
+            strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
+            strncpy(board->llio.board_name, buff, 16);
+            board->llio.num_ioport_connectors = 3;
+            board->llio.pins_per_connector = 17;
+            board->llio.ioport_connector_name[0] = "TB3";
+            board->llio.ioport_connector_name[1] = "TB1/TB2";
+            board->llio.ioport_connector_name[2] = "P1";
+            board->llio.bob_hint[0] = BOB_7I96_0;
+            board->llio.bob_hint[1] = BOB_7I96_1;
+            board->llio.bob_hint[2] = BOB_7I96_2;
+            board->llio.fpga_part_number = "t20f256";
+            board->llio.num_leds = 4;
+            board->llio.read = &eth_read;
+            board->llio.write = &eth_write;
+            board->llio.write_flash = &remote_write_flash;
+            board->llio.verify_flash = &remote_verify_flash;
+            board->llio.backup_flash = &remote_backup_flash;
+            board->llio.restore_flash = &remote_restore_flash;
+            board->llio.reset = &lbp16_board_reset;
+            board->llio.reload = &lbp16_board_reload;
+            board->open = &eth_board_open;
+            board->close = &eth_board_close;
+            board->print_info = &eth_print_info;
+            board->flash = BOARD_FLASH_REMOTE;
+            board->fallback_support = 0; // TBD
+            board->llio.verbose = access->verbose;
+            boards_count ++;
+        } else if (strncmp(buff, "7I97", 16) == 0) {
             board->type = BOARD_ETH;
             strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
             strncpy(board->llio.board_name, buff, 16);
@@ -455,7 +486,7 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->fallback_support = 1;
             board->llio.verbose = access->verbose;
             boards_count ++;
-        } else if (strncmp(buff, "7I98", 4) == 0) {
+        } else if (strncmp(buff, "7I98", 16) == 0) {
             board->type = BOARD_ETH;
             strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
             strncpy(board->llio.board_name, buff, 16);
