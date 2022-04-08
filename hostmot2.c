@@ -620,7 +620,7 @@ void hm2_print_pin_file(llio_t *llio, int xml_flag) {
         printf("Configuration pin-out:\n");
         for (i = 0; i < llio->hm2.idrom.io_ports; i++) {
             printf("\nIO Connections for %s\n", llio->ioport_connector_name[i]);
-            printf("Pin#                  I/O   Pri. func    Sec. func       Chan      Pin func        Pin Dir\n\n");
+            printf("Pin#                  I/O   Pri. func    Sec. func        Chan     Sec. Pin func   Sec. Pin Dir\n\n");
             for (j = 0; j < llio->hm2.idrom.port_width; j++) {
                 hm2_pin_desc_t *pin = &(llio->hm2.pins[i*(llio->hm2.idrom.port_width) + j]);
                 int pin_nr;
