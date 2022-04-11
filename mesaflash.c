@@ -109,6 +109,7 @@ static struct option long_options[] = {
     {"info", required_argument, 0, 'i'},
     {"help", no_argument, 0, 'h'},
     {"verbose", no_argument, &verbose_flag, 1},
+    {"version", no_argument, 0, 'x'},
     {0, 0, 0, 0}
 };
 
@@ -116,6 +117,10 @@ void print_short_usage() {
     printf("Mesaflash version %s\n", VERSION);
     printf("Configuration and diagnostic tool for Mesa Electronics PCI(E)/ETH/EPP/USB/SPI boards\n");
     printf("Try 'mesaflash --help' for more information\n");
+}
+
+void print_version() {
+    printf("Mesaflash version %s\n", VERSION);
 }
 
 void print_usage() {
@@ -197,6 +202,7 @@ void print_usage() {
     printf("  --set ip=n.n.n.n  Set board IP address in EEPROM memory to n.n.n.n (only\n");
     printf("                    Ethernet boards).\n");
     printf("  --info            Print info about configuration in 'filename'.\n");
+    printf("  --version         Print the version.\n");
     printf("  --help            Print this help message.\n");
 }
 
@@ -411,6 +417,12 @@ int process_cmd_line(int argc, char *argv[]) {
 
             case 'h': {
                 print_usage();
+                exit(0);
+            }
+            break;
+
+            case 'x': {
+                print_version();
                 exit(0);
             }
             break;
