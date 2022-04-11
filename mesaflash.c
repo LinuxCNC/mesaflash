@@ -120,7 +120,7 @@ void print_short_usage() {
 }
 
 void print_version() {
-    printf("Version: 3.2.1\n");
+    printf("Mesaflash version %s\n", VERSION);
 }
 
 void print_usage() {
