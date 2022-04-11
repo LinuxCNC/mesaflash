@@ -202,6 +202,7 @@ void print_usage() {
     printf("  --set ip=n.n.n.n  Set board IP address in EEPROM memory to n.n.n.n (only\n");
     printf("                    Ethernet boards).\n");
     printf("  --info            Print info about configuration in 'filename'.\n");
+    printf("  --version         Print the version.\n");
     printf("  --help            Print this help message.\n");
 }
 
