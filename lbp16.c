@@ -111,29 +111,41 @@ int lbp16_board_reload(llio_t *self, int fallback_flag) {
         return -1;
     }
 
-    if (fallback_flag == 1) {
-        boot_addr = 0x10000;
-    } else {
-        boot_addr = 0x0;
+    if (board->fpga_type == FPGA_TYPE_EFINIX) {
+// Efinix config register instructions
+        if (fallback_flag == 1) {
+            LBP16_INIT_PACKET6(packet[0], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x0004);   // image number 0 + config enable 
+            LBP16_INIT_PACKET6(packet[1], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x000C);   // image number 0 + config enable + config start 
+        } else {
+            LBP16_INIT_PACKET6(packet[0], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x0005);   // image number 1 + config enable 
+            LBP16_INIT_PACKET6(packet[1], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x000D);   // image number 1 + config enable + config start 
+        }
+        lbp16_send_packet_checked(&packet, sizeof(packet));
+    } else  {   
+// Xilinx ICAP instructions
+        if (fallback_flag == 1) {
+            boot_addr = 0x10000;
+        } else {
+            boot_addr = 0x0;
+        }
+        boot_addr |= 0x0B000000; // plus read command in high byte
+        
+        LBP16_INIT_PACKET6(packet[0], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0xFFFF);   // dummy
+        LBP16_INIT_PACKET6(packet[1], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0xFFFF);   // dummy
+        LBP16_INIT_PACKET6(packet[2], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0xAA99);   // sync
+        LBP16_INIT_PACKET6(packet[3], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x5566);   // sync
+        LBP16_INIT_PACKET6(packet[4], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x3261);   // load low flash start address
+        LBP16_INIT_PACKET6(packet[5], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, boot_addr & 0xFFFF);   // start addr
+        LBP16_INIT_PACKET6(packet[6], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x3281);   // load high start address + read command
+        LBP16_INIT_PACKET6(packet[7], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, boot_addr >> 16);   // start addr (plus read command in high byte)
+        LBP16_INIT_PACKET6(packet[8], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x30A1);   // load command register
+        LBP16_INIT_PACKET6(packet[9], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x000E);   // IPROG command
+        LBP16_INIT_PACKET6(packet[10], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x2000);  // NOP
+        LBP16_INIT_PACKET6(packet[11], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x2000);  // NOP
+        LBP16_INIT_PACKET6(packet[12], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x2000);  // NOP
+        LBP16_INIT_PACKET6(packet[13], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x2000);  // NOP
+        lbp16_send_packet_checked(&packet, sizeof(packet));
     }
-    boot_addr |= 0x0B000000; // plus read command in high byte
-
-    LBP16_INIT_PACKET6(packet[0], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0xFFFF);   // dummy
-    LBP16_INIT_PACKET6(packet[1], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0xFFFF);   // dummy
-    LBP16_INIT_PACKET6(packet[2], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0xAA99);   // sync
-    LBP16_INIT_PACKET6(packet[3], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x5566);   // sync
-    LBP16_INIT_PACKET6(packet[4], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x3261);   // load low flash start address
-    LBP16_INIT_PACKET6(packet[5], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, boot_addr & 0xFFFF);   // start addr
-    LBP16_INIT_PACKET6(packet[6], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x3281);   // load high start address + read command
-    LBP16_INIT_PACKET6(packet[7], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, boot_addr >> 16);   // start addr (plus read command in high byte)
-    LBP16_INIT_PACKET6(packet[8], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x30A1);   // load command register
-    LBP16_INIT_PACKET6(packet[9], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x000E);   // IPROG command
-    LBP16_INIT_PACKET6(packet[10], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x2000);  // NOP
-    LBP16_INIT_PACKET6(packet[11], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x2000);  // NOP
-    LBP16_INIT_PACKET6(packet[12], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x2000);  // NOP
-    LBP16_INIT_PACKET6(packet[13], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x2000);  // NOP
-    lbp16_send_packet_checked(&packet, sizeof(packet));
-
     return 0;
 }
 
