@@ -161,7 +161,7 @@ static int eth_scan_one_addr(board_access_t *access) {
         lbp16_recv_packet_checked(&buff, sizeof(buff));
 // Default fpga type is Xilinx
         board->fpga_type = FPGA_TYPE_XILINX;   
-        if (strncmp(buff, "7I80DB-16", 9) == 16) {
+        if (strncmp(buff, "7I80DB-16", 16) == 0) {
             board->type = BOARD_ETH;
             strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
             strncpy(board->llio.board_name, buff, 16);
@@ -270,7 +270,8 @@ static int eth_scan_one_addr(board_access_t *access) {
         } else if (strncmp(buff, "7I76E-16", 16) == 0) {
             board->type = BOARD_ETH;
             strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
-            strncpy(board->llio.board_name, buff, 16);
+            // use only the first 5 letters on the 7I76E-16 for the device name compare
+            strncpy(board->llio.board_name, buff, 5);
             board->llio.num_ioport_connectors = 3;
             board->llio.pins_per_connector = 17;
             board->llio.ioport_connector_name[0] = "on-card";
