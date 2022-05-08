@@ -27,8 +27,9 @@ int print_bitfile_header(FILE *fp, char *part_name, int verbose_flag) {
     int sleng;
     int bytesread, conflength;
     int ret = 0;
-
-    printf("Checking file... ");
+    char str[80];
+    char * partns;
+    printf("Checking file... ");    
     bytesread = fread(&buff, 1, 14, fp);
     ret += bytesread;
     if (bytesread != 14) {
@@ -39,7 +40,7 @@ int print_bitfile_header(FILE *fp, char *part_name, int verbose_flag) {
         return -1;
     }
     if ((buff[0] == 0) && (buff[1] == 9)) {
-        printf("OK\n  File type: BIT file\n");
+        printf("OK\n  File type: Xilinx bit file\n");
         if ((buff[11] == 0) && (buff[12] == 1) && (buff[13] == 0x61)) {
             bytesread = fread(&buff, 1, 2, fp);
             ret += bytesread;
@@ -90,6 +91,59 @@ int print_bitfile_header(FILE *fp, char *part_name, int verbose_flag) {
         }
         return ret;
     }
+    rewind(fp);
+    fgets(str, 20 ,fp); 
+       ret += strlen(str);
+    if (strncmp(str,"Version",7) == 0) {
+        printf("OK\n  File type: Efinix bin file\n");
+        if (verbose_flag == 1) {
+            printf("  Compiler %s", str);
+        }    
+        fgets(str, 60, fp);
+        ret += strlen(str);
+        if (verbose_flag == 1) {
+            printf("  %s", str);
+        }    
+        fgets(str, 60, fp);
+        ret += strlen(str);
+        if (verbose_flag == 1) {
+            printf("  %s", str);
+        }
+        fgets(str, 60, fp);
+        ret += strlen(str);
+        fgets(str, 60, fp);
+        ret += strlen(str);
+        if (verbose_flag == 1) {
+            printf("  %s", str);
+        }
+        fgets(str, 60, fp);
+        ret += strlen(str);
+        if (verbose_flag == 1) {
+            printf("  %s", str);
+        }
+        fgets(str, 60, fp);
+        ret += strlen(str);
+// the device name is in this string
+        if (verbose_flag == 1) {
+            printf("  %s", str);
+        }
+		  partns = strtok(str," ");
+		  partns = strtok(NULL," ");
+		  partns[(strlen(partns)-1)] = '\0';
+        strcpy(part_name, partns);
+        fgets(str, 60, fp);
+        ret += strlen(str);
+        if (verbose_flag == 1) {
+            printf("  %s", str);
+        }
+        fgets(str, 60, fp);
+        ret += strlen(str);
+        if (verbose_flag == 1) {
+            printf("  %s", str);
+        }
+        
+        return ret;
+    }    
     if ((buff[0] == 0xFF) && (buff[1] == 0xFF) && (buff[2] == 0xFF) && (buff[3] == 0xFF)) {
         printf("Looks like a BIN file\n");
         return -1;

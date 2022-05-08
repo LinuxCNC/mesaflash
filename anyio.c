@@ -240,7 +240,11 @@ int anyio_dev_write_flash(board_t *board, char *bitfile_name, int fallback_flag,
         u32 addr = board->flash_start_address;
 
         if (fallback_flag == 1) {
-            addr = FALLBACK_ADDRESS;
+            if (board->fpga_type == FPGA_TYPE_EFINIX) {
+					addr = EFINIX_FALLBACK_ADDRESS;
+            } else {
+ 					addr = XILINX_FALLBACK_ADDRESS;
+            }
         }
         ret = board->llio.write_flash(&(board->llio), bitfile_name, addr, fix_boot_flag, sha256_check_flag);
     } else {
@@ -260,8 +264,12 @@ int anyio_dev_verify_flash(board_t *board, char *bitfile_name, int fallback_flag
         u32 addr = board->flash_start_address;
 
         if (fallback_flag == 1) {
-            addr = FALLBACK_ADDRESS;
-        }
+            if (board->fpga_type == FPGA_TYPE_EFINIX) {
+					addr = EFINIX_FALLBACK_ADDRESS;
+            } else {
+ 					addr = XILINX_FALLBACK_ADDRESS;
+            }
+         }   
         ret = board->llio.verify_flash(&(board->llio), bitfile_name, addr);
     } else {
         printf("ERROR: Board %s doesn't support flash verification.\n", board->llio.board_name);

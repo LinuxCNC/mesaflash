@@ -441,7 +441,7 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->llio.bob_hint[0] = BOB_7I96_0;
             board->llio.bob_hint[1] = BOB_7I96_1;
             board->llio.bob_hint[2] = BOB_7I96_2;
-            board->llio.fpga_part_number = "t20f256";
+            board->llio.fpga_part_number = "T20F256";
             board->llio.num_leds = 4;
             board->llio.read = &eth_read;
             board->llio.write = &eth_write;
@@ -455,7 +455,7 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->close = &eth_board_close;
             board->print_info = &eth_print_info;
             board->flash = BOARD_FLASH_REMOTE;
-            board->fallback_support = 0; // TBD
+            board->fallback_support = 1; 
             board->llio.verbose = access->verbose;
             boards_count ++;
         } else if (strncmp(buff, "7I97", 16) == 0) {

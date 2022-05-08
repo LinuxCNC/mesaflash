@@ -125,15 +125,19 @@ int start_programming(llio_t *self, u32 start_address, int fsize) {
     struct timeval tv1, tv2;
 
     esectors = (fsize - 1) / SECTOR_SIZE;
-    if (board->fallback_support == 1) {
-        if (start_address == FALLBACK_ADDRESS) {
-            max_sectors = eeprom_calc_user_space(board->flash_id) / SECTOR_SIZE - 1;
-        } else {
-            max_sectors = eeprom_calc_user_space(board->flash_id) / SECTOR_SIZE;
-        }
+    if (board->fpga_type == FPGA_TYPE_EFINIX) {
+        max_sectors = eeprom_calc_user_space(board->flash_id) / SECTOR_SIZE;
     } else {
+        if (board->fallback_support == 1) {
+            if (start_address == XILINX_FALLBACK_ADDRESS) {
+                max_sectors = eeprom_calc_user_space(board->flash_id) / SECTOR_SIZE - 1;
+            } else {
+                max_sectors = eeprom_calc_user_space(board->flash_id) / SECTOR_SIZE;
+            }
+        } else {
         max_sectors = eeprom_get_flash_size(board->flash_id) / SECTOR_SIZE;
-    }
+        }
+    } 
     if (esectors > max_sectors) {
         printf("File Size too large to fit\n");
         return -1;
@@ -285,8 +289,8 @@ int eeprom_write(llio_t *self, char *bitfile_name, u32 start_address, int fix_bo
             }
         }
     }
-// if board doesn't support fallback there is no boot block
-    if (board->fallback_support == 1) {
+// boot blocks are in Xilinx FPGA cards with fallback support
+    if ((board->fallback_support == 1) && (board->fpga_type == FPGA_TYPE_XILINX)) {
         if (check_boot(self) == -1) {
             if (fix_boot_flag) {
                 write_boot(self);
@@ -369,8 +373,8 @@ int eeprom_verify(llio_t *self, char *bitfile_name, u32 start_address) {
                 return -1;
             }
         }
-        // if board doesn't support fallback there is no boot block
-        if (board->fallback_support == 1) {
+        // boot blocks are in Xilinx FPGA cards with fallback support
+        if ((board->fallback_support == 1) && (board->fpga_type == FPGA_TYPE_XILINX)) {
             if (check_boot(self) == -1) {
                 printf("Error: BootSector is invalid\n");
                 fclose(fp);

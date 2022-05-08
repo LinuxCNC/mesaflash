@@ -34,7 +34,8 @@
 #define BOOT_BLOCK_SIZE 64
 
 #define BOOT_ADDRESS     0x000000
-#define FALLBACK_ADDRESS 0x010000
+#define XILINX_FALLBACK_ADDRESS 0x010000
+#define EFINIX_FALLBACK_ADDRESS 0x000000
 
 typedef struct {
     void (*set_cs_low)(llio_t *self);
