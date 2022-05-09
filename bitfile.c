@@ -127,10 +127,15 @@ int print_bitfile_header(FILE *fp, char *part_name, int verbose_flag) {
         if (verbose_flag == 1) {
             printf("  %s", str);
         }
-		  partns = strtok(str," ");
-		  partns = strtok(NULL," ");
-		  partns[(strlen(partns)-1)] = '\0';
+        partns = strtok(str," ");
+        partns = strtok(NULL," ");
+        partns[(strlen(partns)-1)] = '\0';
         strcpy(part_name, partns);
+        fgets(str, 60, fp);
+        ret += strlen(str);
+        if (verbose_flag == 1) {
+            printf("  %s", str);
+        }
         fgets(str, 60, fp);
         ret += strlen(str);
         if (verbose_flag == 1) {
