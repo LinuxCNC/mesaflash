@@ -181,6 +181,9 @@ static bob_pin_name_t bob_pin_names[MAX_BOB_NAMES] = {
    {BOB_7I85, {"TB1-19,20","TB1-21,22","TB1-11,12","TB1-13,14","TB1-3,4","TB1-5,6","TB2-19,20","TB2-21,22","TB2-11,12","TB2-13,14",
     "Internal-EncMux","TB3-1,2,9,10","TB3-4,5,12,13","TB3-7,8,12,13","TB3-17,18,TB2-1,2","TB3-20,21,TB2-4,5","TB3-23,24,TB2-7,8"}},
 
+   {BOB_7I85S, {"TB1-19,20","TB1-21,22","TB1-11,12","TB1-13,14","TB1-3,4","TB1-5,6","TB2-19,20","TB2-21,22","TB2-11,12","TB2-13,14",
+    "Internal-EncMux","TB3-1,2,9,10","TB3-4,5,12,13","TB3-7,8,12,13","TB3-17,18,TB2-1,2","TB3-20,21,TB2-4,5","TB3-23,24,TB2-7,8"}},
+
    {BOB_7I88, {"TB2-2,3","TB2-4,5","TB2-8,9","TB2-10,11","TB2-14,15","TB2-16,17","TB2-20,21","TB2-22,23","TB3-2,3","TB3-4,5",
     "TB3,8,9","TB3-10,11","TB3-13,14","TB3-16,17","TB3-20,21,Opt-TXEn","TB3-22,23","Opt-TB3-20,21"}},
 
@@ -222,7 +225,10 @@ static bob_pin_name_t bob_pin_names[MAX_BOB_NAMES] = {
     "P2-20:PWM-Up","P2-20:PWM-Dwn","P2-24:PWM-Up","P2-24:PWM-Dwn","/Ena1"}},
 
    {BOB_7I52, {"P2-5,6:/Ena","P5-1,2,9,10","P5-4,5,12,13","P5-7,8,15,16","P5-17,18,P4-1,2","P5-20,21,P4-4,5","P5-23,24,P4-7,8","P3-9,10,17,18","P3-12,13,20,21",
-    "P3-15,16,23,24","Internal-EncMux","P2-21,22","P2-19,20","P2-13,14","P2-11,12","P2-5,6","P2-3,4","P3-21,22","P3-19,20","P3-13,14","P3-11,12","P3-5,6","P3-3,4","P3-5,6:/Ena"}}
+    "P3-15,16,23,24","Internal-EncMux","P2-21,22","P2-19,20","P2-13,14","P2-11,12","P2-5,6","P2-3,4","P3-21,22","P3-19,20","P3-13,14","P3-11,12","P3-5,6","P3-3,4","P3-5,6:/Ena"}},
+
+   {BOB_7I52S, {"P2-5,6:/Ena","P5-1,2,9,10","P5-4,5,12,13","P5-7,8,15,16","P5-17,18,P4-1,2","P5-20,21,P4-4,5","P5-23,24,P4-7,8","P3-9,10,17,18","P3-12,13,20,21",
+    "P3-15,16,23,24","Internal-EncMux","P2-21,22","P2-19,20","P2-13,14","P2-11,12","P2-5,6","P2-3,4","P3-21,22","P3-19,20","P3-13,14","P3-11,12","P3-5,6","P3-3,4","P3-5,6:/Ena"}},
 
 };
 
@@ -250,7 +256,7 @@ static struct {
     { BOB_7I74, "7I74" },
     { BOB_7I78, "7I78" },
     { BOB_7I85, "7I85" },
-    { BOB_7I85, "7I85S"},
+    { BOB_7I85S, "7I85S"},
     { BOB_7I88, "7I88"},
     { BOB_7I89, "7I89"},
     { BOB_DMM4250, "DMM4250"},
@@ -260,12 +266,12 @@ static struct {
     { BOB_C11G, "C11G"},
     { BOB_7I33TA, "7I33TA"},
     { BOB_7I37TA, "7I37TA"},
-    { BOB_7I47, "7I44"},
+    { BOB_7I44, "7I44"},
     { BOB_7I47, "7I47"},
     { BOB_7I47S, "7I47S"},
     { BOB_7I48, "7I48"},
     { BOB_7I52, "7I52"},
-    { BOB_7I52, "7I52S"},
+    { BOB_7I52S, "7I52S"},
     { -1, NULL },
 };
 
@@ -619,7 +625,11 @@ void hm2_print_pin_file(llio_t *llio, int xml_flag) {
 
         printf("Configuration pin-out:\n");
         for (i = 0; i < llio->hm2.idrom.io_ports; i++) {
-            printf("\nIO Connections for %s\n", llio->ioport_connector_name[i]);
+            if (llio->bob_hint[i] != 0) {
+            	printf("\nIO Connections for %s -> %s\n", llio->ioport_connector_name[i],bob_names[llio->bob_hint[i]-1].name );
+            } else {
+             	printf("\nIO Connections for %s\n", llio->ioport_connector_name[i]);
+				}	
             printf("Pin#                  I/O   Pri. func    Sec. func        Chan     Sec. Pin func   Sec. Pin Dir\n\n");
             for (j = 0; j < llio->hm2.idrom.port_width; j++) {
                 hm2_pin_desc_t *pin = &(llio->hm2.pins[i*(llio->hm2.idrom.port_width) + j]);

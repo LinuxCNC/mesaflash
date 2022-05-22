@@ -302,21 +302,23 @@ typedef struct {
 # define BOB_7I74 18
 # define BOB_7I78 19
 # define BOB_7I85 20
-# define BOB_7I85S 20
-# define BOB_7I88 21
-# define BOB_7I89 22
-# define BOB_DMM4250 23
-# define BOB_5ABOB 24
-# define BOB_G540 25
-# define BOB_C11 26
-# define BOB_C11G 27
-# define BOB_7I33TA 28
-# define BOB_7I37TA 29
-# define BOB_7I44 30
-# define BOB_7I47 31
-# define BOB_7I47S 32
-# define BOB_7I48 33
-# define BOB_7I52 34
+# define BOB_7I85S 21
+# define BOB_7I88 22
+# define BOB_7I89 23
+# define BOB_DMM4250 24
+# define BOB_5ABOB 25
+# define BOB_G540 26
+# define BOB_C11 27
+# define BOB_C11G 28
+# define BOB_7I33TA 29
+# define BOB_7I37TA 30
+# define BOB_7I44 31
+# define BOB_7I47 32
+# define BOB_7I47S 33
+# define BOB_7I48 34
+# define BOB_7I52 35
+# define BOB_7I52S 36
+
 
 
 
