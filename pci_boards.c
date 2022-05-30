@@ -948,6 +948,8 @@ void pci_boards_scan(board_access_t *access) {
                 board->llio.write = &pci_write;
                 board->llio.write_flash = &local_write_flash;
                 board->llio.verify_flash = &local_verify_flash;
+                board->llio.backup_flash = &local_backup_flash; 
+                board->llio.restore_flash = &local_restore_flash;
 
                 board->open = &pci_board_open;
                 board->close = &pci_board_close;
@@ -976,6 +978,8 @@ void pci_boards_scan(board_access_t *access) {
                 board->llio.write_flash = &local_write_flash;
                 board->llio.verify_flash = &local_verify_flash;
                 board->llio.reload = &pci_board_reload;
+                board->llio.backup_flash = &local_backup_flash; 
+                board->llio.restore_flash = &local_restore_flash;
 
                 board->open = &pci_board_open;
                 board->close = &pci_board_close;
@@ -1003,6 +1007,8 @@ void pci_boards_scan(board_access_t *access) {
                 board->llio.write_flash = &local_write_flash;
                 board->llio.verify_flash = &local_verify_flash;
                 board->llio.reload = &pci_board_reload;
+                board->llio.backup_flash = &local_backup_flash; 
+                board->llio.restore_flash = &local_restore_flash;
 
                 board->open = &pci_board_open;
                 board->close = &pci_board_close;
@@ -1031,6 +1037,8 @@ void pci_boards_scan(board_access_t *access) {
                 board->llio.write_flash = &local_write_flash;
                 board->llio.verify_flash = &local_verify_flash;
                 board->llio.reload = &pci_board_reload;
+                board->llio.backup_flash = &local_backup_flash; 
+                board->llio.restore_flash = &local_restore_flash;
 
                 board->open = &pci_board_open;
                 board->close = &pci_board_close;
@@ -1058,6 +1066,8 @@ void pci_boards_scan(board_access_t *access) {
                 board->llio.write_flash = &local_write_flash;
                 board->llio.verify_flash = &local_verify_flash;
                 board->llio.reload = &pci_board_reload;
+                board->llio.backup_flash = &local_backup_flash; 
+                board->llio.restore_flash = &local_restore_flash;
 
                 board->open = &pci_board_open;
                 board->close = &pci_board_close;
