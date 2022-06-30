@@ -439,6 +439,7 @@ int process_cmd_line(int argc, char *argv[]) {
                 if (hint == 0) {
                      printf("--dbname%c %s not recognized\n", c, optarg);
                      hm2_print_bob_hint_names();
+                     exit(-1);
                 }
                 bob_hints[bob_idx] = hint;
             }
