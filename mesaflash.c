@@ -437,7 +437,8 @@ int process_cmd_line(int argc, char *argv[]) {
                 int bob_idx = c - '1';
                 int hint = hm2_find_bob_hint_by_name(optarg);
                 if (hint == 0) {
-                    printf("--dbname%c %s not recognized\n", c, optarg);
+                     printf("--dbname%c %s not recognized\n", c, optarg);
+                     hm2_print_bob_hint_names();
                 }
                 bob_hints[bob_idx] = hint;
             }

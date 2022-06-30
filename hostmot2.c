@@ -792,3 +792,10 @@ int hm2_find_bob_hint_by_name(const char *name) {
     return 0;
 }
 
+void hm2_print_bob_hint_names() {
+    printf("Valid daughterboard names are:\n");
+    for (size_t i=0; bob_names[i].name; i++) {
+        printf("%10s,",bob_names[i].name);
+        if ((((i+1) % 6) == 0) & (i != 0)) { printf("\n"); };
+    }
+}

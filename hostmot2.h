@@ -98,6 +98,7 @@ void hm2_set_pin_direction(hostmot2_t *hm2, u32 pin_number, u8 direction);
 void sserial_module_init(llio_t *llio);
 
 int hm2_find_bob_hint_by_name(const char *arg);
+void hm2_print_bob_hint_names();
 
 #endif
 
