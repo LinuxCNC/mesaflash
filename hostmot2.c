@@ -412,6 +412,7 @@ static mod_name_t mod_names[HM2_MAX_TAGS] = {
     {"Sigma5Enc",   HM2_GTAG_SIGMA5},
     {"InM",         HM2_GTAG_INM},
     {"OutM",        HM2_GTAG_OUTM},
+    {"LocalIO",     HM2_GTAG_LIOPORT},
     {"BISS",        HM2_GTAG_BISS},
     {"XYMod",       HM2_GTAG_XYMOD},
     {"DataPainter",HM2_GTAG_DPAINTER},
@@ -456,6 +457,7 @@ static mod_name_t mod_names_xml[HM2_MAX_TAGS] = {
     {"Sigma5Enc",   HM2_GTAG_SIGMA5},
     {"InM",         HM2_GTAG_INM},
     {"OutM",        HM2_GTAG_OUTM},
+    {"LocalIO",     HM2_GTAG_LIOPORT},
     {"BISS",        HM2_GTAG_BISS},
     {"XYMod",       HM2_GTAG_XYMOD},
     {"DataPainter",HM2_GTAG_DPAINTER},
@@ -780,6 +782,45 @@ void hm2_print_pin_descriptors(llio_t *llio) {
                 (pd->sec_pin & 0x80) ? "Output" : "Input"
             );
         }
+    }
+}
+
+void hm2_print_localio_descriptors (llio_t *llio) {
+    int i;
+    int lio_number;
+    i =  llio->hm2.idrom.io_ports * llio->hm2.idrom.port_width;
+    lio_number = 0;
+    while (llio->hm2.pins[i].gtag == HM2_GTAG_LIOPORT) { 
+        i++;
+        lio_number++;
+    }    
+    printf("%d HM2 Local Pin Descriptors:\n", lio_number);
+    i =  llio->hm2.idrom.io_ports * llio->hm2.idrom.port_width;
+    lio_number = 0;    
+    while (llio->hm2.pins[i].gtag == HM2_GTAG_LIOPORT) { 
+        hm2_pin_desc_t *pd = &llio->hm2.pins[i];
+        printf("    pin %d:\n", lio_number);
+        printf(
+            "        Primary Tag: 0x%02X (%s)\n",
+            pd->gtag,
+            find_module_name(pd->gtag, 0)
+        );
+        if (llio->hm2.pins[i].sec_tag != 0) {
+            printf(
+                "        Secondary Tag: 0x%02X (%s)\n",
+                llio->hm2.pins[i].sec_tag,
+                find_module_name(pd->sec_tag, 0)
+            );
+            printf("        Secondary Unit: 0x%02X\n", pd->sec_chan);
+            printf(
+                "        Secondary Pin: 0x%02X (%s, %s)\n",
+                pd->sec_pin,
+                pin_get_pin_name(pd, 0),
+                (pd->sec_pin & 0x80) ? "Output" : "Input"
+            );
+        }
+        i++;
+        lio_number++;
     }
 }
 

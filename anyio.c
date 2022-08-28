@@ -387,6 +387,14 @@ void anyio_dev_print_pin_descriptors(board_t *board) {
     hm2_print_pin_descriptors(&board->llio);
 }
 
+void anyio_dev_print_localio_descriptors(board_t *board) {
+    if (board == NULL) {
+        return;
+    }
+    hm2_read_idrom(&(board->llio.hm2));
+    hm2_print_localio_descriptors(&board->llio);
+}
+
 void anyio_dev_print_sserial_info(board_t *board) {
     if (board == NULL) {
         return;

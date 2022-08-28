@@ -39,6 +39,7 @@ int anyio_dev_reload(board_t *board, int fallback_flag);
 int anyio_dev_reset(board_t *board);
 void anyio_dev_print_hm2_info(board_t *board, int xml_flag);
 void anyio_dev_print_pin_descriptors(board_t *board);
+void anyio_dev_print_localio_descriptors(board_t *board);
 void anyio_dev_print_sserial_info(board_t *board);
 void anyio_bitfile_print_info(char *bitfile_name, int verbose_flag);
 

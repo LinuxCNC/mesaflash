@@ -50,6 +50,7 @@ static int recover_flag;
 static int program_flag;
 static int readhmid_flag;
 static int print_pd_flag;
+static int print_lio_flag;
 static int reload_flag;
 static int reset_flag;
 static int sserial_flag;
@@ -89,6 +90,7 @@ static struct option long_options[] = {
     {"program", required_argument, 0, 'p'},
     {"readhmid", no_argument, &readhmid_flag, 1},
     {"print-pd", no_argument, &print_pd_flag, 1},
+    {"print-lio", no_argument, &print_lio_flag, 1},
     {"reload", no_argument, &reload_flag, 1},
     {"reset", no_argument, &reset_flag, 1},
     {"sserial", no_argument, &sserial_flag, 1},
@@ -192,6 +194,7 @@ void print_usage() {
     printf("                    Required SHA256 checksum file 'filename.sha256'.\n");
     printf("  --readhmid        Print hostmot2 configuration in PIN file format.\n");
     printf("  --print-pd        Print hostmot2 Pin Descriptors.\n");
+    printf("  --print-lio       Print hostmot2 local I/O pins.\n");
     printf("  --reload          Do full FPGA reload from flash (only Ethernet, SPI and\n");
     printf("                    PCI boards).\n");
     printf("  --reset           Do full firmware reset (only Ethernet and serial boards).\n");
@@ -511,6 +514,8 @@ int main(int argc, char *argv[]) {
             anyio_dev_print_hm2_info(board, xml_flag);
         } else if (print_pd_flag == 1) {
             anyio_dev_print_pin_descriptors(board);
+        } else if (print_lio_flag == 1) {
+            anyio_dev_print_localio_descriptors(board);
         } else if (sserial_flag == 1) {
             anyio_dev_print_sserial_info(board);
         } else if (rpo_flag == 1) {

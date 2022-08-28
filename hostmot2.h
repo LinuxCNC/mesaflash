@@ -93,6 +93,7 @@ void hm2_read_idrom(hostmot2_t *hm2);
 hm2_module_desc_t *hm2_find_module(hostmot2_t *hm2, u8 gtag);
 void hm2_print_pin_file(llio_t *llio, int xml_flag);
 void hm2_print_pin_descriptors(llio_t *llio);
+void hm2_print_localio_descriptors(llio_t *llio);
 void hm2_set_pin_source(hostmot2_t *hm2, u32 pin_number, u8 source);
 void hm2_set_pin_direction(hostmot2_t *hm2, u32 pin_number, u8 direction);
 void sserial_module_init(llio_t *llio);
