@@ -632,12 +632,12 @@ void hm2_print_pin_file(llio_t *llio, int xml_flag) {
             } else {
              	printf("\nIO Connections for %s\n", llio->ioport_connector_name[i]);
 				}	
-            if ((llio->hm2.idrom.port_width = 17) && (llio->bob_hint[i] == 0)) {
+            if ((llio->hm2.idrom.port_width == 17) && (llio->bob_hint[i] == 0)) {
                 printf("DB25 pin#             I/O   Pri. func    Sec. func        Chan     Sec. Pin func   Sec. Pin Dir\n\n");
  		      } else {
  		          printf("Pin#                  I/O   Pri. func    Sec. func        Chan     Sec. Pin func   Sec. Pin Dir\n\n");
             }     
- 		           for (j = 0; j < llio->hm2.idrom.port_width; j++) {
+ 		      for (j = 0; j < llio->hm2.idrom.port_width; j++) {
                 hm2_pin_desc_t *pin = &(llio->hm2.pins[i*(llio->hm2.idrom.port_width) + j]);
                 int pin_nr;
 
@@ -652,12 +652,12 @@ void hm2_print_pin_file(llio_t *llio, int xml_flag) {
                         pin_nr = i*(llio->hm2.idrom.port_width) + j;
                         break;
                     default:
-			pin_nr = 0;
-			break;
+								pin_nr = 0;
+								break;
                 }
                 if (llio->bob_hint[i] != 0) {
                     printf("%-18s",bob_pin_names[llio->bob_hint[i]-1].name[j]); 
-		} else {
+					 } else {
                     printf("%2u                ", pin_nr);
                 }
                 printf("    %3u", i*(llio->hm2.idrom.port_width) + j);
