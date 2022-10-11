@@ -77,6 +77,7 @@
 #define HM2_GTAG_CPDRIVE           0xC4
 #define HM2_GTAG_DSAD              0xC5
 #define HM2_GTAG_SSERIALB          0xC6
+#define HM2_GTAG_ONESHOT           0xC7
 
 
 // HM2 EEPROM SPI INTERFACE
