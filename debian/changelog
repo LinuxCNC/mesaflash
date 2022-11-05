@@ -10,11 +10,15 @@ mesaflash (3.4.6-1) unstable; urgency=medium
   * Better manpage and --help info.
   * Misc bugfixes.
 
+  * Upload sponsored by Petter Reinholdtsen.
+
  -- Sebastian Kuzminsky <seb@highlab.com>  Sat, 05 Nov 2022 12:38:09 -0600
 
 mesaflash (3.4.2-1) unstable; urgency=medium
 
   * Switch from openssl to libmd for sha256.
+
+  * Upload sponsored by Petter Reinholdtsen.
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 16 Jan 2022 09:47:57 -0700
 
