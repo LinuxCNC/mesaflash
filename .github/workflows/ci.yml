@@ -16,6 +16,7 @@ jobs:
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       run: echo "$GITHUB_CONTEXT"
+
     - uses: actions/checkout@v3
 
     - name: Install deps
@@ -24,16 +25,20 @@ jobs:
         sudo apt-get install -y eatmydata
         sudo eatmydata apt-get install -y --no-install-suggests --no-install-recommends build-essential devscripts equivs
         mk-build-deps -irs sudo -t "apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y"
+
     - name: Build
       run: |
         make -j$(nproc)
+
     - name: Clean
       run: |
         make clean
+
     - name: Build (package)
       run: |
         dch -l+`git rev-parse --short HEAD` "actions package build"
         debuild -b
+
 
   test-package:
     strategy:
@@ -45,10 +50,12 @@ jobs:
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
+
     - name: Install tools for dch update
       run: |
         sudo apt-get update
         sudo apt install -y --no-install-suggests --no-install-recommends devscripts
+
     - name: Update debian changelog
       env:
         OS_RELEASE: ${{ matrix.os }}
@@ -58,6 +65,7 @@ jobs:
         ref=`git describe --tags --always | sed -e 's/^release\///;s/^v//;s/-/+/g'`
         DEBEMAIL=noreply@github.com dch -v "${ref}+${OS_RELEASE}-1" "Build from github actions"
         head debian/changelog
+
     - name: Build Debian package
       uses: dawidd6/action-debian-package@v1
       with:
@@ -65,6 +73,7 @@ jobs:
         artifacts_directory: output
         os_distribution: ${{ matrix.os }}
         cpu_architecture: ${{ matrix.cpu }}
+
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
