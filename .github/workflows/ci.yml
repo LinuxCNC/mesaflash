@@ -40,13 +40,13 @@ jobs:
         cpu: ["i386", "amd64", "armhf", "aarch64"]
     runs-on: ubuntu-20.04
     steps:
-    - name: Install deps
-      run: |
-        sudo apt-get update
-        sudo apt install -y --no-install-suggests --no-install-recommends devscripts
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
+    - name: Install tools for dch update
+      run: |
+        sudo apt-get update
+        sudo apt install -y --no-install-suggests --no-install-recommends devscripts
     - name: Update debian changelog
       env:
         OS_RELEASE: ${{ matrix.os }}
