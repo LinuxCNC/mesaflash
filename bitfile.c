@@ -99,31 +99,35 @@ int print_bitfile_header(FILE *fp, char *part_name, int verbose_flag) {
         if (verbose_flag == 1) {
             printf("  Compiler %s", str);
         }    
+        // Compiler version
         fgets(str, 60, fp);
         ret += strlen(str);
         if (verbose_flag == 1) {
             printf("  %s", str);
         }    
+       // Date
+       fgets(str, 60, fp);
+        ret += strlen(str);
+        if (verbose_flag == 1) {
+            printf("  %s", str);
+        }
+        // Project
+        fgets(str, 80, fp);
+        ret += strlen(str);
+        fgets(str, 80, fp);
+        ret += strlen(str);
+        if (verbose_flag == 1) {
+            printf("  %s", str);
+        }
+        // Family
         fgets(str, 60, fp);
         ret += strlen(str);
         if (verbose_flag == 1) {
             printf("  %s", str);
         }
+        // Device
         fgets(str, 60, fp);
         ret += strlen(str);
-        fgets(str, 60, fp);
-        ret += strlen(str);
-        if (verbose_flag == 1) {
-            printf("  %s", str);
-        }
-        fgets(str, 60, fp);
-        ret += strlen(str);
-        if (verbose_flag == 1) {
-            printf("  %s", str);
-        }
-        fgets(str, 60, fp);
-        ret += strlen(str);
-// the device name is in this string
         if (verbose_flag == 1) {
             printf("  %s", str);
         }
@@ -131,16 +135,19 @@ int print_bitfile_header(FILE *fp, char *part_name, int verbose_flag) {
         partns = strtok(NULL," ");
         partns[(strlen(partns)-1)] = '\0';
         strcpy(part_name, partns);
+        // Configuration device width
         fgets(str, 60, fp);
         ret += strlen(str);
         if (verbose_flag == 1) {
             printf("  %s", str);
         }
+        // Configuration mode
         fgets(str, 60, fp);
         ret += strlen(str);
         if (verbose_flag == 1) {
             printf("  %s", str);
         }
+        // Padded bits
         fgets(str, 60, fp);
         ret += strlen(str);
         if (verbose_flag == 1) {
