@@ -425,6 +425,34 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->fallback_support = 1;
             board->llio.verbose = access->verbose;
             boards_count ++;
+        } else if (strncmp(buff, "7I95T", 16) == 0) {
+            board->type = BOARD_ETH;
+            board->fpga_type = FPGA_TYPE_EFINIX;   
+            strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
+            strncpy(board->llio.board_name, buff, 16);
+            board->llio.num_ioport_connectors = 2;
+            board->llio.pins_per_connector = 29;
+            board->llio.ioport_connector_name[0] = "Step/DIR+Serial+Encoders";
+            board->llio.ioport_connector_name[1] = "I/O+Expansion";
+            board->llio.bob_hint[0] = BOB_7I95_0;
+            board->llio.bob_hint[1] = BOB_7I95_1;
+            board->llio.fpga_part_number = "T20F256";
+            board->llio.num_leds = 4;
+            board->llio.read = &eth_read;
+            board->llio.write = &eth_write;
+            board->llio.write_flash = &remote_write_flash;
+            board->llio.verify_flash = &remote_verify_flash;
+            board->llio.backup_flash = &remote_backup_flash;
+            board->llio.restore_flash = &remote_restore_flash;
+            board->llio.reset = &lbp16_board_reset;
+            board->llio.reload = &lbp16_board_reload;
+            board->open = &eth_board_open;
+            board->close = &eth_board_close;
+            board->print_info = &eth_print_info;
+            board->flash = BOARD_FLASH_REMOTE;
+            board->fallback_support = 1;
+            board->llio.verbose = access->verbose;
+            boards_count ++;
         } else if (strncmp(buff, "7I96", 16) == 0) {
             board->type = BOARD_ETH;
             strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
@@ -653,11 +681,17 @@ void eth_print_info(board_t *board) {
     lbp16_cmd_addr packet;
     int i, j;
     u32 flash_id;
+    char *boot_jumpers_up_up;
     char *mem_types[16] = {NULL, "registers", "memory", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "EEPROM", "flash"};
     char *mem_writeable[2] = {"RO", "RW"};
     char *acc_types[4] = {"8-bit", "16-bit", "32-bit", "64-bit"};
     char *led_debug_types[2] = {"Hostmot2", "eth debug"};
-    char *boot_jumpers_types[4] = {"fixed "LBP16_HW_IP, "fixed from EEPROM", "from BOOTP", "INVALID"};
+    if (board->fpga_type == FPGA_TYPE_EFINIX) {
+    boot_jumpers_up_up = "Force Fallback";
+    } else {
+    boot_jumpers_up_up = "Invalid";
+    }   
+    char *boot_jumpers_types[4] = {"fixed "LBP16_HW_IP, "fixed from EEPROM", "from BOOTP", up_up};
     lbp_mem_info_area mem_area;
     lbp_eth_eeprom_area eth_area;
     lbp_timers_area timers_area;
