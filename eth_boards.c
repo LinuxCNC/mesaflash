@@ -691,7 +691,7 @@ void eth_print_info(board_t *board) {
     } else {
     boot_jumpers_up_up = "Invalid";
     }   
-    char *boot_jumpers_types[4] = {"fixed "LBP16_HW_IP, "fixed from EEPROM", "from BOOTP", up_up};
+    char *boot_jumpers_types[4] = {"fixed "LBP16_HW_IP, "fixed from EEPROM", "from BOOTP", boot_jumpers_up_up};
     lbp_mem_info_area mem_area;
     lbp_eth_eeprom_area eth_area;
     lbp_timers_area timers_area;
