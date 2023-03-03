@@ -1022,6 +1022,36 @@ void pci_boards_scan(board_access_t *access) {
                 board->llio.verbose = access->verbose;
 
                 boards_count++;
+            } else if (dev->device_id == DEVICEID_MESA5I25T) {
+                board->type = BOARD_PCI;
+                board->fpga_type = FPGA_TYPE_EFINIX;   
+                strcpy(board->llio.board_name, "5I25T");
+                board->llio.num_ioport_connectors = 2;
+                board->llio.pins_per_connector = 17;
+                board->llio.ioport_connector_name[0] = "P3";
+                board->llio.ioport_connector_name[1] = "P2";
+                board->llio.fpga_part_number = "T20F256";
+                board->llio.num_leds = 2;
+                board->llio.read = &pci_read;
+                board->llio.write = &pci_write;
+                board->llio.write_flash = &local_write_flash;
+                board->llio.verify_flash = &local_verify_flash;
+                board->llio.reload = &pci_board_reload;
+                board->llio.backup_flash = &local_backup_flash; 
+                board->llio.restore_flash = &local_restore_flash;
+
+                board->open = &pci_board_open;
+                board->close = &pci_board_close;
+                board->print_info = &pci_print_info;
+                pci_fix_bar_lengths(dev);
+                board->mem_base = dev->base_addr[0] & PCI_ADDR_MEM_MASK;
+                board->len = dev->size[0];
+                board->dev = dev;
+                board->flash = BOARD_FLASH_HM2;
+                board->fallback_support = 1;
+                board->llio.verbose = access->verbose;
+
+                boards_count++;
             } else if (dev->device_id == DEVICEID_MESA6I24) {
                 board->type = BOARD_PCI;
                 strcpy(board->llio.board_name, "6I24");
