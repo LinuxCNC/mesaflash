@@ -932,7 +932,7 @@ void pci_boards_scan(board_access_t *access) {
     for (dev = pacc->devices; dev != NULL; dev = dev->next) {
         board = &boards[boards_count];
         board_init_struct(board);
-
+        board->fpga_type = FPGA_TYPE_XILINX;   
         if (dev->vendor_id == VENDORID_MESAPCI) {
             if (dev->device_id == DEVICEID_MESA4I74) {
                 board->type = BOARD_PCI;
