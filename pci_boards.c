@@ -761,6 +761,34 @@ static int pci_board_reload(llio_t *self, int fallback_flag) {
 
     return 0;
 }
+static int pci_efx_board_reload(llio_t *self, int fallback_flag) {
+    board_t *board = self->board;
+    u16 cmd_reg;
+    u32 bar0_reg;
+    u32 data[4] = {
+      0x0004,   // image number 0 + config enable
+      0x000C,   // image number 0 + config enable + start
+      0x0005,   // image number 1 + config enable
+      0x000D    // image number 1 + config enable + start
+    };
+
+    cmd_reg = pci_read_word(board->dev, PCI_COMMAND);
+    bar0_reg = pci_read_long(board->dev, PCI_BASE_ADDRESS_0);
+    if (fallback_flag == 1) {
+        pci_write(&(board->llio), HM2_ICAP_REG, &data[0], sizeof(u32));    
+        pci_write(&(board->llio), HM2_ICAP_REG, &data[1], sizeof(u32));    
+    } else {
+        pci_write(&(board->llio), HM2_ICAP_REG, &data[2], sizeof(u32));  
+        pci_write(&(board->llio), HM2_ICAP_REG, &data[3], sizeof(u32));  
+    }
+    printf("Waiting for FPGA configuration...");
+    sleep(2);
+    printf("OK\n");
+    pci_write_word(board->dev, PCI_COMMAND, cmd_reg);
+    pci_write_long(board->dev, PCI_BASE_ADDRESS_0, bar0_reg);
+
+    return 0;
+}
 
 static void pci_fix_bar_lengths(struct pci_dev *dev) {
 #ifdef _WIN32
@@ -1036,7 +1064,7 @@ void pci_boards_scan(board_access_t *access) {
                 board->llio.write = &pci_write;
                 board->llio.write_flash = &local_write_flash;
                 board->llio.verify_flash = &local_verify_flash;
-                board->llio.reload = &pci_board_reload;
+                board->llio.reload = &pci_efx_board_reload;
                 board->llio.backup_flash = &local_backup_flash; 
                 board->llio.restore_flash = &local_restore_flash;
 
