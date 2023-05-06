@@ -323,6 +323,7 @@ static pin_name_t pin_names[HM2_MAX_TAGS] = {
   {HM2_GTAG_XYMOD,     {"XData", "YData", "Clk", "Sync", "Status", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_DPAINTER,  {"VidData", "VidClk", "Null3", "Null4", "Null5","Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_ONESHOT, {"Trigger1", "Trigger2","Out1", "Out2", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_PERIOD, {"Input", "Null2","Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
 };
 
 static pin_name_t pin_names_xml[HM2_MAX_TAGS] = {
@@ -373,6 +374,8 @@ static pin_name_t pin_names_xml[HM2_MAX_TAGS] = {
   {HM2_GTAG_XYMOD, {"XData", "YData", "Clk", "Sync", "Status", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_DPAINTER, {"VidData", "VidClk", "Null3", "Null4", "Null5","Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_ONESHOT, {"Trigger1", "Trigger2","Out1", "Out2", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+  {HM2_GTAG_PERIOD, {"Input", "Null2","Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
+
 };
 
 static mod_name_t mod_names[HM2_MAX_TAGS] = {
@@ -419,6 +422,7 @@ static mod_name_t mod_names[HM2_MAX_TAGS] = {
     {"XYMod",       HM2_GTAG_XYMOD},
     {"DataPainter",HM2_GTAG_DPAINTER},
     {"OneShot",HM2_GTAG_ONESHOT},
+    {"Period",HM2_GTAG_PERIOD},
 };
 
 static mod_name_t mod_names_xml[HM2_MAX_TAGS] = {
@@ -464,7 +468,9 @@ static mod_name_t mod_names_xml[HM2_MAX_TAGS] = {
     {"BISS",        HM2_GTAG_BISS},
     {"XYMod",       HM2_GTAG_XYMOD},
     {"DataPainter",HM2_GTAG_DPAINTER},
-    {"OneShot",HM2_GTAG_ONESHOT},    
+    {"OneShot",HM2_GTAG_ONESHOT},
+    {"Period",HM2_GTAG_PERIOD},
+    
 };
 
 static char *find_module_name(int gtag, int xml_flag) {
