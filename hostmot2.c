@@ -230,6 +230,16 @@ static bob_pin_name_t bob_pin_names[MAX_BOB_NAMES] = {
    {BOB_7I52S, {"P2-5,6:/Ena","P5-1,2,9,10","P5-4,5,12,13","P5-7,8,15,16","P5-17,18,P4-1,2","P5-20,21,P4-4,5","P5-23,24,P4-7,8","P3-9,10,17,18","P3-12,13,20,21",
     "P3-15,16,23,24","Internal-EncMux","P2-21,22","P2-19,20","P2-13,14","P2-11,12","P2-5,6","P2-3,4","P3-21,22","P3-19,20","P3-13,14","P3-11,12","P3-5,6","P3-3,4","P3-5,6:/Ena"}},
 
+   {BOB_MX3660, {"Output2","PWM","X-Step","Fault","X-Dir","Charge-Pump","Y-Step",
+    "Output1","Y-Dir","Z-Step","Z-Dir","Output3","Output4","Input1","Input2","Input3","Input4"}},
+
+   {BOB_MX4660_1, {"Output2","PWM","X-Step","Fault","X-Dir","Charge-Pump","Y-Step",
+    "Output1","Y-Dir","Z-Step","Z-Dir","A-Step","A-Dir","Input1","Input2","Input3","Input4"}},
+
+   {BOB_MX4660_2, {"Output6","NC","NC","NC","NC","NC","NC",
+    "Output5","NC","NC","NC","Output3","Output4","Input5","Input6","Input7","Input8"}},
+
+
 };
 
 static struct {
@@ -272,6 +282,9 @@ static struct {
     { BOB_7I48, "7I48"},
     { BOB_7I52, "7I52"},
     { BOB_7I52S, "7I52S"},
+    { BOB_MX3660, "MX3660"},
+    { BOB_MX4660_1, "MX4660-1"},
+    { BOB_MX4660_2, "MX4660-2"},
     { -1, NULL },
 };
 
@@ -849,4 +862,5 @@ void hm2_print_bob_hint_names() {
         printf("%10s,",bob_names[i].name);
         if ((((i+1) % 6) == 0) & (i != 0)) { printf("\n"); };
     }
+    printf("\n");
 }
