@@ -325,10 +325,10 @@ static pin_name_t pin_names[HM2_MAX_TAGS] = {
   {HM2_GTAG_LED,       {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_INMUX,     {"Addr0", "Addr1", "Addr2", "Addr3", "Addr4", "MuxData", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_SIGMA5,    {"TXData", "RXData", "TxEn", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-  {HM2_GTAG_INM,       {"Input0", "Input1", "Input2", "Input3", "Input4", "Input5", "Input6", "Input7", "Input8", 
-  			"Input9", "Input10", "Input11", "Input12", "Input13", "Input14", "Input15", "Input16", "Input17",
-  			"Input18", "Input19", "Input20", "Input21", "Input22", "Input23", "Input24", "Input25", "Input26",
-   			"Input27", "Input28", "Input29", "Input30", "Input31"}},
+  {HM2_GTAG_INM,       {"Input0_EncA0", "Input1_EncB0", "Input2_EncA1", "Input3_EncB1", "Input4_EncA2", "Input5_EncB2",
+                        "Input6_EncA3", "Input7_EncB3", "Input8", "Input9", "Input10", "Input11", "Input12", 
+                        "Input13", "Input14", "Input15", "Input16", "Input17","Input18", "Input19", "Input20", 
+                        "Input21", "Input22", "Input23", "Input24", "Input25", "Input26","Input27", "Input28", "Input29", "Input30", "Input31"}},
   {HM2_GTAG_OUTM,       {"Output0", "Output1", "Output2", "Output3", "Output4", "Output5", "Output6", "Output7", "Output8",
   			"Output9", "Output10", "Output11", "Output12", "Output13", "Output14", "Output15", "Output16", "Output17",
   			"Output18", "Output19", "Output20", "Output21", "Output22", "Output23", "Output24", "Output25", "Output26",
@@ -376,10 +376,10 @@ static pin_name_t pin_names_xml[HM2_MAX_TAGS] = {
   {HM2_GTAG_LED,      {"Null1", "Null2", "Null3", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_INMUX, {"Addr0", "Addr1", "Addr2", "Addr3", "Addr4", "MuxData", "Null7", "Null8", "Null9", "Null10"}},
   {HM2_GTAG_SIGMA5, {"TXData", "RXData", "TxEn", "Null4", "Null5", "Null6", "Null7", "Null8", "Null9", "Null10"}},
-  {HM2_GTAG_INM,       {"Input0", "Input1", "Input2", "Input3", "Input4", "Input5", "Input6", "Input7", "Input8", 
-  			"Input9", "Input10", "Input11", "Input12", "Input13", "Input14", "Input15", "Input16", "Input17",
-  			"Input18", "Input19", "Input20", "Input21", "Input22", "Input23", "Input24", "Input25", "Input26",
-   			"Input27", "Input28", "Input29", "Input30", "Input31"}},
+  {HM2_GTAG_INM,       {"Input0_EncA0", "Input1_EncB0", "Input2_EncA1", "Input3_EncB1", "Input4_EncA2", "Input5_EncB2",
+                        "Input6_EncA3", "Input7_EncB3", "Input8", "Input9", "Input10", "Input11", "Input12", 
+                        "Input13", "Input14", "Input15", "Input16", "Input17","Input18", "Input19", "Input20", 
+                        "Input21", "Input22", "Input23", "Input24", "Input25", "Input26","Input27", "Input28", "Input29", "Input30", "Input31"}},
   {HM2_GTAG_OUTM,       {"Output0", "Output1", "Output2", "Output3", "Output4", "Output5", "Output6", "Output7", "Output8",
   			"Output9", "Output10", "Output11", "Output12", "Output13", "Output14", "Output15", "Output16", "Output17",
   			"Output18", "Output19", "Output20", "Output21", "Output22", "Output23", "Output24", "Output25", "Output26",
@@ -595,10 +595,6 @@ static char *pin_get_pin_name(hm2_pin_desc_t *pin, int xml_flag) {
                     snprintf(buff, sizeof(buff), "Output%d", pin->sec_pin - 0x81);
                     return buff;
                 }
-
-            } else if (pin->sec_tag == HM2_GTAG_INM) {
-                snprintf(buff, sizeof(buff), "Input%d", pin->sec_pin - 0x01);
-                return buff;
             } else {
                 sprintf(buff, "%s", pin_names_ptr[i].name[(pin->sec_pin & 0x0F) - 1]);
                 return buff;
