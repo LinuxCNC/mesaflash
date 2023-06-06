@@ -594,6 +594,33 @@ static int eth_scan_one_addr(board_access_t *access) {
             board->fallback_support = 1;
             board->llio.verbose = access->verbose;
             boards_count ++;
+        } else if (strncasecmp(buff, "litehm2", 16) == 0) {
+            board->type = BOARD_ETH;
+            strncpy(board->dev_addr, eth_socket_get_src_ip(), 16);
+            /* board identifies as lowercase, but mesaflash converts to uc */
+            strcpy(board->llio.board_name, "LITEHM2");
+            board->llio.num_ioport_connectors = 3;
+            board->llio.pins_per_connector = 24;
+            board->llio.ioport_connector_name[0] = "P1";
+            board->llio.ioport_connector_name[1] = "P2";
+            board->llio.ioport_connector_name[2] = "P3";
+            board->llio.fpga_part_number = "6slx16ftg256";
+            board->llio.num_leds = 1;
+            board->llio.read = &eth_read;
+            board->llio.write = &eth_write;
+            board->llio.write_flash = &remote_write_flash;
+            board->llio.verify_flash = &remote_verify_flash;
+            board->llio.backup_flash = &remote_backup_flash;
+            board->llio.restore_flash = &remote_restore_flash;
+            board->llio.reset = &lbp16_board_reset;
+            board->llio.reload = &lbp16_board_reload;
+            board->open = &eth_board_open;
+            board->close = &eth_board_close;
+            board->print_info = &eth_print_info;
+            board->flash = BOARD_FLASH_REMOTE;
+            board->fallback_support = 1;
+            board->llio.verbose = access->verbose;
+            boards_count ++;
          } else {
             printf("Unsupported ethernet device %s at %s\n", buff, eth_socket_get_src_ip());
             ret = -1;
