@@ -32,7 +32,7 @@
 #endif
 
 #ifndef VERSION
-#define VERSION "3.4.7"
+#define VERSION "3.4.8"
 #endif
 
 static int device_flag;
@@ -161,7 +161,7 @@ void print_usage() {
     printf("  --fallback        Use the fallback area of the FLASH memory while executing\n");
     printf("                    commands.\n");
     printf("  --recover         Access board using PCI bridge GPIO (currently\n");
-    printf("                    only 6I24/6I25).\n");
+    printf("                    only 6I24/6I25). Use --recover --device recover --write.\n");
     printf("  --xml             Format output from 'readhmid' command into XML.\n");
     printf("  --dbname# <name>  Set daughter board name to <name> for FPGA connector <N> \n");
     printf("                    Allows readhmid to include daughterboard terminal names,\n");

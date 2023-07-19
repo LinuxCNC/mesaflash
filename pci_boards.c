@@ -930,16 +930,16 @@ void pci_boards_scan(board_access_t *access) {
             board_init_struct(board);
             if ((dev->vendor_id == VENDORID_XIO2001) && (dev->device_id == DEVICEID_XIO2001)) {
                 board->type = BOARD_PCI;
-                strcpy(board->llio.board_name, "6I25 (RECOVER)");
+                strcpy(board->llio.board_name, "RECOVER");
                 board->llio.num_ioport_connectors = 2;
                 board->llio.pins_per_connector = 17;
-                board->llio.ioport_connector_name[0] = "P3";
-                board->llio.ioport_connector_name[1] = "P2";
-                board->llio.fpga_part_number = "6slx9tqg144";
+                board->llio.ioport_connector_name[0] = "Unknown";
+                board->llio.ioport_connector_name[1] = "Unknown";
+                board->llio.ioport_connector_name[2] = "Unknown";
+                board->llio.fpga_part_number = "Unknown";
                 board->llio.num_leds = 2;
                 board->llio.write_flash = &local_write_flash;
                 board->llio.verify_flash = &local_verify_flash;
-
                 board->open = &pci_board_open;
                 board->close = &pci_board_close;
                 board->print_info = &pci_print_info;

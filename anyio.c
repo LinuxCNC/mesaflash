@@ -53,6 +53,7 @@ supported_board_entry_t supported_boards[] = {
     {"6I24", BOARD_PCI},
     {"6I25", BOARD_PCI},
     {"5I20", BOARD_PCI},
+    {"RECOVER", BOARD_PCI},
     {"4I65", BOARD_PCI},
     {"4I68", BOARD_PCI},
     {"5I21", BOARD_PCI},
