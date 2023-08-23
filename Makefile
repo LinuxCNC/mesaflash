@@ -86,6 +86,10 @@ ifeq ($(TARGET),linux)
         endif
     endif
 
+    ifeq ($(UNAME_M),loongarch64)
+        MESAFLASH_IO ?= 0
+    endif
+
     ifeq ($(UNAME_M),parisc)
         MESAFLASH_IO ?= 0
     endif
