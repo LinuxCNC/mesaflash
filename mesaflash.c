@@ -32,7 +32,7 @@
 #endif
 
 #ifndef VERSION
-#define VERSION "3.4.8"
+#define VERSION "3.4.9"
 #endif
 
 static int device_flag;
@@ -64,8 +64,11 @@ static u16 rpo_addr;
 static u16 wpo_addr;
 static u32 wpo_data;
 static int set_flag;
+static int ipaddr_flag;
+static int ledmode_flag;
 static int xml_flag;
 static char *lbp16_set_ip_addr;
+static char *lbp16_set_led_mode;
 static int info_flag;
 static int verbose_flag;
 static char bitfile_name[255];
@@ -202,8 +205,10 @@ void print_usage() {
     printf("  --rpo addrs       Read hostmot2 register directly at 'addrs'.\n");
     printf("  --wpo addrs=data  Write hostmot2 register directly at 'addrs'\n");
     printf("                    with 'data'.\n");
-    printf("  --set ip=n.n.n.n  Set board IP address in EEPROM memory to n.n.n.n (only\n");
+    printf("  --set ip=n.n.n.n  Set board IP address in EEPROM memory to n.n.n.n (Only\n");
     printf("                    Ethernet boards).\n");
+    printf("  --set ledmode=n   Set LED mode in EEPROM memory to n, 0 = Hostmot2, 1=Debug\n");
+    printf("                    Default debug is RX packet count. (Only Ethernet boards).\n");
     printf("  --info            Print info about configuration in 'filename'.\n");
     printf("  --version         Print the version.\n");
     printf("  --help            Print this help message.\n");
@@ -350,7 +355,15 @@ int process_cmd_line(int argc, char *argv[]) {
                     pch = strtok(optarg, "=");
                     pch = strtok(NULL, "=");
                     lbp16_set_ip_addr = pch;
-                } else {
+                    ipaddr_flag = 1;
+                } else if (strncmp(optarg, "ledmode=", 8) == 0) {
+                    char *pch;
+
+                    pch = strtok(optarg, "=");
+                    pch = strtok(NULL, "=");
+                    lbp16_set_led_mode = pch;
+                    ledmode_flag = 1;
+                } else {  
                     printf("Error: Unknown set command syntax, see --help for examples\n");
                     exit(-1);
                 }
@@ -473,7 +486,6 @@ int process_cmd_line(int argc, char *argv[]) {
 
 int main(int argc, char *argv[]) {
     int ret = 0;
-
     if (argc == 1) {
         print_short_usage();
         return 0;
@@ -525,8 +537,10 @@ int main(int argc, char *argv[]) {
             printf("%08X\n", data);
         } else if (wpo_flag == 1) {
             board->llio.write(&(board->llio), wpo_addr, &wpo_data, sizeof(u32));
-        } else if (set_flag == 1) {
-            ret = anyio_dev_set_remote_ip(board, lbp16_set_ip_addr);
+        } else if (ipaddr_flag == 1) {
+                ret = anyio_dev_set_remote_ip(board, lbp16_set_ip_addr);
+        } else if (ledmode_flag == 1) {
+                ret = anyio_dev_set_led_mode(board, lbp16_set_led_mode);                
         } else if (write_flag == 1) {
             ret = anyio_dev_write_flash(board, bitfile_name, fallback_flag, fix_boot_flag, sha256_check_flag);
             if (ret == 0) {

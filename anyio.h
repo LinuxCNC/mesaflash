@@ -35,6 +35,7 @@ int anyio_dev_backup_flash(board_t *board, char *bitfile_name);
 int anyio_dev_restore_flash(board_t *board, char *bitfile_name);
 int anyio_dev_program_fpga(board_t *board, char *bitfile_name);
 int anyio_dev_set_remote_ip(board_t *board, char *lbp16_set_ip_addr);
+int anyio_dev_set_led_mode(board_t *board, char *lbp16_set_led_mode);
 int anyio_dev_reload(board_t *board, int fallback_flag);
 int anyio_dev_reset(board_t *board);
 void anyio_dev_print_hm2_info(board_t *board, int xml_flag);

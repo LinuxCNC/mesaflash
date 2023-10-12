@@ -41,6 +41,7 @@
 #define FLASH_SEC_ERASE_REG 0x000C
 
 #define ETH_EEPROM_IP_REG   0x0020
+#define ETH_EEPROM_LED_MODE_REG   0x0028
 
 #define COMM_CTRL_WRITE_ENA_REG 0x001A
 
@@ -153,6 +154,11 @@ typedef struct {
     lbp16_cmd_addr_data16 write_ena_pck;
     lbp16_cmd_addr_data32 eth_write_ip_pck;
 } lbp16_write_ip_addr_packets;
+
+typedef struct {
+    lbp16_cmd_addr_data16 write_ena_pck;
+    lbp16_cmd_addr_data16 eth_write_led_pck;
+} lbp16_write_led_mode_packets;
 
 #define LBP16_INIT_PACKET4(packet, cmd, addr) do { \
     packet.cmd_hi = LO_BYTE(cmd); \

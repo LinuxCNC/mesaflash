@@ -876,3 +876,13 @@ int eth_set_remote_ip(char *ip_addr) {
     sendto (sd, (char*) &write_ip_pck, sizeof(write_ip_pck), 0, (struct sockaddr *) &dst_addr, sizeof(dst_addr));
     return 0;
 }
+
+int eth_set_led_mode(char *led_mode) {
+    lbp16_write_led_mode_packets write_led_pck;
+    u16 mode;
+    mode = atoi(led_mode);
+    LBP16_INIT_PACKET6(write_led_pck.write_ena_pck, CMD_WRITE_COMM_CTRL_ADDR16(1), COMM_CTRL_WRITE_ENA_REG, 0x5A02);
+    LBP16_INIT_PACKET6(write_led_pck.eth_write_led_pck, CMD_WRITE_ETH_EEPROM_ADDR16(1), ETH_EEPROM_LED_MODE_REG,mode );
+    sendto (sd, (char*) &write_led_pck, sizeof(write_led_pck), 0, (struct sockaddr *) &dst_addr, sizeof(dst_addr));
+    return 0;
+}

@@ -354,6 +354,23 @@ int anyio_dev_set_remote_ip(board_t *board, char *lbp16_set_ip_addr) {
     }
     return ret;
 }
+int anyio_dev_set_led_mode(board_t *board, char *lbp16_set_led_mode) {
+    int ret;
+
+    if (board == NULL) {
+        return -EINVAL;
+    }
+    if ((board->type & BOARD_ETH) == 0) {
+        return -EPERM;
+    }
+
+    ret = eth_set_led_mode(lbp16_set_led_mode);
+    if (ret == 0) {
+        printf("Board LED mode updated successfully.\n");
+        printf("You must power cycle board to load updated eeprom settings.\n");
+    }
+    return ret;
+}
 
 int anyio_dev_reload(board_t *board, int fallback_flag) {
     if (board == NULL) {
