@@ -1,3 +1,40 @@
+mesaflash (3.4.9-1) unstable; urgency=medium
+
+  * Add set ledmode option
+  * Add inverted txen pin printout to pktuart and sserial
+  * Merge pull request #77 from fangyaling/master
+  * Add check for new arch Loongarch64
+
+ -- Andy Pugh <andy@bodgesoc.org>  Sun, 15 Oct 2023 20:25:51 +0100
+
+mesaflash (3.4.8-1) unstable; urgency=medium
+
+  * Fix recover option for 6I24/6I25 (broken by name munging)
+  * Merge pull request #76 from sensille/litehm2
+  * Add MPG encoder names to inm module pins
+  * mesaflash: add first support for litehm2
+  * Add MX3660, MX4660 pinouts
+  * Add the period measurement module
+  * Add 5I25T reload support
+  * Forgot the PCI default FPGA type
+  * Add 7I80HDT,5I25T support
+  * Fix some typos in 7I97 and 7I95 pinouts
+
+ -- Peter C. Wallace <pcw@mesanet.com>  Wed, 19 Jul 2023 20:25:51 -0700
+
+mesaflash (3.4.7-1) unstable; urgency=medium
+
+  * Add 7I95T support, Fix boot jumper UP/UP meaning for Efinix
+  * Bugfix: Lengthen Efinix file header max path length
+  * Merge pull request #75 from LinuxCNC/fix-ci
+  * gitbug actions: add some whitespace to make the list more legible
+  * github actions: teach vim about shiftwidth in this file
+  * github actions: minor reorg
+  * github actions: bump actions/checkout version
+  * dch: add note that uploads are sponsored by Petter Reinholdtsen
+
+ -- Peter C. Wallace <pcw@mesanet.com>  Thu, 16 Feb 2023 20:25:51 -0700
+
 mesaflash (3.4.6-1) unstable; urgency=medium
 
   * Add new Mesa boards: 7C81, 7I96S, 7I92T
