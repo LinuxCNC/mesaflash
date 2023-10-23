@@ -239,6 +239,9 @@ static bob_pin_name_t bob_pin_names[MAX_BOB_NAMES] = {
    {BOB_MX4660_2, {"Output6","NC","NC","NC","NC","NC","NC",
     "Output5","NC","NC","NC","Output3","Output4","Input5","Input6","Input7","Input8"}},
 
+   {BOB_7I75, {"TB3-1","TB2-1","TB3-3","TB2-3","TB3-5","TB2-5","TB3-7","TB2-7","TB3-9","TB2-9",
+    "TB3-11","TB2-11","TB3-13","TB2-13","TB3-15","TB2-15","TB3-17"}},
+
 
 };
 
@@ -285,6 +288,8 @@ static struct {
     { BOB_MX3660, "MX3660"},
     { BOB_MX4660_1, "MX4660-1"},
     { BOB_MX4660_2, "MX4660-2"},
+    { BOB_7I75, "7I75" },
+
     { -1, NULL },
 };
 

@@ -323,6 +323,7 @@ typedef struct {
 # define BOB_MX3660 37
 # define BOB_MX4660_1 38
 # define BOB_MX4660_2 39
+# define BOB_7I75 40
 
 
 
