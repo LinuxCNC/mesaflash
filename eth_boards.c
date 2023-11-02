@@ -683,8 +683,8 @@ void eth_boards_cleanup(board_access_t *access) {
 // Returns 0 if it found one, -1 on failure.
 int eth_boards_scan(board_access_t *access) {
     char addr[16];
-    int i;
-    char *ptr;
+//    int i;
+//    char *ptr;
     int r = 0;
 
     if (access->address == 0) {
@@ -707,25 +707,29 @@ int eth_boards_scan(board_access_t *access) {
         eth_socket_set_dest_ip(access->dev_addr);
         r = eth_scan_one_addr(access);
     } else {
-        strncpy(addr, access->dev_addr, 16);
-        ptr = strrchr(addr, '.');
-        *ptr = '\0';
-
-        // We're scanning for boards, return Success (0) if we find at
-        // least one, return Fail (-1) if we don't find any.
-        r = -1;
-
-        for (i = 1; i < 255; i++) {
-            char addr_name[32];
-            int this_r;
-
-            sprintf(addr_name, "%s.%d", addr, i);
-            eth_socket_set_dest_ip(addr_name);
-            this_r = eth_scan_one_addr(access);
-            if (this_r == 0) {
-                r = 0;
-            }
-        }
+// did this scanning ever work?
+// remove for now and complain about missing IP address  
+//       strncpy(addr, access->dev_addr, 16);
+//        ptr = strrchr(addr, '.');
+//        *ptr = '\0';
+//
+//        // We're scanning for boards, return Success (0) if we find at
+//        // least one, return Fail (-1) if we don't find any.
+//        r = -1;
+//
+//        for (i = 1; i < 255; i++) {
+//            char addr_name[32];
+//            int this_r;
+//
+//            sprintf(addr_name, "%s.%d", addr, i);
+//            eth_socket_set_dest_ip(addr_name);
+//            this_r = eth_scan_one_addr(access);
+//            if (this_r == 0) {
+//            r = 0;
+//            }            
+//        }
+        r= -1;
+        printf("You must supply an IP address for Ethernet cards\n");
     }
     eth_socket_blocking();
     return r;
