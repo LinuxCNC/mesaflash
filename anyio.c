@@ -125,6 +125,7 @@ int anyio_find_dev(board_access_t *access) {
 
     if (supported_board == NULL) {
         printf("ERROR: Unsupported device %s\n", access->device_name);
+        anyio_print_supported_board_names();
         return -1;
     }
 
@@ -446,3 +447,13 @@ void anyio_bitfile_print_info(char *bitfile_name, int verbose_flag) {
     print_bitfile_header(fp, (char*) &part_name, verbose_flag);
     fclose(fp);
 }
+
+void anyio_print_supported_board_names() {
+    printf("Supported card names are:\n");
+    for (size_t i=0; supported_boards[i].name != NULL; i++) {
+        printf("%10s,",supported_boards[i].name);
+        if ((((i+1) % 6) == 0) & (i != 0)) { printf("\n"); };
+    }   
+    printf("\n");     
+}
+

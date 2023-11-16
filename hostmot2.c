@@ -865,3 +865,4 @@ void hm2_print_bob_hint_names() {
     }
     printf("\n");
 }
+

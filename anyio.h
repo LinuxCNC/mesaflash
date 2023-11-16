@@ -43,5 +43,6 @@ void anyio_dev_print_pin_descriptors(board_t *board);
 void anyio_dev_print_localio_descriptors(board_t *board);
 void anyio_dev_print_sserial_info(board_t *board);
 void anyio_bitfile_print_info(char *bitfile_name, int verbose_flag);
+void anyio_print_supported_board_names();
 
 #endif
