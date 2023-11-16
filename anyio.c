@@ -119,8 +119,7 @@ int anyio_find_dev(board_access_t *access) {
     }
 
     for (i = 0; supported_boards[i].name != NULL; i++) {
-//        if (strncmp(supported_boards[i].name, access->device_name, strlen(supported_boards[i].name)) == 0) { // fails to reject bogus names
-        if (strncmp(supported_boards[i].name, access->device_name, strlen(access->device_name)) == 0) {
+        if (strncmp(supported_boards[i].name, access->device_name, strlen(supported_boards[i].name)) == 0) { 
             supported_board = &supported_boards[i];
             break;
         }
