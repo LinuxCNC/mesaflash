@@ -32,7 +32,7 @@
 #endif
 
 #ifndef VERSION
-#define VERSION "3.5.5"
+#define VERSION "3.5.6"
 #endif
 
 static int device_flag;
@@ -66,6 +66,8 @@ static u32 wpo_data;
 static int set_flag;
 static int ipaddr_flag;
 static int ledmode_flag;
+static int enable_all_mod_flag;
+static int safe_io_flag;
 static int xml_flag;
 static char *lbp16_set_ip_addr;
 static char *lbp16_set_led_mode;
@@ -103,6 +105,8 @@ static struct option long_options[] = {
     {"serial", no_argument, &serial_flag, 1},
     {"rpo", required_argument, 0, 'r'},
     {"wpo", required_argument, 0, 'o'},
+    {"enable-all-mod", no_argument, &enable_all_mod_flag, 1},
+    {"safe-io", no_argument, &safe_io_flag, 1},
     {"set", required_argument, 0, 's'},
     {"xml", no_argument, &xml_flag, 1},
     {"dbname1", required_argument, NULL, '1'},
@@ -209,6 +213,9 @@ void print_usage() {
     printf("                    Ethernet boards).\n");
     printf("  --set ledmode=n   Set LED mode in EEPROM memory to n, 0 = Hostmot2, 1=Debug\n");
     printf("                    Default debug is RX packet count. (Only Ethernet boards).\n");
+    printf("  --enable-all-mod  Enable all module outputs. For low level debugging\n");
+    printf("                    Note that this is NOT safe for cards connected to equipment\n");
+    printf("  --safe-io  	Return all I/O to default power up state\n");
     printf("  --info            Print info about configuration in 'filename'.\n");
     printf("  --version         Print the version.\n");
     printf("  --help            Print this help message.\n");
@@ -430,7 +437,7 @@ int process_cmd_line(int argc, char *argv[]) {
                 info_flag++;
             }
             break;
-
+ 
             case 'h': {
                 print_usage();
                 exit(0);
@@ -541,6 +548,10 @@ int main(int argc, char *argv[]) {
                 ret = anyio_dev_set_remote_ip(board, lbp16_set_ip_addr);
         } else if (ledmode_flag == 1) {
                 ret = anyio_dev_set_led_mode(board, lbp16_set_led_mode);                
+        } else if (enable_all_mod_flag == 1) {
+                anyio_dev_enable_all_module_outputs(board);                
+        } else if (safe_io_flag == 1) {
+                anyio_dev_safe_io(board);                
         } else if (write_flag == 1) {
             ret = anyio_dev_write_flash(board, bitfile_name, fallback_flag, fix_boot_flag, sha256_check_flag);
             if (ret == 0) {

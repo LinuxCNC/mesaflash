@@ -459,3 +459,20 @@ void anyio_print_supported_board_names() {
     printf("\n");     
 }
 
+void anyio_dev_enable_all_module_outputs(board_t *board) {
+    if (board == NULL) {
+        return;
+    }
+    hm2_read_idrom(&(board->llio.hm2));
+    hm2_enable_all_module_outputs(&(board->llio.hm2));
+}
+
+void anyio_dev_safe_io(board_t *board) {
+    if (board == NULL) {
+        return;
+    }
+    hm2_read_idrom(&(board->llio.hm2));
+    hm2_safe_io(&(board->llio.hm2));
+}
+
+

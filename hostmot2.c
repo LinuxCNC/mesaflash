@@ -59,6 +59,10 @@ hm2_module_desc_t *hm2_find_module(hostmot2_t *hm2, u8 gtag) {
     return NULL;
 }
 
+// Note, this pin source function fails as the alt src register is not readable
+// so it ends up enabling all alt src on Xilinx and disabling all but the last on 
+// Efinix because non-readable pins read as 1 on Xilinx and 0 on Efinix) 
+// probably best fixed with a altsrc shadow register, later...
 void hm2_set_pin_source(hostmot2_t *hm2, u32 pin_number, u8 source) {
     u32 data;
     u16 addr;
@@ -74,16 +78,16 @@ void hm2_set_pin_source(hostmot2_t *hm2, u32 pin_number, u8 source) {
     }
 
     addr = md->base_address;
-    hm2->llio->read(hm2->llio, addr + HM2_MOD_OFFS_GPIO_ALT_SOURCE + (pin_number / 24)*4, &data, sizeof(data));
+    hm2->llio->read(hm2->llio, addr + HM2_MOD_OFFS_GPIO_ALT_SOURCE + (pin_number / hm2->idrom.io_width)*4, &data, sizeof(data));
     if (source == HM2_PIN_SOURCE_IS_PRIMARY) {
         data &= ~(1 << (pin_number % 24));
     } else if (source == HM2_PIN_SOURCE_IS_SECONDARY) {
-        data |= (1 << (pin_number % 24));
+        data |= (1 << (pin_number % hm2->idrom.io_width));
     } else {
         printf("hm2_set_pin_source(): invalid pin source 0x%02X\n", source);
         return;
     }
-    hm2->llio->write(hm2->llio, addr + HM2_MOD_OFFS_GPIO_ALT_SOURCE + (pin_number / 24)*4, &data, sizeof(data));
+    hm2->llio->write(hm2->llio, addr + HM2_MOD_OFFS_GPIO_ALT_SOURCE + (pin_number / hm2->idrom.io_width)*4, &data, sizeof(data));
 }
 
 void hm2_set_pin_direction(hostmot2_t *hm2, u32 pin_number, u8 direction) {
@@ -95,22 +99,54 @@ void hm2_set_pin_direction(hostmot2_t *hm2, u32 pin_number, u8 direction) {
         printf("hm2_set_pin_direction(): no IOPORT module found\n");
         return;
     }
-    if (pin_number >= (hm2->idrom.io_ports*hm2->idrom.io_width)) {
+    if (pin_number >= (hm2->idrom.io_ports*hm2->idrom.port_width)) {
         printf("hm2_set_pin_direction(): invalid pin number %d\n", pin_number);
         return;
     }
 
     addr = md->base_address;
-    hm2->llio->read(hm2->llio, addr + HM2_MOD_OFFS_GPIO_DDR + (pin_number / 24)*4, &data, sizeof(data));
+    hm2->llio->read(hm2->llio, addr + HM2_MOD_OFFS_GPIO_DDR + (pin_number / hm2->idrom.port_width)*4, &data, sizeof(data));
     if (direction == HM2_PIN_DIR_IS_INPUT) {
-        data &= ~(1 << (pin_number % 24));
+        data &= ~(1 << (pin_number % hm2->idrom.port_width));
     } else if (direction == HM2_PIN_DIR_IS_OUTPUT) {
-        data |= (1 << (pin_number % 24));
+        data |= (1 << (pin_number % hm2->idrom.port_width));
     } else {
         printf("hm2_set_pin_direction(): invalid pin direction 0x%02X\n", direction);
         return;
     }
-    hm2->llio->write(hm2->llio, addr + HM2_MOD_OFFS_GPIO_DDR + (pin_number / 24)*4, &data, sizeof(data));
+    hm2->llio->write(hm2->llio, addr + HM2_MOD_OFFS_GPIO_DDR + (pin_number / hm2->idrom.port_width)*4, &data, sizeof(data));
+}
+
+void hm2_enable_all_module_outputs(hostmot2_t *hm2) {
+    int num_pins;
+    u32 data =0xFFFFFFFF;
+    u16 addr;
+    // We write all alt src registers to 1's as this is a no-op on inputs so not harmfull
+    hm2_module_desc_t *md = hm2_find_module(hm2, HM2_GTAG_IOPORT);
+    addr = md->base_address;	
+    for (u32 i = 0; i < hm2->llio->hm2.idrom.io_ports; i ++) {  
+        hm2->llio->write(hm2->llio, addr + HM2_MOD_OFFS_GPIO_ALT_SOURCE + i*4, &data, sizeof(data));
+    }
+    num_pins = hm2->llio->hm2.idrom.io_ports * hm2->llio->hm2.idrom.port_width;
+    
+    for (int i = 0; i < num_pins; i ++) {
+        hm2_pin_desc_t *pd = &hm2->llio->hm2.pins[i];
+        if (pd->sec_pin & 0x80) {
+            hm2_set_pin_direction(hm2, i, HM2_PIN_DIR_IS_OUTPUT);
+        }
+    }
+}
+
+void hm2_safe_io(hostmot2_t *hm2) {
+    u32 data =0x00000000;
+    u16 addr;
+    // We write all alt src registers and DDR registers to 0 which is the startup I/O state
+    hm2_module_desc_t *md = hm2_find_module(hm2, HM2_GTAG_IOPORT);
+    addr = md->base_address;	
+    for (u32 i = 0; i < hm2->llio->hm2.idrom.io_ports; i ++) {  
+        hm2->llio->write(hm2->llio, addr + HM2_MOD_OFFS_GPIO_ALT_SOURCE + i*4, &data, sizeof(data));
+        hm2->llio->write(hm2->llio, addr +  HM2_MOD_OFFS_GPIO_DDR + i*4, &data, sizeof(data));
+    }
 }
 
 // PIN FILE GENERATING SUPPORT
