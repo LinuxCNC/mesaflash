@@ -215,7 +215,7 @@ void print_usage() {
     printf("                    Default debug is RX packet count. (Only Ethernet boards).\n");
     printf("  --enable-all-mod  Enable all module outputs. For low level debugging\n");
     printf("                    Note that this is NOT safe for cards connected to equipment\n");
-    printf("  --safe-io  	Return all I/O to default power up state\n");
+    printf("  --safe-io         Return all I/O to default power up state\n");
     printf("  --info            Print info about configuration in 'filename'.\n");
     printf("  --version         Print the version.\n");
     printf("  --help            Print this help message.\n");
