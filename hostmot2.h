@@ -37,7 +37,7 @@ typedef struct {
 } sserial_device_t;
 
 #define HM2_MAX_TAGS     255
-#define MAX_BOB_NAMES 40
+#define MAX_BOB_NAMES 41
 #define ANYIO_MAX_IOPORT_CONNECTORS 8
 
 typedef struct llio_struct llio_t;
