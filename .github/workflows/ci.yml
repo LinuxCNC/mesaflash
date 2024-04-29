@@ -42,6 +42,7 @@ jobs:
 
   test-package:
     strategy:
+      fail-fast: false
       matrix:
         os: ["buster", "bullseye", "testing", "unstable"]
         cpu: ["i386", "amd64", "armhf", "aarch64"]
