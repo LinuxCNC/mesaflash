@@ -1,5 +1,12 @@
 #!/usr/bin/make -f
+include /usr/share/dpkg/architecture.mk
+DPKG_EXPORT_BUILDTOOLS=1
+include /usr/share/dpkg/buildtools.mk
 include /usr/share/dpkg/pkg-info.mk
+
+# Makefile uses uname, which is wrong for cross builds.
+MESAFLASH_IO:=$(if $(wildcard /usr/include/$(DEB_HOST_MULTIARCH)/asm/io.h),1,0)
+export MESAFLASH_IO
 
 %:
 	dh $@
