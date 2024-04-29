@@ -68,7 +68,7 @@ jobs:
         head debian/changelog
 
     - name: Build Debian package
-      uses: dawidd6/action-debian-package@v1
+      uses: dawidd6/action-debian-package@v1.6.0
       with:
         source_directory: .
         artifacts_directory: output
@@ -76,7 +76,7 @@ jobs:
         cpu_architecture: ${{ matrix.cpu }}
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         path: output
         name: debs-${{ matrix.os }}-${{ matrix.cpu }}
