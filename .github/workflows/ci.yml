@@ -17,7 +17,7 @@ jobs:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       run: echo "$GITHUB_CONTEXT"
 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Install deps
       run: |
@@ -42,12 +42,13 @@ jobs:
 
   test-package:
     strategy:
+      fail-fast: false
       matrix:
-        os: ["buster", "bullseye", "testing", "unstable"]
+        os: ["buster", "bullseye", "stable", "testing", "unstable"]
         cpu: ["i386", "amd64", "armhf", "aarch64"]
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
@@ -67,7 +68,7 @@ jobs:
         head debian/changelog
 
     - name: Build Debian package
-      uses: dawidd6/action-debian-package@v1
+      uses: dawidd6/action-debian-package@v1.6.0
       with:
         source_directory: .
         artifacts_directory: output
@@ -75,7 +76,7 @@ jobs:
         cpu_architecture: ${{ matrix.cpu }}
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         path: output
         name: debs-${{ matrix.os }}-${{ matrix.cpu }}

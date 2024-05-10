@@ -25,6 +25,7 @@ CC = gcc
 RM = rm -f
 AR = ar
 RANLIB = ranlib
+PKG_CONFIG ?= pkg-config
 
 OWNERSHIP ?= --owner root --group root
 
@@ -46,25 +47,25 @@ CFLAGS ?= -O0 -g -Wall -Wextra -Werror
 CFLAGS += -std=c99
 
 ifeq ($(TARGET),linux)
-    $(shell which pkg-config > /dev/null)
+    $(shell which $(PKG_CONFIG) > /dev/null)
     ifeq ($(.SHELLSTATUS), 1)
         $(error "can't find pkg-config")
     endif
 
-    $(shell pkg-config --exists libpci > /dev/null)
+    $(shell $(PKG_CONFIG) --exists libpci > /dev/null)
     ifeq ($(.SHELLSTATUS), 1)
         $(error "pkg-config can't find libpci")
     endif
 
-    $(shell pkg-config --exists libmd > /dev/null)
+    $(shell $(PKG_CONFIG) --exists libmd > /dev/null)
     ifeq ($(.SHELLSTATUS), 1)
         $(error "pkg-config can't find libmd")
     endif
 
-    LIBPCI_CFLAGS := $(shell pkg-config --cflags libpci)
-    LIBPCI_LDFLAGS := $(shell pkg-config --libs libpci)
-    LIBMD_CFLAGS := $(shell pkg-config --cflags libmd)
-    LIBMD_LDFLAGS := $(shell pkg-config --libs libmd)
+    LIBPCI_CFLAGS := $(shell $(PKG_CONFIG) --cflags libpci)
+    LIBPCI_LDFLAGS := $(shell $(PKG_CONFIG) --libs libpci)
+    LIBMD_CFLAGS := $(shell $(PKG_CONFIG) --cflags libmd)
+    LIBMD_LDFLAGS := $(shell $(PKG_CONFIG) --libs libmd)
     BIN = mesaflash
     LDFLAGS = -lm $(LIBPCI_LDFLAGS) $(LIBMD_LDFLAGS)
     CFLAGS += -D_GNU_SOURCE $(LIBPCI_CFLAGS) $(LIBMD_CFLAGS) -D_FILE_OFFSET_BITS=64
