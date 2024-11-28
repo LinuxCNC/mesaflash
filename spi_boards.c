@@ -98,13 +98,17 @@ int spi_boards_init(board_access_t *access) {
     }
     spidev_set_lsb_first(sd, false);
     spidev_set_mode(sd, 0);
-    if (spidev_set_bits_per_word(sd, settings.bits_per_word) < 0)
-    {
-        fprintf(stderr,"unable to set bpw32, fallback to bpw8\n");
+    // Either the following test fails on SPI5 or theres an issue with 32 bit SPI access
+    // so... disable 32 bit access for now.
+    // The cost of forcing 8 bit access is minor as it only slows flashing/verification.
+    // So, for now, just force 8 bit access for everyone.
+    // if ((spidev_set_bits_per_word(sd, settings.bits_per_word) < 0)
+    // {
+    //    fprintf(stderr,"unable to set bpw32, fallback to bpw8\n");
         canDo32 = false;
         settings.bits_per_word = 8;
         spidev_set_bits_per_word(sd, settings.bits_per_word);        
-    }
+    // }
     spidev_set_max_speed_hz(sd, settings.speed_hz);
 
     return 0;
