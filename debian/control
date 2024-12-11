@@ -8,6 +8,7 @@ Build-Depends: debhelper (>= 9),
                libpci-dev,
                libmd-dev,
                pkg-config
+Rules-Requires-Root: binary-targets
 Homepage: https://github.com/LinuxCNC/mesaflash
 Vcs-Browser: https://github.com/linuxcnc/mesaflash
 Vcs-Git: https://github.com/LinuxCNC/mesaflash.git -b master
