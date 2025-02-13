@@ -32,7 +32,7 @@
 #endif
 
 #ifndef VERSION
-#define VERSION "3.5.10"
+#define VERSION "3.5.11"
 #endif
 
 static int device_flag;

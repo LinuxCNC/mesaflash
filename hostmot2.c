@@ -281,6 +281,9 @@ static bob_pin_name_t bob_pin_names[MAX_BOB_NAMES] = {
    {BOB_BENEZAN, {"Spindle/PWM/Relay1","Relay2","X-Dir","4th-Axis-Limit","X-Step","WD/Current-Reduce","Y-Dir",
     "PWM/Current-Reduce","Y-Step","Z-Dir","Z-Step","4th-Axis-Dir","4th-axis-Step","Z-Limit","EStop","Y-Limit","X-Limit"}},
 
+   {BOB_HDR26, {"1","2","3","4","5","6","7","8",
+    "9","11","13","15","17","19","21","23","25"}},
+
 };
 
 static struct {
@@ -328,6 +331,7 @@ static struct {
     { BOB_MX4660_2, "MX4660-2"},
     { BOB_7I75, "7I75" },
     { BOB_BENEZAN, "BENEZAN" },
+    { BOB_HDR26, "HDR26" },
 
     { -1, NULL },
 };
