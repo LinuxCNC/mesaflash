@@ -21,10 +21,17 @@ TARGET = linux
 LIBNAME = libanyio
 LIBANYIO = $(LIBNAME).a
 
-CC = gcc
+ifneq ($(LLVM),)
+    CC = clang
+    AR = llvm-ar
+    RANLIB = llvm-ranlib
+else
+    CC = gcc
+    AR = ar
+    RANLIB = ranlib
+endif
+
 RM = rm -f
-AR = ar
-RANLIB = ranlib
 PKG_CONFIG ?= pkg-config
 
 OWNERSHIP ?= --owner root --group root

@@ -32,7 +32,7 @@ static void enable_encoder_pins(hostmot2_t *hm2) {
         if (hm2->pins[i].gtag == HM2_GTAG_NONE) {
             break;
         }
-        if ((hm2->pins[i].sec_tag == HM2_GTAG_MUXED_ENCODER_SEL)) {
+        if (hm2->pins[i].sec_tag == HM2_GTAG_MUXED_ENCODER_SEL) {
             hm2_set_pin_source(hm2, i, HM2_PIN_SOURCE_IS_SECONDARY);
             if (hm2->pins[i].sec_pin & HM2_PIN_OUTPUT) {
                 hm2_set_pin_direction(hm2, i, HM2_PIN_DIR_IS_OUTPUT);
