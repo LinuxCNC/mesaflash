@@ -18,4 +18,6 @@ override_dh_auto_install:
 get-orig-source: $(DEB_SOURCE)_$(DEB_VERSION_UPSTREAM).orig.tar.xz
 
 $(DEB_SOURCE)_$(DEB_VERSION_UPSTREAM).orig.tar.xz:
-	git archive --prefix="mesaflash/" HEAD | xz --compress > $@
+	rm -rf /tmp/mesaflash
+	git archive --prefix="mesaflash/" HEAD | (cd /tmp && tar xf - --exclude="mesaflash/debian")
+	(cd /tmp && tar cJf - mesaflash ) > $@
