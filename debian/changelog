@@ -1,3 +1,9 @@
+mesaflash (3.4.10-1) UNRELEASED; urgency=medium
+
+  * New upstream version.
+
+ -- Andy Pugh <andy@bodgesoc.org>  Mon, 03 Mar 2025 17:30:44 +0100
+
 mesaflash (3.4.9+git20250302-1) unstable; urgency=medium
 
   * Add set ledmode option
