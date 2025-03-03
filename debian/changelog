@@ -3,7 +3,8 @@ mesaflash (3.4.9-1) unstable; urgency=medium
   * Add set ledmode option
   * Add inverted txen pin printout to pktuart and sserial
   * Merge pull request #77 from fangyaling/master
-  * Add check for new arch Loongarch64
+  * Add check for new arch Loongarch64 (Closes: #1081384)
+  * Add patch by Helmut Grohne for cross-builds (Closes: #1070025)
 
  -- Andy Pugh <andy@bodgesoc.org>  Sun, 15 Oct 2023 20:25:51 +0100
 
