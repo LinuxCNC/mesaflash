@@ -15,9 +15,9 @@ override_dh_auto_install:
 	$(MAKE) DESTDIR=$$(pwd)/debian/mesaflash/usr install
 
 .PHONY: get-orig-source
-get-orig-source: $(DEB_SOURCE)_$(DEB_VERSION_UPSTREAM).orig.tar.xz
+get-orig-source: ../$(DEB_SOURCE)_$(DEB_VERSION_UPSTREAM).orig.tar.xz
 
-$(DEB_SOURCE)_$(DEB_VERSION_UPSTREAM).orig.tar.xz:
+../$(DEB_SOURCE)_$(DEB_VERSION_UPSTREAM).orig.tar.xz:
 	rm -rf /tmp/mesaflash
 	git archive --prefix="mesaflash/" HEAD | (cd /tmp && tar xf - --exclude="mesaflash/debian")
 	(cd /tmp && tar cJf - mesaflash ) > $@
