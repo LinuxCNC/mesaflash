@@ -168,8 +168,8 @@ static bob_pin_name_t bob_pin_names[MAX_BOB_NAMES] = {
     "TB4-2,3","TB4-4,5","TB4-8,9","TB4-10,11","TB2-14,15","TB4-16,17","Internal","TB4-20,21","TB4-22,23","Internal",
     "TB1-1,2,9,10","TB1-4,5,12,13","TB1-7,8,15,16","TB1-17,18 TB2-1,2","TB1-20,21 TB2-4,5","TB1-23,24,TB2-7,8",
     "TB2-9,10,17,18","TB2-11,12,20,21","TB2-15,16,23,24","Internal","Internal"}},
-   {BOB_7I95_1, {"Internal","Internal","Internal","Internal","Internal","TB3-13,14","TB3-15,16","TB3-17,18",
-    "TB3-19,20","TB3-21,22","TB3-23,24","Internal","P1-01/DB25-01","P1-02/DB25-14","P1-03/DB25-02","P1-04/DB25-15",
+   {BOB_7I95_1, {"Internal","Internal","Internal","Internal","Internal","TB5-13,14","TB5-15,16","TB5-17,18",
+    "TB5-19,20","TB5-21,22","TB5-23,24","Internal","P1-01/DB25-01","P1-02/DB25-14","P1-03/DB25-02","P1-04/DB25-15",
     "P1-05/DB25-03","P1-06/DB25-16","P1-07/DB25-04","P1-08/DB25-17","P1-09/DB25-05","P1-11/DB25-06","P1-13/DB25-07",
     "P1-15/DB25-08","P1-17/DB25-09","P1-19/DB25-10","P1-21/DB25-11","P1-23/DB25-12","P1-25/DB25-13"}},
 
