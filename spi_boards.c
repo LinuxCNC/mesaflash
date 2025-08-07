@@ -257,7 +257,7 @@ void spi_boards_scan(board_access_t *access) {
         board_t *board = &boards[boards_count];
         board->type = BOARD_SPI;
         strcpy(board->dev_addr, access->dev_addr);
-        strcpy(board->llio.board_name, "7I90");
+        strcpy(board->llio.board_name, "7I90HD");
         board->llio.num_ioport_connectors = 3;
         board->llio.pins_per_connector = 24;
         board->llio.ioport_connector_name[0] = "P1";
