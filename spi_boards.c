@@ -257,7 +257,7 @@ void spi_boards_scan(board_access_t *access) {
         board_t *board = &boards[boards_count];
         board->type = BOARD_SPI;
         strcpy(board->dev_addr, access->dev_addr);
-        strcpy(board->llio.board_name, "7I90HD");
+        strcpy(board->llio.board_name, "7I90");
         board->llio.num_ioport_connectors = 3;
         board->llio.pins_per_connector = 24;
         board->llio.ioport_connector_name[0] = "P1";
@@ -269,6 +269,8 @@ void spi_boards_scan(board_access_t *access) {
         board->llio.read = spi_read;
         board->llio.write_flash = local_write_flash;
         board->llio.verify_flash = local_verify_flash;
+        board->llio.backup_flash = &local_backup_flash; 
+        board->llio.restore_flash = &local_restore_flash;
         board->llio.reload = &spi_board_reload;
         board->llio.fpga_part_number = "6slx9tqg144";
         board->open = spi_board_open;
@@ -294,6 +296,8 @@ void spi_boards_scan(board_access_t *access) {
         board->llio.read = spi_read;
         board->llio.write_flash = local_write_flash;
         board->llio.verify_flash = local_verify_flash;
+        board->llio.backup_flash = &local_backup_flash; 
+        board->llio.restore_flash = &local_restore_flash;
         board->llio.reload = &spi_board_reload;
         board->llio.fpga_part_number = "6slx9tqg144";
         board->open = spi_board_open;
@@ -321,6 +325,8 @@ void spi_boards_scan(board_access_t *access) {
         board->llio.read = spi_read;
         board->llio.write_flash = local_write_flash;
         board->llio.verify_flash = local_verify_flash;
+        board->llio.backup_flash = &local_backup_flash; 
+        board->llio.restore_flash = &local_restore_flash;
         board->llio.reload = &spi_board_reload;
         board->llio.fpga_part_number = "6slx9tqg144";
         board->open = spi_board_open;
