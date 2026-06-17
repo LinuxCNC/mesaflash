@@ -8,39 +8,34 @@ latest release of the Debian Policy.
 Steps
 -----
 
-1. Generate the source tarball
+0. Ensure you have checked out the exact version of LinuxCNC
+   that shall be uploaded. The source tarball will be generated
+   from your local directory.
+
+1. Generate the source tarball (placed in directory ..)
 
    debian/rules get-orig-source
 
-2. Prepare shell to work in temp directory
+2. Update debian/changelog
 
-   export WORKDIR=$(mktemp -d)
-   mv mesaflash_*.orig.tar.xz ${WORKDIR}/
-   bash
-   cd $WORKDIR
+   dch --newversion $(basename $(git tag|grep release|tail -n1))
 
-2. Unpack
+   or edit it manually.
 
-   tar xJvf mesaflash_*.orig.tar.xz
+3. Slightly adapt for unstable - upstream debian repository is backward compatible
 
-3. Slightly adapt for unstable
-
-   bash
-   cd $WORKDIR/mesaflash
    rm debian/compat
    sed -i 's/debhelper .*,/debhelper-compat (= 13),/' debian/control
-   sed -i '/^Standards-Version: /s/ [0-9.]*/ 4.6.0/' debian/control
+   sed -i '/^Standards-Version: /s/ [0-9.]*/ 4.7.2/' debian/control
    sed -i '1s/ stable;/ unstable;/' debian/changelog
 
 4. build Debian package
 
    dpkg-buildpackage
 
-5. get all the files just created
+5. Fix lintian errors.
 
-   exit
-   mv ${WORKDIR}/mesaflash_* ..
-
+6. Prepare a pull request for your debian/changelog and what you find important.
 
 Above sketched differences are not impeding routine workflows of Debian
 packaging. For instance we found that the tool routine-update (from the
