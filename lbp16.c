@@ -96,7 +96,6 @@ int lbp16_board_reload(llio_t *self, int fallback_flag) {
     board_t *board = self->board;
     u32 boot_addr;
     u16 fw_ver;
-    lbp16_cmd_addr_data16 packet[14];
     lbp16_cmd_addr fw_packet;
 
     LBP16_INIT_PACKET4(fw_packet, CMD_READ_BOARD_INFO_ADDR16(1), offsetof(lbp_info_area, firmware_version));
@@ -112,6 +111,8 @@ int lbp16_board_reload(llio_t *self, int fallback_flag) {
     }
 
     if (board->fpga_type == FPGA_TYPE_EFINIX) {
+        lbp16_cmd_addr_data16 packet[2];
+        // Send only the image-select/enable and start records.
 // Efinix config register instructions
         if (fallback_flag == 1) {
             LBP16_INIT_PACKET6(packet[0], CMD_WRITE_COMM_CTRL_ADDR16(1), 0x1E, 0x0004);   // image number 0 + config enable 
@@ -122,6 +123,7 @@ int lbp16_board_reload(llio_t *self, int fallback_flag) {
         }
         lbp16_send_packet_checked(&packet, sizeof(packet));
     } else  {   
+        lbp16_cmd_addr_data16 packet[14];
 // Xilinx ICAP instructions
         if (fallback_flag == 1) {
             boot_addr = 0x10000;
