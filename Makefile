@@ -219,8 +219,15 @@ pci_analog_write.o : examples/pci_analog_write.c $(LIBANYIO) $(headers)
 pci_analog_write: pci_analog_write.o anyio.h sserial_module.h
 	$(CC) $(CFLAGS) -o pci_analog_write pci_analog_write.o $(LIBANYIO) $(LDFLAGS)
 
+tests/test_lbp16_reload: tests/test_lbp16_reload.c lbp16.c $(headers)
+	$(CC) $(CFLAGS) -I. -o $@ tests/test_lbp16_reload.c lbp16.c
+
+.PHONY: check
+check: tests/test_lbp16_reload
+	./tests/test_lbp16_reload
+
 clean :
-	$(RM) *.o $(LIBANYIO) $(BIN) pci_encoder_read pci_analog_write
+	$(RM) *.o $(LIBANYIO) $(BIN) pci_encoder_read pci_analog_write tests/test_lbp16_reload
 
 .PHONY: install
 install: $(BIN)

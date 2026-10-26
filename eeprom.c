@@ -425,6 +425,12 @@ int eeprom_verify(llio_t *self, char *bitfile_name, u32 start_address) {
     return 0;
 }
 
+// A backup is successful only when the data file is fully written and
+// closed and the .sha256 sidecar is fully written and closed. On any
+// failure flash_backup stops reading, removes the data file and any
+// sidecar best-effort so no partial artifact can be mistaken for a
+// completed backup, and returns -1 (mesaflash.c assigns this to ret
+// and returns it as the process exit status).
 int flash_backup(llio_t *self, char *bitfile_name) {
     board_t *board = self->board;
     uint i, page_num;
@@ -480,7 +486,12 @@ int flash_backup(llio_t *self, char *bitfile_name) {
     for (i = 0; i < eeprom_pages; i++) {
         eeprom_access.read_page(self, eeprom_addr, &page_buffer);
 
-        fwrite(&page_buffer, 1, PAGE_SIZE, fp);
+        if (fwrite(&page_buffer, 1, PAGE_SIZE, fp) != PAGE_SIZE) {
+            printf("\nError writing file '%s': %s\n", bitfile_path, strerror(errno));
+            fclose(fp);
+            remove(bitfile_path);
+            return -1;
+        }
         SHA256_Update(&sha256ctx, page_buffer, PAGE_SIZE);
 
         eeprom_addr += PAGE_SIZE;
@@ -492,28 +503,45 @@ int flash_backup(llio_t *self, char *bitfile_name) {
         }
     }
 
-    fclose(fp);
+    if (fclose(fp) != 0) {
+        printf("\nError closing file '%s': %s\n", bitfile_path, strerror(errno));
+        remove(bitfile_path);
+        return -1;
+    }
 
     SHA256_Final(sha256out, &sha256ctx);
     for (i = 0; i < SHA256_DIGEST_LENGTH; i++) {
         sprintf(sha256str + i * 2, "%02x", sha256out[i]);
     }
     printf("\n");
+
+    snprintf(sha256file_path, sizeof(sha256file_path), "%s.sha256", bitfile_path);
+    fp = fopen(sha256file_path, "wt");
+    if (fp == NULL) {
+        printf("Can't create file '%s': %s\n", sha256file_path, strerror(errno));
+        remove(bitfile_path);
+        return -1;
+    }
+    if (fprintf(fp, "%s *./%s\n", sha256str, basename(bitfile_path)) < 0) {
+        printf("Error writing file '%s': %s\n", sha256file_path, strerror(errno));
+        fclose(fp);
+        remove(sha256file_path);
+        remove(bitfile_path);
+        return -1;
+    }
+    if (fclose(fp) != 0) {
+        printf("Error closing file '%s': %s\n", sha256file_path, strerror(errno));
+        remove(sha256file_path);
+        remove(bitfile_path);
+        return -1;
+    }
+
     if (board->llio.verbose == 1) {
         gettimeofday(&tv2, NULL);
         printf("  Backup time: %.2f seconds\n", (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +
          (double) (tv2.tv_sec - tv1.tv_sec));
     }
     printf("FLASH memory backup file '%s' created successfully.\n", bitfile_path);
-
-    snprintf(sha256file_path, sizeof(sha256file_path), "%s.sha256", bitfile_path);
-    fp = fopen(sha256file_path, "wt");
-    if (fp == NULL) {
-        printf("Can't create file '%s': %s\n", sha256file_path, strerror(errno));
-        return -1;
-    }
-    fprintf(fp, "%s *./%s\n", sha256str, basename(bitfile_path));
-    fclose(fp);
     printf("Checksum file '%s' created successfully,\n", sha256file_path);
     printf("sha256: '%s'\n", sha256str);
     return 0;

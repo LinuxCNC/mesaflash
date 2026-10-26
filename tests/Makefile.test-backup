@@ -1,0 +1,33 @@
+# Offline flash backup regression: links the real eeprom.c flash_backup
+# only, with a memory-backed read_page stub and ld --wrap stdio failure
+# injection. No physical transport is linked or called.
+# Run from the project root: make -f tests/Makefile.test-backup check
+
+CC ?= gcc
+PKG_CONFIG ?= pkg-config
+RM = rm -f
+
+LIBMD_CFLAGS := $(shell $(PKG_CONFIG) --cflags libmd 2>/dev/null)
+LIBMD_LIBS := $(shell $(PKG_CONFIG) --libs libmd 2>/dev/null)
+ifeq ($(strip $(LIBMD_LIBS)),)
+LIBMD_LIBS = -lmd
+endif
+
+CFLAGS ?= -O0 -g -Wall -Wextra -Werror
+CFLAGS += -std=c99 -D_GNU_SOURCE -U_FORTIFY_SOURCE -I. $(LIBMD_CFLAGS)
+
+WRAP_LDFLAGS = -Wl,--wrap,fopen -Wl,--wrap,fwrite -Wl,--wrap,fclose -Wl,--wrap,fprintf
+
+TARGET = tests/test_flash_backup
+HEADERS = eeprom.h eeprom_local.h eeprom_remote.h boards.h hostmot2.h hostmot2_def.h bitfile.h types.h
+
+$(TARGET): tests/test_flash_backup.c eeprom.c $(HEADERS)
+	$(CC) $(CFLAGS) -o $@ tests/test_flash_backup.c eeprom.c $(WRAP_LDFLAGS) $(LIBMD_LIBS)
+
+.PHONY: check
+check: $(TARGET)
+	timeout 60 ./$(TARGET)
+
+.PHONY: clean
+clean:
+	$(RM) $(TARGET)
